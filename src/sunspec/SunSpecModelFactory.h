@@ -1,0 +1,9 @@
+#ifndef SUNSPECMODELFACTORY_H
+#define SUNSPECMODELFACTORY_H
+
+
+class SunSpecModelFactory {
+
+};
+
+#endif // SUNSPECMODELFACTORY_H
