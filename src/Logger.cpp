@@ -5,6 +5,7 @@
 #include <magic_enum.hpp>
 
 #include "sunspec/SunSpecMeasuredValue.h"
+#include "sunspec/SunSpecStatsModel.h"
 
 void Logger::init(int& argc, char* argv[]) {
     /* Everything with a verbosity equal or greater than g_stderr_verbosity will be
@@ -40,6 +41,33 @@ std::ostream& operator<<(std::ostream& os, const QString& qstr) {
     return os << qstr.toStdString();
 }
 
+namespace sunspec {
+
+std::ostream& operator<<(std::ostream& os, const sunspec::Model& model) {
+    os << "{";
+    for (auto it = model.values().cbegin(); it != model.values().cend(); ++it) {
+        os << "\"" << magic_enum::enum_name(it->first) << "\":" << it->second;
+        if (std::distance(it, model.values().cend()) > 1) {
+            os << ",";
+        }
+    }
+    os << "}";
+    return os;
+}
+
+template <class T>
+std::ostream& operator<<(std::ostream& os, const sunspec::Block<T>& value) {
+    os << "{";
+    for (auto it = value.data().cbegin(); it != value.data().cend(); ++it) {
+        os << "\"" << magic_enum::enum_name(it->first) << "\":" << it->second;
+        if (std::distance(it, value.data().cend()) > 1) {
+            os << ",";
+        }
+    }
+    os << "}";
+    return os;
+}
+
 template <class T>
 std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     os << "[";
@@ -54,12 +82,11 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     return os;
 }
 
-template <class T>
-std::ostream& operator<<(std::ostream& os, const SunSpecMeasuredValue<T>& value) {
+std::ostream& operator<<(std::ostream& os, const sunspec::StatsModel& model) {
     os << "{";
-    for (auto it = value.data().cbegin(); it != value.data().cend(); ++it) {
+    for (auto it = model.values().cbegin(); it != model.values().cend(); ++it) {
         os << "\"" << magic_enum::enum_name(it->first) << "\":" << it->second;
-        if (std::distance(it, value.data().cend()) > 1) {
+        if (std::distance(it, model.values().cend()) > 1) {
             os << ",";
         }
     }
@@ -67,19 +94,37 @@ std::ostream& operator<<(std::ostream& os, const SunSpecMeasuredValue<T>& value)
     return os;
 }
 
-std::ostream& operator<< (std::ostream& os, const std::map<sunspec::DataPoint, sunspec::DataValue>& values) {
-    os << "{";
-    for (auto it = values.cbegin(); it != values.cend(); ++it) {
-        os << "\"" << magic_enum::enum_name(it->first) << "\":" << it->second;
-        if (std::distance(it, values.cend()) > 1) {
-            os << ",";
-        }
-    }
-    os << "}";
-    return os;
-}
+//std::ostream& operator<< (std::ostream& os, const std::map<sunspec::DataPoint, sunspec::LiveValue>& values) {
+//    os << "{";
+//    for (auto it = values.cbegin(); it != values.cend(); ++it) {
+//        //os << "\"" << magic_enum::enum_name(it->first) << "\":" << it->second;
+//        if (std::distance(it, values.cend()) > 1) {
+//            os << ",";
+//        }
+//    }
+//    os << "}";
+//    return os;
+//}
+//
+//template <class T>
+//std::ostream& operator<<(std::ostream& os, const SunSpecMeasuredValue<T>& value) {
+//    os << "{";
+//    for (auto it = value.data().cbegin(); it != value.data().cend(); ++it) {
+//        os << "\"" << magic_enum::enum_name(it->first) << "\":" << it->second;
+//        if (std::distance(it, value.data().cend()) > 1) {
+//            os << ",";
+//        }
+//    }
+//    os << "}";
+//    return os;
+//}
+//
+//template std::ostream& operator<<(std::ostream& os, const sunspec::SunSpecMeasuredValue<double>& value);
+
+} // namespace sunspec
 
 // Explicit template instantiation
-template std::ostream& operator<<(std::ostream& os, const std::vector<SunSpecMeasuredValue<uint>>& vec);
-template std::ostream& operator<<(std::ostream& os, const SunSpecMeasuredValue<int>& value);
-template std::ostream& operator<<(std::ostream& os, const SunSpecMeasuredValue<uint>& value);
+//template std::ostream& operator<<(std::ostream& os, const SunSpecModel<sunspec::LiveValue>& model);
+//template std::ostream& operator<<(std::ostream& os, const std::vector<sunspec::Block<double>>& vec);
+//template std::ostream& operator<<(std::ostream& os, const std::vector<sunspec::SunSpecMeasuredValue<double>>& vec);
+//template std::ostream& operator<<(std::ostream& os, const sunspec::Block<double>& value);

@@ -2,49 +2,29 @@
 #define SUNSPECMEASUREDVALUE_H
 
 #include <algorithm>
-#include <map>
-#include <ostream>
 
+#include "SunSpecBlock.h"
 #include "SunSpecDataPoint.h"
 
+namespace sunspec {
+
 template <class T>
-class SunSpecMeasuredValue {
+class SunSpecMeasuredValue : public sunspec::Block<T> {
 public:
     SunSpecMeasuredValue() {}
+    SunSpecMeasuredValue(T value);
 
-    SunSpecMeasuredValue(T value) {
-        *this = value;
-    }
+    SunSpecMeasuredValue& operator=(const SunSpecMeasuredValue& other);
+    SunSpecMeasuredValue& operator=(T value);
 
-    SunSpecMeasuredValue& operator=(const SunSpecMeasuredValue& other) {
-        *this = other(sunspec::curr);
-        return *this;
-    }
+    T operator()(sunspec::DataPoint dp) const;
 
-    SunSpecMeasuredValue& operator=(T value) {
-        if (m_values.empty()) {
-            m_values[sunspec::curr] = value;
-            m_values[sunspec::min] = value;
-            m_values[sunspec::max] = value;
-            return *this;
-        }
-
-        m_values[sunspec::curr] = value;
-        m_values[sunspec::min] = std::min(m_values[sunspec::min], value);
-        m_values[sunspec::max] = std::max(m_values[sunspec::max], value);
-        return *this;
-    }
-
-    T operator()(sunspec::DataPoint dp) const {
-        return m_values.at(dp);
-    }
-
-    const std::map<sunspec::DataPoint, T>& data() const {
-        return m_values;
-    }
+    bool isDirty() const;
 
 private:
-    std::map<sunspec::DataPoint, T> m_values;
+    bool m_isDirty = true;
 };
+
+} // namespace sunspec
 
 #endif // SUNSPECMEASUREDVALUE_H

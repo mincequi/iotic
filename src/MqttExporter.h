@@ -3,16 +3,19 @@
 
 #include <qmqtt_client.h>
 
-#include "sunspec/SunSpecModel.h"
-
+namespace sunspec {
+class Model;
+class StatsModel;
 class SunSpecThing;
+}
 
 class MqttExporter : public QObject {
     Q_OBJECT
 public:
     explicit MqttExporter(const std::string& host, uint16_t port = 1883, QObject *parent = nullptr);
 
-    void exportSunSpecModel(SunSpecThing* thing, const SunSpecModel& model);
+    void exportLiveData(const sunspec::SunSpecThing& thing, const sunspec::Model& model);
+    void exportStatsData(const sunspec::SunSpecThing& thing, const sunspec::StatsModel& model);
 
 signals:
 

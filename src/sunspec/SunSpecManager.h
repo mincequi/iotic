@@ -6,6 +6,8 @@
 #include "SunSpecModel.h"
 #include "SunSpecThing.h"
 
+namespace sunspec {
+
 class SunSpecManager : public QObject {
     Q_OBJECT
 public:
@@ -28,21 +30,20 @@ public:
     void addTask(const Task& task);
 
 signals:
-    void thingDiscovered(SunSpecThing*);
-    void thingDisappeared(SunSpecThing*);
+    void thingDiscovered(const sunspec::SunSpecThing&);
+    void thingDisappeared(const sunspec::SunSpecThing&);
 
-    void modelRead(SunSpecThing* thing, const SunSpecModel& model);
+    void modelRead(const SunSpecThing& thing, const sunspec::Model& model);
 
 private:
     void onStartDiscovering();
     void removeThing(SunSpecThing*);
 
-    void onThingStateChanged(SunSpecThing::State state);
+    void onThingStateChanged(sunspec::SunSpecThing::State state);
     void onTimer();
-    void onModelRead(SunSpecThing* thing, uint16_t modelId, uint32_t timestamp, const SunSpecModel& model);
 
-    QList<SunSpecThing*> m_discoveringThings;
-    QMap<std::string, SunSpecThing*> m_discoveredThings;
+    QList<sunspec::SunSpecThing*> m_discoveringThings;
+    QMap<std::string, sunspec::SunSpecThing*> m_discoveredThings;
 
     QList<Task> m_tasks;
 
@@ -51,5 +52,7 @@ private:
 
     QTimer m_discoverTimer;
 };
+
+} // namespace sunspec
 
 #endif // SUNSPECMANAGER_H

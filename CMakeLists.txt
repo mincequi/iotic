@@ -56,18 +56,24 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Network SerialBus REQUIRED)
 
 add_executable(elsewhere
   src/main.cpp
+  src/LiveExporter.cpp
   src/Logger.cpp
   src/MqttExporter.cpp
+  src/Statistics.cpp
   src/Util.cpp
+  src/sunspec/SunSpecBlock.cpp
   src/sunspec/SunSpecCommonModel.cpp
   src/sunspec/SunSpecDataPoint.cpp
   src/sunspec/SunSpecDataValue.cpp
-  src/sunspec/SunSpecInverterModel.cpp
+  src/sunspec/SunSpecInverterModelFactory.cpp
   src/sunspec/SunSpecManager.cpp
+  src/sunspec/SunSpecMeasuredValue.cpp
+  src/sunspec/SunSpecModel.cpp
   src/sunspec/SunSpecModelFactory.cpp
-  src/sunspec/SunSpecMpptInverterExtensionModel.cpp
+  src/sunspec/SunSpecMpptInverterExtensionModelFactory.cpp
+  src/sunspec/SunSpecStatsModel.cpp
   src/sunspec/SunSpecThing.cpp
-  src/sunspec/SunSpecWyeConnectMeterModel.cpp
+  src/sunspec/SunSpecWyeConnectMeterModelFactory.cpp
   ${loguru_SOURCE_DIR}/loguru.cpp
 )
 

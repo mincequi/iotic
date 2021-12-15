@@ -3,7 +3,10 @@
 void SunSpecCommonModel::updateFromBuffer(std::optional<SunSpecCommonModel>& model, const std::vector<uint16_t>& buffer) {
     if (buffer.size() != 68 && buffer.size() != 67) return;
 
-    if (!model) model.emplace(SunSpecCommonModel());
+    if (!model) {
+        model.emplace(SunSpecCommonModel());
+        model->m_modelId = buffer.front();
+    }
 
     model.value().m_manufacturer = readString(buffer.data()+2, 16);
     model.value().m_product = readString(buffer.data()+18, 16);

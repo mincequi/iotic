@@ -1,13 +1,11 @@
-#ifndef SUNSPECMODELFACTORY_H
-#define SUNSPECMODELFACTORY_H
+#ifndef SUNSPECINVERTERMODEL_H
+#define SUNSPECINVERTERMODEL_H
 
-#include <optional>
+#include "SunSpecModel.h"
 
 namespace sunspec {
 
-class Model;
-
-class ModelFactory {
+class InverterModelFactory {
 public:
     static void updateFromBuffer(std::optional<Model>& model,
                                  const std::vector<uint16_t>& buffer,
@@ -16,4 +14,4 @@ public:
 
 } // namespace sunspec
 
-#endif // SUNSPECMODELFACTORY_H
+#endif // SUNSPECINVERTERMODEL_H

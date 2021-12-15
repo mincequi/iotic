@@ -4,8 +4,10 @@
 
 #include <qmqtt_message.h>
 
+#include "Logger.h"
 #include "Util.h"
 #include "sunspec/SunSpecModel.h"
+#include "sunspec/SunSpecStatsModel.h"
 #include "sunspec/SunSpecThing.h"
 
 static quint16 msgId = 0;
@@ -18,21 +20,45 @@ MqttExporter::MqttExporter(const std::string& host, uint16_t port, QObject *pare
     m_client.connectToHost();
 }
 
-void MqttExporter::exportSunSpecModel(SunSpecThing* thing, const SunSpecModel& model) {
+void MqttExporter::exportLiveData(const sunspec::SunSpecThing& thing, const sunspec::Model& model) {
     if (!m_client.isConnectedToHost()) {
         m_client.connectToHost();
     }
 
-    QString topic = "elsewhere/" + util::getMacAddress().toLower() + "/" + QString::fromStdString(thing->sunSpecId());
-    topic += "/live";
+    QString topic = "elsewhere/" + util::getMacAddress().toLower() + "/" + QString::fromStdString(thing.sunSpecId()) + "/"
+                  + QString::number(model.modelId())
+                    + "/live";
+    std::stringstream ss;
+    ss << model;
 
     QMQTT::Message message(++msgId,
                            topic,
-                           "hello world", //QByteArray::fromRawData(reinterpret_cast<const char*>(data.data()), data.size()),
+                           QByteArray::fromStdString(ss.str()),
                            0,
                            true);
 
-    LOG_F(1, "publishing topic: %s, payload size: %zu bytes", topic.toStdString().c_str(), 2);
+    LOG_F(1, "publishing topic: %s, payload size: %zu bytes", topic.toStdString().c_str(), ss.str().size());
+    m_client.publish(message);
+}
+
+void MqttExporter::exportStatsData(const sunspec::SunSpecThing& thing, const sunspec::StatsModel& model) {
+    if (!m_client.isConnectedToHost()) {
+        m_client.connectToHost();
+    }
+
+    QString topic = "elsewhere/" + util::getMacAddress().toLower() + "/" + QString::fromStdString(thing.sunSpecId()) + "/"
+                  + QString::number(model.modelId())
+                    + "/stats";
+    std::stringstream ss;
+    ss << model;
+
+    QMQTT::Message message(++msgId,
+                           topic,
+                           QByteArray::fromStdString(ss.str()),
+                           0,
+                           true);
+
+    LOG_F(1, "publishing topic: %s, payload size: %zu bytes", topic.toStdString().c_str(), ss.str().size());
     m_client.publish(message);
 }
 

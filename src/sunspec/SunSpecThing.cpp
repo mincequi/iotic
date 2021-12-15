@@ -4,6 +4,8 @@
 
 #include "../../src/Logger.h"
 
+namespace sunspec {
+
 SunSpecThing::SunSpecThing(const QString& host, uint16_t port) {
     connect(&m_modbusClient, &QModbusTcpClient::stateChanged, this, &SunSpecThing::onStateChanged);
     connect(&m_modbusClient, &QModbusTcpClient::errorOccurred, this, &SunSpecThing::onErrorOccurred);
@@ -25,15 +27,7 @@ uint8_t SunSpecThing::modbusUnitId() const {
     return m_unitId;
 }
 
-std::string SunSpecThing::sunSpecId() {
-    if (m_sunSpecId.empty() && commonModel) {
-        m_sunSpecId = commonModel.value().manufacturer() + "_" + commonModel.value().product() + "_" + commonModel.value().serial();
-        std::transform(m_sunSpecId.begin(), m_sunSpecId.end(), m_sunSpecId.begin(), [](uchar c) { return std::tolower(c); });
-        std::replace(m_sunSpecId.begin(), m_sunSpecId.end(), ' ', '_');
-        std::replace(m_sunSpecId.begin(), m_sunSpecId.end(), '#', '_');
-        std::replace(m_sunSpecId.begin(), m_sunSpecId.end(), '+', '_');
-    }
-
+std::string SunSpecThing::sunSpecId() const {
     return m_sunSpecId;
 }
 
@@ -280,21 +274,29 @@ void SunSpecThing::onErrorOccurred(QModbusDevice::Error error) {
 void SunSpecThing::parseModel(const std::vector<uint16_t>& buffer, uint32_t timestamp) {
     if (buffer.at(0) == 1) {
         SunSpecCommonModel::updateFromBuffer(commonModel, buffer);
-        //m_commonModel.emplace(*SunSpecCommonModel::fromBuffer(buffer));
+        if (commonModel) {
+            m_sunSpecId = commonModel.value().manufacturer() + "_" + commonModel.value().product() + "_" + commonModel.value().serial();
+            std::transform(m_sunSpecId.begin(), m_sunSpecId.end(), m_sunSpecId.begin(), [](uchar c) { return std::tolower(c); });
+            std::replace(m_sunSpecId.begin(), m_sunSpecId.end(), ' ', '_');
+            std::replace(m_sunSpecId.begin(), m_sunSpecId.end(), '#', '_');
+            std::replace(m_sunSpecId.begin(), m_sunSpecId.end(), '+', '_');
+        }
     } else if (buffer.at(0) == 203) {
-        SunSpecWyeConnectMeterModel::updateFromBuffer(meterModel, buffer, timestamp);
+        sunspec::WyeConnectMeterModelFactory::updateFromBuffer(meterModel, buffer, timestamp);
         if (meterModel) {
             emit modelRead(*meterModel);
         }
     } else if (buffer.at(0) == 160) {
-        SunSpecMpptInverterExtensionModel::updateFromBuffer(inverterExtensionModel, buffer, timestamp);
+        sunspec::MpptInverterExtensionModelFactory::updateFromBuffer(inverterExtensionModel, buffer, timestamp);
         if (inverterExtensionModel) {
             emit modelRead(*inverterExtensionModel);
         }
     } else if (buffer.at(0) == 103) {
-        SunSpecInverterModel::updateFromBuffer(inverterModel, buffer, timestamp);
+        sunspec::InverterModelFactory::updateFromBuffer(inverterModel, buffer, timestamp);
         if (inverterModel) {
             emit modelRead(*inverterModel);
         }
     }
 }
+
+} // namespace sunspec

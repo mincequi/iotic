@@ -5,10 +5,11 @@
 #include <QNetworkInterface>
 #include <QTcpSocket>
 
-#include "SunSpecThing.h"
 #include "../Logger.h"
 
 using namespace std::placeholders;
+
+namespace sunspec {
 
 SunSpecManager::SunSpecManager(QObject *parent) : QObject(parent) {
     m_timer.callOnTimeout(this, &SunSpecManager::onTimer);
@@ -50,12 +51,12 @@ void SunSpecManager::onStartDiscovering() {
             const QString host = subnet + QString::number(i);
             if (std::find_if(m_discoveredThings.begin(),
                              m_discoveredThings.end(),
-                             [&](SunSpecThing* _thing) { return _thing->host() == host; }) != m_discoveredThings.end()) {
+                             [&](sunspec::SunSpecThing* _thing) { return _thing->host() == host; }) != m_discoveredThings.end()) {
                 continue;
             }
-            auto* thing = new SunSpecThing(host);
+            auto* thing = new sunspec::SunSpecThing(host);
             m_discoveringThings.append(thing);
-            thing->connect(thing, &SunSpecThing::stateChanged, this, &SunSpecManager::onThingStateChanged);
+            thing->connect(thing, &sunspec::SunSpecThing::stateChanged, this, &SunSpecManager::onThingStateChanged);
             thing->connectDevice();
         }
     }
@@ -85,8 +86,8 @@ void SunSpecManager::onThingStateChanged(SunSpecThing::State state) {
     case SunSpecThing::State::Connected:
         m_discoveringThings.removeOne(thing);
         m_discoveredThings.insert(thing->sunSpecId(), thing);
-        connect(thing, &SunSpecThing::modelRead, std::bind(&SunSpecManager::modelRead, this, thing, _1));
-        emit thingDiscovered(thing);
+        connect(thing, &SunSpecThing::modelRead, std::bind(&SunSpecManager::modelRead, this, std::ref(*thing), _1));
+        emit thingDiscovered(*thing);
         break;
     }
 }
@@ -123,3 +124,5 @@ bool SunSpecManager::Task::operator==(const Task& other) {
             modelId == other.modelId &&
             interval == other.interval;
 }
+
+} // namespace sunspec

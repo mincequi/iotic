@@ -1,17 +1,29 @@
 #ifndef SUNSPECDATAPOINT_H
 #define SUNSPECDATAPOINT_H
 
+#include <cstdint>
+
 namespace sunspec {
 
-enum DataPoint {
-    curr,
+enum DataPoint : uint8_t {
+    // meta data
+    timestamp,
+
+    // measurement value
+    //curr,
     min,
     max,
-    timestamp,
-    totalActiveAcPower,
 
+    // regular data points
+    totalActiveAcPower,
     totalExportedActiveEnergy,
-    totalImportedActiveEnergy
+    totalImportedActiveEnergy,
+
+    // blocks (collection of data points)
+    dc,
+    current,
+    voltage,
+    power
 };
 
 } // namespace sunspec

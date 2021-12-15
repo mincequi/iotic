@@ -9,19 +9,17 @@
 #include "SunSpecDataPoint.h"
 #include "SunSpecDataValue.h"
 #include "SunSpecMeasuredValue.h"
+#include "SunSpecModel.h"
 
-class SunSpecWyeConnectMeterModel {
+namespace sunspec {
+
+class WyeConnectMeterModelFactory {
 public:
-    static void updateFromBuffer(std::optional<SunSpecWyeConnectMeterModel>& model,
+    static void updateFromBuffer(std::optional<Model>& model,
                                  const std::vector<uint16_t>& buffer,
                                  uint32_t timestamp);
-
-    const std::map<sunspec::DataPoint, sunspec::DataValue>& values() const;
-
-private:
-    SunSpecWyeConnectMeterModel();
-
-    std::map<sunspec::DataPoint, sunspec::DataValue> m_values;
 };
+
+} // namespace sunspec
 
 #endif // SUNSPECWYECONNECTMETERMODEL_H

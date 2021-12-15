@@ -5,7 +5,9 @@
 #include <string>
 #include <vector>
 
-class SunSpecCommonModel {
+#include "SunSpecModel.h"
+
+class SunSpecCommonModel : public sunspec::Model {
 public:
     static void updateFromBuffer(std::optional<SunSpecCommonModel>& model, const std::vector<uint16_t>& buffer);
 

@@ -3,8 +3,13 @@
 
 #include <QModbusTcpClient>
 
-#include "SunSpecModel.h"
 #include "SunSpecCommonModel.h"
+
+#include "SunSpecWyeConnectMeterModelFactory.h"
+#include "SunSpecInverterModelFactory.h"
+#include "SunSpecMpptInverterExtensionModelFactory.h"
+
+namespace sunspec {
 
 class SunSpecThing : public QObject {
     Q_OBJECT
@@ -20,12 +25,12 @@ public:
     QString host() const;
     uint8_t modbusUnitId() const;
 
-    std::string sunSpecId();
+    std::string sunSpecId() const;
 
     std::optional<SunSpecCommonModel> commonModel;
-    std::optional<SunSpecWyeConnectMeterModel> meterModel;
-    std::optional<SunSpecInverterModel> inverterModel;
-    std::optional<SunSpecMpptInverterExtensionModel> inverterExtensionModel;
+    std::optional<sunspec::Model> meterModel;
+    std::optional<sunspec::Model> inverterModel;
+    std::optional<sunspec::Model> inverterExtensionModel;
 
     QList<uint16_t> models() const;
 
@@ -42,7 +47,7 @@ public:
 
 signals:
     void stateChanged(State state);
-    void modelRead(const SunSpecModel& model);
+    void modelRead(const sunspec::Model& model);
 
 private:
     uint8_t nextUnitId();
@@ -74,5 +79,7 @@ private:
     QMap<uint16_t, std::pair<uint16_t, uint16_t>> m_modelAddresses;
     QMap<uint16_t, QVector<uint16_t>> m_blocks;
 };
+
+} // namespace sunspec
 
 #endif // SUNSPECTHING_H

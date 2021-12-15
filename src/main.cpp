@@ -7,12 +7,14 @@
 
 #include "Logger.h"
 #include "MqttExporter.h"
+#include "Statistics.h"
 #include "sunspec/SunSpecManager.h"
 #include "sunspec/SunSpecMeasuredValue.h"
+#include "sunspec/SunSpecModel.h"
 #include "sunspec/SunSpecThing.h"
 
 template <class T>
-QDebug operator<<(QDebug debug, const SunSpecMeasuredValue<T>& value) {
+QDebug operator<<(QDebug debug, const sunspec::SunSpecMeasuredValue<T>& value) {
     QDebugStateSaver saver(debug);
     debug.nospace() << "{ \"curr\": " << value.curr
                     << ", \"min\": " << value.min
@@ -21,6 +23,8 @@ QDebug operator<<(QDebug debug, const SunSpecMeasuredValue<T>& value) {
     return debug;
 }
 
+using namespace sunspec;
+
 int main(int argc, char *argv[]) {
     // Create application instance
     QCoreApplication a(argc, argv);
@@ -28,32 +32,31 @@ int main(int argc, char *argv[]) {
     // Setup logger
     Logger::init(argc, argv);
 
-    // Setup SunSpecManager
-    SunSpecManager mgr;
-    QObject::connect(&mgr, &SunSpecManager::modelRead, [&](SunSpecThing* thing, const SunSpecModel& model) {
-        if (std::holds_alternative<SunSpecWyeConnectMeterModel>(model)) {
-            auto meter = std::get<SunSpecWyeConnectMeterModel>(model);
-            //LOG_S(INFO) << thing->sunSpecId() << "> " << meter.values();
-        } else if (std::holds_alternative<SunSpecMpptInverterExtensionModel>(model)) {
-            auto inv = std::get<SunSpecMpptInverterExtensionModel>(model);
-            //LOG_S(INFO) << thing->sunSpecId() << "> dcPower: " << inv.dcPowers;
-        } else if (std::holds_alternative<SunSpecInverterModel>(model)) {
-            auto inv = std::get<SunSpecInverterModel>(model);
-            LOG_S(INFO) << thing->sunSpecId() << "> " << inv.values();
-        }
+    // Setup Statistics
+    Statistics stats;
+    QObject::connect(&stats, &Statistics::statsChanged, [&](const sunspec::SunSpecThing& thing, const sunspec::StatsModel& model) {
+        LOG_S(INFO) << thing.sunSpecId() << "> stats: " << model;
     });
-    QObject::connect(&mgr, &SunSpecManager::thingDiscovered, [&](SunSpecThing* thing) {
-        LOG_S(INFO) << "thing discovered> host:" << thing->host()
-                    << ", modbusUnitId: " << (uint32_t)thing->modbusUnitId()
-                    << ", sunSpecId: " << thing->sunSpecId();
+
+    // Setup SunSpecManager
+    sunspec::SunSpecManager mgr;
+    QObject::connect(&mgr, &sunspec::SunSpecManager::modelRead, [&](const sunspec::SunSpecThing& thing, const sunspec::Model& model) {
+        LOG_S(INFO) << thing.sunSpecId() << "> " << model;
+        stats.feedModel(thing, model);
+    });
+    QObject::connect(&mgr, &sunspec::SunSpecManager::thingDiscovered, [&](const sunspec::SunSpecThing& thing) {
+        LOG_S(INFO) << "thing discovered> host:" << thing.host()
+                    << ", modbusUnitId: " << (uint32_t)thing.modbusUnitId()
+                    << ", sunSpecId: " << thing.sunSpecId();
     });
 
     // Setup MqttExporter
     MqttExporter mqttExporter("minskomat");
-    QObject::connect(&mgr, &SunSpecManager::modelRead, &mqttExporter, &MqttExporter::exportSunSpecModel);
+    QObject::connect(&mgr, &SunSpecManager::modelRead, &mqttExporter, &MqttExporter::exportLiveData);
+    QObject::connect(&stats, &Statistics::statsChanged, &mqttExporter, &MqttExporter::exportStatsData);
 
     // Some example tasks
-    mgr.addTask({ "elgris_smart_meter_1900042748", SunSpecManager::Task::Op::Read, 203, 1 });
+    mgr.addTask({ "elgris_smart_meter_1900042748", SunSpecManager::Task::Op::Read, 203, 3 });
     mgr.addTask({ "sma_solar_inverter_1980417100", SunSpecManager::Task::Op::Read, 103, 3 });
     mgr.addTask({ "sma_solar_inverter_3006932172", SunSpecManager::Task::Op::Read, 103, 3 });
     mgr.addTask({ "sma_solar_inverter_1980417100", SunSpecManager::Task::Op::Read, 160, 5 });
