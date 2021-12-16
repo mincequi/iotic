@@ -94,37 +94,4 @@ std::ostream& operator<<(std::ostream& os, const sunspec::StatsModel& model) {
     return os;
 }
 
-//std::ostream& operator<< (std::ostream& os, const std::map<sunspec::DataPoint, sunspec::LiveValue>& values) {
-//    os << "{";
-//    for (auto it = values.cbegin(); it != values.cend(); ++it) {
-//        //os << "\"" << magic_enum::enum_name(it->first) << "\":" << it->second;
-//        if (std::distance(it, values.cend()) > 1) {
-//            os << ",";
-//        }
-//    }
-//    os << "}";
-//    return os;
-//}
-//
-//template <class T>
-//std::ostream& operator<<(std::ostream& os, const SunSpecMeasuredValue<T>& value) {
-//    os << "{";
-//    for (auto it = value.data().cbegin(); it != value.data().cend(); ++it) {
-//        os << "\"" << magic_enum::enum_name(it->first) << "\":" << it->second;
-//        if (std::distance(it, value.data().cend()) > 1) {
-//            os << ",";
-//        }
-//    }
-//    os << "}";
-//    return os;
-//}
-//
-//template std::ostream& operator<<(std::ostream& os, const sunspec::SunSpecMeasuredValue<double>& value);
-
 } // namespace sunspec
-
-// Explicit template instantiation
-//template std::ostream& operator<<(std::ostream& os, const SunSpecModel<sunspec::LiveValue>& model);
-//template std::ostream& operator<<(std::ostream& os, const std::vector<sunspec::Block<double>>& vec);
-//template std::ostream& operator<<(std::ostream& os, const std::vector<sunspec::SunSpecMeasuredValue<double>>& vec);
-//template std::ostream& operator<<(std::ostream& os, const sunspec::Block<double>& value);

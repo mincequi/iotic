@@ -1,9 +1,12 @@
 #ifndef SUNSPECMPPTINVERTEREXTENSIONMODEL_H
 #define SUNSPECMPPTINVERTEREXTENSIONMODEL_H
 
-#include "SunSpecModel.h"
+#include <optional>
+#include <vector>
 
 namespace sunspec {
+
+class Model;
 
 class MpptInverterExtensionModelFactory {
 public:

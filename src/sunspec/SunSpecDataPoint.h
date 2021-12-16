@@ -18,6 +18,8 @@ enum DataPoint : uint8_t {
     totalActiveAcPower,
     totalExportedActiveEnergy,
     totalImportedActiveEnergy,
+    operatingState,
+    events,
 
     // blocks (collection of data points)
     dc,

@@ -1,6 +1,7 @@
 #include "SunSpecStatsModel.h"
 
 #include "SunSpecModel.h"
+#include "SunSpecTypes.h"
 
 namespace sunspec {
 
@@ -13,22 +14,7 @@ StatsModel::StatsModel() {
 StatsModel& StatsModel::operator=(const Model& model) {
     m_modelId = model.modelId();
     for (const auto& kv : model.values()) {
-        std::visit(overload {
-                       [&](uint32_t v) { m_values[kv.first] = StatsValue(v); },
-                       [&](int32_t v)  { m_values[kv.first] = SunSpecMeasuredValue<int32_t>(v); },
-                       [&](double v)   { m_values[kv.first] = SunSpecMeasuredValue<double>(v); },
-                       [&](const std::vector<Block<double>>& v) {
-                           auto pOut = std::get_if<std::vector<Block<SunSpecMeasuredValue<double>>>>(&m_values[kv.first]);
-                           if (!pOut) {
-                               m_values[kv.first] = std::vector<Block<SunSpecMeasuredValue<double>>>(v.size());
-                           }
-                           auto& out = std::get<std::vector<Block<SunSpecMeasuredValue<double>>>>(m_values[kv.first]);
-                           out.resize(v.size());
-                           for (size_t i = 0; i < v.size(); ++i) {
-                               out[i] = v[i];
-                           }
-                       }
-                   }, kv.second);
+        m_values[kv.first] = kv.second;
     }
 
     return *this;
@@ -40,13 +26,18 @@ uint16_t StatsModel::modelId() const {
 
 bool StatsModel::isDirty() const {
     for (const auto& kv : m_values) {
+        if (kv.second.isDirty()) {
+            return true;
+        }
         auto isDirty =
                 std::visit(
                     overload{
                         [](uint32_t)    { return false; },
-                        [](SunSpecMeasuredValue<int32_t> v)  { return v.isDirty(); },
-                        [](SunSpecMeasuredValue<double> v)  { return v.isDirty(); },
-                        [](const std::vector<Block<SunSpecMeasuredValue<double>>>& v) {
+                        [](InverterEvents)    { return false; },
+                        [](MeasuredValue<InverterOperatingState> v) { return v.isDirty(); },
+                        [](MeasuredValue<int32_t> v)  { return v.isDirty(); },
+                        [](MeasuredValue<double> v)  { return v.isDirty(); },
+                        [](const std::vector<Block<MeasuredValue<double>>>& v) {
                             for (const auto& b : v) {
                                 for (const auto& kv : b.data()) {
                                     if (kv.second.isDirty()) {

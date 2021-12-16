@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "SunSpecModel.h"
+#include <sunspec/SunSpecModel.h>
 
 class SunSpecCommonModel : public sunspec::Model {
 public:

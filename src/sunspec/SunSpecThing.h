@@ -3,11 +3,7 @@
 
 #include <QModbusTcpClient>
 
-#include "SunSpecCommonModel.h"
-
-#include "SunSpecWyeConnectMeterModelFactory.h"
-#include "SunSpecInverterModelFactory.h"
-#include "SunSpecMpptInverterExtensionModelFactory.h"
+#include <sunspec/models/SunSpecCommonModel.h>
 
 namespace sunspec {
 
@@ -34,8 +30,6 @@ public:
 
     QList<uint16_t> models() const;
 
-    QMap<uint16_t, QVector<uint16_t>> blocks() const;
-
     bool connectDevice();
     void disconnectDevice();
 
@@ -60,14 +54,14 @@ private:
     void onReadModelTable();
     void addModelAddress(uint16_t modelId, uint16_t startAddress, uint16_t length);
 
-    void readBlock(uint16_t address, uint16_t size, uint32_t timestamp);
-    void onReadBlock(uint32_t timestamp);
-    void onReadBlockError(QModbusReply* reply);
+    void readBlock(uint16_t modelId, uint16_t address, uint16_t size, uint32_t timestamp);
+    void onReadBlock(uint16_t modelId, uint32_t timestamp);
+    void onReadBlockError(uint16_t modelId, QModbusReply* reply);
 
     void onStateChanged(QModbusDevice::State state);
     void onErrorOccurred(QModbusDevice::Error error);
 
-    void parseModel(const std::vector<uint16_t>& buffer, uint32_t timestamp);
+    void parseModel(uint16_t modelId, const std::vector<uint16_t>& buffer, uint32_t timestamp);
 
     QModbusTcpClient m_modbusClient;
     uint8_t m_unitId = 0;
@@ -77,7 +71,6 @@ private:
     uint8_t m_timeoutCount = 0;
 
     QMap<uint16_t, std::pair<uint16_t, uint16_t>> m_modelAddresses;
-    QMap<uint16_t, QVector<uint16_t>> m_blocks;
 };
 
 } // namespace sunspec

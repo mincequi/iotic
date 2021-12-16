@@ -1,21 +1,23 @@
 #include "SunSpecMeasuredValue.h"
 
+#include "SunSpecDataValue.h"
+
 namespace sunspec {
 
 template <class T>
-SunSpecMeasuredValue<T>::SunSpecMeasuredValue(T value) {
+MeasuredValue<T>::MeasuredValue(T value) {
     *this = value;
 }
 
 template <class T>
-SunSpecMeasuredValue<T>& SunSpecMeasuredValue<T>::operator=(const SunSpecMeasuredValue& other) {
+MeasuredValue<T>& MeasuredValue<T>::operator=(const MeasuredValue& other) {
     // Other will always be an initial value, so it's ok, to use min here.
     *this = other(sunspec::min);
     return *this;
 }
 
 template <class T>
-SunSpecMeasuredValue<T>& SunSpecMeasuredValue<T>::operator=(T value) {
+MeasuredValue<T>& MeasuredValue<T>::operator=(T value) {
     if (sunspec::Block<T>::m_data.empty()) {
         //sunspec::Block<T>::m_data[sunspec::curr] = value;
         sunspec::Block<T>::m_data[sunspec::min] = value;
@@ -40,17 +42,18 @@ SunSpecMeasuredValue<T>& SunSpecMeasuredValue<T>::operator=(T value) {
 }
 
 template <class T>
-T SunSpecMeasuredValue<T>::operator()(sunspec::DataPoint dp) const {
+T MeasuredValue<T>::operator()(sunspec::DataPoint dp) const {
     return sunspec::Block<T>::m_data.at(dp);
 }
 
 template <class T>
-bool SunSpecMeasuredValue<T>::isDirty() const {
+bool MeasuredValue<T>::isDirty() const {
     return m_isDirty;
 }
 
 // Explicit template instantiation
-template class SunSpecMeasuredValue<int32_t>;
-template class SunSpecMeasuredValue<double>;
+template class MeasuredValue<int32_t>;
+template class MeasuredValue<double>;
+template class MeasuredValue<InverterOperatingState>;
 
 } // namespace sunspec

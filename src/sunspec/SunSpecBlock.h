@@ -11,6 +11,7 @@ template <class T>
 class Block {
 public:
     Block();
+
     template <class U>
     Block(const Block<U>& other);
 

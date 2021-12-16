@@ -1,18 +1,18 @@
 #include "SunSpecCommonModel.h"
 
 void SunSpecCommonModel::updateFromBuffer(std::optional<SunSpecCommonModel>& model, const std::vector<uint16_t>& buffer) {
-    if (buffer.size() != 68 && buffer.size() != 67) return;
+    if (buffer.size() != 66 && buffer.size() != 65) return;
 
     if (!model) {
         model.emplace(SunSpecCommonModel());
-        model->m_modelId = buffer.front();
+        model->m_modelId = 1;
     }
 
-    model.value().m_manufacturer = readString(buffer.data()+2, 16);
-    model.value().m_product = readString(buffer.data()+18, 16);
-    model.value().m_options = readString(buffer.data()+34, 8);
-    model.value().m_version = readString(buffer.data()+42, 8);
-    model.value().m_serial = readString(buffer.data()+50, 16);
+    model.value().m_manufacturer = readString(buffer.data(), 16);
+    model.value().m_product = readString(buffer.data()+16, 16);
+    model.value().m_options = readString(buffer.data()+32, 8);
+    model.value().m_version = readString(buffer.data()+40, 8);
+    model.value().m_serial = readString(buffer.data()+48, 16);
 }
 
 SunSpecCommonModel::SunSpecCommonModel() {

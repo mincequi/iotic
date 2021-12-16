@@ -2,9 +2,9 @@
 
 #include <map>
 
-#include "SunSpecInverterModelFactory.h"
-#include "SunSpecMpptInverterExtensionModelFactory.h"
-#include "SunSpecWyeConnectMeterModelFactory.h"
+#include <sunspec/models/SunSpecInverterModelFactory.h>
+#include <sunspec/models/SunSpecMpptInverterExtensionModelFactory.h>
+#include <sunspec/models/SunSpecWyeConnectMeterModelFactory.h>
 
 namespace sunspec {
 

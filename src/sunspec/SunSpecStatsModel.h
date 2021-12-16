@@ -5,6 +5,7 @@
 
 #include "SunSpecDataPoint.h"
 #include "SunSpecDataValue.h"
+#include "SunSpecTypes.h"
 
 namespace sunspec {
 

@@ -62,23 +62,25 @@ add_executable(elsewhere
   src/Statistics.cpp
   src/Util.cpp
   src/sunspec/SunSpecBlock.cpp
-  src/sunspec/SunSpecCommonModel.cpp
   src/sunspec/SunSpecDataPoint.cpp
   src/sunspec/SunSpecDataValue.cpp
-  src/sunspec/SunSpecInverterModelFactory.cpp
   src/sunspec/SunSpecManager.cpp
   src/sunspec/SunSpecMeasuredValue.cpp
   src/sunspec/SunSpecModel.cpp
   src/sunspec/SunSpecModelFactory.cpp
-  src/sunspec/SunSpecMpptInverterExtensionModelFactory.cpp
   src/sunspec/SunSpecStatsModel.cpp
   src/sunspec/SunSpecThing.cpp
-  src/sunspec/SunSpecWyeConnectMeterModelFactory.cpp
+  src/sunspec/SunSpecTypes.cpp
+  src/sunspec/models/SunSpecCommonModel.cpp
+  src/sunspec/models/SunSpecInverterModelFactory.cpp
+  src/sunspec/models/SunSpecMpptInverterExtensionModelFactory.cpp
+  src/sunspec/models/SunSpecWyeConnectMeterModelFactory.cpp
   ${loguru_SOURCE_DIR}/loguru.cpp
 )
 
 target_include_directories(elsewhere
 PRIVATE
+  src
   ${loguru_SOURCE_DIR}
 )
 

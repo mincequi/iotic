@@ -9,13 +9,13 @@
 namespace sunspec {
 
 template <class T>
-class SunSpecMeasuredValue : public sunspec::Block<T> {
+class MeasuredValue : public sunspec::Block<T> {
 public:
-    SunSpecMeasuredValue() {}
-    SunSpecMeasuredValue(T value);
+    MeasuredValue() {}
+    MeasuredValue(T value);
 
-    SunSpecMeasuredValue& operator=(const SunSpecMeasuredValue& other);
-    SunSpecMeasuredValue& operator=(T value);
+    MeasuredValue& operator=(const MeasuredValue& other);
+    MeasuredValue& operator=(T value);
 
     T operator()(sunspec::DataPoint dp) const;
 

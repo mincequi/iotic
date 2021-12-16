@@ -2,7 +2,11 @@
 
 #include <QVariant>
 
-#include "../../src/Logger.h"
+#include <Logger.h>
+
+#include <sunspec/models/SunSpecWyeConnectMeterModelFactory.h>
+#include <sunspec/models/SunSpecInverterModelFactory.h>
+#include <sunspec/models/SunSpecMpptInverterExtensionModelFactory.h>
 
 namespace sunspec {
 
@@ -35,10 +39,6 @@ QList<uint16_t> SunSpecThing::models() const {
     return m_modelAddresses.keys();
 }
 
-QMap<uint16_t, QVector<uint16_t>> SunSpecThing::blocks() const {
-    return m_blocks;
-}
-
 bool SunSpecThing::connectDevice() {
     return m_modbusClient.connectDevice();
 }
@@ -54,7 +54,7 @@ bool SunSpecThing::isValid() const {
 void SunSpecThing::readModel(uint16_t modelId, uint32_t timestamp) {
     LOG_S(1) << this->sunSpecId() << "> reading model: " << modelId;
     if (m_modelAddresses.count(modelId)) {
-        readBlock(m_modelAddresses[modelId].first, m_modelAddresses[modelId].second, timestamp);
+        readBlock(modelId, m_modelAddresses[modelId].first, m_modelAddresses[modelId].second, timestamp);
     }
 }
 
@@ -157,7 +157,7 @@ void SunSpecThing::onReadHeader() {
                 unit.value(1) == 0x6E53 &&
                 unit.value(2) == 1 &&
                 (unit.value(3) == 65 || unit.value(3) == 66)) {
-            readBlock(40002, 2 + unit.value(3), 0);
+            readBlock(1, 40004, unit.value(3), 0);
             readModelTable(40004 + unit.value(3));
         } else {
             emit stateChanged(State::Failed);
@@ -188,7 +188,7 @@ void SunSpecThing::onReadModelTable() {
         emit stateChanged(State::Failed);
     } else {
         const QModbusDataUnit unit = reply->result();
-        addModelAddress(unit.value(0), unit.startAddress(), unit.value(1) + 2);
+        addModelAddress(unit.value(0), unit.startAddress() + 2, unit.value(1));
         if (unit.value(0) == 0xFFFF) {
             emit stateChanged(State::Connected);
         } else {
@@ -207,12 +207,17 @@ void SunSpecThing::addModelAddress(uint16_t modelId, uint16_t startAddress, uint
 
     // Special handling for SMA solar inverters: we only request first two MPPs
     if (modelId == 160) {
-        length = 50;
+        length = 48;
     }
+    // Tried to tune inverter requests, however reducing amount of registers did not help.
+    /*else if (modelId == 103) {
+        startAddress += 12;
+        length = 2;
+    }*/
     m_modelAddresses[modelId] = { startAddress, length };
 }
 
-void SunSpecThing::readBlock(uint16_t address, uint16_t length, uint32_t timestamp) {
+void SunSpecThing::readBlock(uint16_t modelId, uint16_t address, uint16_t length, uint32_t timestamp) {
     const QModbusDataUnit dataUnit(QModbusDataUnit::HoldingRegisters, address, length);
     auto* reply = m_modbusClient.sendReadRequest(dataUnit, m_unitId);
     if  (!reply) {
@@ -222,30 +227,29 @@ void SunSpecThing::readBlock(uint16_t address, uint16_t length, uint32_t timesta
         emit stateChanged(State::Failed);
     } else {
         LOG_S(1) << sunSpecId() << "> reading block at: " << address;
-        connect(reply, &QModbusReply::finished, this, std::bind(&SunSpecThing::onReadBlock, this, timestamp));
+        connect(reply, &QModbusReply::finished, this, std::bind(&SunSpecThing::onReadBlock, this, modelId, timestamp));
         //connect(reply, &QModbusReply::finished, this, [&]() { onReadBlock(timestamp); });
     }
 }
 
-void SunSpecThing::onReadBlock(uint32_t timestamp) {
+void SunSpecThing::onReadBlock(uint16_t modelId, uint32_t timestamp) {
     auto reply = qobject_cast<QModbusReply*>(sender());
     if (reply->error() != QModbusDevice::NoError) {
-        onReadBlockError(reply);
+        onReadBlockError(modelId, reply);
     } else {
         const QModbusDataUnit unit = reply->result();
-        m_blocks[unit.value(0)] = unit.values().mid(2);
         const auto buffer = unit.values().toStdVector();
-        parseModel(buffer, timestamp);
+        parseModel(modelId, buffer, timestamp);
         m_timeoutCount = 0;
     }
 
     reply->deleteLater();
 }
 
-void SunSpecThing::onReadBlockError(QModbusReply* reply) {
+void SunSpecThing::onReadBlockError(uint16_t modelId, QModbusReply* reply) {
     switch (reply->error()) {
     case QModbusDevice::TimeoutError:
-        LOG_S(WARNING) << sunSpecId() << "> reading block timed out";
+        LOG_S(WARNING) << sunSpecId() << "> time out reading block: " << modelId;
         ++m_timeoutCount;
         // Set device as failed if sunSpecId is empty or it timed out 5 times in a row.
         if (m_timeoutCount > 4 || sunSpecId().empty()) {
@@ -271,8 +275,8 @@ void SunSpecThing::onErrorOccurred(QModbusDevice::Error error) {
     }
 }
 
-void SunSpecThing::parseModel(const std::vector<uint16_t>& buffer, uint32_t timestamp) {
-    if (buffer.at(0) == 1) {
+void SunSpecThing::parseModel(uint16_t modelId, const std::vector<uint16_t>& buffer, uint32_t timestamp) {
+    if (modelId == 1) {
         SunSpecCommonModel::updateFromBuffer(commonModel, buffer);
         if (commonModel) {
             m_sunSpecId = commonModel.value().manufacturer() + "_" + commonModel.value().product() + "_" + commonModel.value().serial();
@@ -281,17 +285,17 @@ void SunSpecThing::parseModel(const std::vector<uint16_t>& buffer, uint32_t time
             std::replace(m_sunSpecId.begin(), m_sunSpecId.end(), '#', '_');
             std::replace(m_sunSpecId.begin(), m_sunSpecId.end(), '+', '_');
         }
-    } else if (buffer.at(0) == 203) {
+    } else if (modelId == 203) {
         sunspec::WyeConnectMeterModelFactory::updateFromBuffer(meterModel, buffer, timestamp);
         if (meterModel) {
             emit modelRead(*meterModel);
         }
-    } else if (buffer.at(0) == 160) {
+    } else if (modelId == 160) {
         sunspec::MpptInverterExtensionModelFactory::updateFromBuffer(inverterExtensionModel, buffer, timestamp);
         if (inverterExtensionModel) {
             emit modelRead(*inverterExtensionModel);
         }
-    } else if (buffer.at(0) == 103) {
+    } else if (modelId == 103) {
         sunspec::InverterModelFactory::updateFromBuffer(inverterModel, buffer, timestamp);
         if (inverterModel) {
             emit modelRead(*inverterModel);

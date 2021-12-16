@@ -6,10 +6,10 @@
 #include <string>
 #include <vector>
 
-#include "SunSpecDataPoint.h"
-#include "SunSpecDataValue.h"
-#include "SunSpecMeasuredValue.h"
-#include "SunSpecModel.h"
+#include <sunspec/SunSpecDataPoint.h>
+#include <sunspec/SunSpecDataValue.h>
+#include <sunspec/SunSpecMeasuredValue.h>
+#include <sunspec/SunSpecModel.h>
 
 namespace sunspec {
 

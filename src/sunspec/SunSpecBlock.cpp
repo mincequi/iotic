@@ -1,5 +1,6 @@
 #include "SunSpecBlock.h"
 
+#include "SunSpecDataValue.h"
 #include "SunSpecMeasuredValue.h"
 
 namespace sunspec {
@@ -48,8 +49,9 @@ const std::map<sunspec::DataPoint, T>& Block<T>::data() const {
 // Explicit template instantiation
 template class Block<double>;
 template class Block<int32_t>;
-template class Block<SunSpecMeasuredValue<int32_t>>;
-template class Block<SunSpecMeasuredValue<double>>;
-template Block<SunSpecMeasuredValue<double>>::Block(const Block<double>&);
+template class Block<MeasuredValue<int32_t>>;
+template class Block<MeasuredValue<double>>;
+template Block<MeasuredValue<double>>::Block(const Block<double>&);
+template Block<MeasuredValue<InverterOperatingState>>::Block(const Block<InverterOperatingState>&);
 
 } // namespace sunspec
