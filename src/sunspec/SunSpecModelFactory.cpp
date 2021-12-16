@@ -19,7 +19,7 @@ static std::map<uint16_t, std::function<void(std::optional<Model>& model,
 void ModelFactory::updateFromBuffer(std::optional<Model>& model,
                                     const std::vector<uint16_t>& buffer,
                                     uint32_t timestamp) {
-    if (buffer.empty() || !s_factories.contains(buffer.at(0))) {
+    if (buffer.empty() || s_factories.count(buffer.at(0)) == 0) {
         return;
     }
 

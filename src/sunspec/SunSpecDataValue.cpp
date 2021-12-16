@@ -34,7 +34,7 @@ StatsValue& StatsValue::operator|=(const InverterOperatingState& v) {
     }
 
     auto& states = std::get<std::set<InverterOperatingState>>(*this);
-    m_isDirty = !states.contains(v);
+    m_isDirty = !states.count(v);
 
     states.insert(v);
 
