@@ -69,6 +69,22 @@ std::ostream& operator<<(std::ostream& os, const sunspec::Block<T>& value) {
 }
 
 template <class T>
+std::ostream& operator<<(std::ostream& os, const std::set<T>& set) {
+    os << "[";
+    for (auto it = set.begin(); it != set.end(); ++it) {
+        os << *it << ",";
+    }
+
+    if (!set.empty()) {
+        os.seekp(-1, os.cur);
+    }
+
+    os << "]";
+
+    return os;
+}
+
+template <class T>
 std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     os << "[";
     for (auto it = vec.begin(); it != vec.end(); ++it) {

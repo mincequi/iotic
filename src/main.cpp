@@ -14,16 +14,6 @@
 
 using namespace sunspec;
 
-template <class T>
-QDebug operator<<(QDebug debug, const sunspec::MeasuredValue<T>& value) {
-    QDebugStateSaver saver(debug);
-    debug.nospace() << "{ \"curr\": " << value.curr
-                    << ", \"min\": " << value.min
-                    << ", \"max\": " << value.max << " }";
-
-    return debug;
-}
-
 int main(int argc, char *argv[]) {
 
     // Create application instance
@@ -48,19 +38,22 @@ int main(int argc, char *argv[]) {
         LOG_S(INFO) << "thing discovered: " << thing.sunSpecId() << "> "
                     << "host:" << thing.host()
                     << ", modbusUnitId: " << (uint32_t)thing.modbusUnitId();
+
+        if (thing.models().contains(103)) {
+            mgr.addTask({ thing.sunSpecId(), SunSpecManager::Task::Op::Read, 103, 3 });
+        }
+        if (thing.models().contains(160)) {
+            mgr.addTask({ thing.sunSpecId(), SunSpecManager::Task::Op::Read, 160, 5 });
+        }
+        if (thing.models().contains(203)) {
+            mgr.addTask({ thing.sunSpecId(), SunSpecManager::Task::Op::Read, 203, 3 });
+        }
     });
 
     // Setup MqttExporter
-    MqttExporter mqttExporter("minskomat");
+    MqttExporter mqttExporter("broker.hivemq.com");
     QObject::connect(&mgr, &SunSpecManager::modelRead, &mqttExporter, &MqttExporter::exportLiveData);
     QObject::connect(&stats, &Statistics::statsChanged, &mqttExporter, &MqttExporter::exportStatsData);
-
-    // Some example tasks
-    mgr.addTask({ "elgris_smart_meter_1900042748", SunSpecManager::Task::Op::Read, 203, 3 });
-    mgr.addTask({ "sma_solar_inverter_1980417100", SunSpecManager::Task::Op::Read, 103, 3 });
-    mgr.addTask({ "sma_solar_inverter_3006932172", SunSpecManager::Task::Op::Read, 103, 3 });
-    mgr.addTask({ "sma_solar_inverter_1980417100", SunSpecManager::Task::Op::Read, 160, 5 });
-    mgr.addTask({ "sma_solar_inverter_3006932172", SunSpecManager::Task::Op::Read, 160, 5 });
 
     // Start discovery
     mgr.startDiscovering(60);

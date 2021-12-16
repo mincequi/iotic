@@ -37,8 +37,6 @@ enum InverterEvent : uint16_t {
 };
 class InverterEvents : public std::bitset<16> {
     using bitset::bitset;
-public:
-    using bitset::operator|=;
 };
 std::ostream& operator<<(std::ostream& os, const InverterEvents& value);
 

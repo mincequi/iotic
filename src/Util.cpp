@@ -32,7 +32,7 @@ QString getMacAddress()
     }
     // TODO: mac address might be "00:00:00:00:00:00", which is illegal
     //qDebug() << __func__ << ": " << macAddress;
-    return macAddress;
+    return macAddress.toLower();
 }
 
 } // namespace util

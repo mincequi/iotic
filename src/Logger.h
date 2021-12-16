@@ -41,6 +41,9 @@ template <class T>
 std::ostream& operator<<(std::ostream& os, const sunspec::Block<T>& value);
 
 template <class T>
+std::ostream& operator<<(std::ostream& os, const std::set<T>& set);
+
+template <class T>
 std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec);
 
 std::ostream& operator<<(std::ostream& os, const sunspec::StatsModel& value);

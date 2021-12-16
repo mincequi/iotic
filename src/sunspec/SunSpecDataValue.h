@@ -1,6 +1,7 @@
 #ifndef SUNSPECDATAVALUE_H
 #define SUNSPECDATAVALUE_H
 
+#include <set>
 #include <variant>
 #include <vector>
 
@@ -19,7 +20,7 @@ using LiveValue = std::variant<
 
 class StatsValue : public std::variant<
         uint32_t,
-        MeasuredValue<InverterOperatingState>,
+        std::set<InverterOperatingState>,
         InverterEvents,
         MeasuredValue<int32_t>,
         MeasuredValue<double>,
@@ -28,12 +29,13 @@ class StatsValue : public std::variant<
 
 public:
     StatsValue& operator=(const LiveValue& v);
-    StatsValue& operator|=(const StatsValue& v);
+    StatsValue& operator|=(const InverterOperatingState& v);
+    StatsValue& operator|=(const InverterEvents& v);
 
     bool isDirty() const;
 
 private:
-    bool m_isDirty = true;
+    bool m_isDirty = false;
 };
 
 } // namespace sunspec

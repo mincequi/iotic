@@ -8,8 +8,8 @@ template<class... Ts> overload(Ts...) -> overload<Ts...>;
 StatsValue& StatsValue::operator=(const LiveValue& v) {
     std::visit(overload {
                    [&](uint32_t v) { *this = StatsValue(v); },
-                   [&](InverterEvents v) { *this |= StatsValue(v); },
-                   [&](InverterOperatingState v) { *this = MeasuredValue<InverterOperatingState>(v); },
+                   [&](InverterEvents v) { *this |= v; },
+                   [&](InverterOperatingState v) { *this |= v; },
                    [&](int32_t v)  { *this = MeasuredValue<int32_t>(v); },
                    [&](double v)   { *this = MeasuredValue<double>(v); },
                    [&](const std::vector<Block<double>>& v) {
@@ -28,22 +28,31 @@ StatsValue& StatsValue::operator=(const LiveValue& v) {
     return *this;
 }
 
-StatsValue& StatsValue::operator|=(const StatsValue& v) {
-    if (!std::holds_alternative<InverterEvents>(v)) {
-        return *this;
+StatsValue& StatsValue::operator|=(const InverterOperatingState& v) {
+    if (!std::holds_alternative<std::set<InverterOperatingState>>(*this)) {
+        this->emplace<std::set<InverterOperatingState>>();
     }
 
+    auto& states = std::get<std::set<InverterOperatingState>>(*this);
+    m_isDirty = !states.contains(v);
+
+    states.insert(v);
+
+    return *this;
+}
+
+StatsValue& StatsValue::operator|=(const InverterEvents& v) {
     if (!std::holds_alternative<InverterEvents>(*this)) {
-        this->emplace<InverterEvents>(std::get<InverterEvents>(v));
+        this->emplace<InverterEvents>(v);
+        m_isDirty = true;
         return *this;
     }
 
     auto& prev = std::get<InverterEvents>(*this);
-    auto& next = std::get<InverterEvents>(v);
-    if (prev == (prev | next)) {
+    if (prev == (prev | v)) {
         m_isDirty = false;
     }
-    prev |= next;
+    prev |= v;
 
     return *this;
 }
