@@ -35,6 +35,9 @@ signals:
 
     void modelRead(const SunSpecThing& thing, const sunspec::Model& model);
 
+    // TOOD: probably not the right class to emit this. However, this is a simple solution for now.
+    void endOfDayReached();
+
 private:
     void onStartDiscovering();
     void removeThing(SunSpecThing*);

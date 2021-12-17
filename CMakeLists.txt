@@ -19,6 +19,13 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(tomlplusplus)
 
 FetchContent_Declare(
+  fmt
+  GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+  GIT_TAG        8.0.1
+)
+FetchContent_MakeAvailable(fmt)
+
+FetchContent_Declare(
   loguru
   GIT_REPOSITORY https://github.com/emilk/loguru.git
   GIT_TAG        v2.1.0
@@ -48,7 +55,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_FLAGS "-DLOGURU_WITH_STREAMS -DLOGURU_FILENAME_WIDTH=15")
+set(CMAKE_CXX_FLAGS "-DLOGURU_WITH_STREAMS -DLOGURU_USE_FMTLIB")
 set(CMAKE_EXE_LINKER_FLAGS "-lpthread -ldl")
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Network SerialBus REQUIRED)
@@ -90,5 +97,6 @@ target_link_libraries(elsewhere
   Qt${QT_VERSION_MAJOR}::SerialBus
   magic_enum
   qmqtt
+  fmt::fmt
   tomlplusplus::tomlplusplus
 )

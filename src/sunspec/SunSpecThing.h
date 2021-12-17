@@ -28,7 +28,7 @@ public:
     std::optional<sunspec::Model> inverterModel;
     std::optional<sunspec::Model> inverterExtensionModel;
 
-    QList<uint16_t> models() const;
+    const std::map<uint16_t, std::pair<uint16_t, uint16_t>>& models() const;
 
     bool connectDevice();
     void disconnectDevice();
@@ -70,7 +70,7 @@ private:
 
     uint8_t m_timeoutCount = 0;
 
-    QMap<uint16_t, std::pair<uint16_t, uint16_t>> m_modelAddresses;
+    std::map<uint16_t, std::pair<uint16_t, uint16_t>> m_modelAddresses;
 };
 
 } // namespace sunspec

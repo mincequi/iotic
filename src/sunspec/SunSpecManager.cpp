@@ -33,8 +33,6 @@ void SunSpecManager::onStartDiscovering() {
     }
     m_discoveringThings.clear();
 
-    LOG_S(INFO) << "discovering things...";
-
     // Find network interfaces
     QStringList subnets;
     const QHostAddress localhost = QHostAddress(QHostAddress::LocalHost);
@@ -47,6 +45,7 @@ void SunSpecManager::onStartDiscovering() {
     // Scan subnets
     QTcpSocket socket;
     foreach (const auto& subnet, subnets) {
+        LOG_S(INFO) << "discovering things in subnet: " << subnet << "0/24";
         for (uint8_t i = 1; i < 255; ++i) {
             const QString host = subnet + QString::number(i);
             if (std::find_if(m_discoveredThings.begin(),
@@ -100,6 +99,8 @@ void SunSpecManager::onTimer() {
     const auto now = QDateTime::fromSecsSinceEpoch(timestamp);
     if (prev.date().day() != now.date().day()) {
         LOG_S(INFO) << "statistics reset";
+        emit endOfDayReached();
+        // TODO: we probably do not need to reset the discovered things.
         foreach (auto* thing, m_discoveredThings) {
             thing->reset();
         }

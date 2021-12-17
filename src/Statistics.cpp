@@ -6,6 +6,10 @@
 Statistics::Statistics(QObject *parent) : QObject(parent) {
 }
 
+void Statistics::reset() {
+    m_models.clear();
+}
+
 void Statistics::feedModel(const sunspec::SunSpecThing& thing, const sunspec::Model& model) {
     auto& _model = m_models[{thing.sunSpecId(), model.modelId()}];
     _model = model;

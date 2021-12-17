@@ -19,7 +19,7 @@ MqttExporter::MqttExporter(const std::string& host, uint16_t port, QObject *pare
     QObject::connect(&m_client, &QMQTT::Client::error, this, &MqttExporter::onError);
     m_client.connectToHost();
 
-    LOG_S(INFO) << "publishing data to host: " << host << ", under topic: " << "elsewhere/" + util::getMacAddress();
+    LOG_S(INFO) << "publishing data to host: " << host << ", under topic: " << "elsewhere_" + util::getMacAddress().remove(':');
 }
 
 void MqttExporter::exportLiveData(const sunspec::SunSpecThing& thing, const sunspec::Model& model) {
@@ -27,8 +27,7 @@ void MqttExporter::exportLiveData(const sunspec::SunSpecThing& thing, const suns
         m_client.connectToHost();
     }
 
-    QString topic = "elsewhere/"
-                    + util::getMacAddress()
+    QString topic = "elsewhere_" + util::getMacAddress().remove(':')
                     + "/" + QString::fromStdString(thing.sunSpecId())
                     + "/" + QString::number(model.modelId())
                     + "/live";
@@ -50,8 +49,7 @@ void MqttExporter::exportStatsData(const sunspec::SunSpecThing& thing, const sun
         m_client.connectToHost();
     }
 
-    QString topic = "elsewhere/"
-                    + util::getMacAddress()
+    QString topic = "elsewhere_" + util::getMacAddress().remove(':')
                     + "/" + QString::fromStdString(thing.sunSpecId())
                     + "/" + QString::number(model.modelId())
                     + "/stats";

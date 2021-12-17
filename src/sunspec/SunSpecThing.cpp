@@ -35,8 +35,8 @@ std::string SunSpecThing::sunSpecId() const {
     return m_sunSpecId;
 }
 
-QList<uint16_t> SunSpecThing::models() const {
-    return m_modelAddresses.keys();
+const std::map<uint16_t, std::pair<uint16_t, uint16_t>>& SunSpecThing::models() const {
+    return m_modelAddresses;
 }
 
 bool SunSpecThing::connectDevice() {
@@ -249,7 +249,7 @@ void SunSpecThing::onReadBlock(uint16_t modelId, uint32_t timestamp) {
 void SunSpecThing::onReadBlockError(uint16_t modelId, QModbusReply* reply) {
     switch (reply->error()) {
     case QModbusDevice::TimeoutError:
-        LOG_S(WARNING) << sunSpecId() << "> time out reading block: " << modelId;
+        LOG_S(WARNING) << sunSpecId() << "> timeout reading block: " << modelId;
         ++m_timeoutCount;
         // Set device as failed if sunSpecId is empty or it timed out 5 times in a row.
         if (m_timeoutCount > 4 || sunSpecId().empty()) {

@@ -15,6 +15,8 @@ class Statistics : public QObject {
 public:
     explicit Statistics(QObject *parent = nullptr);
 
+    void reset();
+
     void feedModel(const sunspec::SunSpecThing& thing, const sunspec::Model& model);
 
 signals:
