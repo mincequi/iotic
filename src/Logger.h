@@ -48,6 +48,8 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec);
 
 std::ostream& operator<<(std::ostream& os, const sunspec::StatsModel& value);
 
+std::ostream& operator<<(std::ostream& os, const sunspec::StatsValue& value);
+
 //template <class T>
 //std::ostream& operator<<(std::ostream& os, const SunSpecMeasuredValue<T>& value);
 

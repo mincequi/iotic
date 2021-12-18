@@ -1,5 +1,6 @@
 #include "SunSpecModelFactory.h"
 
+#include <functional>
 #include <map>
 
 #include <sunspec/models/SunSpecInverterModelFactory.h>

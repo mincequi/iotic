@@ -34,30 +34,28 @@ void SunSpecManager::onStartDiscovering() {
     m_discoveringThings.clear();
 
     // Find network interfaces
-    QStringList subnets;
+    QString subnet;
     const QHostAddress localhost = QHostAddress(QHostAddress::LocalHost);
     foreach (const auto& address, QNetworkInterface::allAddresses()) {
         if (address.protocol() == QAbstractSocket::IPv4Protocol && address != localhost) {
-             subnets << address.toString().left(address.toString().lastIndexOf(".")+1);
+             subnet = address.toString().left(address.toString().lastIndexOf(".")+1);
         }
     }
 
     // Scan subnets
     QTcpSocket socket;
-    foreach (const auto& subnet, subnets) {
-        LOG_S(INFO) << "discovering things in subnet: " << subnet << "0/24";
-        for (uint8_t i = 1; i < 255; ++i) {
-            const QString host = subnet + QString::number(i);
-            if (std::find_if(m_discoveredThings.begin(),
-                             m_discoveredThings.end(),
-                             [&](sunspec::SunSpecThing* _thing) { return _thing->host() == host; }) != m_discoveredThings.end()) {
-                continue;
-            }
-            auto* thing = new sunspec::SunSpecThing(host);
-            m_discoveringThings.append(thing);
-            thing->connect(thing, &sunspec::SunSpecThing::stateChanged, this, &SunSpecManager::onThingStateChanged);
-            thing->connectDevice();
+    LOG_S(INFO) << "discovering things in subnet: " << subnet << "0/24";
+    for (uint8_t i = 1; i < 255; ++i) {
+        const QString host = subnet + QString::number(i);
+        if (std::find_if(m_discoveredThings.begin(),
+                         m_discoveredThings.end(),
+                         [&](sunspec::SunSpecThing* _thing) { return _thing->host() == host; }) != m_discoveredThings.end()) {
+            continue;
         }
+        auto* thing = new sunspec::SunSpecThing(host);
+        m_discoveringThings.append(thing);
+        thing->connect(thing, &sunspec::SunSpecThing::stateChanged, this, &SunSpecManager::onThingStateChanged);
+        thing->connectDevice();
     }
 }
 
@@ -83,7 +81,7 @@ void SunSpecManager::onThingStateChanged(SunSpecThing::State state) {
         removeThing(thing);
         break;
     case SunSpecThing::State::Connected:
-        m_discoveringThings.removeOne(thing);
+        m_discoveringThings.removeAll(thing);
         m_discoveredThings.insert(thing->sunSpecId(), thing);
         connect(thing, &SunSpecThing::modelRead, std::bind(&SunSpecManager::modelRead, this, std::ref(*thing), _1));
         emit thingDiscovered(*thing);

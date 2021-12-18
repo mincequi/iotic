@@ -1,6 +1,7 @@
 #ifndef SUNSPECMPPTINVERTEREXTENSIONMODEL_H
 #define SUNSPECMPPTINVERTEREXTENSIONMODEL_H
 
+#include <cstdint>
 #include <optional>
 #include <vector>
 

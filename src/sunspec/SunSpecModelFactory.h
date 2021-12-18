@@ -1,7 +1,9 @@
 #ifndef SUNSPECMODELFACTORY_H
 #define SUNSPECMODELFACTORY_H
 
+#include <cstdint>
 #include <optional>
+#include <vector>
 
 namespace sunspec {
 

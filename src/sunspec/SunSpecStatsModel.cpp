@@ -47,7 +47,7 @@ bool StatsModel::isDirty() const {
                             }
                             return false;
                         }
-                    }, kv.second);
+                    }, kv.second.m_variant);
 
         if (isDirty) {
             return true;

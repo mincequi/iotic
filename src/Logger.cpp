@@ -110,4 +110,8 @@ std::ostream& operator<<(std::ostream& os, const sunspec::StatsModel& model) {
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const sunspec::StatsValue& value) {
+    return os << value.m_variant;
+}
+
 } // namespace sunspec

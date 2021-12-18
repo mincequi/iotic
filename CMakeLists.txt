@@ -32,6 +32,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(loguru)
 
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+set(qmqtt_SHARED OFF)
 FetchContent_Declare(
   qmqtt
   GIT_REPOSITORY https://github.com/emqx/qmqtt.git
@@ -54,9 +56,9 @@ set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_CXX_FLAGS "-DLOGURU_WITH_STREAMS -DLOGURU_USE_FMTLIB")
-set(CMAKE_EXE_LINKER_FLAGS "-lpthread -ldl")
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Network SerialBus REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Network SerialBus REQUIRED)
@@ -99,4 +101,6 @@ target_link_libraries(elsewhere
   qmqtt
   fmt::fmt
   tomlplusplus::tomlplusplus
+  pthread
+  dl
 )

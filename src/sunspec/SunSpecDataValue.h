@@ -18,15 +18,7 @@ using LiveValue = std::variant<
     double,     // regular value
     std::vector<Block<double>>>;    // block arrays
 
-class StatsValue : public std::variant<
-        uint32_t,
-        std::set<InverterOperatingState>,
-        InverterEvents,
-        MeasuredValue<int32_t>,
-        MeasuredValue<double>,
-        std::vector<Block<MeasuredValue<double>>>> {
-    using variant::variant;
-
+class StatsValue {
 public:
     StatsValue& operator=(const LiveValue& v);
     StatsValue& operator|=(const InverterOperatingState& v);
@@ -35,7 +27,18 @@ public:
     bool isDirty() const;
 
 private:
+    std::variant<
+            uint32_t,
+            std::set<InverterOperatingState>,
+            InverterEvents,
+            MeasuredValue<int32_t>,
+            MeasuredValue<double>,
+            std::vector<Block<MeasuredValue<double>>>> m_variant;
+
     bool m_isDirty = false;
+
+    friend std::ostream& operator<<(std::ostream& os, const sunspec::StatsValue& value);
+    friend class StatsModel;
 };
 
 } // namespace sunspec

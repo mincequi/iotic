@@ -1,6 +1,7 @@
 #ifndef SUNSPECTYPES_H
 #define SUNSPECTYPES_H
 
+#include <bitset>
 #include <cstdint>
 #include <sstream>
 
