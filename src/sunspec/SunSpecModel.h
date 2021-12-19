@@ -23,6 +23,7 @@ protected:
 
     std::map<DataPoint, LiveValue> m_values;
 
+    friend class ModelFactory;
     friend class InverterModelFactory;
     friend class MpptInverterExtensionModelFactory;
     friend class WyeConnectMeterModelFactory;

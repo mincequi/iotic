@@ -24,9 +24,7 @@ public:
     std::string sunSpecId() const;
 
     std::optional<SunSpecCommonModel> commonModel;
-    std::optional<sunspec::Model> meterModel;
-    std::optional<sunspec::Model> inverterModel;
-    std::optional<sunspec::Model> inverterExtensionModel;
+    std::map<uint16_t, sunspec::Model> models_;
 
     const std::map<uint16_t, std::pair<uint16_t, uint16_t>>& models() const;
 

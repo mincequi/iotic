@@ -11,7 +11,7 @@ class Model;
 
 class MpptInverterExtensionModelFactory {
 public:
-    static void updateFromBuffer(std::optional<Model>& model,
+    static bool updateFromBuffer(Model& model,
                                  const std::vector<uint16_t>& buffer,
                                  uint32_t timestamp);
 };

@@ -44,11 +44,14 @@ int main(int argc, char *argv[]) {
                     << ", modbusUnitId: " << (uint32_t)thing.modbusUnitId()
                     << ", models: " << ss.str();
 
+        if (thing.models().count(101)) {
+            mgr.addTask({ thing.sunSpecId(), SunSpecManager::Task::Op::Read, 101, 3 });
+        }
         if (thing.models().count(103)) {
             mgr.addTask({ thing.sunSpecId(), SunSpecManager::Task::Op::Read, 103, 3 });
         }
         if (thing.models().count(160)) {
-            mgr.addTask({ thing.sunSpecId(), SunSpecManager::Task::Op::Read, 160, 5 });
+            mgr.addTask({ thing.sunSpecId(), SunSpecManager::Task::Op::Read, 160, 3 });
         }
         if (thing.models().count(203)) {
             mgr.addTask({ thing.sunSpecId(), SunSpecManager::Task::Op::Read, 203, 3 });

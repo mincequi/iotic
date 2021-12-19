@@ -4,6 +4,7 @@
 
 #include <Logger.h>
 
+#include <sunspec/SunSpecModelFactory.h>
 #include <sunspec/models/SunSpecWyeConnectMeterModelFactory.h>
 #include <sunspec/models/SunSpecInverterModelFactory.h>
 #include <sunspec/models/SunSpecMpptInverterExtensionModelFactory.h>
@@ -59,9 +60,7 @@ void SunSpecThing::readModel(uint16_t modelId, uint32_t timestamp) {
 }
 
 void SunSpecThing::reset() {
-    meterModel.reset();
-    inverterModel.reset();
-    inverterExtensionModel.reset();
+    models_.clear();
 }
 
 uint8_t SunSpecThing::nextUnitId() {
@@ -160,6 +159,7 @@ void SunSpecThing::onReadHeader() {
             readBlock(1, 40004, unit.value(3), 0);
             readModelTable(40004 + unit.value(3));
         } else {
+            LOG_S(INFO) << "no SunSpec header found at host: " << m_modbusClient.connectionParameter(QModbusDevice::NetworkAddressParameter).toString();;
             emit stateChanged(State::Failed);
         }
     } else {
@@ -207,7 +207,7 @@ void SunSpecThing::addModelAddress(uint16_t modelId, uint16_t startAddress, uint
 
     // Special handling for SMA solar inverters: we only request first two MPPs
     if (modelId == 160) {
-        length = 48;
+        length = std::min(length, (uint16_t)48);
     }
     // Tried to tune inverter requests, however reducing amount of registers did not help.
     /*else if (modelId == 103) {
@@ -265,6 +265,7 @@ void SunSpecThing::onReadBlockError(uint16_t modelId, QModbusReply* reply) {
 
 void SunSpecThing::onStateChanged(QModbusDevice::State state) {
     if (state == QModbusDevice::State::ConnectedState && !commonModel) {
+        LOG_S(INFO) << "modbus host found: " << m_modbusClient.connectionParameter(QModbusDevice::NetworkAddressParameter).toString();
         pollNextUnitId();
     } else if (state == QModbusDevice::State::UnconnectedState && commonModel) {
         // Elgris smart meters disconnects after 10s. So, we automatically reconnect.
@@ -296,21 +297,8 @@ void SunSpecThing::parseModel(uint16_t modelId, const std::vector<uint16_t>& buf
             std::replace(m_sunSpecId.begin(), m_sunSpecId.end(), '#', '_');
             std::replace(m_sunSpecId.begin(), m_sunSpecId.end(), '+', '_');
         }
-    } else if (modelId == 203) {
-        sunspec::WyeConnectMeterModelFactory::updateFromBuffer(meterModel, buffer, timestamp);
-        if (meterModel) {
-            emit modelRead(*meterModel);
-        }
-    } else if (modelId == 160) {
-        sunspec::MpptInverterExtensionModelFactory::updateFromBuffer(inverterExtensionModel, buffer, timestamp);
-        if (inverterExtensionModel) {
-            emit modelRead(*inverterExtensionModel);
-        }
-    } else if (modelId == 103) {
-        sunspec::InverterModelFactory::updateFromBuffer(inverterModel, buffer, timestamp);
-        if (inverterModel) {
-            emit modelRead(*inverterModel);
-        }
+    } else if (sunspec::ModelFactory::updateFromBuffer(models_, modelId, buffer, timestamp)) {
+        emit modelRead(models_[modelId]);
     }
 }
 

@@ -9,10 +9,10 @@ namespace sunspec {
 
 enum InverterOperatingState : uint16_t {
     off                              = 1,
-    waitingForPvVoltage              = 2,
+    sleeping                         = 2,
     starting                         = 3,
     mpp                              = 4,
-    regulated                        = 5,
+    throttled                        = 5,
     shuttingDown                     = 6,
     error                            = 7,
     waitingForElectricUtilityCompany = 8
