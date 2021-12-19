@@ -67,7 +67,10 @@ void SunSpecManager::addTask(const Task& task) {
 
 void SunSpecManager::removeThing(SunSpecThing* thing) {
     m_discoveringThings.removeOne(thing);
-    m_discoveredThings.remove(thing->sunSpecId());
+    if (m_discoveredThings.count(thing->sunSpecId())) {
+        LOG_S(WARNING) << "discovered thing removed: " << thing->sunSpecId();
+        m_discoveredThings.remove(thing->sunSpecId());
+    }
     thing->deleteLater();
 }
 

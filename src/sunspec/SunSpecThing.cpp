@@ -264,15 +264,26 @@ void SunSpecThing::onReadBlockError(uint16_t modelId, QModbusReply* reply) {
 }
 
 void SunSpecThing::onStateChanged(QModbusDevice::State state) {
-    if (state == QModbusDevice::State::ConnectedState) {
+    if (state == QModbusDevice::State::ConnectedState && !commonModel) {
         pollNextUnitId();
+    } else if (state == QModbusDevice::State::UnconnectedState && commonModel) {
+        // Elgris smart meters disconnects after 10s. So, we automatically reconnect.
+        connectDevice();
     }
 }
 
 void SunSpecThing::onErrorOccurred(QModbusDevice::Error error) {
-    if (error != QModbusDevice::Error::NoError) {
-        emit stateChanged(State::Failed);
+    if (error == QModbusDevice::Error::NoError) {
+        return;
     }
+
+    if (!commonModel) {
+        emit stateChanged(State::Failed);
+        return;
+    }
+
+    // We filter for connection error, because remotes might hang up.
+    LOG_IF_S(WARNING, error != QModbusDevice::Error::ConnectionError) << m_sunSpecId << "> error occured: " << m_modbusClient.errorString().toStdString();
 }
 
 void SunSpecThing::parseModel(uint16_t modelId, const std::vector<uint16_t>& buffer, uint32_t timestamp) {
