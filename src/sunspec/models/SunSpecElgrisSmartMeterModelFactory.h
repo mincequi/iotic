@@ -1,24 +1,25 @@
-#ifndef SUNSPECCOMMONMODEL_H
-#define SUNSPECCOMMONMODEL_H
+#ifndef SUNSPECSMARTMETERMODEL_H
+#define SUNSPECSMARTMETERMODEL_H
 
+#include <map>
 #include <optional>
 #include <string>
 #include <vector>
 
+#include <sunspec/SunSpecDataPoint.h>
+#include <sunspec/SunSpecDataValue.h>
+#include <sunspec/SunSpecMeasuredValue.h>
 #include <sunspec/SunSpecModel.h>
 
 namespace sunspec {
 
-class SunSpecCommonModelFactory : public sunspec::Model {
+class ElgrisSmartMeterModelFactory {
 public:
     static bool updateFromBuffer(Model& model,
                                  const std::vector<uint16_t>& buffer,
                                  uint32_t timestamp);
-
-private:
-    static std::string readString(const uint16_t* begin, uint8_t length);
 };
 
 } // namespace sunspec
 
-#endif // SUNSPECCOMMONMODEL_H
+#endif // SUNSPECSMARTMETERMODEL_H

@@ -1,44 +1,22 @@
 #include "SunSpecCommonModel.h"
 
-void SunSpecCommonModel::updateFromBuffer(std::optional<SunSpecCommonModel>& model, const std::vector<uint16_t>& buffer) {
-    if (buffer.size() != 66 && buffer.size() != 65) return;
+namespace sunspec {
 
-    if (!model) {
-        model.emplace(SunSpecCommonModel());
-        model->m_modelId = 1;
-    }
+bool SunSpecCommonModelFactory::updateFromBuffer(Model& model,
+                                                 const std::vector<uint16_t>& buffer,
+                                                 uint32_t /*timestamp*/) {
+    if (buffer.size() != 66 && buffer.size() != 65) return false;
 
-    model.value().m_manufacturer = readString(buffer.data(), 16);
-    model.value().m_product = readString(buffer.data()+16, 16);
-    model.value().m_options = readString(buffer.data()+32, 8);
-    model.value().m_version = readString(buffer.data()+40, 8);
-    model.value().m_serial = readString(buffer.data()+48, 16);
+    model.m_values[sunspec::manufacturer] = readString(buffer.data(), 16);
+    model.m_values[sunspec::product] = readString(buffer.data()+16, 16);
+    model.m_values[sunspec::options] = readString(buffer.data()+32, 8);
+    model.m_values[sunspec::version] = readString(buffer.data()+40, 8);
+    model.m_values[sunspec::serial] = readString(buffer.data()+48, 16);
+
+    return true;
 }
 
-SunSpecCommonModel::SunSpecCommonModel() {
-}
-
-std::string SunSpecCommonModel::manufacturer() const {
-    return m_manufacturer;
-}
-
-std::string SunSpecCommonModel::product() const {
-    return m_product;
-}
-
-std::string SunSpecCommonModel::options() const {
-    return m_options;
-}
-
-std::string SunSpecCommonModel::version() const {
-    return m_version;
-}
-
-std::string SunSpecCommonModel::serial() const {
-    return m_serial;
-}
-
-std::string SunSpecCommonModel::readString(const uint16_t* begin, uint8_t length) {
+std::string SunSpecCommonModelFactory::readString(const uint16_t* begin, uint8_t length) {
     std::string out;
     out.reserve(length * 2);
 
@@ -58,3 +36,5 @@ std::string SunSpecCommonModel::readString(const uint16_t* begin, uint8_t length
 
     return out;
 }
+
+} // namespace sunspec

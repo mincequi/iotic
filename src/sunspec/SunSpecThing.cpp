@@ -52,6 +52,17 @@ bool SunSpecThing::isValid() const {
     return m_modbusClient.state() == QModbusDevice::State::ConnectedState;
 }
 
+bool SunSpecThing::isSleeping() const {
+    for (const auto& kv : m_models) {
+        if (kv.second.values().count(sunspec::operatingState) &&
+                kv.second.values().count(sunspec::operatingState) == InverterOperatingState::sleeping) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void SunSpecThing::readModel(uint16_t modelId, uint32_t timestamp) {
     LOG_S(1) << this->sunSpecId() << "> reading model: " << modelId;
     if (m_modelAddresses.count(modelId)) {
@@ -60,7 +71,7 @@ void SunSpecThing::readModel(uint16_t modelId, uint32_t timestamp) {
 }
 
 void SunSpecThing::reset() {
-    models_.clear();
+    m_models.clear();
 }
 
 uint8_t SunSpecThing::nextUnitId() {
@@ -228,7 +239,6 @@ void SunSpecThing::readBlock(uint16_t modelId, uint16_t address, uint16_t length
     } else {
         LOG_S(1) << sunSpecId() << "> reading block at: " << address;
         connect(reply, &QModbusReply::finished, this, std::bind(&SunSpecThing::onReadBlock, this, modelId, timestamp));
-        //connect(reply, &QModbusReply::finished, this, [&]() { onReadBlock(timestamp); });
     }
 }
 
@@ -257,17 +267,17 @@ void SunSpecThing::onReadBlockError(uint16_t modelId, QModbusReply* reply) {
         }
         break;
     default:
-        LOG_S(WARNING) << sunSpecId() << "> error: " << reply->errorString();
+        LOG_S(WARNING) << sunSpecId() << "> error: " << reply->errorString().toStdString();
         emit stateChanged(State::Failed);
         break;
     }
 }
 
 void SunSpecThing::onStateChanged(QModbusDevice::State state) {
-    if (state == QModbusDevice::State::ConnectedState && !commonModel) {
+    if (state == QModbusDevice::State::ConnectedState && m_sunSpecId.empty()) {
         LOG_S(INFO) << "modbus host found: " << m_modbusClient.connectionParameter(QModbusDevice::NetworkAddressParameter).toString();
         pollNextUnitId();
-    } else if (state == QModbusDevice::State::UnconnectedState && commonModel) {
+    } else if (state == QModbusDevice::State::UnconnectedState && !m_sunSpecId.empty()) {
         // Elgris smart meters disconnects after 10s. So, we automatically reconnect.
         connectDevice();
     }
@@ -278,7 +288,7 @@ void SunSpecThing::onErrorOccurred(QModbusDevice::Error error) {
         return;
     }
 
-    if (!commonModel) {
+    if (m_sunSpecId.empty()) {
         emit stateChanged(State::Failed);
         return;
     }
@@ -289,16 +299,20 @@ void SunSpecThing::onErrorOccurred(QModbusDevice::Error error) {
 
 void SunSpecThing::parseModel(uint16_t modelId, const std::vector<uint16_t>& buffer, uint32_t timestamp) {
     if (modelId == 1) {
-        SunSpecCommonModel::updateFromBuffer(commonModel, buffer);
-        if (commonModel) {
-            m_sunSpecId = commonModel.value().manufacturer() + "_" + commonModel.value().product() + "_" + commonModel.value().serial();
+        auto& commonModel = m_models[modelId];
+        if (SunSpecCommonModelFactory::updateFromBuffer(commonModel, buffer, timestamp)) {
+            std::stringstream ss;
+            ss << commonModel.values().at(manufacturer) << "_"
+               << commonModel.values().at(product) << "_"
+               << commonModel.values().at(serial);
+            m_sunSpecId = ss.str();
             std::transform(m_sunSpecId.begin(), m_sunSpecId.end(), m_sunSpecId.begin(), [](uchar c) { return std::tolower(c); });
             std::replace(m_sunSpecId.begin(), m_sunSpecId.end(), ' ', '_');
             std::replace(m_sunSpecId.begin(), m_sunSpecId.end(), '#', '_');
             std::replace(m_sunSpecId.begin(), m_sunSpecId.end(), '+', '_');
         }
-    } else if (sunspec::ModelFactory::updateFromBuffer(models_, modelId, buffer, timestamp)) {
-        emit modelRead(models_[modelId]);
+    } else if (sunspec::ModelFactory::updateFromBuffer(m_models, modelId, buffer, timestamp)) {
+        emit modelRead(m_models[modelId]);
     }
 }
 

@@ -2,6 +2,7 @@
 #define SUNSPECDATAVALUE_H
 
 #include <set>
+#include <string>
 #include <variant>
 #include <vector>
 
@@ -16,7 +17,8 @@ using LiveValue = std::variant<
     InverterEvents,
     int32_t,    //
     double,     // regular value
-    std::vector<Block<double>>>;    // block arrays
+    std::vector<Block<double>>,    // block arrays
+    std::string>;
 
 class StatsValue {
 public:

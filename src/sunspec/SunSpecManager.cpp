@@ -101,10 +101,6 @@ void SunSpecManager::onTimer() {
     if (prev.date().day() != now.date().day()) {
         LOG_S(INFO) << "statistics reset";
         emit endOfDayReached();
-        // TODO: we probably do not need to reset the discovered things.
-        foreach (auto* thing, m_discoveredThings) {
-            thing->reset();
-        }
     }
 
     // Execute tasks for appropriate timeslots

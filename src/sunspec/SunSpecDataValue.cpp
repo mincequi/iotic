@@ -22,6 +22,8 @@ StatsValue& StatsValue::operator=(const LiveValue& v) {
                        for (size_t i = 0; i < v.size(); ++i) {
                            out[i] = v[i];
                        }
+                   },
+                   [&](const std::string&) {
                    }
                }, v);
 

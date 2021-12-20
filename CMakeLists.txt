@@ -83,6 +83,7 @@ add_executable(elsewhere
   src/sunspec/SunSpecThing.cpp
   src/sunspec/SunSpecTypes.cpp
   src/sunspec/models/SunSpecCommonModel.cpp
+  src/sunspec/models/SunSpecElgrisSmartMeterModelFactory.cpp
   src/sunspec/models/SunSpecInverterModelFactory.cpp
   src/sunspec/models/SunSpecMpptInverterExtensionModelFactory.cpp
   src/sunspec/models/SunSpecWyeConnectMeterModelFactory.cpp

@@ -1,6 +1,8 @@
 #ifndef SUNSPECTHING_H
 #define SUNSPECTHING_H
 
+#include <set>
+
 #include <QModbusTcpClient>
 
 #include <sunspec/models/SunSpecCommonModel.h>
@@ -23,15 +25,14 @@ public:
 
     std::string sunSpecId() const;
 
-    std::optional<SunSpecCommonModel> commonModel;
-    std::map<uint16_t, sunspec::Model> models_;
-
     const std::map<uint16_t, std::pair<uint16_t, uint16_t>>& models() const;
 
     bool connectDevice();
     void disconnectDevice();
 
     bool isValid() const;
+    bool hasCommonModel() const;
+    bool isSleeping() const;
 
     void readModel(uint16_t modelId, uint32_t timestamp);
 
@@ -69,6 +70,8 @@ private:
     uint8_t m_timeoutCount = 0;
 
     std::map<uint16_t, std::pair<uint16_t, uint16_t>> m_modelAddresses;
+
+    std::map<uint16_t, sunspec::Model> m_models;
 };
 
 } // namespace sunspec
