@@ -1,15 +1,15 @@
 #ifndef SUNSPECCOMMONMODEL_H
 #define SUNSPECCOMMONMODEL_H
 
-#include <optional>
+#include <cstdint>
 #include <string>
 #include <vector>
 
-#include <sunspec/SunSpecModel.h>
-
 namespace sunspec {
 
-class SunSpecCommonModelFactory : public sunspec::Model {
+class Model;
+
+class SunSpecCommonModelFactory {
 public:
     static bool updateFromBuffer(Model& model,
                                  const std::vector<uint16_t>& buffer,

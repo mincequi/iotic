@@ -5,7 +5,7 @@
 
 #include <QModbusTcpClient>
 
-#include <sunspec/models/SunSpecCommonModel.h>
+#include <sunspec/models/SunSpecCommonModelFactory.h>
 
 namespace sunspec {
 
@@ -40,7 +40,7 @@ public:
 
 signals:
     void stateChanged(State state);
-    void modelRead(const sunspec::Model& model);
+    void modelRead(const sunspec::Model& model, uint32_t timestamp);
 
 private:
     uint8_t nextUnitId();

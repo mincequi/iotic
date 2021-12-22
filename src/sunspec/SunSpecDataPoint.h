@@ -30,6 +30,7 @@ enum DataPoint : uint8_t {
 
     // blocks (collection of data points)
     dc,
+    id,
     current,
     voltage,
     power

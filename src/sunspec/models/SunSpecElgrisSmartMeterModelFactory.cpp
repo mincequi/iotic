@@ -1,7 +1,8 @@
 #include "SunSpecElgrisSmartMeterModelFactory.h"
 
 #include <cmath>
-#include <vector>
+
+#include <sunspec/SunSpecModel.h>
 
 namespace sunspec {
 

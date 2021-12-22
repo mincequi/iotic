@@ -3,7 +3,7 @@
 #include <functional>
 #include <map>
 
-#include <sunspec/models/SunSpecCommonModel.h>
+#include <sunspec/models/SunSpecCommonModelFactory.h>
 #include <sunspec/models/SunSpecElgrisSmartMeterModelFactory.h>
 #include <sunspec/models/SunSpecInverterModelFactory.h>
 #include <sunspec/models/SunSpecMpptInverterExtensionModelFactory.h>

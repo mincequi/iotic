@@ -174,6 +174,7 @@ void SunSpecThing::onReadHeader() {
             emit stateChanged(State::Failed);
         }
     } else {
+        LOG_S(INFO) << "reply error: " << reply->error();
         emit stateChanged(State::Failed);
     }
 
@@ -312,7 +313,7 @@ void SunSpecThing::parseModel(uint16_t modelId, const std::vector<uint16_t>& buf
             std::replace(m_sunSpecId.begin(), m_sunSpecId.end(), '+', '_');
         }
     } else if (sunspec::ModelFactory::updateFromBuffer(m_models, modelId, buffer, timestamp)) {
-        emit modelRead(m_models[modelId]);
+        emit modelRead(m_models[modelId], timestamp);
     }
 }
 

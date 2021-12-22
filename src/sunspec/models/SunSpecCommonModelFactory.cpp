@@ -1,4 +1,6 @@
-#include "SunSpecCommonModel.h"
+#include "SunSpecCommonModelFactory.h"
+
+#include <sunspec/SunSpecModel.h>
 
 namespace sunspec {
 

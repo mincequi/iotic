@@ -28,14 +28,25 @@ Under this topic there are two sub-topics: `live` and `stats`. The *statistics* 
 
 The payload is formatted as JSON.
 
+## InfluxDB export
+There is support for inserting data into an influxdb database. This is limited to InfluxDB 1.X on localhost at port 8086.
+Support for InfluxDB 2.X with auth and remote host will follow.
+
 ## Device support
 Currently, the following SunSpec models are supported: 101, 103, 160, 203. So, **ANY** solar inverter and smart meter that supports SunSpec / Modbus should also be supported here. As of now, the following devices are successfully tested:
 ### Solar inverters
-- SMA STP10.0-3AV-40
-- SMA STP8.0-3av-40
-- SMA STP 15000TL-30
-- SMA STP 20000TL-30
-- SMA STP 25000TL-30
+- SMA STP8.0-3AV-40 / STP10.0-3AV-40
+- SMA STP 15000TL-30 / 20000TL-30 /25000TL-30
+- SMA SB 3000TL-21 / 3600TL-21 / 4000TL-21 / 5000TL-21
 
 ### Smart meters
 - elgris SMART METER WiFi
+
+## Planned features
+- config file
+- debian package
+- command line interface
+- read battery inverters
+- control wallboxes
+- read shellies
+- control shellies

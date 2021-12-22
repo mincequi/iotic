@@ -1,9 +1,6 @@
 #ifndef SUNSPECINVERTERMODEL_H
 #define SUNSPECINVERTERMODEL_H
 
-#include <optional>
-#include <functional>
-
 #include <sunspec/SunSpecModel.h>
 
 namespace sunspec {

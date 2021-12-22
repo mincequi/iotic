@@ -33,7 +33,7 @@ signals:
     void thingDiscovered(const sunspec::SunSpecThing&);
     void thingDisappeared(const sunspec::SunSpecThing&);
 
-    void modelRead(const SunSpecThing& thing, const sunspec::Model& model);
+    void modelRead(const SunSpecThing& thing, const sunspec::Model& model, uint32_t timestamp);
 
     // TOOD: probably not the right class to emit this. However, this is a simple solution for now.
     void endOfDayReached();

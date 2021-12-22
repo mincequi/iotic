@@ -4,14 +4,17 @@
 #include <QTcpSocket>
 
 #include "Logger.h"
+#include "InfluxExporter.h"
 #include "MqttExporter.h"
 #include "Statistics.h"
+#include "Util.h"
 #include "sunspec/SunSpecManager.h"
 #include "sunspec/SunSpecMeasuredValue.h"
 #include "sunspec/SunSpecModel.h"
 #include "sunspec/SunSpecThing.h"
 #include "sunspec/SunSpecTypes.h"
 
+using namespace std::placeholders;
 using namespace sunspec;
 
 int main(int argc, char *argv[]) {
@@ -63,6 +66,15 @@ int main(int argc, char *argv[]) {
     MqttExporter mqttExporter("broker.hivemq.com");
     QObject::connect(&mgr, &SunSpecManager::modelRead, &mqttExporter, &MqttExporter::exportLiveData);
     QObject::connect(&stats, &Statistics::statsChanged, &mqttExporter, &MqttExporter::exportStatsData);
+
+    // Setup InfluxExporter
+    QString db = "elsewhere_" + util::getMacAddress().remove(':');
+    std::optional<InfluxExporter> influxExporter = InfluxExporter::build(db.toStdString())
+                                                   .host("localhost")
+                                                   .port(8086);
+    if (influxExporter) {
+        QObject::connect(&mgr, &SunSpecManager::modelRead, std::bind(&InfluxExporter::exportLiveData, &influxExporter.value(), _1, _2, _3));
+    }
 
     // Start discovery
     mgr.startDiscovering(60);

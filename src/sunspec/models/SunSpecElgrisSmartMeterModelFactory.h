@@ -1,17 +1,12 @@
 #ifndef SUNSPECSMARTMETERMODEL_H
 #define SUNSPECSMARTMETERMODEL_H
 
-#include <map>
-#include <optional>
-#include <string>
+#include <cstdint>
 #include <vector>
 
-#include <sunspec/SunSpecDataPoint.h>
-#include <sunspec/SunSpecDataValue.h>
-#include <sunspec/SunSpecMeasuredValue.h>
-#include <sunspec/SunSpecModel.h>
-
 namespace sunspec {
+
+class Model;
 
 class ElgrisSmartMeterModelFactory {
 public:

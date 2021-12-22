@@ -49,6 +49,17 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(magic_enum)
 
+set(BUILD_SHARED_LIBS OFF)
+set(INFLUXCXX_WITH_BOOST OFF)
+set(INFLUXCXX_TESTING OFF)
+set(INFLUXCXX_SYSTEMTEST OFF)
+FetchContent_Declare(
+  influxdb
+  GIT_REPOSITORY https://github.com/offa/influxdb-cxx.git
+  GIT_TAG        v0.6.7
+)
+FetchContent_MakeAvailable(influxdb)
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(CMAKE_AUTOUIC ON)
@@ -67,6 +78,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Network SerialBus REQUIRED)
 
 add_executable(elsewhere
   src/main.cpp
+  src/InfluxExporter.cpp
   src/LiveExporter.cpp
   src/Logger.cpp
   src/MqttExporter.cpp
@@ -82,7 +94,7 @@ add_executable(elsewhere
   src/sunspec/SunSpecStatsModel.cpp
   src/sunspec/SunSpecThing.cpp
   src/sunspec/SunSpecTypes.cpp
-  src/sunspec/models/SunSpecCommonModel.cpp
+  src/sunspec/models/SunSpecCommonModelFactory.cpp
   src/sunspec/models/SunSpecElgrisSmartMeterModelFactory.cpp
   src/sunspec/models/SunSpecInverterModelFactory.cpp
   src/sunspec/models/SunSpecMpptInverterExtensionModelFactory.cpp
@@ -106,4 +118,5 @@ target_link_libraries(elsewhere
   qmqtt
   fmt::fmt
   tomlplusplus::tomlplusplus
+  InfluxData::InfluxDB
 )

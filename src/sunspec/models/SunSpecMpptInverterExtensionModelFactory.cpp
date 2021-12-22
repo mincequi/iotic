@@ -24,6 +24,7 @@ bool MpptInverterExtensionModelFactory::updateFromBuffer(Model& model,
 
     std::vector<sunspec::Block<double>> dcs(count);
     for (uint16_t i = 0; i < count; ++i) {
+        //uint16_t id = buffer.at(8 + (i * 20));
         uint32_t dcCurrent = buffer.at(8 + (i * 20) + 9);
         if (dcCurrent == 65535) {
             dcCurrent = 0;
@@ -37,6 +38,7 @@ bool MpptInverterExtensionModelFactory::updateFromBuffer(Model& model,
             dcPower = 0;
         }
 
+        //dcs[i][sunspec::id] = id;
         dcs[i][sunspec::current] = (double)(dcCurrent * sfCurrent);
         dcs[i][sunspec::voltage] = (double)(dcVoltage * sfVoltage);
         dcs[i][sunspec::power] = (double)(dcPower * sfPower);

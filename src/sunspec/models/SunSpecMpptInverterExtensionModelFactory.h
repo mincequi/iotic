@@ -2,7 +2,6 @@
 #define SUNSPECMPPTINVERTEREXTENSIONMODEL_H
 
 #include <cstdint>
-#include <optional>
 #include <vector>
 
 namespace sunspec {

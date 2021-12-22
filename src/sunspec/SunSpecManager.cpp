@@ -86,7 +86,7 @@ void SunSpecManager::onThingStateChanged(SunSpecThing::State state) {
     case SunSpecThing::State::Connected:
         m_discoveringThings.removeAll(thing);
         m_discoveredThings.insert(thing->sunSpecId(), thing);
-        connect(thing, &SunSpecThing::modelRead, std::bind(&SunSpecManager::modelRead, this, std::ref(*thing), _1));
+        connect(thing, &SunSpecThing::modelRead, std::bind(&SunSpecManager::modelRead, this, std::ref(*thing), _1, _2));
         emit thingDiscovered(*thing);
         break;
     }
