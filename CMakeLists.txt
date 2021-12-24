@@ -16,7 +16,11 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
   GIT_TAG        v2.5.0
 )
-FetchContent_MakeAvailable(tomlplusplus)
+# This is needed to exclude .h and .a files from installation
+if(NOT tomlplusplus_POPULATED)
+    FetchContent_Populate(tomlplusplus)
+    add_subdirectory(${tomlplusplus_SOURCE_DIR} ${tomlplusplus_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
 
 FetchContent_Declare(
   fmt
@@ -40,7 +44,11 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/emqx/qmqtt.git
   GIT_TAG        v1.0.0
 )
-FetchContent_MakeAvailable(qmqtt)
+# This is needed to exclude .h and .a files from installation
+if(NOT qmqtt_POPULATED)
+    FetchContent_Populate(qmqtt)
+    add_subdirectory(${qmqtt_SOURCE_DIR} ${qmqtt_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
 
 FetchContent_Declare(
   magic_enum
@@ -58,7 +66,11 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/offa/influxdb-cxx.git
   GIT_TAG        v0.6.7
 )
-FetchContent_MakeAvailable(influxdb)
+# This is needed to exclude .h and .a files from installation
+if(NOT influxdb_POPULATED)
+    FetchContent_Populate(influxdb)
+    add_subdirectory(${influxdb_SOURCE_DIR} ${influxdb_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -78,6 +90,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Network SerialBus REQUIRED)
 
 add_executable(elsewhere
   src/main.cpp
+  src/Config.cpp
   src/InfluxExporter.cpp
   src/LiveExporter.cpp
   src/Logger.cpp
@@ -120,3 +133,19 @@ target_link_libraries(elsewhere
   tomlplusplus::tomlplusplus
   InfluxData::InfluxDB
 )
+
+install(TARGETS elsewhere DESTINATION bin)
+install(FILES etc/elsewhere.conf TYPE SYSCONF)
+
+set(CPACK_GENERATOR "DEB")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Manuel Weichselbaumer <mincequi@web.de>") #required
+set(CPACK_PACKAGE_VERSION_MAJOR 0)
+set(CPACK_PACKAGE_VERSION_MINOR 0)
+set(CPACK_PACKAGE_VERSION_PATCH 1)
+#set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_SYSTEM_NAME})
+set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+set(CPACK_DEBIAN_PACKAGE_DEPENDS adduser)
+set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
+    "${PROJECT_SOURCE_DIR}/debian/postinst;
+    ${PROJECT_SOURCE_DIR}/debian/postrm")
+include(CPack)

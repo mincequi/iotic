@@ -1,0 +1,26 @@
+#!/bin/sh
+
+set -e
+
+case "$1" in
+    configure)
+    # create elsewhere user if not there already
+    if ! getent passwd elsewhere >/dev/null; then
+        adduser --disabled-password --quiet --system --home /var/lib/elsewhere --group elsewhere
+    fi
+    chown elsewhere:elsewhere /var/lib/elsewhere
+    rm -rf /var/lib/elsewhere/* > /dev/null 2>&1 || true
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+exit 0
+
+#DEBHELPER#

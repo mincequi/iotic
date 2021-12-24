@@ -51,6 +51,7 @@ template class Block<double>;
 template class Block<int32_t>;
 template class Block<MeasuredValue<int32_t>>;
 template class Block<MeasuredValue<double>>;
+template class Block<InverterOperatingState>;
 template Block<MeasuredValue<double>>::Block(const Block<double>&);
 template Block<MeasuredValue<InverterOperatingState>>::Block(const Block<InverterOperatingState>&);
 

@@ -174,7 +174,7 @@ void SunSpecThing::onReadHeader() {
             emit stateChanged(State::Failed);
         }
     } else {
-        LOG_S(INFO) << "reply error: " << reply->error();
+        LOG_S(WARNING) << "reply error: " << reply->error();
         emit stateChanged(State::Failed);
     }
 
