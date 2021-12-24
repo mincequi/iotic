@@ -64,7 +64,7 @@ bool SunSpecThing::isSleeping() const {
 }
 
 void SunSpecThing::readModel(uint16_t modelId, uint32_t timestamp) {
-    LOG_S(1) << this->sunSpecId() << "> reading model: " << modelId;
+    LOG_S(2) << this->sunSpecId() << "> reading model: " << modelId;
     if (m_modelAddresses.count(modelId)) {
         readBlock(modelId, m_modelAddresses[modelId].first, m_modelAddresses[modelId].second, timestamp);
     }
@@ -238,7 +238,7 @@ void SunSpecThing::readBlock(uint16_t modelId, uint16_t address, uint16_t length
         delete reply;
         emit stateChanged(State::Failed);
     } else {
-        LOG_S(1) << sunSpecId() << "> reading block at: " << address;
+        LOG_S(2) << sunSpecId() << "> reading block at: " << address;
         connect(reply, &QModbusReply::finished, this, std::bind(&SunSpecThing::onReadBlock, this, modelId, timestamp));
     }
 }
