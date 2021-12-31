@@ -6,6 +6,7 @@
 #include <QModbusTcpClient>
 
 #include <sunspec/models/SunSpecCommonModelFactory.h>
+#include <sunspec/SunSpecDataValue.h>
 
 namespace sunspec {
 
@@ -23,6 +24,9 @@ public:
     QString host() const;
     uint8_t modbusUnitId() const;
 
+    std::string manufacturer() const;
+    std::string product() const;
+    std::string serial() const;
     std::string sunSpecId() const;
 
     const std::map<uint16_t, std::pair<uint16_t, uint16_t>>& models() const;
@@ -62,9 +66,15 @@ private:
 
     void parseModel(uint16_t modelId, const std::vector<uint16_t>& buffer, uint32_t timestamp);
 
+    static std::string toString(const LiveValue& v);
+
     QModbusTcpClient m_modbusClient;
     uint8_t m_unitId = 0;
     uint8_t m_unitIdx = 0;
+
+    std::string m_manufacturer;
+    std::string m_product;
+    std::string m_serial;
     std::string m_sunSpecId;
 
     uint8_t m_timeoutCount = 0;

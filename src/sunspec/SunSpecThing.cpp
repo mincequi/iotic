@@ -36,6 +36,18 @@ std::string SunSpecThing::sunSpecId() const {
     return m_sunSpecId;
 }
 
+std::string SunSpecThing::manufacturer() const {
+    return m_manufacturer;
+}
+
+std::string SunSpecThing::product() const {
+    return m_product;
+}
+
+std::string SunSpecThing::serial() const {
+   return m_serial;
+}
+
 const std::map<uint16_t, std::pair<uint16_t, uint16_t>>& SunSpecThing::models() const {
     return m_modelAddresses;
 }
@@ -302,19 +314,26 @@ void SunSpecThing::parseModel(uint16_t modelId, const std::vector<uint16_t>& buf
     if (modelId == 1) {
         auto& commonModel = m_models[modelId];
         if (SunSpecCommonModelFactory::updateFromBuffer(commonModel, buffer, timestamp)) {
-            std::stringstream ss;
-            ss << commonModel.values().at(manufacturer) << "_"
-               << commonModel.values().at(product) << "_"
-               << commonModel.values().at(serial);
-            m_sunSpecId = ss.str();
-            std::transform(m_sunSpecId.begin(), m_sunSpecId.end(), m_sunSpecId.begin(), [](uchar c) { return std::tolower(c); });
-            std::replace(m_sunSpecId.begin(), m_sunSpecId.end(), ' ', '_');
-            std::replace(m_sunSpecId.begin(), m_sunSpecId.end(), '#', '_');
-            std::replace(m_sunSpecId.begin(), m_sunSpecId.end(), '+', '_');
+            m_manufacturer = toString(commonModel.values().at(Manufacturer));
+            m_product = toString(commonModel.values().at(Product));
+            m_serial = toString(commonModel.values().at(Serial));
+            m_sunSpecId = m_manufacturer + "_" + m_product + "_" + m_serial;
         }
     } else if (sunspec::ModelFactory::updateFromBuffer(m_models, modelId, buffer, timestamp)) {
         emit modelRead(m_models[modelId], timestamp);
     }
+}
+
+std::string SunSpecThing::toString(const LiveValue& v) {
+    std::stringstream ss;
+    ss << v;
+    auto str = ss.str();
+    std::transform(str.begin(), str.end(), str.begin(), [](uchar c) { return std::tolower(c); });
+    std::replace(str.begin(), str.end(), ' ', '_');
+    std::replace(str.begin(), str.end(), '#', '_');
+    std::replace(str.begin(), str.end(), '+', '_');
+
+    return str;
 }
 
 } // namespace sunspec

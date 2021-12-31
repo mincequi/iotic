@@ -15,11 +15,11 @@ enum DataPoint : uint8_t {
     max,
 
     // common model data points
-    manufacturer,
-    product,
-    options,
-    version,
-    serial,
+    Manufacturer,
+    Product,
+    Options,
+    Version,
+    Serial,
 
     // regular data points
     totalActiveAcPower,

@@ -36,8 +36,8 @@ bool ModelFactory::updateFromBuffer(std::map<uint16_t, Model>& models,
     }
 
     // Special handling for elgris smart meter
-    if (models[1].values().count(sunspec::manufacturer) &&
-            std::get<std::string>(models[1].values().at(sunspec::manufacturer)) == "elgris") {
+    if (models[1].values().count(sunspec::Manufacturer) &&
+            std::get<std::string>(models[1].values().at(sunspec::Manufacturer)) == "elgris") {
         ElgrisSmartMeterModelFactory::updateFromBuffer(models[modelId], buffer, timestamp);
     } else {
         s_factories.at(modelId)(models[modelId], buffer, timestamp);

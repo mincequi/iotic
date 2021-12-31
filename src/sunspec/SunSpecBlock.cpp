@@ -47,8 +47,8 @@ const std::map<sunspec::DataPoint, T>& Block<T>::data() const {
 }
 
 // Explicit template instantiation
-template class Block<double>;
 template class Block<int32_t>;
+template class Block<double>;
 template class Block<MeasuredValue<int32_t>>;
 template class Block<MeasuredValue<double>>;
 template class Block<InverterOperatingState>;

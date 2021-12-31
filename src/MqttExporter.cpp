@@ -1,16 +1,14 @@
 #include "MqttExporter.h"
 
-#include <loguru.hpp>
-
 #include <qmqtt_message.h>
+#include <sunspec/SunSpecModel.h>
+#include <sunspec/SunSpecStatsModel.h>
+#include <sunspec/SunSpecThing.h>
 
 #include "Logger.h"
 #include "Util.h"
-#include "sunspec/SunSpecModel.h"
-#include "sunspec/SunSpecStatsModel.h"
-#include "sunspec/SunSpecThing.h"
 
-static quint16 msgId = 0;
+static quint16 s_msgId = 0;
 
 MqttExporter::MqttExporter(const std::string& host, uint16_t port, QObject *parent) :
     QObject(parent),
@@ -28,13 +26,16 @@ void MqttExporter::exportLiveData(const sunspec::SunSpecThing& thing, const suns
     }
 
     QString topic = "elsewhere_" + util::getMacAddress().remove(':')
-                    + "/" + QString::fromStdString(thing.sunSpecId())
-                    + "/" + QString::number(model.modelId())
-                    + "/live";
+                    + "/" + QString::fromStdString(thing.manufacturer())
+                    + "/" + QString::fromStdString(thing.product())
+                    + "/" + QString::fromStdString(thing.serial());
+    if (model.modelId() == 160) topic += "/mppt";
+    topic += "/live";
+
     std::stringstream ss;
     ss << model;
 
-    QMQTT::Message message(++msgId,
+    QMQTT::Message message(++s_msgId,
                            topic,
                            QByteArray::fromStdString(ss.str()),
                            0,
@@ -50,13 +51,16 @@ void MqttExporter::exportStatsData(const sunspec::SunSpecThing& thing, const sun
     }
 
     QString topic = "elsewhere_" + util::getMacAddress().remove(':')
-                    + "/" + QString::fromStdString(thing.sunSpecId())
-                    + "/" + QString::number(model.modelId())
-                    + "/stats";
+                    + "/" + QString::fromStdString(thing.manufacturer())
+                    + "/" + QString::fromStdString(thing.product())
+                    + "/" + QString::fromStdString(thing.serial());
+    if (model.modelId() == 160) topic += "/mppt";
+    topic += "/stats";
+
     std::stringstream ss;
     ss << model;
 
-    QMQTT::Message message(++msgId,
+    QMQTT::Message message(++s_msgId,
                            topic,
                            QByteArray::fromStdString(ss.str()),
                            0,

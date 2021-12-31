@@ -4,7 +4,9 @@
 #include <QTcpSocket>
 
 #include "Logger.h"
+#ifdef USE_INFLUXDB
 #include "InfluxExporter.h"
+#endif
 #include "MqttExporter.h"
 #include "Statistics.h"
 #include "Util.h"
@@ -68,6 +70,7 @@ int main(int argc, char *argv[]) {
     QObject::connect(&stats, &Statistics::statsChanged, &mqttExporter, &MqttExporter::exportStatsData);
 
     // Setup InfluxExporter
+#ifdef USE_INFLUXDB
     QString db = "elsewhere_" + util::getMacAddress().remove(':');
     std::optional<InfluxExporter> influxExporter = InfluxExporter::build(db.toStdString())
                                                    .host("localhost")
@@ -75,6 +78,7 @@ int main(int argc, char *argv[]) {
     if (influxExporter) {
         QObject::connect(&mgr, &SunSpecManager::modelRead, std::bind(&InfluxExporter::exportLiveData, &influxExporter.value(), _1, _2, _3));
     }
+#endif
 
     // Start discovery
     mgr.startDiscovering(60);

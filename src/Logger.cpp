@@ -4,8 +4,10 @@
 
 #include <magic_enum.hpp>
 
-#include "sunspec/SunSpecMeasuredValue.h"
-#include "sunspec/SunSpecStatsModel.h"
+#include <sunspec/SunSpecMeasuredValue.h>
+#include <sunspec/SunSpecStatsModel.h>
+
+#include "Util.h"
 
 void Logger::init(int& argc, char* argv[]) {
     /* Everything with a verbosity equal or greater than g_stderr_verbosity will be
@@ -46,7 +48,7 @@ namespace sunspec {
 std::ostream& operator<<(std::ostream& os, const sunspec::Model& model) {
     os << "{";
     for (auto it = model.values().cbegin(); it != model.values().cend(); ++it) {
-        os << "\"" << magic_enum::enum_name(it->first) << "\":" << it->second;
+        os << "\"" << util::toString(it->first) << "\":" << it->second;
         if (std::distance(it, model.values().cend()) > 1) {
             os << ",";
         }
@@ -59,7 +61,7 @@ template <class T>
 std::ostream& operator<<(std::ostream& os, const sunspec::Block<T>& value) {
     os << "{";
     for (auto it = value.data().cbegin(); it != value.data().cend(); ++it) {
-        os << "\"" << magic_enum::enum_name(it->first) << "\":" << it->second;
+        os << "\"" << util::toString(it->first) << "\":" << it->second;
         if (std::distance(it, value.data().cend()) > 1) {
             os << ",";
         }
@@ -101,7 +103,7 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
 std::ostream& operator<<(std::ostream& os, const sunspec::StatsModel& model) {
     os << "{";
     for (auto it = model.values().cbegin(); it != model.values().cend(); ++it) {
-        os << "\"" << magic_enum::enum_name(it->first) << "\":" << it->second;
+        os << "\"" << util::toString(it->first) << "\":" << it->second;
         if (std::distance(it, model.values().cend()) > 1) {
             os << ",";
         }

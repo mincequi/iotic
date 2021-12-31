@@ -91,7 +91,6 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Network SerialBus REQUIRED)
 add_executable(elsewhere
   src/main.cpp
   src/Config.cpp
-  src/InfluxExporter.cpp
   src/LiveExporter.cpp
   src/Logger.cpp
   src/MqttExporter.cpp
@@ -131,8 +130,21 @@ target_link_libraries(elsewhere
   qmqtt
   fmt::fmt
   tomlplusplus::tomlplusplus
-  InfluxData::InfluxDB
 )
+
+find_package(curl)
+if(CURL_FOUND)
+  target_sources(elsewhere
+  PRIVATE
+      src/InfluxExporter.cpp
+  )
+  target_link_libraries(elsewhere
+      InfluxData::InfluxDB
+  )
+  add_compile_definitions(
+      USE_INFLUXDB
+  )
+endif(CURL_FOUND)
 
 install(TARGETS elsewhere DESTINATION bin)
 install(FILES etc/elsewhere.conf TYPE SYSCONF)
