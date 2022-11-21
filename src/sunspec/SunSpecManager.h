@@ -22,7 +22,7 @@ public:
             Read
         } type = Op::Read;
         uint16_t modelId = 0;
-        uint32_t interval = 0;
+        uint32_t intervalMs = 0;
 
         bool operator==(const Task& other);
     };
@@ -51,7 +51,7 @@ private:
     QList<Task> m_tasks;
 
     QTimer m_timer;
-    uint32_t m_currentTimestamp = 0;
+    uint64_t m_currentTimestamp = 0;
 
     QTimer m_discoverTimer;
 };

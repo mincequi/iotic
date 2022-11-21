@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.14)
 project(elsewhere LANGUAGES CXX)
 
 Include(FetchContent)
+Set(FETCHCONTENT_QUIET FALSE)
 
 #FetchContent_Declare(
 #  Catch2
@@ -11,8 +12,7 @@ Include(FetchContent)
 #)
 #FetchContent_MakeAvailable(Catch2)
 
-FetchContent_Declare(
-  tomlplusplus
+FetchContent_Declare(tomlplusplus
   GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
   GIT_TAG        v2.5.0
 )
@@ -22,15 +22,13 @@ if(NOT tomlplusplus_POPULATED)
     add_subdirectory(${tomlplusplus_SOURCE_DIR} ${tomlplusplus_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
-FetchContent_Declare(
-  fmt
+FetchContent_Declare(fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
   GIT_TAG        8.0.1
 )
 FetchContent_MakeAvailable(fmt)
 
-FetchContent_Declare(
-  loguru
+FetchContent_Declare(loguru
   GIT_REPOSITORY https://github.com/emilk/loguru.git
   GIT_TAG        v2.1.0
 )
@@ -39,10 +37,10 @@ FetchContent_MakeAvailable(loguru)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 set(qmqtt_SHARED OFF)
 add_definitions(-DMQTT_PROJECT_INCLUDE_SRC)
-FetchContent_Declare(
-  qmqtt
+FetchContent_Declare(qmqtt
   GIT_REPOSITORY https://github.com/emqx/qmqtt.git
   GIT_TAG        v1.0.0
+  GIT_PROGRESS TRUE
 )
 # This is needed to exclude .h and .a files from installation
 if(NOT qmqtt_POPULATED)
@@ -50,27 +48,13 @@ if(NOT qmqtt_POPULATED)
     add_subdirectory(${qmqtt_SOURCE_DIR} ${qmqtt_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
-FetchContent_Declare(
-  magic_enum
+FetchContent_Declare(magic_enum
   GIT_REPOSITORY https://github.com/Neargye/magic_enum.git
   GIT_TAG        v0.7.3
 )
 FetchContent_MakeAvailable(magic_enum)
 
-set(BUILD_SHARED_LIBS OFF)
-set(INFLUXCXX_WITH_BOOST OFF)
-set(INFLUXCXX_TESTING OFF)
-set(INFLUXCXX_SYSTEMTEST OFF)
-FetchContent_Declare(
-  influxdb
-  GIT_REPOSITORY https://github.com/offa/influxdb-cxx.git
-  GIT_TAG        v0.6.7
-)
-# This is needed to exclude .h and .a files from installation
-if(NOT influxdb_POPULATED)
-    FetchContent_Populate(influxdb)
-    add_subdirectory(${influxdb_SOURCE_DIR} ${influxdb_BINARY_DIR} EXCLUDE_FROM_ALL)
-endif()
+add_subdirectory(src/ui)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -85,11 +69,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "-DLOGURU_WITH_STREAMS -DLOGURU_USE_FMTLIB")
 
 find_package(Threads)
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Network SerialBus REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Network SerialBus REQUIRED)
+#find_package(QT NAMES Qt5 COMPONENTS Core Network SerialBus REQUIRED)
+find_package(Qt5 COMPONENTS Core Network SerialBus REQUIRED)
 
 add_executable(elsewhere
   src/main.cpp
+  src/AppBackend.cpp
+  src/AppFrontend.cpp
   src/Config.cpp
   src/LiveExporter.cpp
   src/Logger.cpp
@@ -130,20 +116,36 @@ target_link_libraries(elsewhere
   qmqtt
   fmt::fmt
   tomlplusplus::tomlplusplus
+  ui
 )
 
 find_package(curl)
 if(CURL_FOUND)
-  target_sources(elsewhere
-  PRIVATE
-      src/InfluxExporter.cpp
-  )
-  target_link_libraries(elsewhere
-      InfluxData::InfluxDB
-  )
-  add_compile_definitions(
-      USE_INFLUXDB
-  )
+    set(BUILD_SHARED_LIBS OFF)
+    set(INFLUXCXX_WITH_BOOST OFF)
+    set(INFLUXCXX_TESTING OFF)
+    set(INFLUXCXX_SYSTEMTEST OFF)
+    FetchContent_Declare(
+      influxdb
+      GIT_REPOSITORY https://github.com/offa/influxdb-cxx.git
+      GIT_TAG        v0.6.7
+    )
+    # This is needed to exclude .h and .a files from installation
+    if(NOT influxdb_POPULATED)
+	FetchContent_Populate(influxdb)
+	add_subdirectory(${influxdb_SOURCE_DIR} ${influxdb_BINARY_DIR} EXCLUDE_FROM_ALL)
+    endif()
+
+    target_sources(elsewhere
+	PRIVATE
+	src/InfluxExporter.cpp
+    )
+    target_link_libraries(elsewhere
+	InfluxData::InfluxDB
+    )
+    add_compile_definitions(
+	USE_INFLUXDB
+    )
 endif(CURL_FOUND)
 
 install(TARGETS elsewhere DESTINATION bin)

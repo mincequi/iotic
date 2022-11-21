@@ -13,7 +13,7 @@ namespace sunspec {
 
 SunSpecManager::SunSpecManager(QObject *parent) : QObject(parent) {
     m_timer.callOnTimeout(this, &SunSpecManager::onTimer);
-    m_timer.start(1000);
+    m_timer.start(500);
 
     m_discoverTimer.callOnTimeout(this, &SunSpecManager::onStartDiscovering);
 }
@@ -93,11 +93,11 @@ void SunSpecManager::onThingStateChanged(SunSpecThing::State state) {
 }
 
 void SunSpecManager::onTimer() {
-    const auto timestamp = QDateTime::currentSecsSinceEpoch();
+    const auto timestamp = (int64_t)std::round(QDateTime::currentMSecsSinceEpoch() / 500.0) * 500;
 
     // If we have a new day, reset stats
-    const auto prev = QDateTime::fromSecsSinceEpoch(m_currentTimestamp);
-    const auto now = QDateTime::fromSecsSinceEpoch(timestamp);
+    const auto prev = QDateTime::fromMSecsSinceEpoch(m_currentTimestamp);
+    const auto now = QDateTime::fromMSecsSinceEpoch(timestamp);
     if (prev.date().day() != now.date().day()) {
         LOG_S(INFO) << "statistics reset";
         emit endOfDayReached();
@@ -105,7 +105,7 @@ void SunSpecManager::onTimer() {
 
     // Execute tasks for appropriate timeslots
     foreach (const auto& task, m_tasks) {
-        if ((timestamp % task.interval) == 0) {
+        if ((timestamp % task.intervalMs) == 0) {
             auto thing = m_discoveredThings.value(task.thing, nullptr);
             if (thing) {
                 thing->readModel(task.modelId, timestamp);
@@ -120,7 +120,7 @@ bool SunSpecManager::Task::operator==(const Task& other) {
     return thing == other.thing &&
             type == other.type &&
             modelId == other.modelId &&
-            interval == other.interval;
+            intervalMs == other.intervalMs;
 }
 
 } // namespace sunspec
