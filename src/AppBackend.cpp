@@ -1,29 +1,39 @@
 #include "AppBackend.h"
 
-#include "Logger.h"
-#include "Util.h"
+#include "Config.h"
+#include <common/Util.h>
+#include "feed/FeedManager.h"
+#include "feed/LiveFeed.h"
+#include <iot/sunspec/SunSpecLogger.h>
+#include <iot/sunspec/SunSpecModel.h>
 
+#include <QCoreApplication>
 #include <QThread>
 
-using namespace std::placeholders;
 using namespace sunspec;
 
-void AppBackend::run(std::atomic_bool& doRun) {
-}
-
-AppBackend::AppBackend()
-    : _mqttExporter("broker.hivemq.com") {
+AppBackend::AppBackend(FeedManager& feedManager)
+    : _feedManager(feedManager),
+      _mqttExporter("broker.hivemq.com") {
 
     // Setup Statistics
     QObject::connect(&_stats, &Statistics::statsChanged, [&](const sunspec::SunSpecThing& thing, const sunspec::StatsModel& model) {
-        LOG_S(INFO) << thing.sunSpecId() << "> stats: " << model;
+        LOG_S(1) << thing.sunSpecId() << "> stats: " << model;
     });
 
     // Setup SunSpecManager
     QObject::connect(&_sunSpecManager, &sunspec::SunSpecManager::modelRead, [&](const sunspec::SunSpecThing& thing, const sunspec::Model& model) {
         LOG_S(1) << thing.sunSpecId() << "> " << model;
         _stats.feedModel(thing, model);
+        if (model.modelId() == sunspec::Model::Id::WyeConnectMeterModel &&
+                model.values().count(sunspec::totalActiveAcPower)) {
+            _feedManager.liveFeed().setGridMeterPower(thing.sunSpecId(), std::get<int32_t>(model.values().at(sunspec::totalActiveAcPower)));
+        } else if (model.modelId() == sunspec::Model::Id::ThreePhaseInverterModel &&
+                   model.values().count(sunspec::totalActiveAcPower)) {
+            _feedManager.liveFeed().setInverterPower(thing.sunSpecId(), std::get<int32_t>(model.values().at(sunspec::totalActiveAcPower)));
+        }
     });
+
     QObject::connect(&_sunSpecManager, &sunspec::SunSpecManager::thingDiscovered, [&](const sunspec::SunSpecThing& thing) {
         std::stringstream ss;
         for (const auto& kv : thing.models()) {
@@ -34,17 +44,17 @@ AppBackend::AppBackend()
                     << ", modbusUnitId: " << (uint32_t)thing.modbusUnitId()
                     << ", models: " << ss.str();
 
-        if (thing.models().count(101)) {
-            _sunSpecManager.addTask({ thing.sunSpecId(), SunSpecManager::Task::Op::Read, 101, 2500 });
+        if (thing.models().count(Model::Id::SinglePhaseInverterModel)) {
+            _sunSpecManager.addTask({ thing.sunSpecId(), SunSpecManager::Task::Op::Read, Model::Id::SinglePhaseInverterModel, cfg->primaryInterval() });
         }
-        if (thing.models().count(103)) {
-            _sunSpecManager.addTask({ thing.sunSpecId(), SunSpecManager::Task::Op::Read, 103, 2500 });
+        if (thing.models().count(Model::Id::ThreePhaseInverterModel)) {
+            _sunSpecManager.addTask({ thing.sunSpecId(), SunSpecManager::Task::Op::Read, Model::Id::ThreePhaseInverterModel, cfg->primaryInterval() });
         }
         if (thing.models().count(160)) {
-            _sunSpecManager.addTask({ thing.sunSpecId(), SunSpecManager::Task::Op::Read, 160, 2500 });
+            _sunSpecManager.addTask({ thing.sunSpecId(), SunSpecManager::Task::Op::Read, 160, cfg->secondaryInterval() });
         }
         if (thing.models().count(203)) {
-            _sunSpecManager.addTask({ thing.sunSpecId(), SunSpecManager::Task::Op::Read, 203, 2500 });
+            _sunSpecManager.addTask({ thing.sunSpecId(), SunSpecManager::Task::Op::Read, 203, cfg->primaryInterval() });
         }
     });
     QObject::connect(&_sunSpecManager, &sunspec::SunSpecManager::endOfDayReached, &_stats, &Statistics::reset);
@@ -65,6 +75,7 @@ AppBackend::AppBackend()
 #endif
 
     // Start discovery
-    _sunSpecManager.startDiscovering(60);
+    //_thingManager.startDiscovery();
+    _sunSpecManager.startDiscovery(60);
 }
 

@@ -1,7 +1,7 @@
 #include "Statistics.h"
 
-#include "sunspec/SunSpecBlock.h"
-#include "sunspec/SunSpecThing.h"
+#include <iot/sunspec/SunSpecBlock.h>
+#include <iot/sunspec/SunSpecThing.h>
 
 Statistics::Statistics(QObject *parent) : QObject(parent) {
 }
