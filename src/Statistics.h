@@ -3,8 +3,8 @@
 
 #include <QObject>
 
-#include "sunspec/SunSpecModel.h"
-#include "sunspec/SunSpecStatsModel.h"
+#include <iot/sunspec/SunSpecModel.h>
+#include <iot/sunspec/SunSpecStatsModel.h>
 
 namespace sunspec {
 class SunSpecThing;

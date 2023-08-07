@@ -17,22 +17,44 @@
 
 #pragma once
 
+#include <chrono>
 #include <optional>
 #include <string>
 
-struct HostConfig {
+using namespace std::chrono_literals;
+
+#define cfg Config::instance()
+
+class HostConfig {
+public:
     std::string host;
     uint16_t port;
 };
 
 class Config {
 public:
-    Config(const std::string& configFile = "/etc/elsewhere.conf");
+    static Config* instance();
+    virtual ~Config();
+
+    std::chrono::milliseconds primaryInterval() const;
+    std::chrono::milliseconds secondaryInterval() const;
+
+    int maximumSiteAmperage() const;
+
+    int pvSurplusAmperage() const;
+
+private:
+    Config();
 
     void parse();
 
     std::optional<HostConfig> hostConfig(const std::string& ) const;
 
 private:
+    static Config* _instance;
+
     std::string m_configFile;
+
+    std::chrono::milliseconds _primaryInterval = 700ms;
+    std::chrono::milliseconds _secondaryInterval = 1100ms;
 };

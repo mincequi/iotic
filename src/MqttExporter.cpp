@@ -1,12 +1,11 @@
 #include "MqttExporter.h"
 
 #include <qmqtt_message.h>
-#include <sunspec/SunSpecModel.h>
-#include <sunspec/SunSpecStatsModel.h>
-#include <sunspec/SunSpecThing.h>
-
-#include "Logger.h"
-#include "Util.h"
+#include <common/Util.h>
+#include <iot/sunspec/SunSpecLogger.h>
+#include <iot/sunspec/SunSpecModel.h>
+#include <iot/sunspec/SunSpecStatsModel.h>
+#include <iot/sunspec/SunSpecThing.h>
 
 static quint16 s_msgId = 0;
 
