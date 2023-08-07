@@ -7,7 +7,7 @@
 #include <vector>
 
 #include <sunspec/SunSpecDataPoint.h>
-#include <sunspec/SunSpecDataValue.h>
+#include <sunspec/SunSpecStatsValue.h>
 #include <sunspec/SunSpecMeasuredValue.h>
 #include <sunspec/SunSpecModel.h>
 

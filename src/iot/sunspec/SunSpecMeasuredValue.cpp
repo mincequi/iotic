@@ -1,6 +1,6 @@
 #include "SunSpecMeasuredValue.h"
 
-#include "SunSpecDataValue.h"
+#include "SunSpecStatsValue.h"
 
 namespace sunspec {
 

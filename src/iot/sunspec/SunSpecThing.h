@@ -6,7 +6,7 @@
 #include <QModbusTcpClient>
 
 #include <iot/sunspec/models/SunSpecCommonModelFactory.h>
-#include <iot/sunspec/SunSpecDataValue.h>
+#include <iot/sunspec/SunSpecStatsValue.h>
 
 namespace sunspec {
 

@@ -2,8 +2,8 @@
 
 #include "Config.h"
 #include <common/Util.h>
-#include "feed/FeedManager.h"
-#include "feed/LiveFeed.h"
+//#include "feed/FeedManager.h"
+//#include "feed/LiveFeed.h"
 #include <iot/sunspec/SunSpecLogger.h>
 #include <iot/sunspec/SunSpecModel.h>
 
@@ -12,13 +12,13 @@
 
 using namespace sunspec;
 
-AppBackend::AppBackend(FeedManager& feedManager)
-    : _feedManager(feedManager),
+AppBackend::AppBackend(/*FeedManager& feedManager*/)
+    : //_feedManager(feedManager),
       _mqttExporter("broker.hivemq.com") {
 
     // Setup Statistics
     QObject::connect(&_stats, &Statistics::statsChanged, [&](const sunspec::SunSpecThing& thing, const sunspec::StatsModel& model) {
-        LOG_S(1) << thing.sunSpecId() << "> stats: " << model;
+        LOG_S(INFO) << thing.sunSpecId() << "> stats: " << model;
     });
 
     // Setup SunSpecManager
@@ -27,10 +27,10 @@ AppBackend::AppBackend(FeedManager& feedManager)
         _stats.feedModel(thing, model);
         if (model.modelId() == sunspec::Model::Id::WyeConnectMeterModel &&
                 model.values().count(sunspec::totalActiveAcPower)) {
-            _feedManager.liveFeed().setGridMeterPower(thing.sunSpecId(), std::get<int32_t>(model.values().at(sunspec::totalActiveAcPower)));
+            //_feedManager.liveFeed().setGridMeterPower(thing.sunSpecId(), std::get<int32_t>(model.values().at(sunspec::totalActiveAcPower)));
         } else if (model.modelId() == sunspec::Model::Id::ThreePhaseInverterModel &&
                    model.values().count(sunspec::totalActiveAcPower)) {
-            _feedManager.liveFeed().setInverterPower(thing.sunSpecId(), std::get<int32_t>(model.values().at(sunspec::totalActiveAcPower)));
+            //_feedManager.liveFeed().setInverterPower(thing.sunSpecId(), std::get<int32_t>(model.values().at(sunspec::totalActiveAcPower)));
         }
     });
 

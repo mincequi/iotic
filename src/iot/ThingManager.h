@@ -1,5 +1,4 @@
-#ifndef THINGMANAGER_H
-#define THINGMANAGER_H
+#pragma once
 
 #include <map>
 #include <QObject>
@@ -41,5 +40,3 @@ private:
 
     friend class AbstractDiscovery;
 };
-
-#endif // THINGMANAGER_H

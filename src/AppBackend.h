@@ -15,10 +15,10 @@ class FeedManager;
 
 class AppBackend {
 public:
-    AppBackend(FeedManager& liveFeed);
+    AppBackend(/*FeedManager& liveFeed*/);
 
 private:
-    FeedManager& _feedManager;
+    //FeedManager& _feedManager;
     Statistics _stats;
     ThingManager _thingManager;
     sunspec::SunSpecManager _sunSpecManager;

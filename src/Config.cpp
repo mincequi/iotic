@@ -38,8 +38,8 @@ void Config::parse() {
         return;
     }
 
-    _primaryInterval = std::chrono::milliseconds(result.table()["general"]["primary_interval"].value_or(700));
-    _secondaryInterval = std::chrono::milliseconds(result.table()["general"]["secondary_interval"].value_or(1100));
+    _primaryInterval = std::chrono::milliseconds(result.table()["general"]["primary_interval"].value_or(10000));
+    _secondaryInterval = std::chrono::milliseconds(result.table()["general"]["secondary_interval"].value_or(10000));
 }
 
 std::optional<HostConfig> Config::hostConfig(const std::string& ) const {

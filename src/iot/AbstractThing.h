@@ -1,6 +1,6 @@
-#ifndef ABSTRACTTHING_H
-#define ABSTRACTTHING_H
+#pragma once
 
+#include <memory>
 #include <set>
 #include <QObject>
 #include <iot/ThingInfo.h>
@@ -22,5 +22,3 @@ signals:
 };
 
 using AbstractThingPtr = std::unique_ptr<AbstractThing>;
-
-#endif // ABSTRACTTHING_H

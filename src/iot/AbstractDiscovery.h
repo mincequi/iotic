@@ -1,6 +1,6 @@
-#ifndef ABSTRACTDISCOVERY_H
-#define ABSTRACTDISCOVERY_H
+#pragma once
 
+#include <memory>
 #include <QObject>
 
 class ThingInfo;
@@ -22,5 +22,3 @@ private:
 };
 
 using AbstractDiscoveryPtr = std::unique_ptr<AbstractDiscovery>;
-
-#endif // ABSTRACTDISCOVERY_H

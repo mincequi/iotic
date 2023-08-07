@@ -1,10 +1,9 @@
-#ifndef SUNSPECMODEL_H
-#define SUNSPECMODEL_H
+#pragma once
 
 #include <map>
 
 #include "SunSpecDataPoint.h"
-#include "SunSpecDataValue.h"
+#include "SunSpecStatsValue.h"
 
 namespace sunspec {
 
@@ -58,4 +57,3 @@ protected:
 
 } // namespace sunspec
 
-#endif // SUNSPECMODEL_H

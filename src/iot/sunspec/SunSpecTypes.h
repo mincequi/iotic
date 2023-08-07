@@ -1,5 +1,4 @@
-#ifndef SUNSPECTYPES_H
-#define SUNSPECTYPES_H
+#pragma once
 
 #include <bitset>
 #include <cstdint>
@@ -42,5 +41,3 @@ class InverterEvents : public std::bitset<16> {
 std::ostream& operator<<(std::ostream& os, const InverterEvents& value);
 
 }
-
-#endif // SUNSPECTYPES_H

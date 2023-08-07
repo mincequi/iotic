@@ -1,5 +1,4 @@
-#ifndef SUNSPECBLOCK_H
-#define SUNSPECBLOCK_H
+#pragma once
 
 #include <map>
 
@@ -29,5 +28,3 @@ protected:
 };
 
 } // namespace sunspec
-
-#endif // SUNSPECBLOCK_H

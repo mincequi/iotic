@@ -3,7 +3,7 @@
 #include "AppBackend.h"
 
 #include <common/Logger.h>
-#include <feed/FeedManager.h>
+//#include <feed/FeedManager.h>
 
 #include <QCoreApplication>
 
@@ -16,9 +16,9 @@ int main(int argc, char *argv[]) {
     Logger::init(argc, argv);
 
     // FeedManager - the bridge for data between backend and frontend
-    FeedManager feedManager;
+    //FeedManager feedManager;
 
-    AppBackend backend(feedManager);
+    AppBackend backend;//(feedManager);
 
     return a.exec();
 }

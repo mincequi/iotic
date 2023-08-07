@@ -1,11 +1,10 @@
-#ifndef SUNSPECDATAPOINT_H
-#define SUNSPECDATAPOINT_H
+#pragma once
 
 #include <cstdint>
 
 namespace sunspec {
 
-enum DataPoint : uint8_t {
+enum DataPoint {
     // meta data
     timestamp,
 
@@ -37,5 +36,3 @@ enum DataPoint : uint8_t {
 };
 
 } // namespace sunspec
-
-#endif // SUNSPECDATAPOINT_H

@@ -38,10 +38,10 @@ endif()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_EXTENSIONS ON)
 
 add_subdirectory(src/common)
-add_subdirectory(src/feed)
+#add_subdirectory(src/feed)
 add_subdirectory(src/iot)
 #add_subdirectory(src/ui)
 
@@ -52,8 +52,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Threads)
-#find_package(QT NAMES Qt5 COMPONENTS Core Network SerialBus REQUIRED)
-find_package(Qt5 COMPONENTS Core Network SerialBus REQUIRED)
+find_package(QT NAMES Qt5 Qt6 COMPONENTS Core Network SerialBus REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Network SerialBus REQUIRED)
 
 add_executable(elsewhere
   src/main.cpp
@@ -75,12 +75,12 @@ target_link_libraries(elsewhere
   qmqtt
   tomlplusplus::tomlplusplus
   common
-  feed
+  #feed
   iot
   #ui
 )
 
-find_package(curl)
+find_package(CURL)
 if(CURL_FOUND)
     set(BUILD_SHARED_LIBS OFF)
     set(INFLUXCXX_WITH_BOOST OFF)

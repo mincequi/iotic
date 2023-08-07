@@ -1,24 +1,16 @@
-#ifndef SUNSPECDATAVALUE_H
-#define SUNSPECDATAVALUE_H
+#pragma once
 
 #include <set>
 #include <string>
 #include <variant>
 #include <vector>
 
-#include "SunSpecMeasuredValue.h"
-#include "SunSpecTypes.h"
+#include <iot/sunspec/SunSpecLiveValue.h>
+#include <iot/sunspec/SunSpecMeasuredValue.h>
+#include <iot/sunspec/SunSpecStatsValue.h>
+#include <iot/sunspec/SunSpecTypes.h>
 
 namespace sunspec {
-
-using LiveValue = std::variant<
-    uint32_t,   // timestamp
-    InverterOperatingState,
-    InverterEvents,
-    int32_t,    //
-    double,     // regular value
-    std::vector<Block<double>>,    // block arrays
-    std::string>;
 
 class StatsValue {
 public:
@@ -47,5 +39,3 @@ private:
 };
 
 } // namespace sunspec
-
-#endif // SUNSPECDATAVALUE_H

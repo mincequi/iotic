@@ -1,5 +1,4 @@
-#ifndef THINGINFO_H
-#define THINGINFO_H
+#pragma once
 
 #include <string>
 
@@ -23,5 +22,3 @@ private:
     std::string _id;
     std::string _name;
 };
-
-#endif // THINGINFO_H
