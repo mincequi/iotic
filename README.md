@@ -7,6 +7,16 @@ ElsewhereEdge is a SunSpec - MQTT gateway. It collects measurement data from sma
 - Qt5 Core Network SerialBus (currently not working with Qt6)
 
 ## Installation (from source)
+### Prerequisites (Debian/Ubuntu)
+```
+sudo apt install \
+  build-essential \
+  cmake \
+  qtbase5-dev \
+  libcurl4-openssl-dev \
+  libqt5serialbus5-dev
+```
+
 ```
 git clone https://github.com/mincequi/ElsewhereEdge
 cd ElsewhereEdge
