@@ -1,5 +1,4 @@
-#ifndef SUNSPECTHING_H
-#define SUNSPECTHING_H
+#pragma once
 
 #include <set>
 
@@ -86,4 +85,3 @@ private:
 
 } // namespace sunspec
 
-#endif // SUNSPECTHING_H

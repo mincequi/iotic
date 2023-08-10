@@ -1,9 +1,6 @@
 #include "SunSpecManager.h"
 
 #include <QDateTime>
-#include <QHostAddress>
-#include <QNetworkInterface>
-#include <QTcpSocket>
 
 #include <common/Logger.h>
 
@@ -11,52 +8,30 @@ using namespace std::placeholders;
 
 namespace sunspec {
 
-SunSpecManager::SunSpecManager(QObject *parent) : QObject(parent) {
+SunSpecManager::SunSpecManager(QObject *parent) :
+    QObject(parent),
+    _discovery(*this) {
     m_timer.callOnTimeout(this, &SunSpecManager::onTimer);
     m_timer.start(100);
-
-    m_discoveryTimer.callOnTimeout(this, &SunSpecManager::onStartDiscovering);
 }
 
 void SunSpecManager::startDiscovery(uint16_t seconds) {
-    onStartDiscovering();
-    m_discoveryTimer.start(seconds * 1000);
+    _discovery.start(seconds);
 }
 
-void SunSpecManager::stopDiscovery() {
-    m_discoveryTimer.stop();
+bool SunSpecManager::contains(const QString& host) const {
+    return std::find_if(
+                _things.begin(), _things.end(),
+                [&](const auto* thing_) {
+                     return thing_->host() == host;
+                }) != _things.end();
 }
 
-void SunSpecManager::onStartDiscovering() {
-    foreach (auto thing, m_discoveringThings) {
-        thing->deleteLater();
-    }
-    m_discoveringThings.clear();
+void SunSpecManager::addThing(SunSpecThing* thing) {
+    _things.insert(thing->sunSpecId(), thing);
+    connect(thing, &SunSpecThing::modelRead, std::bind(&SunSpecManager::modelRead, this, std::ref(*thing), _1, _2));
+    emit thingDiscovered(*thing);
 
-    // Find network interfaces
-    QString subnet;
-    const QHostAddress localhost = QHostAddress(QHostAddress::LocalHost);
-    foreach (const auto& address, QNetworkInterface::allAddresses()) {
-        if (address.protocol() == QAbstractSocket::IPv4Protocol && address != localhost) {
-             subnet = address.toString().left(address.toString().lastIndexOf(".")+1);
-        }
-    }
-
-    // Scan subnets
-    QTcpSocket socket;
-    LOG_S(INFO) << "discovering things in subnet: " << subnet << "0/24";
-    for (uint8_t i = 1; i < 255; ++i) {
-        const QString host = subnet + QString::number(i);
-        if (std::find_if(m_discoveredThings.begin(),
-                         m_discoveredThings.end(),
-                         [&](sunspec::SunSpecThing* _thing) { return _thing->host() == host; }) != m_discoveredThings.end()) {
-            continue;
-        }
-        auto* thing = new sunspec::SunSpecThing(host);
-        m_discoveringThings.append(thing);
-        thing->connect(thing, &sunspec::SunSpecThing::stateChanged, this, &SunSpecManager::onThingStateChanged);
-        thing->connectDevice();
-    }
 }
 
 void SunSpecManager::addTask(const Task& task) {
@@ -66,30 +41,12 @@ void SunSpecManager::addTask(const Task& task) {
 }
 
 void SunSpecManager::removeThing(SunSpecThing* thing) {
-    m_discoveringThings.removeOne(thing);
-    if (m_discoveredThings.count(thing->sunSpecId())) {
+    _discovery.removeThing(thing);
+    if (_things.count(thing->sunSpecId())) {
         LOG_S(WARNING) << "discovered thing removed: " << thing->sunSpecId();
-        m_discoveredThings.remove(thing->sunSpecId());
+        _things.remove(thing->sunSpecId());
     }
     thing->deleteLater();
-}
-
-void SunSpecManager::onThingStateChanged(SunSpecThing::State state) {
-    auto thing = qobject_cast<SunSpecThing*>(sender());
-    if (!thing) {
-        qFatal("IMPOSSIBLE");
-    }
-    switch (state) {
-    case SunSpecThing::State::Failed:
-        removeThing(thing);
-        break;
-    case SunSpecThing::State::Connected:
-        m_discoveringThings.removeAll(thing);
-        m_discoveredThings.insert(thing->sunSpecId(), thing);
-        connect(thing, &SunSpecThing::modelRead, std::bind(&SunSpecManager::modelRead, this, std::ref(*thing), _1, _2));
-        emit thingDiscovered(*thing);
-        break;
-    }
 }
 
 void SunSpecManager::onTimer() {
@@ -106,7 +63,7 @@ void SunSpecManager::onTimer() {
     // Execute tasks for appropriate timeslots
     foreach (const auto& task, m_tasks) {
         if ((timestamp % task.intervalMs.count()) == 0) {
-            auto thing = m_discoveredThings.value(task.thing, nullptr);
+            auto thing = _things.value(task.thing, nullptr);
             if (thing) {
                 thing->readModel(task.modelId, timestamp);
             }

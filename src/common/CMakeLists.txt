@@ -1,8 +1,13 @@
-find_package(Qt5 COMPONENTS Core Network REQUIRED)
-
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(FETCHCONTENT_QUIET FALSE)
 set(CMAKE_CXX_FLAGS "-DLOGURU_WITH_STREAMS -DLOGURU_USE_FMTLIB" CACHE INTERNAL "")
+
+#set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON CACHE INTERNAL "Auto moc")
+#set(CMAKE_AUTORCC ON)
+
+find_package(QT NAMES Qt5 Qt6 COMPONENTS Core Network SerialBus REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Network SerialBus REQUIRED)
 
 FetchContent_Declare(loguru
     GIT_REPOSITORY https://github.com/emilk/loguru.git
@@ -25,10 +30,17 @@ FetchContent_Declare(magic_enum
 )
 FetchContent_MakeAvailable(magic_enum)
 
+FetchContent_Declare(rpp
+    GIT_REPOSITORY https://github.com/victimsnino/ReactivePlusPlus.git
+    GIT_TAG        a9a6898ed15aead18bce1c2659ea3aae4c6fa717
+    GIT_PROGRESS TRUE
+)
+FetchContent_MakeAvailable(rpp)
+
 add_library(common STATIC
-    Logger.cpp
-    Util.cpp
-    ${loguru_SOURCE_DIR}/loguru.cpp
+  Logger.cpp
+  Util.cpp
+  ${loguru_SOURCE_DIR}/loguru.cpp
 )
 
 target_include_directories(common
@@ -43,6 +55,9 @@ target_link_libraries(common
 PUBLIC
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Network
+    Qt${QT_VERSION_MAJOR}::SerialBus
     fmt::fmt
+    influx
     magic_enum
+    rpp
 )

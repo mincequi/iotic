@@ -4,12 +4,16 @@
 #include <qmdnsengine/service.h>
 
 #include <common/Logger.h>
+#include <rpp/operators/map.hpp>
+#include <rpp/operators.hpp>
+#include <rpp/sources.hpp>
+#include <rppqt/sources.hpp>
 
-HttpDiscovery::HttpDiscovery(ThingManager& thingManager, QObject *parent)
-    : AbstractDiscovery(thingManager, parent) {
+HttpDiscovery::HttpDiscovery(QObject *parent)
+    : QObject{parent} {
 }
 
-void HttpDiscovery::start() {
+void HttpDiscovery::start(uint16_t seconds) {
     _mdnsBrowser = std::make_unique<QMdnsEngine::Browser>(&_mdnsServer, "_http._tcp.local.", &_mdnsCache);
     QObject::connect(_mdnsBrowser.get(), &QMdnsEngine::Browser::serviceAdded,
                      this, &HttpDiscovery::onServiceAdded);
@@ -24,7 +28,8 @@ void HttpDiscovery::stop() {
 }
 
 void HttpDiscovery::onServiceAdded(const QMdnsEngine::Service &service) {
-    onThingDiscovered({ ThingInfo::Type::Http, service.name().toStdString() });
+    // TODO: shall we get a subscriber each time, we want to emit (or keep it as class member)?
+    _thingDiscovered.get_subscriber().on_next({ ThingInfo::Type::Http, service.name().toStdString() });
 }
 
 void HttpDiscovery::onServiceUpdated(const QMdnsEngine::Service &service) {

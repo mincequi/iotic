@@ -4,19 +4,26 @@
 #include <qmdnsengine/cache.h>
 #include <qmdnsengine/server.h>
 
-#include <iot/AbstractDiscovery.h>
+#include <rpp/fwd.hpp>
+#include <rpp/observables.hpp>
+#include <rpp/sources.hpp>
+#include <rpp/subjects/publish_subject.hpp>
+
 #include <iot/AbstractThing.h>
+#include <things/ThingsDiscovery.h>
 
 namespace QMdnsEngine {
 class Service;
 };
 
-class HttpDiscovery : public AbstractDiscovery {
+using rpp::subjects::publish_subject;
+
+class HttpDiscovery : public QObject, public ThingsDiscovery {
     Q_OBJECT
 public:
-    explicit HttpDiscovery(ThingManager& thingManager, QObject *parent = nullptr);
+    explicit HttpDiscovery(QObject *parent = nullptr);
 
-    void start() override;
+    void start(uint16_t seconds = 60) override;
     void stop() override;
 
 private:

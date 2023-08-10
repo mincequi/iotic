@@ -3,7 +3,7 @@
 #include <memory>
 #include <set>
 #include <QObject>
-#include <iot/ThingInfo.h>
+#include <things/ThingInfo.h>
 
 class AbstractThing : public QObject, public ThingInfo {
     Q_OBJECT

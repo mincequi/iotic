@@ -7,19 +7,12 @@ Set(FETCHCONTENT_QUIET FALSE)
 #)
 #FetchContent_MakeAvailable(rxcpp)
 
-FetchContent_Declare(rxcpp
-    GIT_REPOSITORY https://github.com/ReactiveX/RxCpp.git
-    GIT_TAG        761b932a80e2be6e2b62d232e754bd96fc448946 # main from Mar 13, 2022
-    GIT_PROGRESS TRUE
-)
-FetchContent_MakeAvailable(rxcpp)
-
-FetchContent_Declare(rpp
-    GIT_REPOSITORY https://github.com/victimsnino/ReactivePlusPlus.git
-    GIT_TAG        8636af15da7b9c7aff561da455c2ebbff40d43c9
-    GIT_PROGRESS TRUE
-)
-FetchContent_MakeAvailable(rpp)
+#FetchContent_Declare(rxcpp
+#    GIT_REPOSITORY https://github.com/ReactiveX/RxCpp.git
+#    GIT_TAG        761b932a80e2be6e2b62d232e754bd96fc448946 # main from Mar 13, 2022
+#    GIT_PROGRESS TRUE
+#)
+#FetchContent_MakeAvailable(rxcpp)
 
 add_library(feed STATIC
     FeedManager.cpp

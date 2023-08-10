@@ -1,5 +1,4 @@
-#ifndef INFLUXEXPORTER_H
-#define INFLUXEXPORTER_H
+#pragma once
 
 #include <cstdint>
 #include <memory>
@@ -41,5 +40,3 @@ private:
 
     std::unique_ptr<influxdb::InfluxDB> m_db;
 };
-
-#endif // INFLUXEXPORTER_H

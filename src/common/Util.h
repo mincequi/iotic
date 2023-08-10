@@ -1,5 +1,4 @@
-#ifndef UTIL_H
-#define UTIL_H
+#pragma once
 
 #include <QString>
 
@@ -18,6 +17,3 @@ std::string toString(E value) {
 
 
 } // namespace util
-
-
-#endif // UTIL_H

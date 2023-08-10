@@ -3,8 +3,8 @@
 #include <map>
 #include <QObject>
 #include <QTimer>
-#include <iot/AbstractDiscovery.h>
 #include <iot/AbstractThing.h>
+#include <things/ThingsDiscovery.h>
 
 class ThingManager : public QObject {
     Q_OBJECT
@@ -34,7 +34,7 @@ private:
     QTimer _timer;
     uint64_t _currentTimestamp = 0;
 
-    std::list<AbstractDiscoveryPtr> _discoveries;
+    std::list<ThingsDiscoveryPtr> _discoveries;
     std::map<std::string, AbstractThingPtr> _things;
     std::list<Task> _tasks;
 

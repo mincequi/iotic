@@ -66,16 +66,16 @@ AppBackend::AppBackend(/*FeedManager& feedManager*/)
 #ifdef USE_INFLUXDB
     // Setup InfluxExporter
     const QString db = "elsewhere_" + util::getMacAddress().remove(':');
-    std::optional<InfluxExporter> influxExporter = InfluxExporter::build(db.toStdString())
-                                                   .host("localhost")
-                                                   .port(8086);
-    if (influxExporter) {
-        QObject::connect(&_sunSpecManager, &SunSpecManager::modelRead, std::bind(&InfluxExporter::exportLiveData, &influxExporter.value(), _1, _2, _3));
+    _influxExporter = InfluxExporter::build(db.toStdString())
+                      .host("localhost")
+                      .port(8086);
+    if (_influxExporter) {
+        QObject::connect(&_sunSpecManager, &SunSpecManager::modelRead, std::bind(&InfluxExporter::exportLiveData, &_influxExporter.value(), _1, _2, _3));
     }
 #endif
 
     // Start discovery
-    //_thingManager.startDiscovery();
+    _thingManager.startDiscovery();
     _sunSpecManager.startDiscovery(60);
 }
 

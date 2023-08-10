@@ -2,6 +2,7 @@
 #define STATSFEED_H
 
 #include <rpp/subjects.hpp>
+#include <rppqt/sources.hpp>
 
 class LiveFeed;
 

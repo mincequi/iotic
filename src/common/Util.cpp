@@ -5,8 +5,7 @@
 
 namespace util {
 
-bool isMacAddressValid(const QString &address)
-{
+bool isMacAddressValid(const QString &address) {
     QStringList list = address.split(":");
 
     return ((list.size() == 6) &&
@@ -18,8 +17,7 @@ bool isMacAddressValid(const QString &address)
              (list.at(5).toInt() != 0)));
 }
 
-QString getMacAddress()
-{
+QString getMacAddress() {
     QString macAddress;
     foreach (QNetworkInterface networkInterface, QNetworkInterface::allInterfaces()) {
         // Return only the first non-loopback MAC Address

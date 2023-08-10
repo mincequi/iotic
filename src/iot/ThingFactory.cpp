@@ -3,8 +3,8 @@
 #include <functional>
 #include <map>
 
-#include "goe/GoeCharger.h"
-#include "ThingInfo.h"
+#include <goe/GoeCharger.h>
+#include <things/ThingInfo.h>
 
 static std::multimap<ThingInfo::Type, std::function<AbstractThingPtr(const ThingInfo&)>> _registry = {
     { ThingInfo::Type::Http, std::function(&GoeCharger::from) }

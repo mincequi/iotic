@@ -1,19 +1,22 @@
-#ifndef APPBACKEND_H
-#define APPBACKEND_H
+#pragma once
 
-#include "InfluxExporter.h"
-#include "Statistics.h"
-#include "MqttExporter.h"
+#include <QObject>
+
+#include <influx/InfluxExporter.h>
 #include <iot/ThingManager.h>
 #include <iot/http/HttpDiscovery.h>
 #include <iot/sunspec/SunSpecManager.h>
+#include <mqtt/MqttExporter.h>
+
+#include "Statistics.h"
 
 using namespace std::placeholders;
 using namespace sunspec;
 
 class FeedManager;
 
-class AppBackend {
+class AppBackend : public QObject {
+    Q_OBJECT
 public:
     AppBackend(/*FeedManager& liveFeed*/);
 
@@ -25,6 +28,3 @@ private:
     MqttExporter _mqttExporter;
     std::optional<InfluxExporter> _influxExporter;
 };
-
-
-#endif // APPBACKEND_H

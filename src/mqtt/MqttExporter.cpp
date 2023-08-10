@@ -19,6 +19,9 @@ MqttExporter::MqttExporter(const std::string& host, uint16_t port, QObject *pare
     LOG_S(INFO) << "publishing data to host: " << host << ", under topic: " << "elsewhere_" + util::getMacAddress().remove(':');
 }
 
+MqttExporter::~MqttExporter() {
+}
+
 void MqttExporter::exportLiveData(const sunspec::SunSpecThing& thing, const sunspec::Model& model) {
     if (!m_client.isConnectedToHost()) {
         m_client.connectToHost();

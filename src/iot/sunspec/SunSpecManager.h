@@ -1,8 +1,8 @@
-#ifndef SUNSPECMANAGER_H
-#define SUNSPECMANAGER_H
+#pragma once
 
 #include <QTimer>
 
+#include "SunSpecDiscovery.h"
 #include "SunSpecModel.h"
 #include "SunSpecThing.h"
 
@@ -14,7 +14,9 @@ public:
     explicit SunSpecManager(QObject *parent = nullptr);
 
     void startDiscovery(uint16_t seconds = 60);
-    void stopDiscovery();
+
+    bool contains(const QString& host) const;
+    void addThing(SunSpecThing* thing);
 
     struct Task {
         std::string thing;
@@ -39,23 +41,17 @@ signals:
     void endOfDayReached();
 
 private:
-    void onStartDiscovering();
     void removeThing(SunSpecThing*);
-
-    void onThingStateChanged(sunspec::SunSpecThing::State state);
     void onTimer();
 
-    QList<sunspec::SunSpecThing*> m_discoveringThings;
-    QMap<std::string, sunspec::SunSpecThing*> m_discoveredThings;
+    SunSpecDiscovery _discovery;
+
+    QMap<std::string, sunspec::SunSpecThing*> _things;
 
     QList<Task> m_tasks;
 
     QTimer m_timer;
     uint64_t m_currentTimestamp = 0;
-
-    QTimer m_discoveryTimer;
 };
 
 } // namespace sunspec
-
-#endif // SUNSPECMANAGER_H

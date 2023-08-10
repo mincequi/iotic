@@ -13,6 +13,7 @@ class MqttExporter : public QObject {
     Q_OBJECT
 public:
     explicit MqttExporter(const std::string& host, uint16_t port = 1883, QObject *parent = nullptr);
+    virtual ~MqttExporter();
 
     void exportLiveData(const sunspec::SunSpecThing& thing, const sunspec::Model& model);
     void exportStatsData(const sunspec::SunSpecThing& thing, const sunspec::StatsModel& model);

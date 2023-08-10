@@ -4,13 +4,24 @@
 #include <Config.h>
 #include <common/Logger.h>
 #include <iot/http/HttpDiscovery.h>
+#include <ThingFactory.h>
 
 ThingManager::ThingManager(QObject *parent)
     : QObject{parent} {
     _timer.callOnTimeout(this, &ThingManager::onTimer);
     _timer.start(100);
 
-    _discoveries.push_back(std::make_unique<HttpDiscovery>(*this));
+    _discoveries.push_back(std::make_unique<HttpDiscovery>());
+
+    for (const auto& d : _discoveries) {
+        d->thingDiscovered().subscribe([this](const ThingInfo& t) {
+            LOG_S(INFO) << "thing discovered: " << t.id();
+            auto thing = ThingFactory::from(t);
+            if (thing) {
+                addThing(std::move(thing));
+            }
+        });
+    }
 }
 
 void ThingManager::startDiscovery() {

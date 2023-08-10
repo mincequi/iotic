@@ -20,7 +20,7 @@ SunSpecThing::SunSpecThing(const QString& host, uint16_t port) {
     m_modbusClient.setTimeout(2000);
     m_modbusClient.setNumberOfRetries(1);
 
-    connectDevice();
+    //connectDevice();
 }
 
 QString SunSpecThing::host() const {
