@@ -1,5 +1,4 @@
-#ifndef SUNSPECCOMMONMODEL_H
-#define SUNSPECCOMMONMODEL_H
+#pragma once
 
 #include <cstdint>
 #include <string>
@@ -20,5 +19,3 @@ private:
 };
 
 } // namespace sunspec
-
-#endif // SUNSPECCOMMONMODEL_H

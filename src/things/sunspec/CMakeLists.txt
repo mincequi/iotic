@@ -18,6 +18,6 @@ add_library(sunspec STATIC
 )
 
 target_link_libraries(sunspec
-PUBLIC
+PRIVATE
   modbus
 )

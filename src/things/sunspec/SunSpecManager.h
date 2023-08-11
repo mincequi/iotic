@@ -2,9 +2,9 @@
 
 #include <QTimer>
 
-#include "SunSpecModel.h"
-#include "SunSpecThing.h"
 #include <modbus/ModbusDiscovery.h>
+#include <things/sunspec/SunSpecModel.h>
+#include <things/sunspec/SunSpecThing.h>
 
 namespace sunspec {
 

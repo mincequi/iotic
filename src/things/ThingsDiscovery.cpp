@@ -1,8 +1,5 @@
 #include "ThingsDiscovery.h"
 
-#include <rpp/sources/never.hpp>
-#include <things/ThingInfo.h>
-
 ThingsDiscovery::ThingsDiscovery() {
 }
 

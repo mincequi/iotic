@@ -1,5 +1,4 @@
-#ifndef SUNSPECMPPTINVERTEREXTENSIONMODEL_H
-#define SUNSPECMPPTINVERTEREXTENSIONMODEL_H
+#pragma once
 
 #include <cstdint>
 #include <vector>
@@ -16,5 +15,3 @@ public:
 };
 
 } // namespace sunspec
-
-#endif // SUNSPECMPPTINVERTEREXTENSIONMODEL_H

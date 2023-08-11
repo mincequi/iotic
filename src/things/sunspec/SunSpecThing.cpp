@@ -258,8 +258,9 @@ void SunSpecThing::onReadBlock(uint16_t modelId, uint32_t timestamp) {
     if (reply->error() != QModbusDevice::NoError) {
         onReadBlockError(modelId, reply);
     } else {
-        const QModbusDataUnit unit = reply->result();
-        const auto buffer = unit.values().toStdVector();
+        // Note: you have to instantiate the values locally. Qt containers do weird things.
+        const auto values = reply->result().values();
+        const std::vector<uint16_t> buffer(values.begin(), values.end());
         parseModel(modelId, buffer, timestamp);
         m_timeoutCount = 0;
     }

@@ -11,7 +11,7 @@ QString getMacAddress();
 template <typename E>
 std::string toString(E value) {
     std::string out { magic_enum::enum_name(value) };
-    if (!out.empty()) std::tolower(out[0]);
+    if (!out.empty()) out[0] = std::tolower(out[0]);
     return out;
 }
 

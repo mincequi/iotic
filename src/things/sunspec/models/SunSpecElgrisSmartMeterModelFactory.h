@@ -1,5 +1,4 @@
-#ifndef SUNSPECSMARTMETERMODEL_H
-#define SUNSPECSMARTMETERMODEL_H
+#pragma once
 
 #include <cstdint>
 #include <vector>
@@ -16,5 +15,3 @@ public:
 };
 
 } // namespace sunspec
-
-#endif // SUNSPECSMARTMETERMODEL_H
