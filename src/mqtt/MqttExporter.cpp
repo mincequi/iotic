@@ -2,10 +2,10 @@
 
 #include <qmqtt_message.h>
 #include <common/Util.h>
-#include <iot/sunspec/SunSpecLogger.h>
-#include <iot/sunspec/SunSpecModel.h>
-#include <iot/sunspec/SunSpecStatsModel.h>
-#include <iot/sunspec/SunSpecThing.h>
+#include <things/sunspec/SunSpecLogger.h>
+#include <things/sunspec/SunSpecModel.h>
+#include <things/sunspec/SunSpecStatsModel.h>
+#include <things/sunspec/SunSpecThing.h>
 
 static quint16 s_msgId = 0;
 

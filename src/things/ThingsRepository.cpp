@@ -16,6 +16,6 @@ void ThingsRepository::addThing(ThingPtr thing) {
     _thingsSubject.get_subscriber().on_next(_things);
 }
 
-rxcpp::observable<std::vector<ThingPtr>> ThingsRepository::things() const {
+dynamic_observable<std::vector<ThingPtr>> ThingsRepository::things() const {
     return _thingsSubject.get_observable();
 }

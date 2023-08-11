@@ -3,10 +3,10 @@
 #include <QObject>
 
 #include <influx/InfluxExporter.h>
-#include <iot/ThingManager.h>
-#include <iot/http/HttpDiscovery.h>
-#include <iot/sunspec/SunSpecManager.h>
 #include <mqtt/MqttExporter.h>
+#include <things/ThingManager.h>
+#include <things/http/HttpDiscovery.h>
+#include <things/sunspec/SunSpecManager.h>
 
 #include "Statistics.h"
 

@@ -32,7 +32,9 @@ FetchContent_MakeAvailable(magic_enum)
 
 FetchContent_Declare(rpp
     GIT_REPOSITORY https://github.com/victimsnino/ReactivePlusPlus.git
-    GIT_TAG        a9a6898ed15aead18bce1c2659ea3aae4c6fa717
+    GIT_TAG       a9a6898ed15aead18bce1c2659ea3aae4c6fa717
+    #GIT_TAG       e90868f0eb57b3ce9a1b2e0102257161b3df1b7c
+    #GIT_TAG       8b73c31183b9a919cd8284431fbb22de6aec8417
     GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable(rpp)

@@ -2,9 +2,12 @@
 
 #include <map>
 
-#include <loguru.hpp>
-
 #include <QString>
+
+#include <loguru.hpp>
+#include <magic_enum.hpp>
+
+#include <common/Util.h>
 
 namespace sunspec {
 class StatsModel;

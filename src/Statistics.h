@@ -1,10 +1,9 @@
-#ifndef STATISTICS_H
-#define STATISTICS_H
+#pragma once
 
 #include <QObject>
 
-#include <iot/sunspec/SunSpecModel.h>
-#include <iot/sunspec/SunSpecStatsModel.h>
+#include <things/sunspec/SunSpecModel.h>
+#include <things/sunspec/SunSpecStatsModel.h>
 
 namespace sunspec {
 class SunSpecThing;
@@ -25,5 +24,3 @@ signals:
 private:
     std::map<std::pair<std::string, uint16_t>, sunspec::StatsModel> m_models;
 };
-
-#endif // STATISTICS_H

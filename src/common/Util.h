@@ -15,5 +15,4 @@ std::string toString(E value) {
     return out;
 }
 
-
 } // namespace util

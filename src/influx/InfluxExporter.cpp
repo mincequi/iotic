@@ -3,9 +3,10 @@
 #include <InfluxDBFactory.h>
 #include <magic_enum.hpp>
 #include <common/Logger.h>
-#include <iot/sunspec/SunSpecModel.h>
-#include <iot/sunspec/SunSpecThing.h>
-#include <iot/sunspec/SunSpecTypes.h>
+#include <things/sunspec/SunSpecBlock.h>
+#include <things/sunspec/SunSpecModel.h>
+#include <things/sunspec/SunSpecThing.h>
+#include <things/sunspec/SunSpecTypes.h>
 
 template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
 template<class... Ts> overload(Ts...) -> overload<Ts...>;

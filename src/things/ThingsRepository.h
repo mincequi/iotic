@@ -2,10 +2,6 @@
 
 #include <Thing.h>
 
-using rxcpp::observable;
-using rxcpp::subjects::behavior;
-using rxcpp::subjects::subject;
-
 class ThingsDiscovery;
 
 class ThingsRepository {
@@ -14,10 +10,10 @@ public:
 
     void addThing(ThingPtr thing);
 
-    observable<std::vector<ThingPtr>> things() const;
+    dynamic_observable<std::vector<ThingPtr>> things() const;
 
 private:
     const std::vector<ThingsDiscovery>& _discoveries;
     std::vector<ThingPtr> _things;
-    subject<std::vector<ThingPtr>> _thingsSubject;
+    publish_subject<std::vector<ThingPtr>> _thingsSubject;
 };

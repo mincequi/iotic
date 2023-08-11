@@ -4,8 +4,8 @@
 #include <common/Util.h>
 //#include "feed/FeedManager.h"
 //#include "feed/LiveFeed.h"
-#include <iot/sunspec/SunSpecLogger.h>
-#include <iot/sunspec/SunSpecModel.h>
+#include <things/sunspec/SunSpecLogger.h>
+#include <things/sunspec/SunSpecModel.h>
 
 #include <QCoreApplication>
 #include <QThread>
