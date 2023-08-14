@@ -3,7 +3,7 @@ set(qmqtt_SHARED OFF)
 add_definitions(-DMQTT_PROJECT_INCLUDE_SRC)
 FetchContent_Declare(qmqtt
   GIT_REPOSITORY https://github.com/emqx/qmqtt.git
-  GIT_TAG        v1.0.0
+  GIT_TAG        v1.0.3
   GIT_PROGRESS TRUE
 )
 # This is needed to exclude .h and .a files from installation

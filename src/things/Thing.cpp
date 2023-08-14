@@ -12,7 +12,8 @@ std::ostream& operator<<(std::ostream& os, const std::pair<E, double>& kv) {
 
 Thing::Thing(const ThingInfo& info) :
     ThingInfo(info) {
-    _properties.get_observable().subscribe( [this](const auto& val) {
+    _properties.get_observable()
+            .subscribe( [this](const auto& val) {
         LOG_S(INFO) << id() << "> " << "{ \"" << util::toString(val.first) << "\": " << val.second << " }";
     } );
 }

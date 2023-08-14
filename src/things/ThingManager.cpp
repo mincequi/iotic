@@ -1,7 +1,7 @@
 #include "ThingManager.h"
 
 #include <QDateTime>
-#include <Config.h>
+#include <config/Config.h>
 #include <common/Logger.h>
 #include <things/ThingFactory.h>
 #include <things/http/HttpDiscovery.h>

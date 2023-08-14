@@ -33,6 +33,7 @@ add_library(things STATIC
 target_link_libraries(things
 PUBLIC
   common
+  config
   goe
   shelly
   sunspec

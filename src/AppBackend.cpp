@@ -1,6 +1,6 @@
 #include "AppBackend.h"
 
-#include "Config.h"
+#include <config/Config.h>
 #include <common/Util.h>
 //#include "feed/FeedManager.h"
 //#include "feed/LiveFeed.h"
