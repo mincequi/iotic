@@ -8,9 +8,10 @@ public:
 
     static ThingPtr from(const ThingInfo& ThingInfo);
 
+private:
+    void setProperty(WriteableThingProperty property, double value) override;
     void doRead() override;
     void onRead(const QByteArray& response) override;
 
-private:
-    bool _shallRead = false;
+    bool _isPm = false;
 };

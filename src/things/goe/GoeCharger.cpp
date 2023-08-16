@@ -12,6 +12,10 @@ ThingPtr GoeCharger::from(const ThingInfo& thingInfo) {
     return nullptr;
 }
 
+void GoeCharger::setProperty(WriteableThingProperty property, double value) {
+
+}
+
 void GoeCharger::doRead() {
     // alw,car,eto,nrg,wh,trx,cards"
     HttpThing::read(id() + "/api/status?filter=nrg");
@@ -20,5 +24,5 @@ void GoeCharger::doRead() {
 void GoeCharger::onRead(const QByteArray& response) {
     const auto doc = QJsonDocument::fromJson(response);
     const auto val = doc["nrg"].toArray();
-    _properties.get_subscriber().on_next(std::make_pair(power, val.at(11).toDouble()));
+    _properties.get_subscriber().on_next(std::make_pair(ReadableThingProperty::power, val.at(11).toDouble()));
 }

@@ -1,7 +1,5 @@
 #include "Shelly.h"
 
-#include "Shelly.h"
-
 #include <regex>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -10,14 +8,12 @@
 
 #include <iostream>
 
-Shelly::Shelly(const ThingInfo& info, bool shallRead) :
+Shelly::Shelly(const ThingInfo& info, bool isPm) :
     HttpThing(info),
-    _shallRead(shallRead) {
+    _isPm(isPm) {
 }
 
 ThingPtr Shelly::from(const ThingInfo& thingInfo) {
-    // shelly1pm-F4CFA2E3849F
-
     std::string str = thingInfo.id();
     std::regex rgx("shelly[1-4](pm)*-[0-9A-F]{12}");
     std::smatch matches;
@@ -28,16 +24,37 @@ ThingPtr Shelly::from(const ThingInfo& thingInfo) {
     return nullptr;
 }
 
+void Shelly::setProperty(WriteableThingProperty property, double value) {
+    switch (property) {
+    case WriteableThingProperty::powerControl: {
+        const std::string strValue = value == 0.0 ? "off" : "on";
+        write(id() + "/relay/0?turn=" + strValue);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
 void Shelly::doRead() {
-    if (!_shallRead) return;
     // alw,car,eto,nrg,wh,trx,cards"
     HttpThing::read(id() + "/status");
+    //setProperty(WriteableThingProperty::powerControl, 1.0);
 }
 
 void Shelly::onRead(const QByteArray& response) {
     const auto doc = QJsonDocument::fromJson(response);
-    const auto val = doc["meters"].toArray().at(0).toObject()["power"];
-    if (val.isUndefined()) return;
-
-    _properties.get_subscriber().on_next(std::make_pair(power, val.toDouble()));
+    {
+        const auto val = doc["relays"][0]["ison"];
+        if (!val.isUndefined())
+            _properties.get_subscriber().on_next(std::make_pair(ReadableThingProperty::powerControl, val.toBool()));
+    } if (_isPm) {
+        const auto val = doc["meters"][0]["power"];
+        if (!val.isUndefined())
+            _properties.get_subscriber().on_next(std::make_pair(ReadableThingProperty::power, val.toDouble()));
+    } {
+        const auto val = doc["ext_temperature"]["0"]["tC"];
+        if (!val.isUndefined())
+            _properties.get_subscriber().on_next(std::make_pair(ReadableThingProperty::temperature, val.toDouble()));
+    }
 }

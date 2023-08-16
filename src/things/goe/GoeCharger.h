@@ -8,6 +8,7 @@ public:
     static ThingPtr from(const ThingInfo& ThingInfo);
 
 private:
+    virtual void setProperty(WriteableThingProperty property, double value) override;
     void doRead() override;
     void onRead(const QByteArray& response) override;
 
