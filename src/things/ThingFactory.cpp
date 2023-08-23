@@ -3,14 +3,16 @@
 #include <functional>
 #include <map>
 
-#include <goe/GoeCharger.h>
-#include <shelly/Shelly.h>
 #include <things/ThingInfo.h>
+#include <things/goe/GoeCharger.h>
+#include <things/shelly/Shelly.h>
+#include <things/sunspec/SunSpecThing.h>
 
 // We can have multiple factories per type, so this is a multimap
 static std::multimap<ThingInfo::Type, std::function<ThingPtr(const ThingInfo&)>> _registry = {
     { ThingInfo::Type::Http, std::function(&GoeCharger::from) },
-    { ThingInfo::Type::Http, std::function(&Shelly::from) }
+    { ThingInfo::Type::Http, std::function(&Shelly::from) },
+    { ThingInfo::Type::SunSpec, std::function(&sunspec::SunSpecThing::from) },
 };
 
 ThingPtr ThingFactory::from(const ThingInfo& thingInfo) {

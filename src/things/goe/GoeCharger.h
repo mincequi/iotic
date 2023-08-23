@@ -5,7 +5,7 @@
 
 class GoeCharger : HttpThing {
 public:
-    static ThingPtr from(const ThingInfo& ThingInfo);
+    static ThingPtr from(const ThingInfo& info);
 
 private:
     virtual void setProperty(WriteableThingProperty property, double value) override;

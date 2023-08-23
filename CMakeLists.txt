@@ -25,10 +25,10 @@ add_subdirectory(src/common)
 add_subdirectory(src/config)
 #add_subdirectory(src/feed)
 add_subdirectory(src/influx)
-#add_subdirectory(src/iot)
 add_subdirectory(src/modbus)
 add_subdirectory(src/mqtt)
 add_subdirectory(src/things)
+add_subdirectory(src/websocket)
 #add_subdirectory(src/ui)
 
 add_executable(elsewhere
@@ -49,6 +49,7 @@ target_link_libraries(elsewhere
   mqtt
   things
   #ui
+  websocket
 )
 
 install(TARGETS elsewhere DESTINATION bin)

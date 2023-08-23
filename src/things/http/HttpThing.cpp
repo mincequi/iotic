@@ -7,7 +7,8 @@ HttpThing::HttpThing(const ThingInfo& info, QObject *parent)
       Thing{info} {
     connect(&_nam, &QNetworkAccessManager::finished, this, [this](QNetworkReply* reply) {
         if (reply->error() != QNetworkReply::NoError) {
-            _properties.get_subscriber().on_error(std::exception_ptr{});
+            //_properties.get_subscriber().on_error(std::exception_ptr{});
+            LOG_S(WARNING) << "error: " << reply->errorString().toStdString();
         } else if (_pendingReplay == reply) {
             onRead(reply->readAll());
         }

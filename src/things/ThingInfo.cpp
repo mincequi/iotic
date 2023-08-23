@@ -1,8 +1,9 @@
 #include "ThingInfo.h"
 
-ThingInfo::ThingInfo(Type type, const std::string& id)
+ThingInfo::ThingInfo(Type type, const std::string& id, const std::string& host)
     : _type(type),
-      _id(id) {
+      _id(id),
+      _host(host) {
 }
 
 bool ThingInfo::isValid() const {
@@ -15,6 +16,10 @@ ThingInfo::Type ThingInfo::type() const {
 
 std::string ThingInfo::id() const {
     return _id;
+}
+
+std::string ThingInfo::host() const {
+    return _host;
 }
 
 std::string ThingInfo::name() const {

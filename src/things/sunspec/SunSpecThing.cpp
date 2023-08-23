@@ -1,6 +1,7 @@
 #include "SunSpecThing.h"
 
 #include <regex>
+#include <QDateTime>
 #include <QVariant>
 
 #include <things/sunspec/SunSpecLogger.h>
@@ -11,59 +12,64 @@
 
 namespace sunspec {
 
-SunSpecThing::SunSpecThing(const QString& host, uint16_t port) {
-    connect(&m_modbusClient, &QModbusTcpClient::stateChanged, this, &SunSpecThing::onStateChanged);
-    connect(&m_modbusClient, &QModbusTcpClient::errorOccurred, this, &SunSpecThing::onErrorOccurred);
+SunSpecThing::SunSpecThing(const ThingInfo& info)
+    : Thing{info} {
+    connect(&_modbusClient, &QModbusTcpClient::stateChanged, this, &SunSpecThing::onStateChanged);
+    connect(&_modbusClient, &QModbusTcpClient::errorOccurred, this, &SunSpecThing::onErrorOccurred);
 
-    m_modbusClient.setConnectionParameter(QModbusDevice::NetworkPortParameter, port);
-    m_modbusClient.setConnectionParameter(QModbusDevice::NetworkAddressParameter, host);
+    _modbusClient.setConnectionParameter(QModbusDevice::NetworkPortParameter, 502);
+    _modbusClient.setConnectionParameter(QModbusDevice::NetworkAddressParameter, QString::fromStdString(info.host()));
 
-    m_modbusClient.setTimeout(2000);
-    m_modbusClient.setNumberOfRetries(1);
+    _modbusClient.setTimeout(2000);
+    _modbusClient.setNumberOfRetries(1);
+}
+
+ThingPtr SunSpecThing::from(const ThingInfo& thingInfo) {
+    return ThingPtr(new SunSpecThing(thingInfo));
 }
 
 QString SunSpecThing::host() const {
-    return m_modbusClient.connectionParameter(QModbusDevice::NetworkAddressParameter).toString();
+    return _modbusClient.connectionParameter(QModbusDevice::NetworkAddressParameter).toString();
 }
 
 uint8_t SunSpecThing::modbusUnitId() const {
-    return m_unitId;
+    return _unitId;
 }
 
 std::string SunSpecThing::sunSpecId() const {
-    return m_sunSpecId;
+    return _sunSpecId;
 }
 
 std::string SunSpecThing::manufacturer() const {
-    return m_manufacturer;
+    return _manufacturer;
 }
 
 std::string SunSpecThing::product() const {
-    return m_product;
+    return _product;
 }
 
 std::string SunSpecThing::serial() const {
-   return m_serial;
+    return _serial;
 }
 
 const std::map<uint16_t, std::pair<uint16_t, uint16_t>>& SunSpecThing::models() const {
-    return m_modelAddresses;
+    return _modelAddresses;
 }
 
 bool SunSpecThing::connectDevice() {
-    return m_modbusClient.connectDevice();
+    return _modbusClient.connectDevice();
 }
 
 void SunSpecThing::disconnectDevice() {
-    return m_modbusClient.disconnectDevice();
+    return _modbusClient.disconnectDevice();
 }
 
 bool SunSpecThing::isValid() const {
-    return m_modbusClient.state() == QModbusDevice::State::ConnectedState;
+    return _modbusClient.state() == QModbusDevice::State::ConnectedState;
 }
 
 bool SunSpecThing::isSleeping() const {
-    for (const auto& kv : m_models) {
+    for (const auto& kv : _models) {
         if (kv.second.values().count(sunspec::operatingState) &&
                 kv.second.values().count(sunspec::operatingState) == InverterOperatingState::sleeping) {
             return true;
@@ -75,23 +81,38 @@ bool SunSpecThing::isSleeping() const {
 
 void SunSpecThing::readModel(uint16_t modelId, uint32_t timestamp) {
     LOG_S(2) << this->sunSpecId() << "> reading model: " << modelId;
-    if (m_modelAddresses.count(modelId)) {
-        readBlock(modelId, m_modelAddresses[modelId].first, m_modelAddresses[modelId].second, timestamp);
+    if (_modelAddresses.count(modelId)) {
+        readBlock(modelId, _modelAddresses[modelId].first, _modelAddresses[modelId].second, timestamp);
     }
 }
 
 void SunSpecThing::reset() {
-    m_models.clear();
+    _models.clear();
+}
+
+void SunSpecThing::doRead() {
+    for (const auto& kv : _modelAddresses) {
+        switch (kv.first) {
+        case Model::Id::InverterSinglePhase:
+        case Model::Id::InverterThreePhase:
+        case Model::Id::InverterSplitPhase:
+        case Model::Id::MeterWyeConnectThreePhase:
+            readModel(kv.first, QDateTime::currentSecsSinceEpoch());
+            break;
+        default:
+            break;
+        }
+    }
 }
 
 uint8_t SunSpecThing::nextUnitId() {
     // unit ids: 1 to 247
-    if (m_unitId > 246) {
+    if (_unitId > 246) {
         return 0;
     }
 
     static const std::vector<uint8_t> ids = {
-          1,   2,   3,   4,   5,    // Any Modbus device
+        1,   2,   3,   4,   5,    // Any Modbus device
         126, 127, 128, 129, 130,    // SMA Solar Inverter
         100,                        // Fronius Solar Inverter
         240, 241, 242, 243, 244,    // Fronius Smart Meter
@@ -134,8 +155,8 @@ uint8_t SunSpecThing::nextUnitId() {
         245, 246, 247               // Last items to check
     };
 
-    m_unitId = ids.at(m_unitIdx++);
-    return m_unitId;
+    _unitId = ids.at(_unitIdx++);
+    return _unitId;
 }
 
 void SunSpecThing::pollNextUnitId() {
@@ -150,7 +171,7 @@ void SunSpecThing::pollNextUnitId() {
 
 void SunSpecThing::readHeader(uint8_t id) {
     const QModbusDataUnit dataUnit(QModbusDataUnit::HoldingRegisters, 40000, 4);
-    auto* reply = m_modbusClient.sendReadRequest(dataUnit, id);
+    auto* reply = _modbusClient.sendReadRequest(dataUnit, id);
     if  (!reply) {
         emit stateChanged(State::Failed);
     } else if (reply->isFinished()) {   // broadcast replies return immediately
@@ -171,7 +192,7 @@ void SunSpecThing::onReadHeader() {
     if (reply->error() == QModbusDevice::ProtocolError) {
         pollNextUnitId();
     } else if (reply->error() == QModbusDevice::NoError) {
-        //qInfo() << "Host:" << m_modbusClient.connectionParameter(QModbusDevice::NetworkAddressParameter).toString();
+        //qInfo() << "Host:" << _modbusClient.connectionParameter(QModbusDevice::NetworkAddressParameter).toString();
         const QModbusDataUnit unit = reply->result();
         if (unit.value(0) == 0x5375 &&
                 unit.value(1) == 0x6E53 &&
@@ -180,7 +201,7 @@ void SunSpecThing::onReadHeader() {
             readBlock(1, 40004, unit.value(3), 0);
             readModelTable(40004 + unit.value(3));
         } else {
-            LOG_S(INFO) << "no SunSpec header found at host: " << m_modbusClient.connectionParameter(QModbusDevice::NetworkAddressParameter).toString();;
+            LOG_S(INFO) << "no SunSpec header found at host: " << _modbusClient.connectionParameter(QModbusDevice::NetworkAddressParameter).toString();;
             emit stateChanged(State::Failed);
         }
     } else {
@@ -193,7 +214,7 @@ void SunSpecThing::onReadHeader() {
 
 void SunSpecThing::readModelTable(uint16_t address) {
     const QModbusDataUnit dataUnit(QModbusDataUnit::HoldingRegisters, address, 2);
-    auto* reply = m_modbusClient.sendReadRequest(dataUnit, m_unitId);
+    auto* reply = _modbusClient.sendReadRequest(dataUnit, _unitId);
     if  (!reply) {
         emit stateChanged(State::Failed);
     } else if (reply->isFinished()) {   // broadcast replies return immediately
@@ -223,12 +244,12 @@ void SunSpecThing::onReadModelTable() {
 
 void SunSpecThing::addModelAddress(uint16_t modelId, uint16_t startAddress, uint16_t length) {
     // Special handling for blocks, that do not fit into a 256 bytes payload (modbus tcp limit).
-    //if (modelId == 160 && length > 125) {
+    //if (modelId == sunspec::Model::Id::InverterMpptExtension && length > 125) {
     //    length = 110;
     //}
 
     // Special handling for SMA solar inverters: we only request first two MPPs
-    if (modelId == 160) {
+    if (modelId == Model::Id::InverterMpptExtension) {
         length = std::min(length, (uint16_t)48);
     }
     // Tried to tune inverter requests, however reducing amount of registers did not help.
@@ -236,12 +257,12 @@ void SunSpecThing::addModelAddress(uint16_t modelId, uint16_t startAddress, uint
         startAddress += 12;
         length = 2;
     }*/
-    m_modelAddresses[modelId] = { startAddress, length };
+    _modelAddresses[modelId] = { startAddress, length };
 }
 
 void SunSpecThing::readBlock(uint16_t modelId, uint16_t address, uint16_t length, uint32_t timestamp) {
     const QModbusDataUnit dataUnit(QModbusDataUnit::HoldingRegisters, address, length);
-    auto* reply = m_modbusClient.sendReadRequest(dataUnit, m_unitId);
+    auto* reply = _modbusClient.sendReadRequest(dataUnit, _unitId);
     if  (!reply) {
         emit stateChanged(State::Failed);
     } else if (reply->isFinished()) {   // broadcast replies return immediately
@@ -262,7 +283,7 @@ void SunSpecThing::onReadBlock(uint16_t modelId, uint32_t timestamp) {
         const auto values = reply->result().values();
         const std::vector<uint16_t> buffer(values.begin(), values.end());
         parseModel(modelId, buffer, timestamp);
-        m_timeoutCount = 0;
+        _timeoutCount = 0;
     }
 
     reply->deleteLater();
@@ -272,9 +293,9 @@ void SunSpecThing::onReadBlockError(uint16_t modelId, QModbusReply* reply) {
     switch (reply->error()) {
     case QModbusDevice::TimeoutError:
         LOG_S(WARNING) << sunSpecId() << "> timeout reading block: " << modelId;
-        ++m_timeoutCount;
+        ++_timeoutCount;
         // Set device as failed if sunSpecId is empty or it timed out 5 times in a row.
-        if (m_timeoutCount > 4 || sunSpecId().empty()) {
+        if (_timeoutCount > 4 || sunSpecId().empty()) {
             emit stateChanged(State::Failed);
         }
         break;
@@ -286,10 +307,10 @@ void SunSpecThing::onReadBlockError(uint16_t modelId, QModbusReply* reply) {
 }
 
 void SunSpecThing::onStateChanged(QModbusDevice::State state) {
-    if (state == QModbusDevice::State::ConnectedState && m_sunSpecId.empty()) {
-        LOG_S(INFO) << "modbus host found: " << m_modbusClient.connectionParameter(QModbusDevice::NetworkAddressParameter).toString();
+    if (state == QModbusDevice::State::ConnectedState && _sunSpecId.empty()) {
+        LOG_S(INFO) << "modbus host found: " << _modbusClient.connectionParameter(QModbusDevice::NetworkAddressParameter).toString();
         pollNextUnitId();
-    } else if (state == QModbusDevice::State::UnconnectedState && !m_sunSpecId.empty()) {
+    } else if (state == QModbusDevice::State::UnconnectedState && !_sunSpecId.empty()) {
         // Elgris smart meters disconnects after 10s. So, we automatically reconnect.
         connectDevice();
     }
@@ -300,26 +321,37 @@ void SunSpecThing::onErrorOccurred(QModbusDevice::Error error) {
         return;
     }
 
-    if (m_sunSpecId.empty()) {
+    if (_sunSpecId.empty()) {
         emit stateChanged(State::Failed);
         return;
     }
 
     // We filter for connection error, because remotes might hang up.
-    LOG_IF_S(WARNING, error != QModbusDevice::Error::ConnectionError) << m_sunSpecId << "> error occured: " << m_modbusClient.errorString().toStdString();
+    LOG_IF_S(WARNING, error != QModbusDevice::Error::ConnectionError) << _sunSpecId << "> error occured: " << _modbusClient.errorString().toStdString();
 }
 
 void SunSpecThing::parseModel(uint16_t modelId, const std::vector<uint16_t>& buffer, uint32_t timestamp) {
     if (modelId == 1) {
-        auto& commonModel = m_models[modelId];
+        auto& commonModel = _models[modelId];
         if (SunSpecCommonModelFactory::updateFromBuffer(commonModel, buffer, timestamp)) {
-            m_manufacturer = toString(commonModel.values().at(Manufacturer));
-            m_product = toString(commonModel.values().at(Product));
-            m_serial = toString(commonModel.values().at(Serial));
-            m_sunSpecId = m_manufacturer + "_" + m_product + "_" + m_serial;
+            _manufacturer = toString(commonModel.values().at(Manufacturer));
+            _product = toString(commonModel.values().at(Product));
+            _serial = toString(commonModel.values().at(Serial));
+            _sunSpecId = _manufacturer + "_" + _product + "_" + _serial;
+            _type = Thing::Type::SunSpec;
         }
-    } else if (sunspec::ModelFactory::updateFromBuffer(m_models, modelId, buffer, timestamp)) {
-        emit modelRead(m_models[modelId], timestamp);
+    } else if (sunspec::ModelFactory::updateFromBuffer(_models, modelId, buffer, timestamp)) {
+        const auto& model = _models[modelId];
+        for (const auto& v : model.values()) {
+            switch (v.first) {
+            case DataPoint::totalActiveAcPower:
+                _propertiesSubject.get_subscriber().on_next({{ReadableThingProperty::power, std::get<int32_t>(v.second)}});
+                break;
+            default:
+                break;
+            }
+        }
+        emit modelRead(model, timestamp);
     }
 }
 

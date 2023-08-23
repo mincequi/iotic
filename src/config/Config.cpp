@@ -20,16 +20,20 @@ Config::Config() :
 Config::~Config() {
 }
 
+const std::set<std::string>& Config::pvMeters() const {
+    return _pvMeters;
+}
+
+const std::string& Config::gridMeter() const {
+    return _gridMeter;
+}
+
 std::chrono::milliseconds Config::primaryInterval() const {
     return _primaryInterval;
 }
 
 std::chrono::milliseconds Config::secondaryInterval() const {
     return _secondaryInterval;
-}
-
-int Config::maximumSiteAmperage() const {
-    return 40;
 }
 
 void Config::parse() {
@@ -50,6 +54,24 @@ void Config::parse() {
         auto [ok, interval] = general->getInt("secondary_interval");
         if (!ok) interval = 10000;
         _secondaryInterval = std::chrono::milliseconds(interval);
+    }
+
+    auto site = result.table->getTable("site");
+    if (!site) {
+        return;
+    }
+
+    auto pv = site->getArray("pv");
+    if (pv) {
+        auto pvMeters_ = pv->getStringVector();
+        if (pvMeters_)
+            _pvMeters = { pvMeters_->begin(), pvMeters_->end() };
+    }
+
+    {
+        auto [ok, gridMeter_] = site->getString("grid");
+        if (ok)
+            _gridMeter = gridMeter_;
     }
 }
 

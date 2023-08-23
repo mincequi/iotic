@@ -62,4 +62,5 @@ PUBLIC
     influx
     magic_enum
     rpp
+    rppqt
 )

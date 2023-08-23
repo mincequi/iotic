@@ -27,6 +27,7 @@ void HttpDiscovery::stop() {
 }
 
 void HttpDiscovery::onServiceAdded(const QMdnsEngine::Service &service) {
+    LOG_S(INFO) << "thing discovered> host: " << service.hostname().toStdString() << ", name: " << service.name().toStdString();
     // TODO: shall we get a subscriber each time, we want to emit (or keep it as class member)?
     _thingDiscovered.get_subscriber().on_next({ ThingInfo::Type::Http, service.name().toStdString() });
 }

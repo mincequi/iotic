@@ -1,5 +1,4 @@
-#ifndef MQTTEXPORTER_H
-#define MQTTEXPORTER_H
+#pragma once
 
 #include <qmqtt_client.h>
 
@@ -23,7 +22,6 @@ signals:
 private:
     void onError(const QMQTT::ClientError error);
 
-    QMQTT::Client m_client;
+    QMQTT::Client _client;
+    QString _topic;
 };
-
-#endif // MQTTEXPORTER_H

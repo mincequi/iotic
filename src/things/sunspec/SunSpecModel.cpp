@@ -3,11 +3,11 @@
 namespace sunspec {
 
 uint16_t Model::modelId() const {
-    return m_modelId;
+    return _modelId;
 }
 
 const std::map<DataPoint, LiveValue>& Model::values() const {
-    return m_values;
+    return _values;
 }
 
 bool Model::operator==(const Model& other) const {
@@ -19,7 +19,7 @@ bool Model::operator!=(const Model& other) const {
 }
 
 LiveValue& Model::operator[](DataPoint i) {
-    return m_values[i];
+    return _values[i];
 }
 
 } // namespace sunspec

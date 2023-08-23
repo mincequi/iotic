@@ -4,10 +4,12 @@
 #include <config/Config.h>
 #include <common/Logger.h>
 #include <things/ThingFactory.h>
+#include <things/ThingsRepository.h>
 #include <things/http/HttpDiscovery.h>
 
-ThingManager::ThingManager(QObject *parent)
-    : QObject{parent} {
+ThingManager::ThingManager(ThingsRepository& thingsRepository, QObject *parent)
+    : QObject{parent},
+      _thingsRepository(thingsRepository) {
     _timer.callOnTimeout(this, &ThingManager::onTimer);
     _timer.start(100);
 
@@ -15,13 +17,16 @@ ThingManager::ThingManager(QObject *parent)
 
     for (const auto& d : _discoveries) {
         d->thingDiscovered().subscribe([this](const ThingInfo& t) {
-            LOG_S(INFO) << "thing discovered: " << t.id();
             auto thing = ThingFactory::from(t);
             if (thing) {
-                addThing(std::move(thing));
+                _thingsRepository.addThing(std::move(thing));
             }
         });
     }
+
+    _thingsRepository.thingAdded().subscribe([this](const auto& v){
+        addTask({v->id(), cfg->primaryInterval()});
+    });
 }
 
 void ThingManager::startDiscovery() {
@@ -42,17 +47,6 @@ void ThingManager::addTask(const Task& task) {
     }
 }
 
-void ThingManager::addThing(ThingPtr thing) {
-    if (_things.count(thing->id())) {
-        LOG_S(INFO) << "already added thing: " << thing->id();
-        return;
-    }
-    const auto id = thing->id();
-    LOG_S(INFO) << "added thing: " << id;
-    _things[id] = std::move(thing);
-    addTask({id, cfg->primaryInterval()});
-}
-
 void ThingManager::onTimer() {
     const auto timestamp = (int64_t)std::round(QDateTime::currentMSecsSinceEpoch() / 100.0) * 100;
 
@@ -67,8 +61,9 @@ void ThingManager::onTimer() {
     // Execute tasks for appropriate timeslots
     for (const auto& task : _tasks) {
         if ((timestamp % task.intervalMs.count()) == 0) {
-            if (_things.count(task.thingId)) {
-                _things.at(task.thingId)->read();
+            auto thing = _thingsRepository.thingById(task.thingId);
+            if (thing) {
+                thing->read();
             }
         }
     }
