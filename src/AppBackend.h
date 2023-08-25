@@ -20,10 +20,9 @@ class FeedManager;
 class AppBackend : public QObject {
     Q_OBJECT
 public:
-    AppBackend(/*FeedManager& liveFeed*/);
+    AppBackend();
 
 private:
-    //FeedManager& _feedManager;
     Statistics _stats;
     ThingsRepository _thingsRepository;
     ThingManager _thingManager;

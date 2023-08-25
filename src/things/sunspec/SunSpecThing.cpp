@@ -232,7 +232,17 @@ void SunSpecThing::onReadModelTable() {
     } else {
         const QModbusDataUnit unit = reply->result();
         addModelAddress(unit.value(0), unit.startAddress() + 2, unit.value(1));
+        // Check if we finished reading model table
         if (unit.value(0) == 0xFFFF) {
+            for (const auto& kv : _modelAddresses) {
+                if (kv.first >= Model::Id::InverterSinglePhase && kv.first < Model::Id::InverterMpptExtension) {
+                    _type = Type::SolarInverter;
+                    break;
+                } else if (kv.first >= Model::Id::MeterSinglePhase && kv.first <= Model::Id::MeterWyeConnectThreePhase) {
+                    _type = Type::SmartMeter;
+                    break;
+                }
+            }
             emit stateChanged(State::Connected);
         } else {
             readModelTable(unit.startAddress() + 2 + unit.value(1));
@@ -338,7 +348,7 @@ void SunSpecThing::parseModel(uint16_t modelId, const std::vector<uint16_t>& buf
             _product = toString(commonModel.values().at(Product));
             _serial = toString(commonModel.values().at(Serial));
             _sunSpecId = _manufacturer + "_" + _product + "_" + _serial;
-            _type = Thing::Type::SunSpec;
+            _discoveryType = Thing::DiscoveryType::SunSpec;
         }
     } else if (sunspec::ModelFactory::updateFromBuffer(_models, modelId, buffer, timestamp)) {
         const auto& model = _models[modelId];
@@ -360,16 +370,16 @@ std::string SunSpecThing::toString(const LiveValue& v) {
     ss << v;
     auto str = ss.str();
     std::transform(str.begin(), str.end(), str.begin(), [](uchar c) { return std::tolower(c); });
-    std::replace(str.begin(), str.end(), ' ', '_');
-    std::replace(str.begin(), str.end(), '#', '_');
-    std::replace(str.begin(), str.end(), '+', '_');
-    std::replace(str.begin(), str.end(), '$', '_');
-    std::replace(str.begin(), str.end(), '.', '_');
-    std::replace(str.begin(), str.end(), ':', '_');
-    std::replace(str.begin(), str.end(), ',', '_');
-    std::replace(str.begin(), str.end(), ';', '_');
-    std::replace(str.begin(), str.end(), '!', '_');
-    std::replace(str.begin(), str.end(), '?', '_');
+    std::replace(str.begin(), str.end(), ' ', '-');
+    std::replace(str.begin(), str.end(), '#', '-');
+    std::replace(str.begin(), str.end(), '+', '-');
+    std::replace(str.begin(), str.end(), '$', '-');
+    std::replace(str.begin(), str.end(), '.', '-');
+    std::replace(str.begin(), str.end(), ':', '-');
+    std::replace(str.begin(), str.end(), ',', '-');
+    std::replace(str.begin(), str.end(), ';', '-');
+    std::replace(str.begin(), str.end(), '!', '-');
+    std::replace(str.begin(), str.end(), '?', '-');
 
     return str;
 }

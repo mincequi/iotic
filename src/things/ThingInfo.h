@@ -8,26 +8,23 @@ class ModbusDiscovery;
 
 class ThingInfo {
 public:
-    enum Type {
+    enum DiscoveryType {
         Invalid,
         SunSpec,
         Http
     };
 
-    ThingInfo(Type type,
+    ThingInfo(DiscoveryType type,
               const std::string& id,
               const std::string& host = "");
 
     bool isValid() const;
-    Type type() const;
+    DiscoveryType discoveryType() const;
     std::string id() const;
     std::string host() const;
 
-    // Custom properties which are loaded from config
-    std::string name() const;
-
 protected:
-    Type _type = Type::Invalid;
+    DiscoveryType _discoveryType = DiscoveryType::Invalid;
 
 private:
     std::string _id;

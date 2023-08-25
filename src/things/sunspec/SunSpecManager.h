@@ -19,16 +19,6 @@ public:
     bool contains(const QString& host) const;
     //void addThing(SunSpecThing* thing);
 
-    struct Task {
-        std::string thing;
-        uint16_t modelId = 0;
-        std::chrono::milliseconds intervalMs = std::chrono::milliseconds(0);
-
-        bool operator==(const Task& other);
-    };
-
-    void addTask(const Task& task);
-
 signals:
     void thingDiscovered(const sunspec::SunSpecThing&);
     void thingDisappeared(const sunspec::SunSpecThing&);
@@ -46,8 +36,6 @@ private:
     modbus::ModbusDiscovery _discovery;
 
     QMap<std::string, sunspec::SunSpecThing*> _things;
-
-    QList<Task> _tasks;
 
     QTimer _timer;
     uint64_t _currentTimestamp = 0;

@@ -12,6 +12,11 @@ ThingPtr GoeCharger::from(const ThingInfo& info) {
     return nullptr;
 }
 
+GoeCharger::GoeCharger(const ThingInfo& info) :
+    HttpThing(info) {
+    _type = Thing::Type::EvStation;
+}
+
 void GoeCharger::setProperty(WriteableThingProperty property, double value) {
 
 }

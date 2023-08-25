@@ -25,8 +25,21 @@ public:
         Failed
     };
 
+    enum class Type {
+        Undefined = 0,
+        SmartMeter,
+        SolarInverter,
+        EvStation,
+        Relay
+    };
+
     explicit Thing(const ThingInfo& info);
     virtual ~Thing();
+
+    Type type() const;
+    // Custom properties which are loaded from config
+    std::string name() const;
+    uint16_t icon() const;
 
     // If thing does not fire updates itself, this can be called to trigger it.
     void read();
@@ -35,12 +48,14 @@ public:
     dynamic_observable<State> state();
 
     virtual void setProperty(WriteableThingProperty property, double value);
-
-    // TODO: make pair a map, to provide multiple properites at once.
     dynamic_observable<std::map<ReadableThingProperty, double>> properties() const;
 
 protected:
     virtual void doRead() = 0;
+
+    Type _type = Type::Undefined;
+    std::string _name;
+    uint16_t _materialIcon = 0;
 
     // Inherited classes shall use these to fire updates.
     publish_subject<State> _state;

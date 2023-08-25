@@ -36,12 +36,6 @@ void SunSpecManager::addThing(SunSpecThing* thing) {
 }
 */
 
-void SunSpecManager::addTask(const Task& task) {
-    if (!_tasks.contains(task)) {
-        _tasks.push_back(task);
-    }
-}
-
 void SunSpecManager::removeThing(SunSpecThing* thing) {
     if (_things.count(thing->sunSpecId())) {
         LOG_S(WARNING) << "thing removed: " << thing->sunSpecId();
@@ -59,16 +53,6 @@ void SunSpecManager::onTimer() {
     if (prev.date().day() != now.date().day()) {
         LOG_S(INFO) << "statistics reset";
         emit endOfDayReached();
-    }
-
-    // Execute tasks for appropriate timeslots
-    foreach (const auto& task, _tasks) {
-        if ((timestamp % task.intervalMs.count()) == 0) {
-            auto thing = _things.value(task.thing, nullptr);
-            if (thing) {
-                thing->readModel(task.modelId, timestamp);
-            }
-        }
     }
 
     _currentTimestamp = timestamp;
@@ -93,11 +77,5 @@ void SunSpecManager::onThingStateChanged(SunSpecThing::State state) {
     }
 }
 */
-
-bool SunSpecManager::Task::operator==(const Task& other) {
-    return thing == other.thing &&
-            modelId == other.modelId &&
-            intervalMs == other.intervalMs;
-}
 
 } // namespace sunspec

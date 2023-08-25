@@ -1,6 +1,7 @@
 #pragma once
 
 #include <rpp/subjects/publish_subject.hpp>
+#include <things/ThingProperty.h>
 
 class ThingsRepository;
 
@@ -14,7 +15,9 @@ public:
         int sitePower = 0;
     };
 
+    // TODO: make site data a map of ReadableThingProperties and values
     rpp::dynamic_observable<SiteData> siteData() const;
+    //dynamic_observable<std::map<ReadableThingProperty, double>> properties() const;
 
 private:
     rpp::subjects::publish_subject<std::pair<std::string, int>> _pvPowers;

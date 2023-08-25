@@ -21,14 +21,17 @@ Site::Site(const ThingsRepository& thingsRepository) {
     });
 
     thingsRepository.thingAdded().subscribe([this](const ThingPtr& thing) {
-        // If we configured this meter for site
-        if (cfg->gridMeter() == thing->id()) {
+        // If we configured this meter for site (or there is no explicit config)
+        if (thing->type() == Thing::Type::SmartMeter &&
+                (cfg->gridMeter() == thing->id() || cfg->gridMeter().empty())) {
+            LOG_S(INFO) << "thing added> " << thing->id();
             thing->properties().filter([&](const auto& p) {
                 return p.count(ReadableThingProperty::power);
             }).map([&](const auto& p) {
                 return (int)p.at(ReadableThingProperty::power);
             }).subscribe(_gridPower.get_subscriber());
-        } else if (cfg->pvMeters().contains(thing->id())) {
+        } else if (thing->type() == Thing::Type::SolarInverter &&
+                   (cfg->pvMeters().contains(thing->id()) || cfg->pvMeters().empty())) {
             LOG_S(INFO) << "thing added> " << thing->id();
             thing->properties().filter([&](const auto& p) {
                 return p.count(ReadableThingProperty::power);

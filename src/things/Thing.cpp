@@ -28,6 +28,18 @@ Thing::Thing(const ThingInfo& info) :
 Thing::~Thing() {
 }
 
+Thing::Type Thing::type() const {
+    return _type;
+}
+
+std::string Thing::name() const {
+    return _name;
+}
+
+uint16_t Thing::icon() const {
+    return _materialIcon;
+}
+
 void Thing::read() {
     doRead();
 }

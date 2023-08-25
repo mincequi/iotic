@@ -42,9 +42,7 @@ target_link_libraries(elsewhere
   ${CMAKE_DL_LIBS}
   common
   config
-  #feed
   influx
-  #iot
   modbus
   mqtt
   things

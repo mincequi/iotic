@@ -22,6 +22,7 @@ ThingPtr Shelly::from(const ThingInfo& info) {
 Shelly::Shelly(const ThingInfo& info, bool isPm) :
     HttpThing(info),
     _isPm(isPm) {
+    _type = Thing::Type::Relay;
 }
 
 void Shelly::setProperty(WriteableThingProperty property, double value) {

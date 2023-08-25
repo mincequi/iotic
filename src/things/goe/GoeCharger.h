@@ -8,6 +8,7 @@ public:
     static ThingPtr from(const ThingInfo& info);
 
 private:
+    GoeCharger(const ThingInfo& info);
     virtual void setProperty(WriteableThingProperty property, double value) override;
     void doRead() override;
     void onRead(const QByteArray& response) override;
@@ -15,6 +16,4 @@ private:
     std::array<double, 3> _voltage;
     std::array<double, 3> _amperage;
     double _power;
-
-    using HttpThing::HttpThing;
 };
