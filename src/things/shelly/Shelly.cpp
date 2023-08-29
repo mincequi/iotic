@@ -8,20 +8,21 @@
 
 #include <iostream>
 
-Shelly::Shelly(const ThingInfo& info, bool isPm) :
-    HttpThing(info),
-    _isPm(isPm) {
-}
-
-ThingPtr Shelly::from(const ThingInfo& thingInfo) {
-    std::string str = thingInfo.id();
+ThingPtr Shelly::from(const ThingInfo& info) {
+    std::string str = info.id();
     std::regex rgx("shelly[1-4](pm)*-[0-9A-F]{12}");
     std::smatch matches;
     auto match = std::regex_match(str, matches, rgx);
     if (match) {
-        return ThingPtr(new Shelly(thingInfo, !matches[1].str().empty()));
+        return ThingPtr(new Shelly(info, !matches[1].str().empty()));
     }
     return nullptr;
+}
+
+Shelly::Shelly(const ThingInfo& info, bool isPm) :
+    HttpThing(info),
+    _isPm(isPm) {
+    _type = Thing::Type::Relay;
 }
 
 void Shelly::setProperty(WriteableThingProperty property, double value) {
@@ -44,17 +45,22 @@ void Shelly::doRead() {
 
 void Shelly::onRead(const QByteArray& response) {
     const auto doc = QJsonDocument::fromJson(response);
+    std::map<ReadableThingProperty, double> properties;
     {
         const auto val = doc["relays"][0]["ison"];
         if (!val.isUndefined())
-            _properties.get_subscriber().on_next(std::make_pair(ReadableThingProperty::powerControl, val.toBool()));
+            properties[ReadableThingProperty::powerControl] = val.toBool();
     } if (_isPm) {
         const auto val = doc["meters"][0]["power"];
         if (!val.isUndefined())
-            _properties.get_subscriber().on_next(std::make_pair(ReadableThingProperty::power, val.toDouble()));
+            properties[ReadableThingProperty::power] = val.toDouble();
     } {
         const auto val = doc["ext_temperature"]["0"]["tC"];
         if (!val.isUndefined())
-            _properties.get_subscriber().on_next(std::make_pair(ReadableThingProperty::temperature, val.toDouble()));
+            properties[ReadableThingProperty::temperature] = val.toDouble();
+    }
+
+    if (!properties.empty()) {
+        _propertiesSubject.get_subscriber().on_next(properties);
     }
 }

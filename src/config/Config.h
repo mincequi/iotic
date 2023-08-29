@@ -19,6 +19,7 @@
 
 #include <chrono>
 #include <optional>
+#include <set>
 #include <string>
 
 using namespace std::chrono_literals;
@@ -36,12 +37,11 @@ public:
     static Config* instance();
     virtual ~Config();
 
+    const std::set<std::string>& pvMeters() const;
+    const std::string& gridMeter() const;
+
     std::chrono::milliseconds primaryInterval() const;
     std::chrono::milliseconds secondaryInterval() const;
-
-    int maximumSiteAmperage() const;
-
-    int pvSurplusAmperage() const;
 
 private:
     Config();
@@ -55,6 +55,8 @@ private:
 
     std::string m_configFile;
 
-    std::chrono::milliseconds _primaryInterval = 700ms;
-    std::chrono::milliseconds _secondaryInterval = 1100ms;
+    std::chrono::milliseconds _primaryInterval = 5000ms;
+    std::chrono::milliseconds _secondaryInterval = 5000ms;
+    std::set<std::string> _pvMeters;
+    std::string _gridMeter;
 };

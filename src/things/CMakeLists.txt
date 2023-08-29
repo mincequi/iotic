@@ -22,6 +22,7 @@ add_subdirectory(shelly)
 add_subdirectory(sunspec)
 
 add_library(things STATIC
+  Site.cpp
   Thing.cpp
   ThingInfo.cpp
   ThingsDiscovery.cpp

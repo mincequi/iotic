@@ -18,10 +18,10 @@ static std::map<uint16_t, std::function<void(Model& model,
                                              const std::vector<uint16_t>& buffer,
                                              uint32_t timestamp)>> s_factories = {
     //{ 1,   &SunSpecCommonModelFactory::updateFromBuffer },
-    { 101, &InverterModelFactory::updateFromBuffer },
-    { 103, &InverterModelFactory::updateFromBuffer },
-    { 160, &MpptInverterExtensionModelFactory::updateFromBuffer },
-    { 203, &WyeConnectMeterModelFactory::updateFromBuffer },
+    { Model::Id::InverterSinglePhase, &InverterModelFactory::updateFromBuffer },
+    { Model::Id::InverterThreePhase, &InverterModelFactory::updateFromBuffer },
+    { Model::Id::InverterMpptExtension, &MpptInverterExtensionModelFactory::updateFromBuffer },
+    { Model::Id::MeterWyeConnectThreePhase, &WyeConnectMeterModelFactory::updateFromBuffer },
 };
 
 bool ModelFactory::updateFromBuffer(std::map<uint16_t, Model>& models,
@@ -33,7 +33,7 @@ bool ModelFactory::updateFromBuffer(std::map<uint16_t, Model>& models,
     }
 
     if (models.count(modelId) == 0) {
-        models[modelId].m_modelId = modelId;
+        models[modelId]._modelId = modelId;
     }
 
     // Special handling for elgris smart meter

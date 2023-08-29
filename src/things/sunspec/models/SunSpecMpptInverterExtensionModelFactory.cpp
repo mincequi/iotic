@@ -44,8 +44,8 @@ bool MpptInverterExtensionModelFactory::updateFromBuffer(Model& model,
         dcs[i][sunspec::power] = (double)(dcPower * sfPower);
     }
 
-    model.m_values[sunspec::timestamp] = timestamp;
-    model.m_values[sunspec::dc] = dcs;
+    model._values[sunspec::timestamp] = timestamp;
+    model._values[sunspec::dc] = dcs;
 
     return true;
 }

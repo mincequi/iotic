@@ -1,10 +1,14 @@
 #pragma once
 
 #include <map>
+#include <rpp/observables/dynamic_observable.hpp>
+#include <rpp/subjects/publish_subject.hpp>
 #include <QObject>
 #include <QTimer>
 #include <things/Thing.h>
 #include <things/ThingsDiscovery.h>
+
+class ThingsRepository;
 
 class ThingManager : public QObject {
     Q_OBJECT
@@ -16,7 +20,7 @@ public:
         bool operator==(const Task& other);
     };
 
-    explicit ThingManager(QObject *parent = nullptr);
+    explicit ThingManager(ThingsRepository& thingsRepository, QObject *parent = nullptr);
 
     void startDiscovery();
     void stopDiscovery();
@@ -28,14 +32,17 @@ signals:
     void endOfDayReached();
 
 private:
-    void addThing(ThingPtr thing);
     void onTimer();
+
+    ThingsRepository& _thingsRepository;
 
     QTimer _timer;
     uint64_t _currentTimestamp = 0;
 
     std::list<ThingsDiscoveryPtr> _discoveries;
     std::map<std::string, ThingPtr> _things;
+    rpp::subjects::publish_subject<ThingPtr> _thingAdded;
+
     std::list<Task> _tasks;
 
     friend class AbstractDiscovery;

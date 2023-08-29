@@ -9,7 +9,17 @@ enum class ReadableThingProperty {
     power = 3305,
     actuation = 3306,
     powerControl = 3312,
-    multiStateSelector = 3348
+    multiStateSelector = 3348,
+
+    // Our custom static properties
+    //type = 3396,
+    //name = 3397,
+    //icon = 3398,
+
+    // Our custom dynamic properties
+    sitePvPower = 3412,
+    siteGridPower = 3413,
+
 };
 // We have to inject a custom range for this enum, since magic_enum only allows -128 to 128 per default.
 template<>

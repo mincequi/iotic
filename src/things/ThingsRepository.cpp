@@ -1,21 +1,52 @@
 #include "ThingsRepository.h"
 
-ThingsRepository::ThingsRepository(const std::vector<ThingsDiscovery>& discoveries) :
-    _discoveries(discoveries) {
-
-
+ThingsRepository::ThingsRepository() :
+    _site(*this) {
+    _site.siteData().subscribe([](const Site::SiteData& data){
+        LOG_S(INFO) << "site> { pvPower: " << data.pvPower
+                    << ", gridPower: " << data.gridPower
+                    << ", sitePower: " << data.sitePower << " }";
+    });
 }
 
-void ThingsRepository::addThing(ThingPtr thing) {
-    if (auto it = std::find_if(
-                _things.begin(),
-                _things.end(),
-                [&](const auto& t) { return t->id() == thing->id(); } ); it != _things.end()) return;
+const Site& ThingsRepository::site() const {
+    return _site;
+}
 
+void ThingsRepository::addThing(ThingPtr&& thing) {
+    auto it = std::find_if(_things.begin(), _things.end(), [&](const auto& t) {
+        return t->id() == thing->id();
+    });
+    if (it != _things.end()) {
+        LOG_S(INFO) << "thing already added: " << thing->id();
+        return;
+    };
+
+    const auto id = thing->id();
+    LOG_S(INFO) << "added thing: " << id;
     _things.push_back(std::move(thing));
     _thingsSubject.get_subscriber().on_next(_things);
+    _thingAdded.get_subscriber().on_next(_things.back());
 }
 
-dynamic_observable<std::vector<ThingPtr>> ThingsRepository::things() const {
+Thing* ThingsRepository::thingById(const std::string& id) const {
+    auto it = std::find_if(_things.begin(), _things.end(), [&](const auto& t) {
+        return t->id() == id;
+    });
+    return (it != _things.end()) ? it->get() : nullptr;
+}
+
+const Thing* ThingsRepository::thingByHost(const std::string& host) const {
+    auto it = std::find_if(_things.begin(), _things.end(), [&](const auto& t) {
+        return t->host() == host;
+    });
+    return (it != _things.end()) ? it->get() : nullptr;
+}
+
+dynamic_observable<std::list<ThingPtr>> ThingsRepository::things() const {
     return _thingsSubject.get_observable();
+}
+
+rpp::dynamic_observable<ThingPtr> ThingsRepository::thingAdded() const {
+    return _thingAdded.get_observable();
 }

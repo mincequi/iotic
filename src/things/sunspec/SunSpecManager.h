@@ -11,25 +11,13 @@ namespace sunspec {
 class SunSpecManager : public QObject {
     Q_OBJECT
 public:
-    explicit SunSpecManager(QObject *parent = nullptr);
+    explicit SunSpecManager(ThingsRepository& repository,
+                            QObject *parent = nullptr);
 
     void startDiscovery(uint16_t seconds = 60);
 
     bool contains(const QString& host) const;
-    void addThing(SunSpecThing* thing);
-
-    struct Task {
-        std::string thing;
-        enum class Op {
-            Read
-        } type = Op::Read;
-        uint16_t modelId = 0;
-        std::chrono::milliseconds intervalMs = std::chrono::milliseconds(0);
-
-        bool operator==(const Task& other);
-    };
-
-    void addTask(const Task& task);
+    //void addThing(SunSpecThing* thing);
 
 signals:
     void thingDiscovered(const sunspec::SunSpecThing&);
@@ -43,16 +31,14 @@ signals:
 private:
     void removeThing(SunSpecThing*);
     void onTimer();
-    void onThingStateChanged(SunSpecThing::State state);
+    //void onThingStateChanged(SunSpecThing::State state);
 
     modbus::ModbusDiscovery _discovery;
 
     QMap<std::string, sunspec::SunSpecThing*> _things;
 
-    QList<Task> m_tasks;
-
-    QTimer m_timer;
-    uint64_t m_currentTimestamp = 0;
+    QTimer _timer;
+    uint64_t _currentTimestamp = 0;
 };
 
 } // namespace sunspec

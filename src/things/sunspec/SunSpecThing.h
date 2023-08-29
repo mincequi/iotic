@@ -4,12 +4,13 @@
 
 #include <QModbusTcpClient>
 
+#include <things/Thing.h>
 #include <things/sunspec/models/SunSpecCommonModelFactory.h>
 #include <things/sunspec/SunSpecStatsValue.h>
 
 namespace sunspec {
 
-class SunSpecThing : public QObject {
+class SunSpecThing : public QObject, public Thing {
     Q_OBJECT
 
 public:
@@ -18,7 +19,8 @@ public:
         Failed
     };
 
-    SunSpecThing(const QString& host, uint16_t port = 502);
+    static ThingPtr from(const ThingInfo& info);
+    SunSpecThing(const ThingInfo& info);
 
     QString host() const;
     uint8_t modbusUnitId() const;
@@ -46,6 +48,8 @@ signals:
     void modelRead(const sunspec::Model& model, uint32_t timestamp);
 
 private:
+    void doRead() override;
+
     uint8_t nextUnitId();
     void pollNextUnitId();
 
@@ -67,20 +71,20 @@ private:
 
     static std::string toString(const LiveValue& v);
 
-    QModbusTcpClient m_modbusClient;
-    uint8_t m_unitId = 0;
-    uint8_t m_unitIdx = 0;
+    QModbusTcpClient _modbusClient;
+    uint8_t _unitId = 0;
+    uint8_t _unitIdx = 0;
 
-    std::string m_manufacturer;
-    std::string m_product;
-    std::string m_serial;
-    std::string m_sunSpecId;
+    std::string _manufacturer;
+    std::string _product;
+    std::string _serial;
+    std::string _sunSpecId;
 
-    uint8_t m_timeoutCount = 0;
+    uint8_t _timeoutCount = 0;
 
-    std::map<uint16_t, std::pair<uint16_t, uint16_t>> m_modelAddresses;
+    std::map<uint16_t, std::pair<uint16_t, uint16_t>> _modelAddresses;
 
-    std::map<uint16_t, sunspec::Model> m_models;
+    std::map<uint16_t, sunspec::Model> _models;
 };
 
 } // namespace sunspec

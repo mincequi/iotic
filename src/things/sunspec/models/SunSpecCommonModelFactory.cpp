@@ -9,11 +9,11 @@ bool SunSpecCommonModelFactory::updateFromBuffer(Model& model,
                                                  uint32_t /*timestamp*/) {
     if (buffer.size() != 66 && buffer.size() != 65) return false;
 
-    model.m_values[sunspec::Manufacturer] = readString(buffer.data(), 16);
-    model.m_values[sunspec::Product] = readString(buffer.data()+16, 16);
-    model.m_values[sunspec::Options] = readString(buffer.data()+32, 8);
-    model.m_values[sunspec::Version] = readString(buffer.data()+40, 8);
-    model.m_values[sunspec::Serial] = readString(buffer.data()+48, 16);
+    model._values[sunspec::Manufacturer] = readString(buffer.data(), 16);
+    model._values[sunspec::Product] = readString(buffer.data()+16, 16);
+    model._values[sunspec::Options] = readString(buffer.data()+32, 8);
+    model._values[sunspec::Version] = readString(buffer.data()+40, 8);
+    model._values[sunspec::Serial] = readString(buffer.data()+48, 16);
 
     return true;
 }

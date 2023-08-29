@@ -11,27 +11,28 @@ static quint16 s_msgId = 0;
 
 MqttExporter::MqttExporter(const std::string& host, uint16_t port, QObject *parent) :
     QObject(parent),
-    m_client(QString::fromStdString(host), port, false, false) {
+    _client(QString::fromStdString(host), port, false, false) {
 
-    QObject::connect(&m_client, &QMQTT::Client::error, this, &MqttExporter::onError);
-    m_client.connectToHost();
+    QObject::connect(&_client, &QMQTT::Client::error, this, &MqttExporter::onError);
+    _client.connectToHost();
 
-    LOG_S(INFO) << "publishing data to host: " << host << ", under topic: " << "elsewhere_" + util::getMacAddress().remove(':');
+    _topic = "elsewhere_" + util::getMacAddress().remove(':');
+    LOG_S(INFO) << "host: " << host << ", topic: " << _topic;
 }
 
 MqttExporter::~MqttExporter() {
 }
 
 void MqttExporter::exportLiveData(const sunspec::SunSpecThing& thing, const sunspec::Model& model) {
-    if (!m_client.isConnectedToHost()) {
-        m_client.connectToHost();
+    if (!_client.isConnectedToHost()) {
+        _client.connectToHost();
     }
 
-    QString topic = "elsewhere_" + util::getMacAddress().remove(':')
+    QString topic = _topic
                     + "/" + QString::fromStdString(thing.manufacturer())
                     + "/" + QString::fromStdString(thing.product())
                     + "/" + QString::fromStdString(thing.serial());
-    if (model.modelId() == 160) topic += "/mppt";
+    if (model.modelId() == sunspec::Model::Id::InverterMpptExtension) topic += "/mppt";
     topic += "/live";
 
     std::stringstream ss;
@@ -44,19 +45,19 @@ void MqttExporter::exportLiveData(const sunspec::SunSpecThing& thing, const suns
                            true);
 
     LOG_F(1, "publishing topic: {}, payload size: {} bytes", topic.toStdString().c_str(), ss.str().size());
-    m_client.publish(message);
+    _client.publish(message);
 }
 
 void MqttExporter::exportStatsData(const sunspec::SunSpecThing& thing, const sunspec::StatsModel& model) {
-    if (!m_client.isConnectedToHost()) {
-        m_client.connectToHost();
+    if (!_client.isConnectedToHost()) {
+        _client.connectToHost();
     }
 
-    QString topic = "elsewhere_" + util::getMacAddress().remove(':')
+    QString topic = _topic
                     + "/" + QString::fromStdString(thing.manufacturer())
                     + "/" + QString::fromStdString(thing.product())
                     + "/" + QString::fromStdString(thing.serial());
-    if (model.modelId() == 160) topic += "/mppt";
+    if (model.modelId() == sunspec::Model::Id::InverterMpptExtension) topic += "/mppt";
     topic += "/stats";
 
     std::stringstream ss;
@@ -69,7 +70,7 @@ void MqttExporter::exportStatsData(const sunspec::SunSpecThing& thing, const sun
                            true);
 
     LOG_F(1, "publishing topic: {}, payload size: {} bytes", topic.toStdString().c_str(), ss.str().size());
-    m_client.publish(message);
+    _client.publish(message);
 }
 
 void MqttExporter::onError(const QMQTT::ClientError error) {

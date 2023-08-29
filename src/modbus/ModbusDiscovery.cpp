@@ -5,6 +5,7 @@
 #include <QTcpSocket>
 
 #include <common/Logger.h>
+#include <things/ThingsRepository.h>
 #include <things/sunspec/SunSpecManager.h>
 #include <things/sunspec/SunSpecThing.h>
 
@@ -12,8 +13,10 @@ namespace modbus {
 
 using namespace sunspec;
 
-ModbusDiscovery::ModbusDiscovery(SunSpecManager& manager) :
-    _manager(manager) {
+ModbusDiscovery::ModbusDiscovery(//SunSpecManager& manager,
+                                 ThingsRepository& repository) :
+    //_manager(manager),
+    _thingsRepository(repository) {
     _discoveryTimer.callOnTimeout(this, &ModbusDiscovery::onStartDiscovering);
 }
 
@@ -46,10 +49,10 @@ void ModbusDiscovery::onStartDiscovering() {
     LOG_S(INFO) << "discovering things in subnet: " << subnet << "0/24";
     for (uint8_t i = 1; i < 255; ++i) {
         const QString host = subnet + QString::number(i);
-        if (_manager.contains(host)) {
+        if (_thingsRepository.thingByHost(host.toStdString())) {
             continue;
         }
-        auto* candidate = new SunSpecThing(host);
+        auto* candidate = new SunSpecThing({ ThingInfo::SunSpec, host.toStdString(), host.toStdString() });
         _candidates.append(candidate);
         candidate->connect(candidate, &SunSpecThing::stateChanged, this, &ModbusDiscovery::onCandidateStateChanged);
         candidate->connectDevice();
@@ -71,7 +74,17 @@ void ModbusDiscovery::onCandidateStateChanged(SunSpecThing::State state) {
         // Disconnect signals, since we are handing off this object
         candidate->disconnect();
         _candidates.removeAll(candidate);
-        _manager.addThing(candidate);
+        //_manager.addThing(candidate);
+        std::stringstream ss;
+        for (const auto& kv : candidate->models()) {
+            ss << kv.first << "(" << kv.second.second << "), ";
+        }
+        LOG_S(INFO) << "thing discovered> id: " << candidate->sunSpecId()
+                    << ", host: " << candidate->host()
+                    << ", modbusUnitId: " << (uint32_t)candidate->modbusUnitId()
+                    << ", models: " << ss.str();
+        candidate->_id = candidate->sunSpecId();
+        _thingsRepository.addThing(ThingPtr(candidate));
         break;
     }
 }

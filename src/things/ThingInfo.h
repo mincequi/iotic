@@ -2,23 +2,36 @@
 
 #include <string>
 
+namespace modbus {
+class ModbusDiscovery;
+}
+
 class ThingInfo {
 public:
-    enum Type {
+    enum DiscoveryType {
         Invalid,
         SunSpec,
         Http
     };
 
-    ThingInfo(Type type, const std::string& id);
+    ThingInfo(DiscoveryType type,
+              const std::string& id,
+              const std::string& host = "");
 
     bool isValid() const;
-    Type type() const;
+    DiscoveryType discoveryType() const;
     std::string id() const;
-    std::string name() const;
+    std::string host() const;
+
+protected:
+    DiscoveryType _discoveryType = DiscoveryType::Invalid;
 
 private:
-    Type _type = Type::Invalid;
     std::string _id;
+    std::string _host;
+
+    // Custom fields
     std::string _name;
+
+    friend class modbus::ModbusDiscovery;
 };

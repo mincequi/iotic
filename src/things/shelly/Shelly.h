@@ -4,11 +4,10 @@
 
 class Shelly : public HttpThing {
 public:
-    Shelly(const ThingInfo& info, bool shallRead);
-
-    static ThingPtr from(const ThingInfo& ThingInfo);
+    static ThingPtr from(const ThingInfo& info);
 
 private:
+    Shelly(const ThingInfo& info, bool shallRead);
     void setProperty(WriteableThingProperty property, double value) override;
     void doRead() override;
     void onRead(const QByteArray& response) override;
