@@ -55,8 +55,8 @@ private:
 
     std::string m_configFile;
 
-    std::chrono::milliseconds _primaryInterval = 700ms;
-    std::chrono::milliseconds _secondaryInterval = 1100ms;
+    std::chrono::milliseconds _primaryInterval = 5000ms;
+    std::chrono::milliseconds _secondaryInterval = 5000ms;
     std::set<std::string> _pvMeters;
     std::string _gridMeter;
 };

@@ -4,7 +4,8 @@ ElsewhereEdge is a SunSpec - MQTT gateway. It collects measurement data from sma
 
 ## Requirements
 - C++17
-- Qt6 Core Network SerialBus (currently not working with Qt5)
+- Qt (>=6.4) Core Network SerialBus WebSockets HttpServer (currently not working with Qt5)
+- Flutter
 
 ## Installation (from source)
 ### Prerequisites (Debian/Ubuntu)
@@ -12,9 +13,15 @@ ElsewhereEdge is a SunSpec - MQTT gateway. It collects measurement data from sma
 sudo apt install \
   build-essential \
   cmake \
-  qtbase5-dev \
   libcurl4-openssl-dev \
-  libqt5serialbus5-dev
+  libqt6serialbus6-bin \
+  qt6-httpserver-dev \
+  qt6-serialbus-dev \
+  qt6-serialport-dev \
+  qt6-websockets-dev
+
+sudo snap install flutter --classic
+flutter   # init flutter first
 ```
 
 ```

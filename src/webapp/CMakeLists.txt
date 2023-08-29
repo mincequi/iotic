@@ -7,6 +7,11 @@ FetchContent_MakeAvailable(cmakerc)
 
 include(${cmakerc_SOURCE_DIR}/CMakeRC.cmake)
 
+find_program(FLUTTER flutter)
+if(NOT FLUTTER)
+  message(FATAL_ERROR "Flutter not found!")
+endif()
+
 execute_process(
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   COMMAND flutter build web --web-renderer html --no-tree-shake-icons
