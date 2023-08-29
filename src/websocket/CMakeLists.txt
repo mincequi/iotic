@@ -1,5 +1,4 @@
-find_package(QT NAMES Qt5 Qt6 REQUIRED COMPONENTS WebSockets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS WebSockets)
+find_package(Qt6 REQUIRED COMPONENTS WebSockets HttpServer)
 
 add_library(websocket STATIC
   WebSocketExporter.cpp
@@ -7,7 +6,9 @@ add_library(websocket STATIC
 
 target_link_libraries(websocket
 PUBLIC
-    Qt${QT_VERSION_MAJOR}::WebSockets
+  Qt6::HttpServer
+  Qt6::WebSockets
 PRIVATE
   things
+  webapp
 )

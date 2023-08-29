@@ -18,8 +18,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Threads)
-find_package(QT NAMES Qt5 Qt6 COMPONENTS Core Network SerialBus REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Network SerialBus REQUIRED)
+find_package(Qt6 COMPONENTS Core Network SerialBus REQUIRED)
 
 add_subdirectory(src/common)
 add_subdirectory(src/config)
@@ -28,6 +27,7 @@ add_subdirectory(src/influx)
 add_subdirectory(src/modbus)
 add_subdirectory(src/mqtt)
 add_subdirectory(src/things)
+add_subdirectory(src/webapp)
 add_subdirectory(src/websocket)
 #add_subdirectory(src/ui)
 
