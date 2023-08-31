@@ -26,7 +26,7 @@ WebServer::WebServer(const ThingsRepository& thingsRepository,
         auto f = _fs->open(url.path().toStdString());
         return QHttpServerResponse(QByteArray(f.begin(), f.end()-f.begin()));
     });
-    auto httpPort = _httpServer->listen(QHostAddress::Any, 7090);
+    auto httpPort = _httpServer->listen(QHostAddress::Any, 8030);
 
     // We need to create a route for websockets, which does not respond anything.
     //_httpServer->route("/ws", [this](const QString &arg, const QHttpServerRequest&) {
