@@ -6,9 +6,19 @@ import 'package:iotic/data/site_live_data.dart';
 import 'package:iotic/data/thing_live_data.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+enum WritableThingProperty { powerControl }
+
 class Repository {
   final siteLiveData = SiteLiveData(0, 0, 0).obs;
   final things = <String, ThingLiveData>{}.obs;
+
+  void set(String id, WritableThingProperty property, dynamic value) {
+    var json = jsonEncode({
+      id.toString(): {property.name: value}
+    });
+    _channel.sink.add(json);
+  }
+
   //final _port = (int.parse(html.window.location.port) + 1);
   final _port = 7091;
 

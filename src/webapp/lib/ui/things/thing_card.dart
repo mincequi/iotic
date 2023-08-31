@@ -1,70 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:iotic/ui/pages/value_unit.dart';
-import 'package:iotic/ui/things/thing_property.dart';
-import '../../data/thing_live_data.dart';
+import 'package:get/get.dart';
+import 'package:iotic/ui/things/thing_card_controller.dart';
+import '../../data/repository.dart';
 
 class ThingCard extends StatelessWidget {
-  ThingCard(this._name, this._properties, {super.key}) {
-    _name = _properties[ReadableThingProperty.name] ?? _name;
-    var type = _properties[ReadableThingProperty.type];
-    _icon = _typeToIcon[type] ?? Icons.device_hub;
-    if (_properties.containsKey(ReadableThingProperty.powerControl)) {
-      _hasPowerControl = true;
-      _powerControl = _properties[ReadableThingProperty.powerControl] != 0;
-      if (_icon == Icons.device_hub) {
-        _icon = Icons.electrical_services;
-      }
-    }
+  late final _control = Get.put(ThingCardController(_id), tag: _id);
 
-    dynamic p;
-    if ((p = _properties[ReadableThingProperty.power]) != null) {
-      _propertyWidgets
-          .add(ThingProperty(Icons.electric_bolt, p, powerUnit(p.round())));
-    }
-    if ((p = _properties[ReadableThingProperty.temperature]) != null) {
-      _propertyWidgets.add(ThingProperty(Icons.thermostat, p, '°C'));
-    }
-  }
+  ThingCard(this._id, {super.key});
 
-  String _name;
-  Map<ReadableThingProperty, dynamic> _properties;
-  List<ThingProperty> _propertyWidgets = List.empty(growable: true);
-  IconData _icon = Icons.device_hub;
-  bool _hasPowerControl = false;
-  bool _powerControl = false;
+  final String _id;
+
+  final _repo = Get.find<Repository>();
 
   @override
   Widget build(BuildContext context) {
     return Column(children: [
       Card(
-        child: ListTile(
-            leading: Icon(_icon, size: 32),
-            title: Text(_name),
-            subtitle: _propertyWidgets.isNotEmpty
-                ? Row(
-                    //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: _propertyWidgets)
+          child: Obx(
+        () => ListTile(
+            leading: Icon(_control.icon.value, size: 32),
+            title: Text(_control.name.value),
+            subtitle: _control.propertyWidgets.isNotEmpty
+                ? Row(children: _control.propertyWidgets.values.toList())
                 : null,
-            trailing: _hasPowerControl
+            trailing: _control.hasPowerControl.value
                 ? Switch(
                     activeColor: Colors.yellow,
-                    value: _powerControl,
-                    onChanged: (value) {},
+                    value: _control.powerControl.value,
+                    onChanged: (value) {
+                      _repo.set(_id, WritableThingProperty.powerControl,
+                          value ? 1.0 : 0.0);
+                    },
                   )
                 : null),
-      )
+      ))
     ]);
   }
-
-  String powerUnit(int v) {
-    if (v.abs() < 1000) return "W";
-    return "kW";
-  }
-
-  static const Map<String?, IconData> _typeToIcon = {
-    "smartMeter": Icons.electric_meter,
-    "solarInverter": Icons.solar_power,
-    "evStation": Icons.ev_station,
-    null: Icons.device_hub
-  };
 }

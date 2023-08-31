@@ -74,7 +74,7 @@ class Site extends StatelessWidget {
       ),
       */
       barWidth: 2,
-      isCurved: true,
+      //isCurved: true,
       preventCurveOverShooting: true,
       shadow: const Shadow(
         blurRadius: 8,

@@ -8,7 +8,7 @@
 #include <things/ThingsRepository.h>
 #include <things/http/HttpDiscovery.h>
 #include <things/sunspec/SunSpecManager.h>
-#include <websocket/WebSocketExporter.h>
+#include <webserver/WebServer.h>
 
 #include "Statistics.h"
 
@@ -29,5 +29,5 @@ private:
     sunspec::SunSpecManager _sunSpecManager;
     MqttExporter _mqttExporter;
     std::optional<InfluxExporter> _influxExporter;
-    WebSocketExporter _webSocketExporter;
+    WebServer _webSocketExporter;
 };

@@ -1,4 +1,4 @@
-#include "WebSocketExporter.h"
+#include "WebServer.h"
 
 #include <QHttpServer>
 #include <QtWebSockets>
@@ -8,7 +8,7 @@
 
 CMRC_DECLARE(webapp);
 
-WebSocketExporter::WebSocketExporter(const ThingsRepository& thingsRepository,
+WebServer::WebServer(const ThingsRepository& thingsRepository,
                                      QObject *parent) :
     QObject(parent),
     _thingsRepository(thingsRepository),
@@ -36,7 +36,7 @@ WebSocketExporter::WebSocketExporter(const ThingsRepository& thingsRepository,
     //_wsServer->route("/ws", [](QHttpServerResponder&&) {});
 
     if (_wsServer->listen(QHostAddress::Any, httpPort+1)) {
-        connect(_wsServer, &QWebSocketServer::newConnection, this, &WebSocketExporter::onNewConnection);
+        connect(_wsServer, &QWebSocketServer::newConnection, this, &WebServer::onNewConnection);
 
         _thingsRepository.site().siteData().subscribe([this](const Site::SiteData& data) {
             QJsonObject site;
@@ -74,29 +74,48 @@ WebSocketExporter::WebSocketExporter(const ThingsRepository& thingsRepository,
     }
 }
 
-WebSocketExporter::~WebSocketExporter() {
+WebServer::~WebServer() {
     _wsServer->close();
     qDeleteAll(_clients.begin(), _clients.end());
     //_clients.clear();
 }
 
-void WebSocketExporter::onNewConnection() {
+void WebServer::onNewConnection() {
     auto client = _wsServer->nextPendingConnection();
 
-    connect(client, &QWebSocket::textMessageReceived, this, &WebSocketExporter::onMessageReceived);
-    connect(client, &QWebSocket::disconnected, this, &WebSocketExporter::onSocketDisconnected);
+    connect(client, &QWebSocket::textMessageReceived, this, &WebServer::onMessageReceived);
+    //connect(client, &QWebSocket::binaryMessageReceived, this, &WebSocketExporter::onBinaryMessageReceived);
+    connect(client, &QWebSocket::disconnected, this, &WebServer::onSocketDisconnected);
 
     _clients << client;
 }
 
-void WebSocketExporter::onMessageReceived(const QString& message) {
+void WebServer::onMessageReceived(const QString& message) const {
+    QWebSocket* client = qobject_cast<QWebSocket *>(sender());
+    if (client) {
+        // Send state back to client to have immediate reaction on input widgets (e.g. switches).
+        client->sendTextMessage(message);
+
+        const auto obj = QJsonDocument::fromJson(message.toUtf8()).object();
+        if (obj.isEmpty()) return;
+
+        const auto thingId = obj.begin().key().toStdString();
+        const auto property = magic_enum::enum_cast<WriteableThingProperty>(obj.begin().value().toObject().begin().key().toStdString());
+        const auto value = obj.begin().value().toObject().begin().value().toDouble();
+
+        if (property)
+            _thingsRepository.setThingProperty(thingId, property.value(), value);
+    }
+}
+
+void WebServer::onBinaryMessageReceived(const QByteArray& message) {
     QWebSocket* client = qobject_cast<QWebSocket *>(sender());
     if (client) {
         client->sendTextMessage(message);
     }
 }
 
-void WebSocketExporter::onSocketDisconnected() {
+void WebServer::onSocketDisconnected() {
     QWebSocket* client = qobject_cast<QWebSocket *>(sender());
     if (client) {
         _clients.removeAll(client);
