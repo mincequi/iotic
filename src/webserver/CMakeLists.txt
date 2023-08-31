@@ -1,10 +1,10 @@
 find_package(Qt6 REQUIRED COMPONENTS WebSockets HttpServer)
 
-add_library(websocket STATIC
-  WebSocketExporter.cpp
+add_library(webserver STATIC
+  WebServer.cpp
 )
 
-target_link_libraries(websocket
+target_link_libraries(webserver
 PUBLIC
   Qt6::HttpServer
   Qt6::WebSockets

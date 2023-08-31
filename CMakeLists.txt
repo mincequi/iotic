@@ -28,8 +28,7 @@ add_subdirectory(src/modbus)
 add_subdirectory(src/mqtt)
 add_subdirectory(src/things)
 add_subdirectory(src/webapp)
-add_subdirectory(src/websocket)
-#add_subdirectory(src/ui)
+add_subdirectory(src/webserver)
 
 add_executable(elsewhere
   src/main.cpp
@@ -46,8 +45,7 @@ target_link_libraries(elsewhere
   modbus
   mqtt
   things
-  #ui
-  websocket
+  webserver
 )
 
 install(TARGETS elsewhere DESTINATION bin)

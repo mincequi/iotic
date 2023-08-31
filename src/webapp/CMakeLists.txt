@@ -12,10 +12,10 @@ if(NOT FLUTTER)
   message(FATAL_ERROR "Flutter not found!")
 endif()
 
-execute_process(
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  COMMAND flutter build web --web-renderer html --no-tree-shake-icons
-)
+#execute_process(
+#  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+#  COMMAND flutter build web --web-renderer html --no-tree-shake-icons
+#)
 
 file(GLOB_RECURSE webapp_src
   "build/web/*.bin"
@@ -30,4 +30,10 @@ file(GLOB_RECURSE webapp_src
 
 cmrc_add_resource_library(webapp WHENCE build/web
   ${webapp_src}
+)
+
+add_custom_command(TARGET webapp
+  PRE_BUILD
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  COMMAND flutter build web --web-renderer html --no-tree-shake-icons
 )

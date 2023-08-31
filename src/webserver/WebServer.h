@@ -11,15 +11,16 @@ namespace cmrc {
 class embedded_filesystem;
 }
 
-class WebSocketExporter : public QObject {
+class WebServer : public QObject {
     Q_OBJECT
 public:
-    explicit WebSocketExporter(const ThingsRepository& thingsRepository, QObject *parent = nullptr);
-    ~WebSocketExporter();
+    explicit WebServer(const ThingsRepository& thingsRepository, QObject *parent = nullptr);
+    ~WebServer();
 
 private slots:
     void onNewConnection();
-    void onMessageReceived(const QString& message);
+    void onMessageReceived(const QString& message) const;
+    void onBinaryMessageReceived(const QByteArray& message);
     void onSocketDisconnected();
 
 private:

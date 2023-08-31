@@ -29,6 +29,8 @@ public:
     // Let's see, if that helps.
     dynamic_observable<ThingPtr> thingAdded() const;
 
+    void setThingProperty(const std::string& id, WriteableThingProperty property, double value) const;
+
 private:
     std::list<ThingPtr> _things;
     publish_subject<std::list<ThingPtr>> _thingsSubject;
