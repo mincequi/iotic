@@ -32,11 +32,15 @@ struct magic_enum::customize::enum_range<ReadableThingProperty> {
 enum class WriteableThingProperty {
     actuation = 3306,
     powerControl = 3312,
-    dimmer = 3343
+    dimmer = 3343,
+
+    // special property page visibility
+    name = 3420,
+    visibility = 3427
 };
 template<>
 struct magic_enum::customize::enum_range<WriteableThingProperty> {
     static constexpr int min = (int)WriteableThingProperty::actuation;
-    static constexpr int max = (int)WriteableThingProperty::dimmer;
+    static constexpr int max = (int)WriteableThingProperty::visibility;
     // (max - min) must be less than UINT16_MAX.
 };

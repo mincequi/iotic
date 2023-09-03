@@ -7,6 +7,15 @@ class ValueUnit extends StatelessWidget {
   final int _value;
   final Color _color;
 
+  static const _blurRadius = 8.0;
+  final _shadows = const [
+    Shadow(offset: Offset(_blurRadius / 4, 0), blurRadius: _blurRadius),
+    //Shadow(offset: Offset(2.0, 2.0), blurRadius: _blurRadius),
+    //Shadow(offset: Offset(2.0, -2.0), blurRadius: _blurRadius),
+    //Shadow(offset: Offset(-2.0, 2.0), blurRadius: _blurRadius),
+    Shadow(offset: Offset(-_blurRadius / 4, 0), blurRadius: _blurRadius)
+  ];
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -17,6 +26,7 @@ class ValueUnit extends StatelessWidget {
             size: 18,
             _icon,
             color: _color,
+            shadows: _shadows,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -24,19 +34,19 @@ class ValueUnit extends StatelessWidget {
               Text(
                 value(_value),
                 style: TextStyle(
-                  color: _color,
-                  fontWeight: FontWeight.bold,
-                ),
+                    color: _color,
+                    fontWeight: FontWeight.bold,
+                    shadows: _shadows),
                 //textAlign: TextAlign.right,
               ),
               const SizedBox(width: 2),
               Text(
                 unit(_value),
                 style: TextStyle(
-                  color: _color.withOpacity(0.6),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
+                    color: _color.withOpacity(0.6),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    shadows: _shadows),
                 //textAlign: TextAlign.left,
               )
             ],

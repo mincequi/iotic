@@ -4,62 +4,55 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/get_core.dart';
 import 'package:get/get_instance/get_instance.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:iotic/ui/pages/site_controller.dart';
-import 'package:iotic/ui/pages/site_demo_controller.dart';
-import 'package:iotic/ui/pages/site_readouts.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:iotic/ui/site/site_card_controller.dart';
+import 'package:iotic/ui/site/site_readouts.dart';
 
-class Site extends StatelessWidget {
-  //final SiteDemoController c = Get.put(SiteDemoController());
-  final SiteController c = Get.put(SiteController());
+class SiteCard extends StatelessWidget {
+  SiteCard({super.key});
 
-  Site({super.key});
+  final SiteCardController c = Get.put(SiteCardController());
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-        height: 266,
-        width: double.infinity,
-        child: Padding(
-            padding: const EdgeInsets.only(left: 8, right: 8),
-            child: Card(
-                child: Stack(children: [
-              //Padding(
-              //  padding: const EdgeInsets.only(
-              //      bottom: _cornerRadius, top: _cornerRadius),
-              /*child:*/ Obx(() => c.pvPoints.length > 1
-                  ? LineChart(
-                      LineChartData(
-                        lineTouchData: const LineTouchData(enabled: false),
-                        clipData: const FlClipData.horizontal(),
-                        gridData: const FlGridData(show: false),
-                        /*gridData: FlGridData(
+    return Card(
+        child: Stack(children: [
+      //Padding(
+      //  padding: const EdgeInsets.only(
+      //      bottom: _cornerRadius, top: _cornerRadius),
+      /*child:*/ Obx(() => c.pvPoints.length > 1
+          ? LineChart(
+              LineChartData(
+                lineTouchData: const LineTouchData(enabled: false),
+                clipData: const FlClipData.horizontal(),
+                gridData: const FlGridData(show: false),
+                /*gridData: FlGridData(
                       getDrawingHorizontalLine: (value) => const FlLine(
                           color: Colors.blueGrey, strokeWidth: 0.4),
                       show: true,
                       drawVerticalLine: false,
                     ),*/
-                        titlesData: const FlTitlesData(
-                          show: false,
-                        ),
-                        borderData: FlBorderData(show: false),
-                        minY: 10.0,
-                        maxY: maxY(),
-                        // TOD
-                        minX: c.pvPoints[1].x,
-                        maxX: c.pvPoints.last.x,
-                        lineBarsData: [
-                          sinLine(c.pvPoints, c.pvColor, true),
-                          sinLine(c.sitePoints, c.siteColor, true),
-                          sinLine(c.gridPoints, Colors.orange, true)
-                        ],
-                      ),
-                      duration: const Duration(milliseconds: 300),
-                    )
-                  : Container()),
-              //),
-              const Align(alignment: Alignment.topRight, child: SiteReadouts())
-            ]))));
+                titlesData: const FlTitlesData(
+                  show: false,
+                ),
+                borderData: FlBorderData(show: false),
+                minY: 10.0,
+                maxY: maxY(),
+                // TOD
+                minX: c.pvPoints[1].x,
+                maxX: c.pvPoints.last.x,
+                lineBarsData: [
+                  sinLine(c.pvPoints, c.pvColor, true),
+                  sinLine(c.sitePoints, c.siteColor, true),
+                  sinLine(c.gridPoints, Colors.orange, true)
+                ],
+              ),
+              duration: const Duration(milliseconds: 300),
+            )
+          : Container()),
+      //),
+      const Align(alignment: Alignment.topRight, child: SiteReadouts())
+    ]));
   }
 
   LineChartBarData sinLine(List<FlSpot> points, Color color, bool renderBelow) {
@@ -74,7 +67,7 @@ class Site extends StatelessWidget {
       ),
       */
       barWidth: 2,
-      //isCurved: true,
+      isCurved: true,
       preventCurveOverShooting: true,
       shadow: const Shadow(
         blurRadius: 8,
@@ -115,6 +108,6 @@ class Site extends StatelessWidget {
                     .skip(math.max(c.sitePoints.length - 15, 0))
                     .reduce((curr, next) => (curr.y > next.y) ? curr : next)
                     .y) *
-            1.5);
+            1.05);
   }
 }

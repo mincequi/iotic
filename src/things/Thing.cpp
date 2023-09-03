@@ -40,6 +40,10 @@ uint16_t Thing::icon() const {
     return _materialIcon;
 }
 
+bool Thing::isOnSite() const {
+    return _isOnSite;
+}
+
 void Thing::read() {
     doRead();
 }

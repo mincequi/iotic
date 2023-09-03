@@ -15,6 +15,7 @@ ThingPtr GoeCharger::from(const ThingInfo& info) {
 GoeCharger::GoeCharger(const ThingInfo& info) :
     HttpThing(info) {
     _type = Thing::Type::EvStation;
+    _isOnSite = true;
 }
 
 void GoeCharger::setProperty(WriteableThingProperty property, double value) {

@@ -1,12 +1,12 @@
-import 'package:get/get.dart';
-
 enum ReadableThingProperty {
   type,
   name,
   icon,
   temperature,
   power,
-  powerControl
+  powerControl,
+
+  isOnSite
 }
 
 class ThingLiveData {

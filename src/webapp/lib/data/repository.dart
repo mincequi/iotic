@@ -2,19 +2,20 @@
 import 'dart:html' as html;
 import 'dart:convert';
 import 'package:get/get_rx/get_rx.dart';
+//import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:iotic/data/site_live_data.dart';
 import 'package:iotic/data/thing_live_data.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-enum WritableThingProperty { powerControl }
+enum WritableThingProperty { name, powerControl, visibility }
 
-class Repository {
+class Repository /*extends FullLifeCycleController with FullLifeCycleMixin*/ {
   final siteLiveData = SiteLiveData(0, 0, 0).obs;
   final things = <String, ThingLiveData>{}.obs;
 
   void set(String id, WritableThingProperty property, dynamic value) {
     var json = jsonEncode({
-      id.toString(): {property.name: value}
+      id: {property.name: value}
     });
     _channel.sink.add(json);
   }
@@ -25,8 +26,17 @@ class Repository {
   late WebSocketChannel _channel;
 
   Repository() {
+    html.document.addEventListener("visibilitychange", onVisibilityChange);
+    connect(false);
+  }
+
+  void connect(bool doDisconnect) {
+    if (doDisconnect) {
+      _channel.sink.close();
+    }
     _channel = WebSocketChannel.connect(
         Uri.parse('ws://${html.window.location.hostname}:$_port/ws'));
+
     _channel.stream.forEach((element) {
       Map<String, dynamic> liveData = jsonDecode(element);
       // Only accept jsons with exactly one top level object
@@ -36,7 +46,45 @@ class Repository {
         siteLiveData.value = SiteLiveData.fromMap(entry.value);
         return;
       }
-      things[entry.key] = ThingLiveData.fromMap(entry.value);
+      if (!things.containsKey(entry.key)) {
+        things[entry.key] = ThingLiveData.fromMap(entry.value);
+        return;
+      }
+
+      ThingLiveData.fromMap(entry.value).properties.forEach((key, value) {
+        things[entry.key]?.properties[key] = value;
+      });
+      things.refresh();
     });
   }
+
+  void onVisibilityChange(html.Event e) {
+    if (html.document.hidden ?? false) return;
+
+    connect(true);
+    //set("ui", WritableThingProperty.visibility, true);
+    // do something
+  }
+
+  /*
+  @override
+  void onResumed() {
+    connect();
+  }
+
+  @override
+  void onDetached() {
+    // TODO: implement onDetached
+  }
+
+  @override
+  void onInactive() {
+    // TODO: implement onInactive
+  }
+
+  @override
+  void onPaused() {
+    // TODO: implement onPaused
+  }
+  */
 }

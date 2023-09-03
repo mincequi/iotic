@@ -9,7 +9,7 @@
 CMRC_DECLARE(webapp);
 
 WebServer::WebServer(const ThingsRepository& thingsRepository,
-                                     QObject *parent) :
+                     QObject *parent) :
     QObject(parent),
     _thingsRepository(thingsRepository),
     _httpServer(new QHttpServer(this)),
@@ -27,51 +27,58 @@ WebServer::WebServer(const ThingsRepository& thingsRepository,
         return QHttpServerResponse(QByteArray(f.begin(), f.end()-f.begin()));
     });
     auto httpPort = _httpServer->listen(QHostAddress::Any, 8030);
+    if (httpPort == 0) {
+        LOG_S(FATAL) << "port 8030 already in use";
+    }
 
     // We need to create a route for websockets, which does not respond anything.
     //_httpServer->route("/ws", [this](const QString &arg, const QHttpServerRequest&) {
-      //qDebug() << __func__ << request  << arg;
-      //return QFuture<QHttpServerResponse>();
+    //qDebug() << __func__ << request  << arg;
+    //return QFuture<QHttpServerResponse>();
     //});
     //_wsServer->route("/ws", [](QHttpServerResponder&&) {});
 
-    if (_wsServer->listen(QHostAddress::Any, httpPort+1)) {
-        connect(_wsServer, &QWebSocketServer::newConnection, this, &WebServer::onNewConnection);
+    if (!_wsServer->listen(QHostAddress::Any, httpPort+1)) {
+        LOG_S(FATAL) << "port 8031 already in use";
+    }
 
-        _thingsRepository.site().siteData().subscribe([this](const Site::SiteData& data) {
-            QJsonObject site;
-            site["pvPower"] = data.pvPower;
-            site["gridPower"] = data.gridPower;
-            site["sitePower"] = data.sitePower;
+    connect(_wsServer, &QWebSocketServer::newConnection, this, &WebServer::onNewConnection);
+
+    _thingsRepository.site().siteData().subscribe([this](const Site::SiteData& data) {
+        QJsonObject site;
+        site["pvPower"] = data.pvPower;
+        site["gridPower"] = data.gridPower;
+        site["sitePower"] = data.sitePower;
+        QJsonObject json;
+        json["site"] = site;
+
+        for (const auto &c : std::as_const(_clients)) {
+            c->sendTextMessage(QJsonDocument(json).toJson(QJsonDocument::JsonFormat::Compact));
+        }
+    });
+
+    _thingsRepository.thingAdded().subscribe([this](const ThingPtr& thing) {
+        thing->properties().subscribe([this, &thing](const std::map<ReadableThingProperty, double>& prop) {
+            QJsonObject thing_;
+            if (thing->type() != Thing::Type::Undefined)
+                thing_["type"] = QString::fromStdString(util::toString(thing->type()));
+            if (!thing->name().empty())
+                thing_["name"] = QString::fromStdString(thing->name());
+            if (thing->icon())
+                thing_["icon"] = thing->icon();
+            if (thing->isOnSite())
+                thing_["isOnSite"] = thing->isOnSite();
+            for (const auto& kv : prop) {
+                thing_[QString::fromStdString(util::toString(kv.first))] = kv.second;
+            }
             QJsonObject json;
-            json["site"] = site;
+            json[QString::fromStdString(thing->id())] = thing_;
 
             for (const auto &c : std::as_const(_clients)) {
                 c->sendTextMessage(QJsonDocument(json).toJson(QJsonDocument::JsonFormat::Compact));
             }
         });
-
-        _thingsRepository.thingAdded().subscribe([this](const ThingPtr& thing) {
-            thing->properties().subscribe([this, &thing](const std::map<ReadableThingProperty, double>& prop) {
-                QJsonObject thing_;
-                if (thing->type() != Thing::Type::Undefined)
-                    thing_["type"] = QString::fromStdString(util::toString(thing->type()));
-                if (!thing->name().empty())
-                    thing_["name"] = QString::fromStdString(thing->name());
-                if (thing->icon())
-                    thing_["icon"] = thing->icon();
-                for (const auto& kv : prop) {
-                    thing_[QString::fromStdString(util::toString(kv.first))] = kv.second;
-                }
-                QJsonObject json;
-                json[QString::fromStdString(thing->id())] = thing_;
-
-                for (const auto &c : std::as_const(_clients)) {
-                    c->sendTextMessage(QJsonDocument(json).toJson(QJsonDocument::JsonFormat::Compact));
-                }
-            });
-        });
-    }
+    });
 }
 
 WebServer::~WebServer() {

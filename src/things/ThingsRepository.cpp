@@ -2,11 +2,6 @@
 
 ThingsRepository::ThingsRepository() :
     _site(*this) {
-    _site.siteData().subscribe([](const Site::SiteData& data){
-        LOG_S(INFO) << "site> { pvPower: " << data.pvPower
-                    << ", gridPower: " << data.gridPower
-                    << ", sitePower: " << data.sitePower << " }";
-    });
 }
 
 const Site& ThingsRepository::site() const {

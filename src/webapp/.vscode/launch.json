@@ -4,7 +4,8 @@
             "name": "Flutter",
             "type": "dart",
             "request": "launch",
-            "program": "lib/main.dart"
+            "program": "lib/main.dart",
+            //"args": ["-d", "web-server", "--web-hostname", "0.0.0.0", "--web-port", "8040"],
         }
     ]
 }

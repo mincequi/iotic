@@ -5,7 +5,7 @@ import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:iotic/data/repository.dart';
 
 class SiteReadoutsController extends GetxController {
-  final Repository repo = Get.put(Repository());
+  final repo = Get.find<Repository>();
 
   final pvPower = 0.obs;
   final sitePower = 0.obs;

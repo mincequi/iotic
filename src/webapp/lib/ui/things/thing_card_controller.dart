@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get/get_core/get_core.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_rx/get_rx.dart';
@@ -30,12 +31,13 @@ class ThingCardController extends GetxController {
   final icon = Icons.device_hub.obs;
   final hasPowerControl = false.obs;
   final powerControl = false.obs;
+  final isEditingMode = false.obs;
 
   final propertyWidgets = <ReadableThingProperty, ThingProperty>{}.obs;
 
   @override
   void onReady() {
-    //assignProperties(_repo.things);
+    assignProperties(_repo.things);
     _repo.things.listen((p0) {
       assignProperties(p0);
     });
@@ -54,7 +56,12 @@ class ThingCardController extends GetxController {
     if (p0 != null) {
       properties.value = p0;
 
-      name.value = p0[ReadableThingProperty.name] ?? _id;
+      if (p0.containsKey(ReadableThingProperty.name) &&
+          p0[ReadableThingProperty.name].toString().isNotEmpty) {
+        name.value = p0[ReadableThingProperty.name];
+      } else {
+        name.value = _id;
+      }
       icon.value =
           _typeToIcon[p0[ReadableThingProperty.type]] ?? Icons.device_hub;
 

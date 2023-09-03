@@ -20,19 +20,12 @@ class ThingProperty extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text(
-                value(_value),
-              ),
+              Text(value(_value),
+                  style: Theme.of(context).textTheme.bodyMedium),
               const SizedBox(width: 2),
-              Text(
-                _unit,
-                style: const TextStyle(
-                  //color: color.withOpacity(0.6),
-                  //fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-                //textAlign: TextAlign.left,
-              )
+              Text(_unit, style: Theme.of(context).textTheme.bodySmall
+                  //textAlign: TextAlign.left,
+                  )
             ],
           ),
           const SizedBox(
@@ -42,7 +35,8 @@ class ThingProperty extends StatelessWidget {
   }
 
   String value(double v) {
-    if (v.abs() < 100) return v.abs().toStringAsFixed(1);
+    if (v.abs() == 0) return v.abs().toStringAsFixed(0);
+    if (v.abs() < 100) return v.abs().toStringAsFixed(1); // For temperature
     if (v.abs() < 1000) return v.abs().toStringAsFixed(0);
 
     return (v / 1000).abs().toStringAsFixed(1);

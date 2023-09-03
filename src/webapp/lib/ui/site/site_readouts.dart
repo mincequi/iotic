@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
-import 'package:iotic/ui/pages/site_controller.dart';
-import 'package:iotic/ui/pages/site_readouts_controller.dart';
+import 'package:iotic/ui/site/site_card_controller.dart';
+import 'package:iotic/ui/site/site_readouts_controller.dart';
 import 'package:iotic/ui/pages/value_unit.dart';
 
 class SiteReadouts extends StatelessWidget {
@@ -14,7 +14,7 @@ class SiteReadouts extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = Get.put(SiteReadoutsController());
-    final siteControl = Get.find<SiteController>();
+    final siteControl = Get.find<SiteCardController>();
 
     return Container(
         margin: const EdgeInsets.all(_cornerRadius),

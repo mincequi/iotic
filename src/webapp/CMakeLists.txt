@@ -21,6 +21,7 @@ file(GLOB_RECURSE webapp_src
   "build/web/*.bin"
   "build/web/*.frag"
   "build/web/*.html"
+  "build/web/*.ico"
   "build/web/*.js"
   "build/web/*.json"
   "build/web/*.otf"

@@ -12,12 +12,10 @@
 using namespace std::chrono_literals;
 
 Site::Site(const ThingsRepository& thingsRepository) {
-    // TODO: this causes other subscribers to lose their subscriptions.
-    _gridPower.get_observable().subscribe([](const auto& v) {
-        LOG_S(1) << "gridPower: " << v;
-    });
-    _pvPowers.get_observable().subscribe([](const auto& v) {
-        LOG_S(1) << v.first << "> pvPower: " << v.second;
+    _siteData.get_observable().subscribe([](const Site::SiteData& data){
+        LOG_S(INFO) << "{ pvPower: " << data.pvPower
+                    << ", gridPower: " << data.gridPower
+                    << ", sitePower: " << data.sitePower << " }";
     });
 
     thingsRepository.thingAdded().subscribe([this](const ThingPtr& thing) {

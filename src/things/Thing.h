@@ -40,6 +40,7 @@ public:
     // Custom properties which are loaded from config
     std::string name() const;
     uint16_t icon() const;
+    bool isOnSite() const;
 
     // If thing does not fire updates itself, this can be called to trigger it.
     void read();
@@ -56,6 +57,7 @@ protected:
     Type _type = Type::Undefined;
     std::string _name;
     uint16_t _materialIcon = 0;
+    bool _isOnSite = false;
 
     // Inherited classes shall use these to fire updates.
     publish_subject<State> _state;

@@ -1,5 +1,3 @@
-// Caution: Wt wants to be included before Qt
-//#include "AppFrontend.h"
 #include "AppBackend.h"
 
 #include <common/Logger.h>

@@ -4,7 +4,7 @@ import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:iotic/ui/pages/historic.dart';
 import 'package:iotic/ui/pages/live.dart';
-import 'package:iotic/ui/pages/site.dart';
+import 'package:iotic/ui/site/site_page.dart';
 import 'package:iotic/ui/things/things_page.dart';
 
 import '../data/repository.dart';
@@ -15,7 +15,7 @@ class Home extends StatelessWidget {
   const Home({Key? key}) : super(key: key);
 
   static final _pages = [
-    Site(),
+    SitePage(),
     //const Live(),
     ThingsPage(),
     //const Historic(),
