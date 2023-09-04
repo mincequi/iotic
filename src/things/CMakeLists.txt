@@ -24,10 +24,11 @@ add_subdirectory(sunspec)
 add_library(things STATIC
   Site.cpp
   Thing.cpp
-  ThingInfo.cpp
-  ThingsDiscovery.cpp
   ThingFactory.cpp
+  ThingInfo.cpp
   ThingManager.cpp
+  ThingValue.cpp
+  ThingsDiscovery.cpp
   ThingsRepository.cpp
 )
 

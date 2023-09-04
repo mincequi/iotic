@@ -18,8 +18,8 @@ GoeCharger::GoeCharger(const ThingInfo& info) :
     _isOnSite = true;
 }
 
-void GoeCharger::setProperty(WriteableThingProperty property, double value) {
-
+void GoeCharger::setProperty(WriteableThingProperty property, ThingValue value) {
+    Thing::setProperty(property, value);
 }
 
 void GoeCharger::doRead() {

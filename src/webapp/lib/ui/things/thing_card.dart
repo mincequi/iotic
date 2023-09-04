@@ -6,13 +6,13 @@ import '../../data/repository.dart';
 class ThingCard extends StatelessWidget {
   late final _control = Get.put(ThingCardController(_id), tag: _id);
 
-  ThingCard(this._id, {super.key}) {
+  ThingCard(this._id, {this.isOnSite = false, super.key}) {
     _editingController = TextEditingController(text: _control.name.value);
   }
 
   final String _id;
-  late final TextEditingController
-      _editingController; // = TextEditingController(text: _id);
+  final bool isOnSite;
+  late final TextEditingController _editingController;
 
   final _repo = Get.find<Repository>();
 
@@ -31,38 +31,8 @@ class ThingCard extends StatelessWidget {
             ? Row(children: _control.propertyWidgets.values.toList())
             : null,
         //isThreeLine: _control.propertyWidgets.isNotEmpty,
-        trailing: /*_control.hasPowerControl.value
-                  ? Switch(
-                      activeColor: Colors.yellow,
-                      value: _control.powerControl.value,
-                      onChanged: (value) {
-                        _repo.set(_id, WritableThingProperty.powerControl,
-                            value ? 1.0 : 0.0);
-                      },
-                    )
-                  : null*/
-
-            Wrap(
-          children: [
-            trailingButton(), // icon-1
-            /*IconButton(
-              icon: const Icon(Icons.bookmark_border),
-              onPressed: () {},
-            ),*/
-          ],
-        ),
+        trailing: trailingButtons(),
       ),
-      /*_control.hasPowerControl.value
-                  ? Switch(
-                      activeColor: Colors.yellow,
-                      value: _control.powerControl.value,
-                      onChanged: (value) {
-                        _repo.set(_id, WritableThingProperty.powerControl,
-                            value ? 1.0 : 0.0);
-                      },
-                    )
-                  : Container(),*/
-      /*])*/
     ));
   }
 
@@ -73,7 +43,7 @@ class ThingCard extends StatelessWidget {
         decoration: null,
         focusNode: _focusNode,
         onSubmitted: (value) {
-          saveName();
+          _saveName();
         },
       );
     } else {
@@ -81,24 +51,49 @@ class ThingCard extends StatelessWidget {
     }
   }
 
-  Widget trailingButton() {
-    if (_control.isEditingMode.value) {
-      return IconButton(
-        icon: const Icon(Icons.save_outlined),
-        onPressed: saveName,
-      );
-    } else {
-      return IconButton(
-        icon: const Icon(Icons.edit_outlined),
-        onPressed: () {
-          _control.isEditingMode.value = true;
-          _focusNode.requestFocus();
-        },
-      );
+  Widget? trailingButtons() {
+    if (isOnSite) {
+      return _control.hasPowerControl.value
+          ? Switch(
+              activeColor: Colors.yellow,
+              value: _control.powerControl.value,
+              onChanged: (value) {
+                _repo.set(_id, WritableThingProperty.powerControl, value);
+              },
+            )
+          : null;
     }
+
+    return Wrap(children: [
+      (_control.isEditingMode.value
+          ? IconButton(
+              icon: const Icon(Icons.save_outlined),
+              onPressed: _saveName,
+            )
+          : IconButton(
+              icon: const Icon(Icons.edit_outlined),
+              onPressed: () {
+                _control.isEditingMode.value = true;
+                _focusNode.requestFocus();
+              },
+            )),
+      (_control.isOnSite.value
+          ? IconButton(
+              icon: const Icon(Icons.bookmark_added),
+              onPressed: () {
+                _repo.set(_id, WritableThingProperty.isOnSite, false);
+              },
+            )
+          : IconButton(
+              icon: const Icon(Icons.bookmark_add_outlined),
+              onPressed: () {
+                _repo.set(_id, WritableThingProperty.isOnSite, true);
+              },
+            ))
+    ]);
   }
 
-  void saveName() {
+  void _saveName() {
     _repo.set(_id, WritableThingProperty.name, _editingController.text);
     _control.isEditingMode.value = false;
   }

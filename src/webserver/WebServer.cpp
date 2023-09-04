@@ -58,7 +58,7 @@ WebServer::WebServer(const ThingsRepository& thingsRepository,
     });
 
     _thingsRepository.thingAdded().subscribe([this](const ThingPtr& thing) {
-        thing->properties().subscribe([this, &thing](const std::map<ReadableThingProperty, double>& prop) {
+        thing->properties().subscribe([this, &thing](const std::map<ReadableThingProperty, ThingValue>& prop) {
             QJsonObject thing_;
             if (thing->type() != Thing::Type::Undefined)
                 thing_["type"] = QString::fromStdString(util::toString(thing->type()));
@@ -69,7 +69,7 @@ WebServer::WebServer(const ThingsRepository& thingsRepository,
             if (thing->isOnSite())
                 thing_["isOnSite"] = thing->isOnSite();
             for (const auto& kv : prop) {
-                thing_[QString::fromStdString(util::toString(kv.first))] = kv.second;
+                thing_[QString::fromStdString(util::toString(kv.first))] = QJsonValue::fromVariant(QVariant::fromStdVariant(kv.second));
             }
             QJsonObject json;
             json[QString::fromStdString(thing->id())] = thing_;
@@ -108,10 +108,10 @@ void WebServer::onMessageReceived(const QString& message) const {
 
         const auto thingId = obj.begin().key().toStdString();
         const auto property = magic_enum::enum_cast<WriteableThingProperty>(obj.begin().value().toObject().begin().key().toStdString());
-        const auto value = obj.begin().value().toObject().begin().value().toDouble();
+        const QJsonValue value = obj.begin().value().toObject().begin().value();
 
         if (property)
-            _thingsRepository.setThingProperty(thingId, property.value(), value);
+            _thingsRepository.setThingProperty(thingId, property.value(), ThingValue::fromQJsonValue(value));
     }
 }
 

@@ -26,7 +26,7 @@ Site::Site(const ThingsRepository& thingsRepository) {
             thing->properties().filter([&](const auto& p) {
                 return p.count(ReadableThingProperty::power);
             }).map([&](const auto& p) {
-                return (int)p.at(ReadableThingProperty::power);
+                return (int)std::get<double>(p.at(ReadableThingProperty::power));
             }).subscribe(_gridPower.get_subscriber());
         } else if (thing->type() == Thing::Type::SolarInverter &&
                    (cfg->pvMeters().contains(thing->id()) || cfg->pvMeters().empty())) {
@@ -34,7 +34,7 @@ Site::Site(const ThingsRepository& thingsRepository) {
             thing->properties().filter([&](const auto& p) {
                 return p.count(ReadableThingProperty::power);
             }).map([&](const auto& p) {
-                return std::make_pair(thing->id(), (int)p.at(ReadableThingProperty::power));
+                return std::make_pair(thing->id(), (int)std::get<double>(p.at(ReadableThingProperty::power)));
             }).subscribe(_pvPowers.get_subscriber());
         }
     });

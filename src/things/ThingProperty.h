@@ -30,17 +30,21 @@ struct magic_enum::customize::enum_range<ReadableThingProperty> {
 };
 
 enum class WriteableThingProperty {
+    // IPSO properties
     actuation = 3306,
     powerControl = 3312,
     dimmer = 3343,
 
-    // special property page visibility
+    // Own properties
     name = 3420,
-    visibility = 3427
+    isOnSite = 3421,
+
+    // special property for page visibility
+    isVisible = 3427
 };
 template<>
 struct magic_enum::customize::enum_range<WriteableThingProperty> {
     static constexpr int min = (int)WriteableThingProperty::actuation;
-    static constexpr int max = (int)WriteableThingProperty::visibility;
+    static constexpr int max = (int)WriteableThingProperty::isVisible;
     // (max - min) must be less than UINT16_MAX.
 };

@@ -1,6 +1,7 @@
 #include "Thing.h"
 
 #include <rpp/operators.hpp>
+#include <things/ThingValue.h>
 #include <things/sunspec/SunSpecDataPoint.h>
 
 /* TODO: magic_enum stream operator does not work here.
@@ -10,6 +11,11 @@ std::ostream& operator<<(std::ostream& os, const std::pair<E, double>& kv) {
     return os << "{ \"" << util::toString(kv.first) << "\": " << kv.second << " }";
 }
 */
+
+template <typename T0, typename ... Ts>
+std::ostream& operator<<(std::ostream& s, std::variant<T0, Ts...> const& v){
+    std::visit([&](auto && arg) { s << arg; }, v); return s;
+}
 
 Thing::Thing(const ThingInfo& info) :
     ThingInfo(info),
@@ -52,9 +58,12 @@ dynamic_observable<Thing::State> Thing::state() {
     return _state.get_observable();
 }
 
-void Thing::setProperty(WriteableThingProperty property, double value) {
+void Thing::setProperty(WriteableThingProperty property, ThingValue value) {
+    if (property == WriteableThingProperty::isOnSite) {
+        _isOnSite = std::get<bool>(value);
+    }
 }
 
-dynamic_observable<std::map<ReadableThingProperty, double>> Thing::properties() const {
+dynamic_observable<std::map<ReadableThingProperty, ThingValue>> Thing::properties() const {
     return _propertiesObservable;
 }

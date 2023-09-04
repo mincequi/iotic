@@ -9,6 +9,7 @@
 #include <rpp/subjects/behavior_subject.hpp>
 #include <things/ThingInfo.h>
 #include <things/ThingProperty.h>
+#include <things/ThingValue.h>
 
 using rpp::connectable_observable;
 using rpp::dynamic_observable;
@@ -48,8 +49,8 @@ public:
     // State shall be communicated via on_error, however we keep this for a rx implementation without exceptions.
     dynamic_observable<State> state();
 
-    virtual void setProperty(WriteableThingProperty property, double value);
-    dynamic_observable<std::map<ReadableThingProperty, double>> properties() const;
+    virtual void setProperty(WriteableThingProperty property, ThingValue value);
+    dynamic_observable<std::map<ReadableThingProperty, ThingValue>> properties() const;
 
 protected:
     virtual void doRead() = 0;
@@ -61,8 +62,8 @@ protected:
 
     // Inherited classes shall use these to fire updates.
     publish_subject<State> _state;
-    publish_subject<std::map<ReadableThingProperty, double>> _propertiesSubject;
-    dynamic_observable<std::map<ReadableThingProperty, double>> _propertiesObservable;
+    publish_subject<std::map<ReadableThingProperty, ThingValue>> _propertiesSubject;
+    dynamic_observable<std::map<ReadableThingProperty, ThingValue>> _propertiesObservable;
 };
 
 using ThingPtr = std::unique_ptr<Thing>;

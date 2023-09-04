@@ -8,7 +8,7 @@ public:
 
 private:
     Shelly(const ThingInfo& info, bool shallRead);
-    void setProperty(WriteableThingProperty property, double value) override;
+    void setProperty(WriteableThingProperty property, ThingValue value) override;
     void doRead() override;
     void onRead(const QByteArray& response) override;
 

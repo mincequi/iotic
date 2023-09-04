@@ -25,10 +25,11 @@ Shelly::Shelly(const ThingInfo& info, bool isPm) :
     _type = Thing::Type::Relay;
 }
 
-void Shelly::setProperty(WriteableThingProperty property, double value) {
+void Shelly::setProperty(WriteableThingProperty property, ThingValue value) {
+    Thing::setProperty(property, value);
     switch (property) {
     case WriteableThingProperty::powerControl: {
-        const std::string strValue = value == 0.0 ? "off" : "on";
+        const std::string strValue = std::get<bool>(value) ? "on" : "off";
         write(id() + "/relay/0?turn=" + strValue);
         break;
     }
@@ -45,7 +46,7 @@ void Shelly::doRead() {
 
 void Shelly::onRead(const QByteArray& response) {
     const auto doc = QJsonDocument::fromJson(response);
-    std::map<ReadableThingProperty, double> properties;
+    std::map<ReadableThingProperty, ThingValue> properties;
     {
         const auto val = doc["relays"][0]["ison"];
         if (!val.isUndefined())

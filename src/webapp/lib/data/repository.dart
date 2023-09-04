@@ -7,7 +7,7 @@ import 'package:iotic/data/site_live_data.dart';
 import 'package:iotic/data/thing_live_data.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-enum WritableThingProperty { name, powerControl, visibility }
+enum WritableThingProperty { name, isOnSite, powerControl, isVisible }
 
 class Repository /*extends FullLifeCycleController with FullLifeCycleMixin*/ {
   final siteLiveData = SiteLiveData(0, 0, 0).obs;
@@ -62,7 +62,7 @@ class Repository /*extends FullLifeCycleController with FullLifeCycleMixin*/ {
     if (html.document.hidden ?? false) return;
 
     connect(true);
-    //set("ui", WritableThingProperty.visibility, true);
+    //set("ui", WritableThingProperty.isVisible, true);
     // do something
   }
 

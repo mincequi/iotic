@@ -8,7 +8,10 @@ class SiteThingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      ThingCard(_id),
+      ThingCard(
+        _id,
+        isOnSite: true,
+      ),
       //Slider(min: -2, max: 10, value: 0, onChanged: (value) {}),
     ]);
   }

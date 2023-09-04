@@ -2,11 +2,11 @@ enum ReadableThingProperty {
   type,
   name,
   icon,
+  isOnSite,
+
   temperature,
   power,
-  powerControl,
-
-  isOnSite
+  powerControl
 }
 
 class ThingLiveData {

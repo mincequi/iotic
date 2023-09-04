@@ -29,7 +29,7 @@ public:
     // Let's see, if that helps.
     dynamic_observable<ThingPtr> thingAdded() const;
 
-    void setThingProperty(const std::string& id, WriteableThingProperty property, double value) const;
+    void setThingProperty(const std::string& id, WriteableThingProperty property, ThingValue value) const;
 
 private:
     std::list<ThingPtr> _things;
