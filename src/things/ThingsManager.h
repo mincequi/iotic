@@ -10,7 +10,7 @@
 
 class ThingsRepository;
 
-class ThingManager : public QObject {
+class ThingsManager : public QObject {
     Q_OBJECT
 public:
     struct Task {
@@ -20,7 +20,7 @@ public:
         bool operator==(const Task& other);
     };
 
-    explicit ThingManager(ThingsRepository& thingsRepository, QObject *parent = nullptr);
+    explicit ThingsManager(ThingsRepository& thingsRepository, QObject *parent = nullptr);
 
     void startDiscovery();
     void stopDiscovery();

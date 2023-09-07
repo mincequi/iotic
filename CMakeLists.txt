@@ -22,13 +22,14 @@ find_package(Qt6 COMPONENTS Core Network SerialBus REQUIRED)
 
 add_subdirectory(src/common)
 add_subdirectory(src/config)
-#add_subdirectory(src/feed)
 add_subdirectory(src/influx)
 add_subdirectory(src/modbus)
 add_subdirectory(src/mqtt)
+add_subdirectory(src/rules)
 add_subdirectory(src/things)
 add_subdirectory(src/webapp)
 add_subdirectory(src/webserver)
+add_subdirectory(tests)
 
 add_executable(elsewhere
   src/main.cpp
@@ -44,6 +45,7 @@ target_link_libraries(elsewhere
   influx
   modbus
   mqtt
+  rules
   things
   webserver
 )

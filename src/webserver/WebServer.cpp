@@ -67,7 +67,7 @@ WebServer::WebServer(const ThingsRepository& thingsRepository,
             if (thing->icon())
                 thing_["icon"] = thing->icon();
             if (thing->isOnSite())
-                thing_["isOnSite"] = thing->isOnSite();
+                thing_["is_on_site"] = thing->isOnSite();
             for (const auto& kv : prop) {
                 thing_[QString::fromStdString(util::toString(kv.first))] = QJsonValue::fromVariant(QVariant::fromStdVariant(kv.second));
             }

@@ -24,11 +24,12 @@ void ThingsRepository::addThing(ThingPtr&& thing) {
     _thingAdded.get_subscriber().on_next(_things.back());
 }
 
-Thing* ThingsRepository::thingById(const std::string& id) const {
-    auto it = std::find_if(_things.begin(), _things.end(), [&](const auto& t) {
+const ThingPtr& ThingsRepository::thingById(const std::string& id) const {
+    const auto it = std::find_if(_things.begin(), _things.end(), [&](const auto& t) {
         return t->id() == id;
     });
-    return (it != _things.end()) ? it->get() : nullptr;
+    static const ThingPtr noThing = nullptr;
+    return (it != _things.end()) ? *it : noThing;
 }
 
 const Thing* ThingsRepository::thingByHost(const std::string& host) const {
@@ -47,7 +48,7 @@ rpp::dynamic_observable<ThingPtr> ThingsRepository::thingAdded() const {
 }
 
 void ThingsRepository::setThingProperty(const std::string& id, WriteableThingProperty property, ThingValue value) const {
-    auto thing = thingById(id);
+    const auto& thing = thingById(id);
     if (thing) {
         thing->setProperty(property, value);
     }

@@ -21,9 +21,9 @@ FetchContent_Declare(fmt
 FetchContent_MakeAvailable(fmt)
 
 FetchContent_Declare(magic_enum
-    GIT_REPOSITORY https://github.com/Neargye/magic_enum.git
-    GIT_TAG        v0.7.3
-    GIT_PROGRESS TRUE
+  GIT_REPOSITORY https://github.com/Neargye/magic_enum.git
+  GIT_TAG        v0.7.3
+  GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable(magic_enum)
 
@@ -40,20 +40,20 @@ add_library(common STATIC
 
 target_include_directories(common
 PUBLIC
-    ../
-    ${loguru_SOURCE_DIR}
+  ../
+  ${loguru_SOURCE_DIR}
 PRIVATE
-    src
+  src
 )
 
 target_link_libraries(common
 PUBLIC
-    Qt${QT_VERSION_MAJOR}::Core
-    Qt${QT_VERSION_MAJOR}::Network
-    Qt${QT_VERSION_MAJOR}::SerialBus
-    fmt::fmt
-    influx
-    magic_enum
-    rpp
-    rppqt
+  Qt${QT_VERSION_MAJOR}::Core
+  Qt${QT_VERSION_MAJOR}::Network
+  Qt${QT_VERSION_MAJOR}::SerialBus
+  fmt::fmt
+  influx
+  magic_enum
+  rpp
+  rppqt
 )

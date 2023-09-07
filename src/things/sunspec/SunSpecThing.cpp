@@ -370,17 +370,7 @@ std::string SunSpecThing::toString(const LiveValue& v) {
     ss << v;
     auto str = ss.str();
     std::transform(str.begin(), str.end(), str.begin(), [](uchar c) { return std::tolower(c); });
-    std::replace(str.begin(), str.end(), ' ', '-');
-    std::replace(str.begin(), str.end(), '#', '-');
-    std::replace(str.begin(), str.end(), '+', '-');
-    std::replace(str.begin(), str.end(), '$', '-');
-    std::replace(str.begin(), str.end(), '.', '-');
-    std::replace(str.begin(), str.end(), ':', '-');
-    std::replace(str.begin(), str.end(), ',', '-');
-    std::replace(str.begin(), str.end(), ';', '-');
-    std::replace(str.begin(), str.end(), '!', '-');
-    std::replace(str.begin(), str.end(), '?', '-');
-
+    str = std::regex_replace(str, std::regex("[^a-z0-9]"), "_");
     return str;
 }
 

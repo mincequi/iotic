@@ -16,7 +16,7 @@ public:
 
     ThingInfo(DiscoveryType type,
               const std::string& id,
-              const std::string& host = "");
+              const std::string& host);
 
     bool isValid() const;
     DiscoveryType discoveryType() const;

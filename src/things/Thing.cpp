@@ -59,7 +59,7 @@ dynamic_observable<Thing::State> Thing::state() {
 }
 
 void Thing::setProperty(WriteableThingProperty property, ThingValue value) {
-    if (property == WriteableThingProperty::isOnSite) {
+    if (property == WriteableThingProperty::is_on_site) {
         _isOnSite = std::get<bool>(value);
     }
 }

@@ -50,8 +50,8 @@ class ThingCardController extends GetxController {
     }
 
     // Check for isOnSite
-    if (p0.containsKey(ReadableThingProperty.isOnSite)) {
-      isOnSite.value = p0[ReadableThingProperty.isOnSite];
+    if (p0.containsKey(ReadableThingProperty.is_on_site)) {
+      isOnSite.value = p0[ReadableThingProperty.is_on_site];
     }
 
     // Check for type
@@ -59,9 +59,9 @@ class ThingCardController extends GetxController {
         _typeToIcon[p0[ReadableThingProperty.type]] ?? Icons.device_hub;
 
     // Check for power control
-    hasPowerControl.value = p0.containsKey(ReadableThingProperty.powerControl);
+    hasPowerControl.value = p0.containsKey(ReadableThingProperty.power_control);
     if (hasPowerControl.value) {
-      powerControl.value = p0[ReadableThingProperty.powerControl];
+      powerControl.value = p0[ReadableThingProperty.power_control];
       if (icon.value == Icons.device_hub) {
         icon.value = Icons.electrical_services;
       }

@@ -8,6 +8,8 @@ class ThingsDiscovery;
 
 using rpp::subjects::publish_subject;
 
+#define repo ThingsRepository::instance()
+
 class ThingsRepository {
 public:
     ThingsRepository();
@@ -18,7 +20,7 @@ public:
     // According to: https://stackoverflow.com/questions/43400850/return-a-unique-ptr-by-reference
     // https://www.chromium.org/developers/smart-pointer-guidelines/
     // we return rawpointer here.
-    Thing* thingById(const std::string& id) const;
+    const ThingPtr& thingById(const std::string& id) const;
     const Thing* thingByHost(const std::string& host) const;
 
     dynamic_observable<std::list<ThingPtr>> things() const;

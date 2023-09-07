@@ -1,12 +1,14 @@
+// ignore_for_file: constant_identifier_names
+
 enum ReadableThingProperty {
   type,
   name,
   icon,
-  isOnSite,
+  is_on_site,
 
   temperature,
   power,
-  powerControl
+  power_control
 }
 
 class ThingLiveData {

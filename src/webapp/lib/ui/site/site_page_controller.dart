@@ -15,7 +15,7 @@ class SitePageController extends GetxController {
     _repo.things.listen((things) {
       var things_ = <String, ThingLiveData>{};
       for (MapEntry<String, ThingLiveData> t in things.entries) {
-        if (t.value.properties[ReadableThingProperty.isOnSite] ?? false) {
+        if (t.value.properties[ReadableThingProperty.is_on_site] ?? false) {
           things_[t.key] = t.value;
         }
       }

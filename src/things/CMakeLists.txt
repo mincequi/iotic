@@ -26,9 +26,9 @@ add_library(things STATIC
   Thing.cpp
   ThingFactory.cpp
   ThingInfo.cpp
-  ThingManager.cpp
   ThingValue.cpp
   ThingsDiscovery.cpp
+  ThingsManager.cpp
   ThingsRepository.cpp
 )
 

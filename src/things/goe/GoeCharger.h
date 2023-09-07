@@ -13,7 +13,12 @@ private:
     void doRead() override;
     void onRead(const QByteArray& response) override;
 
+    // site values
+    double _availablePower = 0;
+
+    // ev station values
     std::array<double, 3> _voltage;
-    std::array<double, 3> _amperage;
-    double _power;
+    double _power = 0.0;
+    int _phases = 0;
+    int _amperage = 0;
 };

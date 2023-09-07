@@ -1,4 +1,4 @@
-#include "ThingManager.h"
+#include "ThingsManager.h"
 
 #include <QDateTime>
 #include <config/Config.h>
@@ -7,10 +7,10 @@
 #include <things/ThingsRepository.h>
 #include <things/http/HttpDiscovery.h>
 
-ThingManager::ThingManager(ThingsRepository& thingsRepository, QObject *parent)
+ThingsManager::ThingsManager(ThingsRepository& thingsRepository, QObject *parent)
     : QObject{parent},
       _thingsRepository(thingsRepository) {
-    _timer.callOnTimeout(this, &ThingManager::onTimer);
+    _timer.callOnTimeout(this, &ThingsManager::onTimer);
     _timer.start(100);
 
     _discoveries.push_back(std::make_unique<HttpDiscovery>());
@@ -29,25 +29,25 @@ ThingManager::ThingManager(ThingsRepository& thingsRepository, QObject *parent)
     });
 }
 
-void ThingManager::startDiscovery() {
+void ThingsManager::startDiscovery() {
     for (const auto& d : _discoveries) {
         d->start();
     }
 }
 
-void ThingManager::stopDiscovery() {
+void ThingsManager::stopDiscovery() {
     for (const auto& d : _discoveries) {
         d->stop();
     }
 }
 
-void ThingManager::addTask(const Task& task) {
+void ThingsManager::addTask(const Task& task) {
     if (!std::count(_tasks.begin(), _tasks.end(), task)) {
         _tasks.push_back(task);
     }
 }
 
-void ThingManager::onTimer() {
+void ThingsManager::onTimer() {
     const auto timestamp = (int64_t)std::round(QDateTime::currentMSecsSinceEpoch() / 100.0) * 100;
 
     // If we have a new day, reset stats
@@ -61,7 +61,7 @@ void ThingManager::onTimer() {
     // Execute tasks for appropriate timeslots
     for (const auto& task : _tasks) {
         if ((timestamp % task.intervalMs.count()) == 0) {
-            auto thing = _thingsRepository.thingById(task.thingId);
+            const auto& thing = _thingsRepository.thingById(task.thingId);
             if (thing) {
                 thing->read();
             }
@@ -72,7 +72,7 @@ void ThingManager::onTimer() {
 }
 
 
-bool ThingManager::Task::operator==(const Task& other) {
+bool ThingsManager::Task::operator==(const Task& other) {
     return thingId == other.thingId &&
             intervalMs == other.intervalMs;
 }

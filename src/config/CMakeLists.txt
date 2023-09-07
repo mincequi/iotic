@@ -25,8 +25,7 @@ PRIVATE
 )
 
 target_link_libraries(config
-PUBLIC
-  common
 PRIVATE
+  common
   tomlcpp
 )

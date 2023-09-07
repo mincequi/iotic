@@ -14,9 +14,10 @@ using namespace sunspec;
 
 AppBackend::AppBackend(/*FeedManager& feedManager*/)
     : //_feedManager(feedManager),
-      _thingManager(_thingsRepository),
+      _thingsManager(_thingsRepository),
       _sunSpecManager(_thingsRepository),
       _mqttExporter("broker.hivemq.com"),
+      _rulesEngine(_thingsRepository),
       _webSocketExporter(_thingsRepository) {
 
     // Setup Statistics
@@ -83,7 +84,7 @@ AppBackend::AppBackend(/*FeedManager& feedManager*/)
 #endif
 
     // Start discovery
-    _thingManager.startDiscovery();
+    _thingsManager.startDiscovery();
     _sunSpecManager.startDiscovery(60);
 }
 

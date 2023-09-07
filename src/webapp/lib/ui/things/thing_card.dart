@@ -58,7 +58,7 @@ class ThingCard extends StatelessWidget {
               activeColor: Colors.yellow,
               value: _control.powerControl.value,
               onChanged: (value) {
-                _repo.set(_id, WritableThingProperty.powerControl, value);
+                _repo.set(_id, WritableThingProperty.power_control, value);
               },
             )
           : null;
@@ -74,6 +74,7 @@ class ThingCard extends StatelessWidget {
               icon: const Icon(Icons.edit_outlined),
               onPressed: () {
                 _control.isEditingMode.value = true;
+                _editingController.text = _control.name.value;
                 _focusNode.requestFocus();
               },
             )),
@@ -81,13 +82,13 @@ class ThingCard extends StatelessWidget {
           ? IconButton(
               icon: const Icon(Icons.bookmark_added),
               onPressed: () {
-                _repo.set(_id, WritableThingProperty.isOnSite, false);
+                _repo.set(_id, WritableThingProperty.is_on_site, false);
               },
             )
           : IconButton(
               icon: const Icon(Icons.bookmark_add_outlined),
               onPressed: () {
-                _repo.set(_id, WritableThingProperty.isOnSite, true);
+                _repo.set(_id, WritableThingProperty.is_on_site, true);
               },
             ))
     ]);

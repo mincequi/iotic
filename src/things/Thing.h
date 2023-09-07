@@ -11,13 +11,8 @@
 #include <things/ThingProperty.h>
 #include <things/ThingValue.h>
 
-using rpp::connectable_observable;
 using rpp::dynamic_observable;
-//using rpp::grouped_observable;
-using rpp::subjects::behavior_subject;
 using rpp::subjects::publish_subject;
-//using rxcpp::dynamic_grouped_observable;
-//using rxcpp::subjects::subject;
 
 class Thing : public ThingInfo {
 public:

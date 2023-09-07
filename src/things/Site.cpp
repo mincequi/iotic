@@ -12,10 +12,16 @@
 using namespace std::chrono_literals;
 
 Site::Site(const ThingsRepository& thingsRepository) {
-    _siteData.get_observable().subscribe([](const Site::SiteData& data){
+    _siteData.get_observable().subscribe([this](const Site::SiteData& data){
         LOG_S(INFO) << "{ pvPower: " << data.pvPower
                     << ", gridPower: " << data.gridPower
                     << ", sitePower: " << data.sitePower << " }";
+
+        std::map<ReadableThingProperty, ThingValue> properties;
+        properties[ReadableThingProperty::pv_power] = (double)data.pvPower;
+        properties[ReadableThingProperty::grid_power] = (double)data.gridPower;
+        properties[ReadableThingProperty::site_power] = (double)data.sitePower;
+        _properties.get_subscriber().on_next(properties);
     });
 
     thingsRepository.thingAdded().subscribe([this](const ThingPtr& thing) {
@@ -49,11 +55,15 @@ Site::Site(const ThingsRepository& thingsRepository) {
     _pvPower.get_observable().combine_latest([](int pvPower, int gridPower) {
         return Site::SiteData { pvPower, gridPower, -pvPower - gridPower };
     }, _gridPower.get_observable())
-    .debounce(500ms, rpp::schedulers::new_thread{})
+    .debounce(std::chrono::milliseconds(cfg->valueOr<int>("site", Config::Key::debounce, 500)), rpp::schedulers::new_thread{})
     .observe_on(rppqt::schedulers::main_thread_scheduler{})
     .subscribe(_siteData.get_subscriber());
 }
 
-rpp::dynamic_observable<Site::SiteData> Site::siteData() const {
+dynamic_observable<Site::SiteData> Site::siteData() const {
     return _siteData.get_observable();
+}
+
+dynamic_observable<std::map<ReadableThingProperty, ThingValue>> Site::properties() const {
+    return _properties.get_observable();
 }

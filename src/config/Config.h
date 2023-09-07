@@ -18,9 +18,12 @@
 #pragma once
 
 #include <chrono>
+#include <memory>
 #include <optional>
 #include <set>
 #include <string>
+#include <utility>
+#include <vector>
 
 using namespace std::chrono_literals;
 
@@ -32,16 +35,37 @@ public:
     uint16_t port;
 };
 
+struct RuleConfig {
+    std::string name;
+    std::string when;
+    std::string then;
+};
+
+namespace toml {
+class Table;
+}
+
 class Config {
 public:
+    enum class Key {
+        on,
+        off,
+        debounce
+    };
+
     static Config* instance();
     virtual ~Config();
+
+    template<class T>
+    T valueOr(const std::string& table, Key key, T fallback = {}) const;
 
     const std::set<std::string>& pvMeters() const;
     const std::string& gridMeter() const;
 
     std::chrono::milliseconds primaryInterval() const;
     std::chrono::milliseconds secondaryInterval() const;
+
+    const std::vector<RuleConfig>& rules() const;
 
 private:
     Config();
@@ -53,10 +77,14 @@ private:
 private:
     static Config* _instance;
 
-    std::string m_configFile;
+    std::string _configFile;
+    std::shared_ptr<toml::Table> _configTable;
+
+    std::set<std::string> _pvMeters;
+    std::string _gridMeter;
 
     std::chrono::milliseconds _primaryInterval = 5000ms;
     std::chrono::milliseconds _secondaryInterval = 5000ms;
-    std::set<std::string> _pvMeters;
-    std::string _gridMeter;
+
+    std::vector<RuleConfig> _rules;
 };
