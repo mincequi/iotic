@@ -7,7 +7,7 @@ import 'home_controller.dart';
 class MyBottomNavigationBar extends StatelessWidget {
   final int _currentIndex;
 
-  final c = Get.find<HomeController>();
+  final _control = Get.find<HomeController>();
 
   MyBottomNavigationBar(this._currentIndex, {super.key});
 
@@ -34,10 +34,11 @@ class MyBottomNavigationBar extends StatelessWidget {
         */
       ],
       currentIndex: _currentIndex,
-      selectedItemColor: Colors.yellow,
-      unselectedItemColor: Colors.grey,
+      // TODO: why do i need to set this manually? It seems to use secondary per default
+      selectedItemColor: Theme.of(context).colorScheme.primary,
+      //unselectedItemColor: Colors.grey,
       onTap: (value) {
-        c.currentPage.value = value;
+        _control.currentPage.value = value;
       },
     );
   }

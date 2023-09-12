@@ -115,23 +115,10 @@ void WebServer::onMessageReceived(const QString& message) const {
     }
 }
 
-void WebServer::onBinaryMessageReceived(const QByteArray& message) {
-    QWebSocket* client = qobject_cast<QWebSocket *>(sender());
-    if (client) {
-        client->sendTextMessage(message);
-    }
-}
-
 void WebServer::onSocketDisconnected() {
     QWebSocket* client = qobject_cast<QWebSocket *>(sender());
     if (client) {
         _clients.removeAll(client);
         client->deleteLater();
-        /*for (auto it = _clients.begin(); it != _clients.end(); ++it) {
-            if (it->get() == client) {
-                _clients.erase(it);
-                return;
-            }
-        }*/
     }
 }

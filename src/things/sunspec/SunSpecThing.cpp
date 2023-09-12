@@ -105,6 +105,9 @@ void SunSpecThing::doRead() {
     }
 }
 
+void SunSpecThing::doSetProperty(WriteableThingProperty, ThingValue) {
+}
+
 uint8_t SunSpecThing::nextUnitId() {
     // unit ids: 1 to 247
     if (_unitId > 246) {

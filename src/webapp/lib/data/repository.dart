@@ -1,5 +1,4 @@
-// ignore: avoid_web_libraries_in_flutter
-// ignore_for_file: constant_identifier_names
+// ignore_for_file: avoid_web_libraries_in_flutter
 
 import 'dart:html' as html;
 import 'dart:convert';
@@ -7,9 +6,8 @@ import 'package:get/get_rx/get_rx.dart';
 //import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:iotic/data/site_live_data.dart';
 import 'package:iotic/data/thing_live_data.dart';
+import 'package:iotic/data/thing_property.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-
-enum WritableThingProperty { name, is_on_site, power_control, is_visible }
 
 class Repository /*extends FullLifeCycleController with FullLifeCycleMixin*/ {
   final siteLiveData = SiteLiveData(0, 0, 0).obs;

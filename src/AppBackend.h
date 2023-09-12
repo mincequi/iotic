@@ -16,8 +16,6 @@
 using namespace std::placeholders;
 using namespace sunspec;
 
-class FeedManager;
-
 class AppBackend : public QObject {
     Q_OBJECT
 public:

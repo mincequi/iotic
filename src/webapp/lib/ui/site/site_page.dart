@@ -15,7 +15,8 @@ class SitePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(children: [
       SizedBox(
-          height: 266,
+          //height: 266,
+          height: 194,
           width: double.infinity,
           child: Padding(
               padding: const EdgeInsets.only(left: 8, right: 8),

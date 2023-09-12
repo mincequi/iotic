@@ -5,6 +5,7 @@ import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:iotic/data/thing_live_data.dart';
 
 import '../../data/repository.dart';
+import '../../data/thing_property.dart';
 
 class SitePageController extends GetxController {
   var thingIds = <String>{};

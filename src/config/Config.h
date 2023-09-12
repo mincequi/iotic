@@ -47,7 +47,15 @@ class Table;
 
 class Config {
 public:
+    // These are persistent thing properties
+    enum class KeyMutable {
+        name,
+        offset
+    };
+
     enum class Key {
+        name,
+        offset,
         on,
         off,
         debounce
@@ -58,6 +66,8 @@ public:
 
     template<class T>
     T valueOr(const std::string& table, Key key, T fallback = {}) const;
+    template<class T>
+    void setValue(const std::string& table, KeyMutable key, T);
 
     const std::set<std::string>& pvMeters() const;
     const std::string& gridMeter() const;

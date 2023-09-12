@@ -18,8 +18,7 @@ GoeCharger::GoeCharger(const ThingInfo& info) :
     _isOnSite = true;
 }
 
-void GoeCharger::setProperty(WriteableThingProperty property, ThingValue value) {
-    Thing::setProperty(property, value);
+void GoeCharger::doSetProperty(WriteableThingProperty property, ThingValue value) {
     if (property != WriteableThingProperty::power_control) return;
 
     _availablePower = std::get<double>(value);

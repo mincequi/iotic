@@ -7,16 +7,20 @@ import 'package:iotic/ui/things/thing_property.dart';
 
 import '../../data/repository.dart';
 import '../../data/thing_live_data.dart';
+import '../../data/thing_property.dart';
 
 class ThingCardController extends GetxController {
   ThingCardController(this._id);
 
   final name = "".obs;
   final icon = Icons.device_hub.obs;
-  final hasPowerControl = false.obs;
-  final powerControl = false.obs;
+
   final isEditingMode = false.obs;
-  final isOnSite = false.obs;
+  final isPinned = false.obs;
+
+  // Mutable properties
+  final isOn = RxnBool();
+  final offset = Rxn<double>();
 
   final readableProperties = <ReadableThingProperty, dynamic>{}.obs;
   final propertyWidgets = <ReadableThingProperty, ThingProperty>{}.obs;
@@ -51,21 +55,22 @@ class ThingCardController extends GetxController {
 
     // Check for isOnSite
     if (p0.containsKey(ReadableThingProperty.is_on_site)) {
-      isOnSite.value = p0[ReadableThingProperty.is_on_site];
+      isPinned.value = p0[ReadableThingProperty.is_on_site];
     }
 
     // Check for type
     icon.value =
         _typeToIcon[p0[ReadableThingProperty.type]] ?? Icons.device_hub;
+    //offset.value = p0[ReadableThingProperty.offset];
 
     // Check for power control
-    hasPowerControl.value = p0.containsKey(ReadableThingProperty.power_control);
-    if (hasPowerControl.value) {
-      powerControl.value = p0[ReadableThingProperty.power_control];
-      if (icon.value == Icons.device_hub) {
-        icon.value = Icons.electrical_services;
-      }
+    //hasPowerControl.value = p0.containsKey(ReadableThingProperty.power_control);
+    //if (hasPowerControl.value) {
+    isOn.value = p0[ReadableThingProperty.power_control];
+    if (icon.value == Icons.device_hub) {
+      icon.value = Icons.electrical_services;
     }
+    //}
 
     // TODO: this has to be dynamic. Otherwise things cards won't get updated.
     // No idea why.

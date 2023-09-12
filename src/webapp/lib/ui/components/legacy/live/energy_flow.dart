@@ -14,7 +14,7 @@ class EnergyFlow extends StatelessWidget {
 
 class PathPainter extends CustomPainter {
   PathPainter(this._context);
-  BuildContext _context;
+  final BuildContext _context;
 
   var arrowWidth = 8.0;
 

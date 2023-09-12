@@ -1,5 +1,7 @@
 #include "RuleFactory.h"
 
+#include <limits>
+
 #include <exprtk.hpp>
 #include <config/Config.h>
 #include <things/ThingsRepository.h>
@@ -29,6 +31,12 @@ std::unique_ptr<Rule> RuleFactory::from(const ThingPtr& thing) const {
     auto offExpression = std::make_unique<exprtk::expression<double>>();
     offExpression->register_symbol_table(_symbolTable);
     if (!parser.compile(offExpressionStr, *offExpression)) return {};
+
+    const auto offset = cfg->valueOr<int>(thing->id(), Config::Key::offset, std::numeric_limits<int>::max());
+    if (offset != std::numeric_limits<int>::max()) {
+        //thing->setProperty(WriteableThingProperty::power_offset, )
+        //_thingsRepository.setThingProperty(thing->id(), WriteableThingProperty::power_control)
+    }
 
     return std::make_unique<OnOffRule>(thing->id(), std::move(onExpression), std::move(offExpression), [&](bool isOn) {
         _thingsRepository.setThingProperty(thing->id(), WriteableThingProperty::power_control, isOn);

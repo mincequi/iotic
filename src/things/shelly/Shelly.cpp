@@ -25,8 +25,7 @@ Shelly::Shelly(const ThingInfo& info, bool isPm) :
     _type = Thing::Type::Relay;
 }
 
-void Shelly::setProperty(WriteableThingProperty property, ThingValue value) {
-    Thing::setProperty(property, value);
+void Shelly::doSetProperty(WriteableThingProperty property, ThingValue value) {
     switch (property) {
     case WriteableThingProperty::power_control: {
         const std::string strValue = std::get<bool>(value) ? "on" : "off";

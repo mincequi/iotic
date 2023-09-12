@@ -41,6 +41,7 @@ enum class WriteableThingProperty {
     name = 3420,
     is_on_site = 3421,
 
+    power_offset = 3426,
     // special property for page visibility
     isVisible = 3427
 };

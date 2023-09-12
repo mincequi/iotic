@@ -1,5 +1,4 @@
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get_core/get_core.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_rx/get_rx.dart';
@@ -18,13 +17,6 @@ class SiteCardController extends GetxController {
   final pvPoints = List<FlSpot>.empty().obs;
   final sitePoints = List<FlSpot>.empty().obs;
   final gridPoints = List<FlSpot>.empty().obs;
-
-  final Color pvColor = Colors.lightGreen;
-  final Color siteColor = Colors.yellow;
-  Color gridColor() {
-    if (gridPoints.isEmpty) return Colors.grey;
-    return gridPoints.last.y < 0 ? Colors.teal : Colors.orange;
-  }
 
   @override
   void onReady() {

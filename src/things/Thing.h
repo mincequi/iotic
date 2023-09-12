@@ -44,11 +44,12 @@ public:
     // State shall be communicated via on_error, however we keep this for a rx implementation without exceptions.
     dynamic_observable<State> state();
 
-    virtual void setProperty(WriteableThingProperty property, ThingValue value);
+    void setProperty(WriteableThingProperty property, ThingValue value);
     dynamic_observable<std::map<ReadableThingProperty, ThingValue>> properties() const;
 
 protected:
     virtual void doRead() = 0;
+    virtual void doSetProperty(WriteableThingProperty property, ThingValue value) = 0;
 
     Type _type = Type::Undefined;
     std::string _name;

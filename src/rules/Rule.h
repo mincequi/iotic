@@ -4,14 +4,14 @@
 
 class Rule {
 public:
-    Rule(const std::string& id);
+    Rule(const std::string& thingId);
     virtual ~Rule();
 
-    const std::string& id() const;
+    const std::string& thingId() const;
 
     //virtual const std::string& name() const = 0;
     virtual void evaluate() const = 0;
 
 private:
-    const std::string _id;
+    const std::string _thingId;
 };

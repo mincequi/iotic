@@ -20,7 +20,6 @@ public:
 private slots:
     void onNewConnection();
     void onMessageReceived(const QString& message) const;
-    void onBinaryMessageReceived(const QByteArray& message);
     void onSocketDisconnected();
 
 private:

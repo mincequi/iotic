@@ -1,15 +1,4 @@
-// ignore_for_file: constant_identifier_names
-
-enum ReadableThingProperty {
-  type,
-  name,
-  icon,
-  is_on_site,
-
-  temperature,
-  power,
-  power_control
-}
+import 'package:iotic/data/thing_property.dart';
 
 class ThingLiveData {
   final properties = <ReadableThingProperty, dynamic>{};

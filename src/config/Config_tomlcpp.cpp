@@ -40,6 +40,11 @@ T Config::valueOr(const std::string& table_, Key key, T fallback) const {
 template std::string Config::valueOr(const std::string& table, Key key, std::string) const;
 template int Config::valueOr(const std::string& table, Key key, int) const;
 
+template<class T>
+void Config::setValue(const std::string& table, KeyMutable key, T) {
+    //_configFile.
+}
+
 const std::set<std::string>& Config::pvMeters() const {
     return _pvMeters;
 }

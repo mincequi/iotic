@@ -16,43 +16,49 @@ class SiteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+        clipBehavior: Clip.hardEdge,
         child: Stack(children: [
-      //Padding(
-      //  padding: const EdgeInsets.only(
-      //      bottom: _cornerRadius, top: _cornerRadius),
-      /*child:*/ Obx(() => c.pvPoints.length > 1
-          ? LineChart(
-              LineChartData(
-                lineTouchData: const LineTouchData(enabled: false),
-                clipData: const FlClipData.horizontal(),
-                gridData: const FlGridData(show: false),
-                /*gridData: FlGridData(
+          //Padding(
+          //  padding: const EdgeInsets.only(
+          //      bottom: _cornerRadius, top: _cornerRadius),
+          /*child:*/ Obx(() => c.pvPoints.length > 1
+              ? Opacity(
+                  opacity: 0.60,
+                  child: LineChart(
+                    LineChartData(
+                      lineTouchData: const LineTouchData(enabled: false),
+                      clipData: const FlClipData.horizontal(),
+                      gridData: const FlGridData(show: false),
+                      /*gridData: FlGridData(
                       getDrawingHorizontalLine: (value) => const FlLine(
                           color: Colors.blueGrey, strokeWidth: 0.4),
                       show: true,
                       drawVerticalLine: false,
                     ),*/
-                titlesData: const FlTitlesData(
-                  show: false,
-                ),
-                borderData: FlBorderData(show: false),
-                minY: 10.0,
-                maxY: maxY(),
-                // TOD
-                minX: c.pvPoints[1].x,
-                maxX: c.pvPoints.last.x,
-                lineBarsData: [
-                  sinLine(c.pvPoints, c.pvColor, true),
-                  sinLine(c.sitePoints, c.siteColor, true),
-                  sinLine(c.gridPoints, Colors.orange, true)
-                ],
-              ),
-              duration: const Duration(milliseconds: 300),
-            )
-          : Container()),
-      //),
-      const Align(alignment: Alignment.topRight, child: SiteReadouts())
-    ]));
+                      titlesData: const FlTitlesData(
+                        show: false,
+                      ),
+                      borderData: FlBorderData(show: false),
+                      minY: 10.0,
+                      maxY: maxY(),
+                      // TOD
+                      minX: c.pvPoints[1].x,
+                      maxX: c.pvPoints.last.x,
+                      lineBarsData: [
+                        sinLine(c.pvPoints,
+                            Theme.of(context).colorScheme.secondary, true),
+                        sinLine(c.sitePoints,
+                            Theme.of(context).colorScheme.primary, true),
+                        sinLine(c.gridPoints,
+                            Theme.of(context).colorScheme.tertiary, true)
+                      ],
+                    ),
+                    duration: const Duration(milliseconds: 300),
+                  ))
+              : Container()),
+          //),
+          const Align(alignment: Alignment.topRight, child: SiteReadouts())
+        ]));
   }
 
   LineChartBarData sinLine(List<FlSpot> points, Color color, bool renderBelow) {
@@ -60,12 +66,6 @@ class SiteCard extends StatelessWidget {
       spots: points,
       dotData: const FlDotData(show: false),
       color: color,
-      /*
-      gradient: LinearGradient(
-        colors: [color.withOpacity(0), color],
-        stops: const [0.0, 0.375],
-      ),
-      */
       barWidth: 2,
       isCurved: true,
       preventCurveOverShooting: true,
@@ -81,7 +81,7 @@ class SiteCard extends StatelessWidget {
             colors: [
               //color.withOpacity(0.38),
               //color.withOpacity(0.19),
-              color.withOpacity(0.3),
+              color.withOpacity(0.5),
               color.withOpacity(0.0),
             ],
             stops: const [0.0, 0.95],

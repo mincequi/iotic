@@ -16,7 +16,7 @@ add_library(tomlcpp STATIC
 )
 
 add_library(config STATIC
-  Config.cpp
+  Config_tomlcpp.cpp
 )
 
 target_include_directories(config

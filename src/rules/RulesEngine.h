@@ -17,6 +17,7 @@ public:
 private:
     // TODO: this does not work: raw pointer gets invalidated from time to time
     //void subscribe(const Thing* thing);
+    // Using const ThingPtr& instead works.
     void subscribe(const ThingPtr& thing);
     void addDependency(const std::string& id);
     void subscribeDependencies();

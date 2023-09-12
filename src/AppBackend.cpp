@@ -2,8 +2,6 @@
 
 #include <config/Config.h>
 #include <common/Util.h>
-//#include "feed/FeedManager.h"
-//#include "feed/LiveFeed.h"
 #include <things/sunspec/SunSpecLogger.h>
 #include <things/sunspec/SunSpecModel.h>
 
@@ -12,9 +10,8 @@
 
 using namespace sunspec;
 
-AppBackend::AppBackend(/*FeedManager& feedManager*/)
-    : //_feedManager(feedManager),
-      _thingsManager(_thingsRepository),
+AppBackend::AppBackend()
+    : _thingsManager(_thingsRepository),
       _sunSpecManager(_thingsRepository),
       _mqttExporter("broker.hivemq.com"),
       _rulesEngine(_thingsRepository),
@@ -30,13 +27,6 @@ AppBackend::AppBackend(/*FeedManager& feedManager*/)
     QObject::connect(&_sunSpecManager, &sunspec::SunSpecManager::modelRead, [&](const sunspec::SunSpecThing& thing, const sunspec::Model& model) {
         LOG_S(1) << thing.sunSpecId() << "> " << model;
         _stats.feedModel(thing, model);
-        if (model.modelId() == sunspec::Model::Id::MeterWyeConnectThreePhase &&
-                model.values().count(sunspec::totalActiveAcPower)) {
-            _feedManager.liveFeed().setGridMeterPower(thing.sunSpecId(), std::get<int32_t>(model.values().at(sunspec::totalActiveAcPower)));
-        } else if (model.modelId() == sunspec::Model::Id::InverterThreePhase &&
-                   model.values().count(sunspec::totalActiveAcPower)) {
-            _feedManager.liveFeed().setInverterPower(thing.sunSpecId(), std::get<int32_t>(model.values().at(sunspec::totalActiveAcPower)));
-        }
     });
     */
 

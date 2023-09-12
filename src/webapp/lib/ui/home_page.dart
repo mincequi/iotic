@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get_core/get_core.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:iotic/ui/pages/historic.dart';
-import 'package:iotic/ui/pages/live.dart';
 import 'package:iotic/ui/site/site_page.dart';
 import 'package:iotic/ui/things/things_page.dart';
 
@@ -29,13 +27,27 @@ class Home extends StatelessWidget {
     // ignore: unused_local_variable
     final Repository repo = Get.put(Repository());
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("This is iotic"),
-      ),
-      body: Obx(() => _pages[c.currentPage.value]),
-      bottomNavigationBar:
-          Obx(() => MyBottomNavigationBar(c.currentPage.value)),
-    );
+    return Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: [0.0, 0.5],
+            colors: [
+              Color.fromARGB(255, 78, 75, 72),
+              Color.fromARGB(255, 26, 28, 29)
+            ],
+          ),
+        ),
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            title: const Text("this is iotic"),
+          ),
+          body: SafeArea(child: Obx(() => _pages[c.currentPage.value])),
+          bottomNavigationBar:
+              Obx(() => MyBottomNavigationBar(c.currentPage.value)),
+          backgroundColor: Colors.transparent,
+        ));
   }
 }

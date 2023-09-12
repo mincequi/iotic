@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:iotic/iotic_theme.dart';
 import 'package:iotic/ui/site/site_card_controller.dart';
 import 'package:iotic/ui/site/site_readouts_controller.dart';
 import 'package:iotic/ui/pages/value_unit.dart';
@@ -29,20 +30,24 @@ class SiteReadouts extends StatelessWidget {
           children: [
             TableRow(
               children: [
-                Obx(() => ValueUnit(
-                    Icons.solar_power, c.pvPower.value, siteControl.pvColor))
+                Obx(() => ValueUnit(Icons.solar_power, c.pvPower.value,
+                    Theme.of(context).colorScheme.secondary))
+              ],
+            ),
+            TableRow(
+              children: [
+                Obx(() => ValueUnit(Icons.home, c.sitePower.value,
+                    Theme.of(context).colorScheme.primary))
               ],
             ),
             TableRow(
               children: [
                 Obx(() => ValueUnit(
-                    Icons.home, c.sitePower.value, siteControl.siteColor))
-              ],
-            ),
-            TableRow(
-              children: [
-                Obx(() => ValueUnit(
-                    Icons.power, c.gridPower.value, siteControl.gridColor()))
+                    Icons.power,
+                    c.gridPower.value,
+                    c.gridPower.value > 0
+                        ? Theme.of(context).colorScheme.tertiary
+                        : IoticTheme.blue))
               ],
             ),
           ],

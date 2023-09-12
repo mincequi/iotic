@@ -9,7 +9,7 @@ public:
 
 private:
     GoeCharger(const ThingInfo& info);
-    virtual void setProperty(WriteableThingProperty property, ThingValue value) override;
+    virtual void doSetProperty(WriteableThingProperty property, ThingValue value) override;
     void doRead() override;
     void onRead(const QByteArray& response) override;
 

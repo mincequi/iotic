@@ -62,6 +62,7 @@ void Thing::setProperty(WriteableThingProperty property, ThingValue value) {
     if (property == WriteableThingProperty::is_on_site) {
         _isOnSite = std::get<bool>(value);
     }
+    doSetProperty(property, value);
 }
 
 dynamic_observable<std::map<ReadableThingProperty, ThingValue>> Thing::properties() const {

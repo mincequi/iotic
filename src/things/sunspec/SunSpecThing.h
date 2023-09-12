@@ -49,6 +49,7 @@ signals:
 
 private:
     void doRead() override;
+    void doSetProperty(WriteableThingProperty, ThingValue) override;
 
     uint8_t nextUnitId();
     void pollNextUnitId();
