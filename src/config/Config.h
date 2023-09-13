@@ -29,20 +29,12 @@ using namespace std::chrono_literals;
 
 #define cfg Config::instance()
 
-class HostConfig {
-public:
-    std::string host;
-    uint16_t port;
-};
-
-struct RuleConfig {
-    std::string name;
-    std::string when;
-    std::string then;
-};
-
 namespace toml {
 class Table;
+//class table;
+//namespace v3 {
+//struct parse_result;
+//}
 }
 
 class Config {
@@ -50,18 +42,26 @@ public:
     // These are persistent thing properties
     enum class KeyMutable {
         name,
-        offset
+        is_pinned
     };
 
     enum class Key {
         name,
+        is_pinned,
+
         offset,
         on,
         off,
         debounce
     };
 
-    static Config* instance();
+    static inline Config* instance() {
+        if (_instance == nullptr) {
+            _instance = new Config;
+            _instance->parse();
+        }
+        return _instance;
+    }
     virtual ~Config();
 
     template<class T>
@@ -69,32 +69,31 @@ public:
     template<class T>
     void setValue(const std::string& table, KeyMutable key, T);
 
-    const std::set<std::string>& pvMeters() const;
-    const std::string& gridMeter() const;
-
-    std::chrono::milliseconds primaryInterval() const;
-    std::chrono::milliseconds secondaryInterval() const;
-
-    const std::vector<RuleConfig>& rules() const;
+    inline const std::set<std::string>& pvMeters() const {
+        return _pvMeters;
+    }
+    inline const std::string& gridMeter() const {
+        return _gridMeter;
+    }
+    inline std::chrono::milliseconds primaryInterval() const {
+        return _primaryInterval;
+    }
 
 private:
     Config();
 
     void parse();
 
-    std::optional<HostConfig> hostConfig(const std::string& ) const;
-
 private:
-    static Config* _instance;
+    static inline Config* _instance = nullptr;
 
-    std::string _configFile;
-    std::shared_ptr<toml::Table> _configTable;
+    std::string _configFile = "/etc/elsewhere.conf";
+
+    class Impl;
+    std::unique_ptr<Impl> _p;
 
     std::set<std::string> _pvMeters;
     std::string _gridMeter;
 
     std::chrono::milliseconds _primaryInterval = 5000ms;
-    std::chrono::milliseconds _secondaryInterval = 5000ms;
-
-    std::vector<RuleConfig> _rules;
 };

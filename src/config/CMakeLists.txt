@@ -10,22 +10,33 @@ FetchContent_Declare(tomlcpp
 #    add_subdirectory(${tomlcpp_SOURCE_DIR} ${tomlcpp_BINARY_DIR} EXCLUDE_FROM_ALL)
 #endif()
 FetchContent_MakeAvailable(tomlcpp)
+
+include(FetchContent)
+FetchContent_Declare(tomlplusplus
+    URL https://github.com/marzer/tomlplusplus/archive/refs/tags/v3.3.0.tar.gz
+    #GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
+    #GIT_TAG        v3.3.0
+)
+FetchContent_MakeAvailable(tomlplusplus)
+
 add_library(tomlcpp STATIC
   ${tomlcpp_SOURCE_DIR}/toml.c
   ${tomlcpp_SOURCE_DIR}/tomlcpp.cpp
 )
 
 add_library(config STATIC
-  Config_tomlcpp.cpp
+  #Config_tomlcpp.cpp
+  Config_tomlplusplus.cpp
 )
 
 target_include_directories(config
 PRIVATE
-  ${tomlcpp_SOURCE_DIR}
+  #${tomlcpp_SOURCE_DIR}
+  ${tomlplusplus_SOURCE_DIR}
 )
 
 target_link_libraries(config
 PRIVATE
   common
-  tomlcpp
+  #tomlcpp
 )
