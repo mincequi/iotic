@@ -25,29 +25,29 @@
 #include <utility>
 #include <vector>
 
+#include <things/ThingProperty.h>
+
 using namespace std::chrono_literals;
 
 #define cfg Config::instance()
 
 namespace toml {
 class Table;
-//class table;
-//namespace v3 {
-//struct parse_result;
-//}
 }
+
+class ThingValue;
+class ThingsRepository;
 
 class Config {
 public:
     // These are persistent thing properties
     enum class KeyMutable {
         name,
-        is_pinned
     };
 
     enum class Key {
         name,
-        is_pinned,
+        pinned,
 
         offset,
         on,
@@ -55,19 +55,20 @@ public:
         debounce
     };
 
+    static inline void init(const ThingsRepository& thingsRepository) {
+        if (_instance) return;
+
+        _instance = new Config(thingsRepository);
+    }
+
     static inline Config* instance() {
-        if (_instance == nullptr) {
-            _instance = new Config;
-            _instance->parse();
-        }
         return _instance;
     }
     virtual ~Config();
 
     template<class T>
     T valueOr(const std::string& table, Key key, T fallback = {}) const;
-    template<class T>
-    void setValue(const std::string& table, KeyMutable key, T);
+    void setValue(const std::string& table, DynamicProperty key, const ThingValue& value);
 
     inline const std::set<std::string>& pvMeters() const {
         return _pvMeters;
@@ -80,12 +81,13 @@ public:
     }
 
 private:
-    Config();
+    Config(const ThingsRepository& thingsRepository);
 
     void parse();
 
 private:
     static inline Config* _instance = nullptr;
+    const ThingsRepository& _thingsRepository;
 
     std::string _configFile = "/etc/elsewhere.conf";
 

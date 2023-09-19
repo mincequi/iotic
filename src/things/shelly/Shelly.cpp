@@ -25,9 +25,9 @@ Shelly::Shelly(const ThingInfo& info, bool isPm) :
     _type = Thing::Type::Relay;
 }
 
-void Shelly::doSetProperty(WriteableThingProperty property, ThingValue value) {
+void Shelly::doSetProperty(MutableProperty property, ThingValue value) {
     switch (property) {
-    case WriteableThingProperty::power_control: {
+    case MutableProperty::power_control: {
         const std::string strValue = std::get<bool>(value) ? "on" : "off";
         write(host() + "/relay/0?turn=" + strValue);
         break;
@@ -45,19 +45,19 @@ void Shelly::doRead() {
 
 void Shelly::onRead(const QByteArray& response) {
     const auto doc = QJsonDocument::fromJson(response);
-    std::map<ReadableThingProperty, ThingValue> properties;
+    std::map<DynamicProperty, ThingValue> properties;
     {
         const auto val = doc["relays"][0]["ison"];
         if (!val.isUndefined())
-            properties[ReadableThingProperty::power_control] = val.toBool();
+            properties[DynamicProperty::power_control] = val.toBool();
     } if (_isPm) {
         const auto val = doc["meters"][0]["power"];
         if (!val.isUndefined())
-            properties[ReadableThingProperty::power] = val.toDouble();
+            properties[DynamicProperty::power] = val.toDouble();
     } {
         const auto val = doc["ext_temperature"]["0"]["tC"];
         if (!val.isUndefined())
-            properties[ReadableThingProperty::temperature] = val.toDouble();
+            properties[DynamicProperty::temperature] = val.toDouble();
     }
 
     if (!properties.empty()) {

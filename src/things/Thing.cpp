@@ -1,6 +1,8 @@
 #include "Thing.h"
 
 #include <rpp/operators.hpp>
+
+#include <config/Config.h>
 #include <things/ThingValue.h>
 #include <things/sunspec/SunSpecDataPoint.h>
 
@@ -27,8 +29,13 @@ Thing::Thing(const ThingInfo& info) :
         }
         std::string str = ss.str();
         std::string substr = str.substr(0, str.size()-2);
-        LOG_S(INFO) << id() << "> " << "{ " << substr << " }";
+        LOG_S(INFO) << id() << "> { " << substr << " }";
     });
+
+    //_propertiesSubject.get_subscriber().on_next({{ DynamicProperty::name, cfg->valueOr(id(), Config::Key::name, id()) }});
+    // TODO: do not store persistent properties here.
+    _persistentProperties[MutableProperty::name] = cfg->valueOr(id(), Config::Key::name, id());
+    _persistentProperties[MutableProperty::pinned] = cfg->valueOr(id(), Config::Key::pinned, false);
 }
 
 Thing::~Thing() {
@@ -38,33 +45,30 @@ Thing::Type Thing::type() const {
     return _type;
 }
 
-std::string Thing::name() const {
-    return _name;
-}
-
 uint16_t Thing::icon() const {
     return _materialIcon;
-}
-
-bool Thing::isOnSite() const {
-    return _isOnSite;
 }
 
 void Thing::read() {
     doRead();
 }
 
-dynamic_observable<Thing::State> Thing::state() {
-    return _state.get_observable();
-}
-
-void Thing::setProperty(WriteableThingProperty property, ThingValue value) {
-    if (property == WriteableThingProperty::is_on_site) {
-        _isOnSite = std::get<bool>(value);
-    }
+void Thing::setProperty(MutableProperty property, ThingValue value) {
+    _persistentProperties[property] = value;
     doSetProperty(property, value);
+
+    // Reflect changes back (to other clients as well).
+    const auto property_ = magic_enum::enum_cast<DynamicProperty>(magic_enum::enum_integer(property));
+    if (property_.has_value()) {
+        LOG_S(INFO) << id() << ".setProperty> " << util::toString(property_.value()) << ": " << value;
+        _propertiesSubject.get_subscriber().on_next({{ property_.value(), value }});
+    }
 }
 
-dynamic_observable<std::map<ReadableThingProperty, ThingValue>> Thing::properties() const {
+const std::map<MutableProperty, ThingValue>& Thing::persistentProperties() const {
+    return _persistentProperties;
+}
+
+dynamic_observable<std::map<DynamicProperty, ThingValue>> Thing::properties() const {
     return _propertiesObservable;
 }

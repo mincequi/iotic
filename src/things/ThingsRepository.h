@@ -23,7 +23,7 @@ public:
     const ThingPtr& thingById(const std::string& id) const;
     const Thing* thingByHost(const std::string& host) const;
 
-    dynamic_observable<std::list<ThingPtr>> things() const;
+    const std::list<ThingPtr>& things() const;
 
     // TODO: there are issues with that. If we use raw pointer instead of unique_ptr, subscribers always
     // seem to obtain same id for different things...
@@ -31,11 +31,10 @@ public:
     // Let's see, if that helps.
     dynamic_observable<ThingPtr> thingAdded() const;
 
-    void setThingProperty(const std::string& id, WriteableThingProperty property, ThingValue value) const;
+    void setThingProperty(const std::string& id, MutableProperty property, ThingValue value) const;
 
 private:
     std::list<ThingPtr> _things;
-    publish_subject<std::list<ThingPtr>> _thingsSubject;
     publish_subject<ThingPtr> _thingAdded;
     Site _site;
 };

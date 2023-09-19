@@ -39,6 +39,6 @@ std::unique_ptr<Rule> RuleFactory::from(const ThingPtr& thing) const {
     }
 
     return std::make_unique<OnOffRule>(thing->id(), std::move(onExpression), std::move(offExpression), [&](bool isOn) {
-        _thingsRepository.setThingProperty(thing->id(), WriteableThingProperty::power_control, isOn);
+        _thingsRepository.setThingProperty(thing->id(), MutableProperty::power_control, isOn);
     });
 }

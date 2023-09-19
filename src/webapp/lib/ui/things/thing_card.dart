@@ -85,13 +85,13 @@ class ThingCard extends StatelessWidget {
           ? IconButton(
               icon: const Icon(Icons.bookmark_added),
               onPressed: () {
-                _repo.set(_id, WritableThingProperty.is_on_site, false);
+                _repo.set(_id, WritableThingProperty.pinned, false);
               },
             )
           : IconButton(
               icon: const Icon(Icons.bookmark_add_outlined),
               onPressed: () {
-                _repo.set(_id, WritableThingProperty.is_on_site, true);
+                _repo.set(_id, WritableThingProperty.pinned, true);
               },
             ))
     ]);

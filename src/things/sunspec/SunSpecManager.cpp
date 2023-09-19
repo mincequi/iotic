@@ -26,16 +26,6 @@ bool SunSpecManager::contains(const QString& host) const {
     }) != _things.end();
 }
 
-/*
-void SunSpecManager::addThing(SunSpecThing* thing) {
-    _things.insert(thing->sunSpecId(), thing);
-    //connect(thing, &SunSpecThing::stateChanged, this, &SunSpecManager::onThingStateChanged);
-    //connect(thing, &SunSpecThing::modelRead, std::bind(&SunSpecManager::modelRead, this, std::ref(*thing), _1, _2));
-    //emit thingDiscovered(*thing);
-    //addTask({id, cfg->primaryInterval()});
-}
-*/
-
 void SunSpecManager::removeThing(SunSpecThing* thing) {
     if (_things.count(thing->sunSpecId())) {
         LOG_S(WARNING) << "thing removed: " << thing->sunSpecId();

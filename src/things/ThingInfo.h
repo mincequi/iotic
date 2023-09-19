@@ -30,8 +30,5 @@ private:
     std::string _id;
     std::string _host;
 
-    // Custom fields
-    std::string _name;
-
     friend class modbus::ModbusDiscovery;
 };

@@ -2,6 +2,8 @@
 
 #include <QObject>
 
+#include <things/Thing.h>
+
 class QHttpServer;
 class QWebSocket;
 class QWebSocketServer;
@@ -25,6 +27,8 @@ private slots:
 private:
     void initWebSocketServer();
     void initWebServer();
+
+    static QByteArray serializePersistentProperties(const ThingPtr& thing);
 
     const ThingsRepository& _thingsRepository;
 

@@ -15,11 +15,10 @@ ThingPtr GoeCharger::from(const ThingInfo& info) {
 GoeCharger::GoeCharger(const ThingInfo& info) :
     HttpThing(info) {
     _type = Thing::Type::EvStation;
-    _isOnSite = true;
 }
 
-void GoeCharger::doSetProperty(WriteableThingProperty property, ThingValue value) {
-    if (property != WriteableThingProperty::power_control) return;
+void GoeCharger::doSetProperty(MutableProperty property, ThingValue value) {
+    if (property != MutableProperty::power_control) return;
 
     _availablePower = std::get<double>(value);
 }
@@ -39,5 +38,5 @@ void GoeCharger::onRead(const QByteArray& response) {
     _power = nrg.at(11).toDouble();
     static int phases[] = { 0, 1, 3};
     _phases = phases[doc["psm"].toInt()];
-    _propertiesSubject.get_subscriber().on_next({{ReadableThingProperty::power, _power}});
+    _propertiesSubject.get_subscriber().on_next({{DynamicProperty::power, _power}});
 }

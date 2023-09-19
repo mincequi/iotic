@@ -105,7 +105,7 @@ void SunSpecThing::doRead() {
     }
 }
 
-void SunSpecThing::doSetProperty(WriteableThingProperty, ThingValue) {
+void SunSpecThing::doSetProperty(MutableProperty, ThingValue) {
 }
 
 uint8_t SunSpecThing::nextUnitId() {
@@ -358,7 +358,7 @@ void SunSpecThing::parseModel(uint16_t modelId, const std::vector<uint16_t>& buf
         for (const auto& v : model.values()) {
             switch (v.first) {
             case DataPoint::totalActiveAcPower:
-                _propertiesSubject.get_subscriber().on_next({{ReadableThingProperty::power, (double)std::get<int32_t>(v.second)}});
+                _propertiesSubject.get_subscriber().on_next({{DynamicProperty::power, (double)std::get<int32_t>(v.second)}});
                 break;
             default:
                 break;

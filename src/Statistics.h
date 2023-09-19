@@ -12,7 +12,7 @@ class SunSpecThing;
 class Statistics : public QObject {
     Q_OBJECT
 public:
-    explicit Statistics(QObject *parent = nullptr);
+    explicit Statistics(QObject* parent = nullptr);
 
     void reset();
 
@@ -22,5 +22,5 @@ signals:
     void statsChanged(const sunspec::SunSpecThing& thing, const sunspec::StatsModel& model);
 
 private:
-    std::map<std::pair<std::string, uint16_t>, sunspec::StatsModel> m_models;
+    std::map<std::pair<std::string, uint16_t>, sunspec::StatsModel> _models;
 };

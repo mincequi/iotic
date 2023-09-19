@@ -8,13 +8,30 @@
 
 #include <common/Logger.h>
 #include <common/Util.h>
+#include <things/ThingsRepository.h>
 
 struct Config::Impl {
     toml::parse_result configTable;
 };
 
-Config::Config() :
+Config::Config(const ThingsRepository& thingsRepository) :
+    _thingsRepository(thingsRepository),
     _p(new Config::Impl) {
+    parse();
+    _thingsRepository.thingAdded().subscribe([this](const auto& thing) {
+        thing->properties().subscribe([this, &thing](const std::map<DynamicProperty, ThingValue>& prop) {
+            for (const auto& kv : prop) {
+                switch (kv.first) {
+                case DynamicProperty::name:
+                case DynamicProperty::pinned:
+                    setValue(thing->id(), kv.first, kv.second);
+                    break;
+                default:
+                    break;
+                }
+            }
+        });
+    });
 }
 
 Config::~Config() {
@@ -27,16 +44,14 @@ T Config::valueOr(const std::string& table_, Key key, T fallback) const {
 // Explicit template instantiation
 template std::string Config::valueOr(const std::string& table, Key key, std::string) const;
 template int Config::valueOr(const std::string& table, Key key, int) const;
+template bool Config::valueOr(const std::string& table, Key key, bool) const;
 
-template<class T>
-void Config::setValue(const std::string& table, KeyMutable key, T value) {
-    {
-        if (!_p->configTable.table().contains(table)) {
-            _p->configTable.table().insert_or_assign(table, toml::table{});
-        }
-        auto section = _p->configTable.table().at(table).as_table();
-        section->insert_or_assign(util::toString(key), value);
+void Config::setValue(const std::string& table, DynamicProperty key, const ThingValue& value) {
+    if (!_p->configTable.table().contains(table)) {
+    _p->configTable.table().insert_or_assign(table, toml::table{});
     }
+    auto section = _p->configTable.table().at(table).as_table();
+    std::visit([&](const auto& arg){ section->insert_or_assign(util::toString(key), arg); }, value);
 
     std::ofstream configFile;
     configFile.open(_configFile);

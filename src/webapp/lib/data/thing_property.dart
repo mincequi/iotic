@@ -6,7 +6,7 @@ enum ReadableThingProperty {
   type,
   name,
   icon,
-  is_on_site,
+  pinned,
 
   temperature,
   power,
@@ -14,4 +14,4 @@ enum ReadableThingProperty {
   offset
 }
 
-enum WritableThingProperty { name, is_on_site, power_control, is_visible }
+enum WritableThingProperty { name, pinned, power_control, is_visible }

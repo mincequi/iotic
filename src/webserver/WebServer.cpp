@@ -58,18 +58,20 @@ WebServer::WebServer(const ThingsRepository& thingsRepository,
     });
 
     _thingsRepository.thingAdded().subscribe([this](const ThingPtr& thing) {
-        thing->properties().subscribe([this, &thing](const std::map<ReadableThingProperty, ThingValue>& prop) {
+        // When new thing is added, send persistent properties to each client
+        auto message = serializePersistentProperties(thing);
+        for (const auto &c : std::as_const(_clients)) {
+            c->sendTextMessage(message);
+        }
+
+        thing->properties().subscribe([this, &thing](const std::map<DynamicProperty, ThingValue>& prop) {
             QJsonObject thing_;
             if (thing->type() != Thing::Type::Undefined)
                 thing_["type"] = QString::fromStdString(util::toString(thing->type()));
-            if (!thing->name().empty())
-                thing_["name"] = QString::fromStdString(thing->name());
             if (thing->icon())
                 thing_["icon"] = thing->icon();
-            if (thing->isOnSite())
-                thing_["is_on_site"] = thing->isOnSite();
             for (const auto& kv : prop) {
-                thing_[QString::fromStdString(util::toString(kv.first))] = QJsonValue::fromVariant(QVariant::fromStdVariant(kv.second));
+                thing_[QString::fromStdString(util::toString(kv.first))] = kv.second.toJsonValue();
             }
             QJsonObject json;
             json[QString::fromStdString(thing->id())] = thing_;
@@ -90,6 +92,12 @@ WebServer::~WebServer() {
 void WebServer::onNewConnection() {
     auto client = _wsServer->nextPendingConnection();
 
+    // Send all things and their persistent properties to new client.
+    for (const auto& t : _thingsRepository.things()) {
+        const QByteArray message = serializePersistentProperties(t);
+        client->sendTextMessage(message);
+    }
+
     connect(client, &QWebSocket::textMessageReceived, this, &WebServer::onMessageReceived);
     //connect(client, &QWebSocket::binaryMessageReceived, this, &WebSocketExporter::onBinaryMessageReceived);
     connect(client, &QWebSocket::disconnected, this, &WebServer::onSocketDisconnected);
@@ -100,14 +108,11 @@ void WebServer::onNewConnection() {
 void WebServer::onMessageReceived(const QString& message) const {
     QWebSocket* client = qobject_cast<QWebSocket *>(sender());
     if (client) {
-        // Send state back to client to have immediate reaction on input widgets (e.g. switches).
-        client->sendTextMessage(message);
-
         const auto obj = QJsonDocument::fromJson(message.toUtf8()).object();
         if (obj.isEmpty()) return;
 
         const auto thingId = obj.begin().key().toStdString();
-        const auto property = magic_enum::enum_cast<WriteableThingProperty>(obj.begin().value().toObject().begin().key().toStdString());
+        const auto property = magic_enum::enum_cast<MutableProperty>(obj.begin().value().toObject().begin().key().toStdString());
         const QJsonValue value = obj.begin().value().toObject().begin().value();
 
         if (property)
@@ -121,4 +126,14 @@ void WebServer::onSocketDisconnected() {
         _clients.removeAll(client);
         client->deleteLater();
     }
+}
+
+QByteArray WebServer::serializePersistentProperties(const ThingPtr& t) {
+    QJsonObject properties;
+    for (const auto& kv : t->persistentProperties()) {
+        properties[QString::fromStdString(util::toString(kv.first))] = kv.second.toJsonValue();
+    }
+    QJsonObject thing;
+    thing[QString::fromStdString(t->id())] = properties;
+    return QJsonDocument(thing).toJson(QJsonDocument::JsonFormat::Compact);
 }

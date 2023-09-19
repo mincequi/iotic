@@ -54,8 +54,8 @@ class ThingCardController extends GetxController {
     }
 
     // Check for isOnSite
-    if (p0.containsKey(ReadableThingProperty.is_on_site)) {
-      isPinned.value = p0[ReadableThingProperty.is_on_site];
+    if (p0.containsKey(ReadableThingProperty.pinned)) {
+      isPinned.value = p0[ReadableThingProperty.pinned];
     }
 
     // Check for type

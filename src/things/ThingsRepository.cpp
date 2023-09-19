@@ -20,7 +20,6 @@ void ThingsRepository::addThing(ThingPtr&& thing) {
     const auto id = thing->id();
     LOG_S(INFO) << "added thing: " << id;
     _things.push_back(std::move(thing));
-    _thingsSubject.get_subscriber().on_next(_things);
     _thingAdded.get_subscriber().on_next(_things.back());
 }
 
@@ -39,15 +38,15 @@ const Thing* ThingsRepository::thingByHost(const std::string& host) const {
     return (it != _things.end()) ? it->get() : nullptr;
 }
 
-dynamic_observable<std::list<ThingPtr>> ThingsRepository::things() const {
-    return _thingsSubject.get_observable();
+const std::list<ThingPtr>& ThingsRepository::things() const {
+    return _things;
 }
 
 rpp::dynamic_observable<ThingPtr> ThingsRepository::thingAdded() const {
     return _thingAdded.get_observable();
 }
 
-void ThingsRepository::setThingProperty(const std::string& id, WriteableThingProperty property, ThingValue value) const {
+void ThingsRepository::setThingProperty(const std::string& id, MutableProperty property, ThingValue value) const {
     const auto& thing = thingById(id);
     if (thing) {
         thing->setProperty(property, value);

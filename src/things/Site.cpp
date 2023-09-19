@@ -12,15 +12,19 @@
 using namespace std::chrono_literals;
 
 Site::Site(const ThingsRepository& thingsRepository) {
+    // TODO: add proper depedency injection/management/singletons
+    // Since Site is first client of config, it will init it. However, it should not be initialized here.
+    Config::init(thingsRepository);
+
     _siteData.get_observable().subscribe([this](const Site::SiteData& data){
         LOG_S(INFO) << "{ pvPower: " << data.pvPower
                     << ", gridPower: " << data.gridPower
                     << ", sitePower: " << data.sitePower << " }";
 
-        std::map<ReadableThingProperty, ThingValue> properties;
-        properties[ReadableThingProperty::pv_power] = (double)data.pvPower;
-        properties[ReadableThingProperty::grid_power] = (double)data.gridPower;
-        properties[ReadableThingProperty::site_power] = (double)data.sitePower;
+        std::map<DynamicProperty, ThingValue> properties;
+        properties[DynamicProperty::pv_power] = (double)data.pvPower;
+        properties[DynamicProperty::grid_power] = (double)data.gridPower;
+        properties[DynamicProperty::site_power] = (double)data.sitePower;
         _properties.get_subscriber().on_next(properties);
     });
 
@@ -30,17 +34,17 @@ Site::Site(const ThingsRepository& thingsRepository) {
                 (cfg->gridMeter() == thing->id() || cfg->gridMeter().empty())) {
             LOG_S(INFO) << "thing added> " << thing->id();
             thing->properties().filter([&](const auto& p) {
-                return p.count(ReadableThingProperty::power);
+                return p.count(DynamicProperty::power);
             }).map([&](const auto& p) {
-                return (int)std::get<double>(p.at(ReadableThingProperty::power));
+                return (int)std::get<double>(p.at(DynamicProperty::power));
             }).subscribe(_gridPower.get_subscriber());
         } else if (thing->type() == Thing::Type::SolarInverter &&
                    (cfg->pvMeters().contains(thing->id()) || cfg->pvMeters().empty())) {
             LOG_S(INFO) << "thing added> " << thing->id();
             thing->properties().filter([&](const auto& p) {
-                return p.count(ReadableThingProperty::power);
+                return p.count(DynamicProperty::power);
             }).map([&](const auto& p) {
-                return std::make_pair(thing->id(), (int)std::get<double>(p.at(ReadableThingProperty::power)));
+                return std::make_pair(thing->id(), (int)std::get<double>(p.at(DynamicProperty::power)));
             }).subscribe(_pvPowers.get_subscriber());
         }
     });
@@ -64,6 +68,6 @@ dynamic_observable<Site::SiteData> Site::siteData() const {
     return _siteData.get_observable();
 }
 
-dynamic_observable<std::map<ReadableThingProperty, ThingValue>> Site::properties() const {
+dynamic_observable<std::map<DynamicProperty, ThingValue>> Site::properties() const {
     return _properties.get_observable();
 }

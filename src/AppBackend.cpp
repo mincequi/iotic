@@ -30,32 +30,6 @@ AppBackend::AppBackend()
     });
     */
 
-    /*
-    QObject::connect(&_sunSpecManager, &sunspec::SunSpecManager::thingDiscovered, [&](const sunspec::SunSpecThing& thing) {
-        std::stringstream ss;
-        for (const auto& kv : thing.models()) {
-            ss << kv.first << "(" << kv.second.second << "), ";
-        }
-        LOG_S(INFO) << "thing discovered> id: " << thing.sunSpecId()
-                    << ", host: " << thing.host()
-                    << ", modbusUnitId: " << (uint32_t)thing.modbusUnitId()
-                    << ", models: " << ss.str();
-
-        if (thing.models().count(Model::Id::InverterSinglePhase)) {
-            _sunSpecManager.addTask({ thing.sunSpecId(), Model::Id::InverterSinglePhase, cfg->primaryInterval() });
-        }
-        if (thing.models().count(Model::Id::InverterThreePhase)) {
-            _sunSpecManager.addTask({ thing.sunSpecId(), Model::Id::InverterThreePhase, cfg->primaryInterval() });
-        }
-        if (thing.models().count(Model::Id::InverterMpptExtension)) {
-            _sunSpecManager.addTask({ thing.sunSpecId(), Model::Id::InverterMpptExtension, cfg->secondaryInterval() });
-        }
-        if (thing.models().count(Model::Id::MeterWyeConnectThreePhase)) {
-            _sunSpecManager.addTask({ thing.sunSpecId(), Model::Id::MeterWyeConnectThreePhase, cfg->primaryInterval() });
-        }
-    });
-    */
-
     QObject::connect(&_sunSpecManager, &sunspec::SunSpecManager::endOfDayReached, &_stats, &Statistics::reset);
 
     // Setup MqttExporter

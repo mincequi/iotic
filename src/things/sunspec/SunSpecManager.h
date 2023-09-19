@@ -17,7 +17,6 @@ public:
     void startDiscovery(uint16_t seconds = 60);
 
     bool contains(const QString& host) const;
-    //void addThing(SunSpecThing* thing);
 
 signals:
     void thingDiscovered(const sunspec::SunSpecThing&);
