@@ -28,7 +28,7 @@ private:
     void initWebSocketServer();
     void initWebServer();
 
-    static QByteArray serializePersistentProperties(const ThingPtr& thing);
+    static QByteArray serializeMutableProperties(const ThingPtr& thing);
 
     const ThingsRepository& _thingsRepository;
 

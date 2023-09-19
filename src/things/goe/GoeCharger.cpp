@@ -17,7 +17,7 @@ GoeCharger::GoeCharger(const ThingInfo& info) :
     _type = Thing::Type::EvStation;
 }
 
-void GoeCharger::doSetProperty(MutableProperty property, ThingValue value) {
+void GoeCharger::doSetProperty(MutableProperty property, Value value) {
     if (property != MutableProperty::power_control) return;
 
     _availablePower = std::get<double>(value);
@@ -38,5 +38,5 @@ void GoeCharger::onRead(const QByteArray& response) {
     _power = nrg.at(11).toDouble();
     static int phases[] = { 0, 1, 3};
     _phases = phases[doc["psm"].toInt()];
-    _propertiesSubject.get_subscriber().on_next({{DynamicProperty::power, _power}});
+    _propertiesSubject.get_subscriber().on_next({{Property::power, _power}});
 }

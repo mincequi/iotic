@@ -3,7 +3,7 @@
 #include <magic_enum.hpp>
 
 // Values taken from https://technical.openmobilealliance.org/OMNA/LwM2M/LwM2MRegistry.html
-enum class DynamicProperty {
+enum class Property {
     generic_sensor = 3300,
     temperature = 3303,
     power = 3305,
@@ -24,13 +24,14 @@ enum class DynamicProperty {
     name = 3420,
     pinned = 3421,
 
+    offset = 3426,
     max_value = 3427
 };
 // We have to inject a custom range for this enum, since magic_enum only allows -128 to 128 per default.
 template<>
-struct magic_enum::customize::enum_range<DynamicProperty> {
-    static constexpr int min = (int)DynamicProperty::generic_sensor;
-    static constexpr int max = (int)DynamicProperty::max_value;
+struct magic_enum::customize::enum_range<Property> {
+    static constexpr int min = (int)Property::generic_sensor;
+    static constexpr int max = (int)Property::max_value;
     // (max - min) must be less than UINT16_MAX.
 };
 
@@ -44,7 +45,7 @@ enum class MutableProperty {
     name = 3420,
     pinned = 3421,
 
-    power_offset = 3426,
+    offset = 3426,
     // special property for page visibility
     isVisible = 3427
 };

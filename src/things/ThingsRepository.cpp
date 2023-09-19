@@ -46,7 +46,7 @@ rpp::dynamic_observable<ThingPtr> ThingsRepository::thingAdded() const {
     return _thingAdded.get_observable();
 }
 
-void ThingsRepository::setThingProperty(const std::string& id, MutableProperty property, ThingValue value) const {
+void ThingsRepository::setThingProperty(const std::string& id, MutableProperty property, Value value) const {
     const auto& thing = thingById(id);
     if (thing) {
         thing->setProperty(property, value);

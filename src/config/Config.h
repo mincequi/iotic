@@ -35,7 +35,7 @@ namespace toml {
 class Table;
 }
 
-class ThingValue;
+class Value;
 class ThingsRepository;
 
 class Config {
@@ -49,7 +49,6 @@ public:
         name,
         pinned,
 
-        offset,
         on,
         off,
         debounce
@@ -68,7 +67,7 @@ public:
 
     template<class T>
     T valueOr(const std::string& table, Key key, T fallback = {}) const;
-    void setValue(const std::string& table, DynamicProperty key, const ThingValue& value);
+    void setValue(const std::string& table, Property key, const Value& value);
 
     inline const std::set<std::string>& pvMeters() const {
         return _pvMeters;

@@ -49,7 +49,7 @@ signals:
 
 private:
     void doRead() override;
-    void doSetProperty(MutableProperty, ThingValue) override;
+    void doSetProperty(MutableProperty, Value) override;
 
     uint8_t nextUnitId();
     void pollNextUnitId();

@@ -14,4 +14,4 @@ enum ReadableThingProperty {
   offset
 }
 
-enum WritableThingProperty { name, pinned, power_control, is_visible }
+enum WritableThingProperty { name, pinned, offset, power_control, is_visible }

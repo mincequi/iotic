@@ -61,7 +61,7 @@ class ThingCardController extends GetxController {
     // Check for type
     icon.value =
         _typeToIcon[p0[ReadableThingProperty.type]] ?? Icons.device_hub;
-    //offset.value = p0[ReadableThingProperty.offset];
+    offset.value = p0[ReadableThingProperty.offset];
 
     // Check for power control
     //hasPowerControl.value = p0.containsKey(ReadableThingProperty.power_control);

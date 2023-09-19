@@ -23,7 +23,7 @@ public:
 
     // TODO: make site data a map of ReadableThingProperties and values
     dynamic_observable<SiteData> siteData() const;
-    dynamic_observable<std::map<DynamicProperty, ThingValue>> properties() const;
+    dynamic_observable<std::map<Property, Value>> properties() const;
     //dynamic_observable<std::map<ReadableThingProperty, double>> properties() const;
 
 private:
@@ -31,5 +31,5 @@ private:
     publish_subject<int> _pvPower;
     publish_subject<int> _gridPower;
     publish_subject<SiteData> _siteData;
-    publish_subject<std::map<DynamicProperty, ThingValue>> _properties;
+    publish_subject<std::map<Property, Value>> _properties;
 };

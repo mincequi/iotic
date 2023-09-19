@@ -59,12 +59,12 @@ WebServer::WebServer(const ThingsRepository& thingsRepository,
 
     _thingsRepository.thingAdded().subscribe([this](const ThingPtr& thing) {
         // When new thing is added, send persistent properties to each client
-        auto message = serializePersistentProperties(thing);
+        auto message = serializeMutableProperties(thing);
         for (const auto &c : std::as_const(_clients)) {
             c->sendTextMessage(message);
         }
 
-        thing->properties().subscribe([this, &thing](const std::map<DynamicProperty, ThingValue>& prop) {
+        thing->properties().subscribe([this, &thing](const std::map<Property, Value>& prop) {
             QJsonObject thing_;
             if (thing->type() != Thing::Type::Undefined)
                 thing_["type"] = QString::fromStdString(util::toString(thing->type()));
@@ -94,7 +94,7 @@ void WebServer::onNewConnection() {
 
     // Send all things and their persistent properties to new client.
     for (const auto& t : _thingsRepository.things()) {
-        const QByteArray message = serializePersistentProperties(t);
+        const QByteArray message = serializeMutableProperties(t);
         client->sendTextMessage(message);
     }
 
@@ -116,7 +116,7 @@ void WebServer::onMessageReceived(const QString& message) const {
         const QJsonValue value = obj.begin().value().toObject().begin().value();
 
         if (property)
-            _thingsRepository.setThingProperty(thingId, property.value(), ThingValue::fromQJsonValue(value));
+            _thingsRepository.setThingProperty(thingId, property.value(), Value::fromQJsonValue(value));
     }
 }
 
@@ -128,9 +128,9 @@ void WebServer::onSocketDisconnected() {
     }
 }
 
-QByteArray WebServer::serializePersistentProperties(const ThingPtr& t) {
+QByteArray WebServer::serializeMutableProperties(const ThingPtr& t) {
     QJsonObject properties;
-    for (const auto& kv : t->persistentProperties()) {
+    for (const auto& kv : t->mutableProperties()) {
         properties[QString::fromStdString(util::toString(kv.first))] = kv.second.toJsonValue();
     }
     QJsonObject thing;

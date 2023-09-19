@@ -31,7 +31,7 @@ public:
     // Let's see, if that helps.
     dynamic_observable<ThingPtr> thingAdded() const;
 
-    void setThingProperty(const std::string& id, MutableProperty property, ThingValue value) const;
+    void setThingProperty(const std::string& id, MutableProperty property, Value value) const;
 
 private:
     std::list<ThingPtr> _things;

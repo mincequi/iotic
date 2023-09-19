@@ -16,16 +16,16 @@ RulesEngine::RulesEngine(const ThingsRepository& thingsRepository) :
     _thingsRepository(thingsRepository),
     _ruleFactory(primarySymbolTable, thingsRepository) {
 
-    primarySymbolTable.create_variable(util::toString(DynamicProperty::pv_power));
-    primarySymbolTable.create_variable(util::toString(DynamicProperty::grid_power));
-    primarySymbolTable.create_variable(util::toString(DynamicProperty::site_power));
+    primarySymbolTable.create_variable(util::toString(Property::pv_power));
+    primarySymbolTable.create_variable(util::toString(Property::grid_power));
+    primarySymbolTable.create_variable(util::toString(Property::site_power));
 
     _thingsRepository.site().properties().subscribe([](const auto& prop) {
         for (const auto& kv : prop) {
             switch (kv.first) {
-            case DynamicProperty::pv_power:
-            case DynamicProperty::grid_power:
-            case DynamicProperty::site_power: {
+            case Property::pv_power:
+            case Property::grid_power:
+            case Property::site_power: {
                 const std::string var = util::toString(kv.first);
                 primarySymbolTable.variable_ref(var) = kv.second.toDouble();
                 break;
@@ -74,7 +74,7 @@ RulesEngine::~RulesEngine() {
 void RulesEngine::subscribe(const ThingPtr& thing) {
     if (_subscribedThings.contains(thing->id())) return;
 
-    thing->properties().subscribe([this, &thing](const std::map<DynamicProperty, ThingValue>& prop) {
+    thing->properties().subscribe([this, &thing](const std::map<Property, Value>& prop) {
         for (const auto& kv : prop) {
             const std::string var = thing->id() + "." + util::toString(kv.first);
             if (_subscribedVars.contains(var)) {

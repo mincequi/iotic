@@ -18,6 +18,7 @@ RuleFactory::RuleFactory(exprtk::symbol_table<double>& symbolTable,
 }
 
 std::unique_ptr<Rule> RuleFactory::from(const ThingPtr& thing) const {
+    // TODO: move the on/off rule check to OnOffRule
     // Check if thing has "on" and "off" expression
     const auto onExpressionStr = cfg->valueOr<std::string>(thing->id(), Config::Key::on);
     if (onExpressionStr.empty()) return {};
@@ -32,11 +33,8 @@ std::unique_ptr<Rule> RuleFactory::from(const ThingPtr& thing) const {
     offExpression->register_symbol_table(_symbolTable);
     if (!parser.compile(offExpressionStr, *offExpression)) return {};
 
-    const auto offset = cfg->valueOr<int>(thing->id(), Config::Key::offset, std::numeric_limits<int>::max());
-    if (offset != std::numeric_limits<int>::max()) {
-        //thing->setProperty(WriteableThingProperty::power_offset, )
-        //_thingsRepository.setThingProperty(thing->id(), WriteableThingProperty::power_control)
-    }
+    // If we have a valid on and off rule, we provide offset property to thing
+    thing->setProperty(MutableProperty::offset, 0.0);
 
     return std::make_unique<OnOffRule>(thing->id(), std::move(onExpression), std::move(offExpression), [&](bool isOn) {
         _thingsRepository.setThingProperty(thing->id(), MutableProperty::power_control, isOn);

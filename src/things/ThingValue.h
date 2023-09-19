@@ -4,9 +4,9 @@
 #include <variant>
 #include <QJsonValue>
 
-class ThingValue : public std::variant<bool, double, std::string> {
+class Value : public std::variant<bool, double, std::string> {
 public:
-    static ThingValue fromQJsonValue(const QJsonValue& value);
+    static Value fromQJsonValue(const QJsonValue& value);
     QJsonValue toJsonValue() const;
     using std::variant<bool, double, std::string>::variant;
 

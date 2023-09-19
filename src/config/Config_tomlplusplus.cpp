@@ -19,11 +19,11 @@ Config::Config(const ThingsRepository& thingsRepository) :
     _p(new Config::Impl) {
     parse();
     _thingsRepository.thingAdded().subscribe([this](const auto& thing) {
-        thing->properties().subscribe([this, &thing](const std::map<DynamicProperty, ThingValue>& prop) {
+        thing->properties().subscribe([this, &thing](const std::map<Property, Value>& prop) {
             for (const auto& kv : prop) {
                 switch (kv.first) {
-                case DynamicProperty::name:
-                case DynamicProperty::pinned:
+                case Property::name:
+                case Property::pinned:
                     setValue(thing->id(), kv.first, kv.second);
                     break;
                 default:
@@ -46,7 +46,7 @@ template std::string Config::valueOr(const std::string& table, Key key, std::str
 template int Config::valueOr(const std::string& table, Key key, int) const;
 template bool Config::valueOr(const std::string& table, Key key, bool) const;
 
-void Config::setValue(const std::string& table, DynamicProperty key, const ThingValue& value) {
+void Config::setValue(const std::string& table, Property key, const Value& value) {
     if (!_p->configTable.table().contains(table)) {
     _p->configTable.table().insert_or_assign(table, toml::table{});
     }

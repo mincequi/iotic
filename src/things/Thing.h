@@ -34,26 +34,26 @@ public:
     // If thing does not fire updates itself, this can be called to trigger it.
     void read();
 
-    void setProperty(MutableProperty property, ThingValue value);
-    const std::map<MutableProperty, ThingValue>& persistentProperties() const;
+    void setProperty(MutableProperty property, Value value);
+    const std::map<MutableProperty, Value>& mutableProperties() const;
 
     /**
      * @brief properties
      * @return
      */
-    dynamic_observable<std::map<DynamicProperty, ThingValue>> properties() const;
+    dynamic_observable<std::map<Property, Value>> properties() const;
 
 protected:
     virtual void doRead() = 0;
-    virtual void doSetProperty(MutableProperty property, ThingValue value) = 0;
+    virtual void doSetProperty(MutableProperty property, Value value) = 0;
 
     Type _type = Type::Undefined;
     uint16_t _materialIcon = 0;
 
     // TODO: do not store persistent properties here. Use Config as single source of truth.
-    std::map<MutableProperty, ThingValue> _persistentProperties;
-    publish_subject<std::map<DynamicProperty, ThingValue>> _propertiesSubject;
-    dynamic_observable<std::map<DynamicProperty, ThingValue>> _propertiesObservable;
+    std::map<MutableProperty, Value> _mutableProperties;
+    publish_subject<std::map<Property, Value>> _propertiesSubject;
+    dynamic_observable<std::map<Property, Value>> _propertiesObservable;
 };
 
 using ThingPtr = std::unique_ptr<Thing>;
