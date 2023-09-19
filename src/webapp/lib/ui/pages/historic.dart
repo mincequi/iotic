@@ -5,9 +5,26 @@ class Historic extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Text(
-      "Historic",
-      style: TextStyle(color: Colors.white, fontSize: 30),
+    /*
+    return const Card(
+        child: ListTile(
+      title: Text(
+        "Historic",
+        textScaleFactor: 2.0,
+      ),
+    ));
+    */
+
+    return const Card(
+      child: Column(children: [
+        ListTile(
+          leading: Icon(Icons.ac_unit_sharp, size: 32),
+          title: Text(
+            "Historic",
+            textScaleFactor: 2.0,
+          ),
+        ),
+      ]),
     );
   }
 }

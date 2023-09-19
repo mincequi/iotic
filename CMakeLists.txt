@@ -4,8 +4,8 @@ project(elsewhere
   VERSION 0.1.0
   LANGUAGES C CXX)
 
-Include(FetchContent)
-Set(FETCHCONTENT_QUIET FALSE)
+include(FetchContent)
+set(FETCHCONTENT_QUIET FALSE)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -17,19 +17,23 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
+option(BUILD_TESTS "Build test programs" OFF)
+
 find_package(Threads)
 find_package(Qt6 COMPONENTS Core Network SerialBus REQUIRED)
 
 add_subdirectory(src/common)
 add_subdirectory(src/config)
-add_subdirectory(src/influx)
+#add_subdirectory(src/influx)
 add_subdirectory(src/modbus)
 add_subdirectory(src/mqtt)
 add_subdirectory(src/rules)
 add_subdirectory(src/things)
 add_subdirectory(src/webapp)
 add_subdirectory(src/webserver)
-add_subdirectory(tests)
+if(BUILD_TESTS)
+  add_subdirectory(tests)
+endif()
 
 add_executable(elsewhere
   src/main.cpp
@@ -42,7 +46,7 @@ target_link_libraries(elsewhere
   ${CMAKE_DL_LIBS}
   common
   config
-  influx
+  #influx
   modbus
   mqtt
   rules

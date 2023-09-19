@@ -7,13 +7,14 @@ class ValueUnit extends StatelessWidget {
   final int _value;
   final Color _color;
 
-  static const _blurRadius = 8.0;
+  static const _offset = 1.0;
+  static const _blurRadius = 1.0;
   final _shadows = const [
-    Shadow(offset: Offset(_blurRadius / 4, 0), blurRadius: _blurRadius),
-    //Shadow(offset: Offset(2.0, 2.0), blurRadius: _blurRadius),
-    //Shadow(offset: Offset(2.0, -2.0), blurRadius: _blurRadius),
-    //Shadow(offset: Offset(-2.0, 2.0), blurRadius: _blurRadius),
-    Shadow(offset: Offset(-_blurRadius / 4, 0), blurRadius: _blurRadius)
+    Shadow(offset: Offset(_offset, 0.0), blurRadius: _blurRadius),
+    Shadow(offset: Offset(-_offset, 0.0), blurRadius: _blurRadius),
+    Shadow(offset: Offset(0.0, _offset), blurRadius: _blurRadius),
+    Shadow(offset: Offset(0.0, -_offset), blurRadius: _blurRadius),
+    //Shadow(offset: Offset(-1.0, -1.0), blurRadius: 0, color: Colors.black)
   ];
 
   @override
@@ -43,7 +44,7 @@ class ValueUnit extends StatelessWidget {
               Text(
                 unit(_value),
                 style: TextStyle(
-                    color: _color.withOpacity(0.6),
+                    color: _color, //.withOpacity(0.6),
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                     shadows: _shadows),

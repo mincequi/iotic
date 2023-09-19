@@ -25,6 +25,9 @@ class ThingCard extends StatelessWidget {
       child: Obx(
         () => Column(children: [
           ListTile(
+            dense: true,
+            minVerticalPadding:
+                _control.propertyWidgets.isNotEmpty ? 0.0 : 18.0,
             leading: Icon(_control.icon.value, size: 32),
             title: titleWidget(),
             //Text(_control.name.value),
@@ -44,7 +47,6 @@ class ThingCard extends StatelessWidget {
     if (_control.isEditingMode.value) {
       return TextField(
         controller: _editingController,
-        decoration: null,
         focusNode: _focusNode,
         onSubmitted: (value) {
           _saveName();

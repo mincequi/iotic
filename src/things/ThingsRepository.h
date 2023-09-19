@@ -30,11 +30,13 @@ public:
     // Also access into this thing causes crashes. For now changed vector<ThingsPtr> to list<ThingsPtr>.
     // Let's see, if that helps.
     dynamic_observable<ThingPtr> thingAdded() const;
+    dynamic_observable<ThingPtr> thingRemoved() const;
 
     void setThingProperty(const std::string& id, MutableProperty property, Value value) const;
 
 private:
     std::list<ThingPtr> _things;
     publish_subject<ThingPtr> _thingAdded;
+    publish_subject<ThingPtr> _thingRemoved;
     Site _site;
 };

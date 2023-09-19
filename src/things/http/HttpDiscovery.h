@@ -33,5 +33,5 @@ private:
 
     QMdnsEngine::Server _mdnsServer;
     QMdnsEngine::Cache _mdnsCache;
-    std::unique_ptr<QMdnsEngine::Browser> _mdnsBrowser;
+    QMdnsEngine::Browser* _mdnsBrowser = nullptr;
 };

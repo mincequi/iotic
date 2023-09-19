@@ -13,17 +13,22 @@ HttpDiscovery::HttpDiscovery(QObject *parent)
 }
 
 void HttpDiscovery::start(uint16_t seconds) {
-    _mdnsBrowser = std::make_unique<QMdnsEngine::Browser>(&_mdnsServer, "_http._tcp.local.", &_mdnsCache);
-    QObject::connect(_mdnsBrowser.get(), &QMdnsEngine::Browser::serviceAdded,
+    stop();
+    LOG_S(INFO) << "discovering things";
+    _mdnsBrowser = new QMdnsEngine::Browser(&_mdnsServer, "_http._tcp.local.", &_mdnsCache);
+    QObject::connect(_mdnsBrowser, &QMdnsEngine::Browser::serviceAdded,
                      this, &HttpDiscovery::onServiceAdded);
-    QObject::connect(_mdnsBrowser.get(), &QMdnsEngine::Browser::serviceUpdated,
+    QObject::connect(_mdnsBrowser, &QMdnsEngine::Browser::serviceUpdated,
                      this, &HttpDiscovery::onServiceUpdated);
-    QObject::connect(_mdnsBrowser.get(), &QMdnsEngine::Browser::serviceRemoved,
+    QObject::connect(_mdnsBrowser, &QMdnsEngine::Browser::serviceRemoved,
                      this, &HttpDiscovery::onServiceRemoved);
 }
 
 void HttpDiscovery::stop() {
-    _mdnsBrowser.reset();
+    if (_mdnsBrowser) {
+        _mdnsBrowser->disconnect();
+        _mdnsBrowser->deleteLater();
+    }
 }
 
 void HttpDiscovery::onServiceAdded(const QMdnsEngine::Service &service) {

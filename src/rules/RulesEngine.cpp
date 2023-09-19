@@ -27,7 +27,7 @@ RulesEngine::RulesEngine(const ThingsRepository& thingsRepository) :
             case Property::grid_power:
             case Property::site_power: {
                 const std::string var = util::toString(kv.first);
-                primarySymbolTable.variable_ref(var) = kv.second.toDouble();
+                primarySymbolTable.variable_ref(var) = toDouble(kv.second);
                 break;
             }
             default:
@@ -60,8 +60,8 @@ RulesEngine::RulesEngine(const ThingsRepository& thingsRepository) :
         subscribeDependencies();
     });
 
-    // Use siteData als pulse generator
-    _thingsRepository.site().siteData().subscribe([this](auto) {
+    // Use site properties as pulse generator
+    _thingsRepository.site().properties().subscribe([this](const auto&) {
         for (const auto& r : _rules) {
             r->evaluate();
         }
@@ -78,7 +78,7 @@ void RulesEngine::subscribe(const ThingPtr& thing) {
         for (const auto& kv : prop) {
             const std::string var = thing->id() + "." + util::toString(kv.first);
             if (_subscribedVars.contains(var)) {
-                primarySymbolTable.variable_ref(var) = kv.second.toDouble();
+                primarySymbolTable.variable_ref(var) = toDouble(kv.second);
             }
         }
     });

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <list>
 #include <map>
 
 #include <rpp/subjects/publish_subject.hpp>
@@ -16,15 +17,15 @@ public:
     Site(const ThingsRepository& thingsRepository);
 
     struct SiteData {
+        int ts = 0;
         int pvPower = 0;
         int gridPower = 0;
         int sitePower = 0;
     };
 
-    // TODO: make site data a map of ReadableThingProperties and values
-    dynamic_observable<SiteData> siteData() const;
     dynamic_observable<std::map<Property, Value>> properties() const;
-    //dynamic_observable<std::map<ReadableThingProperty, double>> properties() const;
+
+    const std::list<SiteData>& history() const;
 
 private:
     publish_subject<std::pair<std::string, int>> _pvPowers;
@@ -32,4 +33,6 @@ private:
     publish_subject<int> _gridPower;
     publish_subject<SiteData> _siteData;
     publish_subject<std::map<Property, Value>> _properties;
+
+    std::list<SiteData> _history;
 };

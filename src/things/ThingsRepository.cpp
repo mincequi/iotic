@@ -1,5 +1,7 @@
 #include "ThingsRepository.h"
 
+#include <common/Logger.h>
+
 ThingsRepository::ThingsRepository() :
     _site(*this) {
 }
@@ -18,9 +20,14 @@ void ThingsRepository::addThing(ThingPtr&& thing) {
     };
 
     const auto id = thing->id();
-    LOG_S(INFO) << "added thing: " << id;
+    LOG_S(INFO) << "thing added: " << id;
     _things.push_back(std::move(thing));
     _thingAdded.get_subscriber().on_next(_things.back());
+
+    _things.back()->properties().subscribe({}, {}, [this, id] {
+        LOG_S(WARNING) << "thing completed: " << id;
+        std::erase_if(_things, [id](const auto& t) { return t->id() == id; });
+    });
 }
 
 const ThingPtr& ThingsRepository::thingById(const std::string& id) const {
@@ -42,8 +49,12 @@ const std::list<ThingPtr>& ThingsRepository::things() const {
     return _things;
 }
 
-rpp::dynamic_observable<ThingPtr> ThingsRepository::thingAdded() const {
+dynamic_observable<ThingPtr> ThingsRepository::thingAdded() const {
     return _thingAdded.get_observable();
+}
+
+dynamic_observable<ThingPtr> ThingsRepository::thingRemoved() const {
+    return _thingRemoved.get_observable();
 }
 
 void ThingsRepository::setThingProperty(const std::string& id, MutableProperty property, Value value) const {

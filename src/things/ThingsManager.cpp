@@ -12,6 +12,7 @@ ThingsManager::ThingsManager(ThingsRepository& thingsRepository, QObject *parent
       _thingsRepository(thingsRepository) {
     _timer.callOnTimeout(this, &ThingsManager::onTimer);
     _timer.start(100);
+    _discoveryTimer.callOnTimeout(this, &ThingsManager::onDiscoveryTimer);
 
     _discoveries.push_back(std::make_unique<HttpDiscovery>());
 
@@ -29,10 +30,9 @@ ThingsManager::ThingsManager(ThingsRepository& thingsRepository, QObject *parent
     });
 }
 
-void ThingsManager::startDiscovery() {
-    for (const auto& d : _discoveries) {
-        d->start();
-    }
+void ThingsManager::startDiscovery(uint seconds) {
+    onDiscoveryTimer();
+    _discoveryTimer.start(seconds * 1000);
 }
 
 void ThingsManager::stopDiscovery() {
@@ -71,6 +71,11 @@ void ThingsManager::onTimer() {
     _currentTimestamp = timestamp;
 }
 
+void ThingsManager::onDiscoveryTimer() {
+    for (const auto& d : _discoveries) {
+        d->start();
+    }
+}
 
 bool ThingsManager::Task::operator==(const Task& other) {
     return thingId == other.thingId &&

@@ -84,6 +84,7 @@ void ModbusDiscovery::onCandidateStateChanged(SunSpecThing::State state) {
                     << ", modbusUnitId: " << (uint32_t)candidate->modbusUnitId()
                     << ", models: " << ss.str();
         candidate->_id = candidate->sunSpecId();
+        candidate->Thing::setProperty(MutableProperty::name, candidate->sunSpecId());
         _thingsRepository.addThing(ThingPtr(candidate));
         break;
     }

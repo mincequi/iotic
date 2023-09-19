@@ -30,8 +30,8 @@ class SiteReadouts extends StatelessWidget {
           children: [
             TableRow(
               children: [
-                Obx(() => ValueUnit(Icons.solar_power, c.pvPower.value,
-                    Theme.of(context).colorScheme.secondary))
+                Obx(() =>
+                    ValueUnit(Icons.solar_power, c.pvPower.value, c.pvColor()))
               ],
             ),
             TableRow(
@@ -42,12 +42,8 @@ class SiteReadouts extends StatelessWidget {
             ),
             TableRow(
               children: [
-                Obx(() => ValueUnit(
-                    Icons.power,
-                    c.gridPower.value,
-                    c.gridPower.value > 0
-                        ? Theme.of(context).colorScheme.tertiary
-                        : IoticTheme.blue))
+                Obx(() =>
+                    ValueUnit(Icons.power, c.gridPower.value, c.gridColor()))
               ],
             ),
           ],

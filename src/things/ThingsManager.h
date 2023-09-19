@@ -22,7 +22,7 @@ public:
 
     explicit ThingsManager(ThingsRepository& thingsRepository, QObject *parent = nullptr);
 
-    void startDiscovery();
+    void startDiscovery(uint seconds);
     void stopDiscovery();
 
     void addTask(const Task& task);
@@ -33,10 +33,12 @@ signals:
 
 private:
     void onTimer();
+    void onDiscoveryTimer();
 
     ThingsRepository& _thingsRepository;
 
     QTimer _timer;
+    QTimer _discoveryTimer;
     uint64_t _currentTimestamp = 0;
 
     std::list<ThingsDiscoveryPtr> _discoveries;

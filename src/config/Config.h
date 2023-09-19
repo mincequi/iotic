@@ -26,6 +26,7 @@
 #include <vector>
 
 #include <things/ThingProperty.h>
+#include <things/ThingValue.h>
 
 using namespace std::chrono_literals;
 
@@ -35,7 +36,6 @@ namespace toml {
 class Table;
 }
 
-class Value;
 class ThingsRepository;
 
 class Config {

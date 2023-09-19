@@ -2,7 +2,7 @@
 
 #include <QObject>
 
-#include <influx/InfluxExporter.h>
+//#include <influx/InfluxExporter.h>
 #include <mqtt/MqttExporter.h>
 #include <rules/RulesEngine.h>
 #include <things/ThingsManager.h>
@@ -27,7 +27,7 @@ private:
     ThingsManager _thingsManager;
     sunspec::SunSpecManager _sunSpecManager;
     MqttExporter _mqttExporter;
-    std::optional<InfluxExporter> _influxExporter;
+    //std::optional<InfluxExporter> _influxExporter;
     RulesEngine _rulesEngine;
     WebServer _webSocketExporter;
 };

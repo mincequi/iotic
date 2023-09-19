@@ -17,7 +17,10 @@ GoeCharger::GoeCharger(const ThingInfo& info) :
     _type = Thing::Type::EvStation;
 }
 
-void GoeCharger::doSetProperty(MutableProperty property, Value value) {
+GoeCharger::~GoeCharger() {
+}
+
+void GoeCharger::doSetProperty(MutableProperty property, const Value& value) {
     if (property != MutableProperty::power_control) return;
 
     _availablePower = std::get<double>(value);

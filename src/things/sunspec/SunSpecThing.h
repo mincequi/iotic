@@ -6,7 +6,7 @@
 
 #include <things/Thing.h>
 #include <things/sunspec/models/SunSpecCommonModelFactory.h>
-#include <things/sunspec/SunSpecStatsValue.h>
+#include <things/sunspec/SunSpecLiveValue.h>
 
 namespace sunspec {
 
@@ -49,7 +49,7 @@ signals:
 
 private:
     void doRead() override;
-    void doSetProperty(MutableProperty, Value) override;
+    void doSetProperty(MutableProperty, const Value&) override;
 
     uint8_t nextUnitId();
     void pollNextUnitId();

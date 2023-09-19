@@ -2,11 +2,10 @@
 
 #include <map>
 #include <memory>
-#include <common/Logger.h>
-#include <rpp/observables/connectable_observable.hpp>
+
 #include <rpp/observables/dynamic_observable.hpp>
 #include <rpp/subjects/publish_subject.hpp>
-#include <rpp/subjects/behavior_subject.hpp>
+
 #include <things/ThingInfo.h>
 #include <things/ThingProperty.h>
 #include <things/ThingValue.h>
@@ -34,7 +33,7 @@ public:
     // If thing does not fire updates itself, this can be called to trigger it.
     void read();
 
-    void setProperty(MutableProperty property, Value value);
+    void setProperty(MutableProperty property, const Value& value);
     const std::map<MutableProperty, Value>& mutableProperties() const;
 
     /**
@@ -45,7 +44,7 @@ public:
 
 protected:
     virtual void doRead() = 0;
-    virtual void doSetProperty(MutableProperty property, Value value) = 0;
+    virtual void doSetProperty(MutableProperty property, const Value& value) = 0;
 
     Type _type = Type::Undefined;
     uint16_t _materialIcon = 0;

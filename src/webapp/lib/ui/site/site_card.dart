@@ -23,38 +23,36 @@ class SiteCard extends StatelessWidget {
           //      bottom: _cornerRadius, top: _cornerRadius),
           /*child:*/ Obx(() => c.pvPoints.length > 1
               ? Opacity(
-                  opacity: 0.60,
+                  opacity: 1.0,
                   child: LineChart(
-                    LineChartData(
-                      lineTouchData: const LineTouchData(enabled: false),
-                      clipData: const FlClipData.horizontal(),
-                      gridData: const FlGridData(show: false),
-                      /*gridData: FlGridData(
-                      getDrawingHorizontalLine: (value) => const FlLine(
-                          color: Colors.blueGrey, strokeWidth: 0.4),
-                      show: true,
-                      drawVerticalLine: false,
-                    ),*/
-                      titlesData: const FlTitlesData(
-                        show: false,
+                      LineChartData(
+                        lineTouchData: const LineTouchData(enabled: false),
+                        clipData: const FlClipData.horizontal(),
+                        gridData: const FlGridData(show: false),
+                        /*gridData: FlGridData(
+                          getDrawingHorizontalLine: (value) => const FlLine(
+                              color: Colors.blueGrey, strokeWidth: 0.4),
+                          show: true,
+                          drawVerticalLine: false,
+                        ),*/
+                        titlesData: const FlTitlesData(
+                          show: false,
+                        ),
+                        borderData: FlBorderData(show: false),
+                        minY: 15.0,
+                        maxY: maxY(),
+                        minX: c.pvPoints.last.x - 120,
+                        maxX: c.pvPoints.last.x,
+                        lineBarsData: [
+                          sinLine(c.pvPoints,
+                              Theme.of(context).colorScheme.secondary, true),
+                          sinLine(c.sitePoints,
+                              Theme.of(context).colorScheme.primary, true),
+                          sinLine(c.gridPoints,
+                              Theme.of(context).colorScheme.tertiary, true)
+                        ],
                       ),
-                      borderData: FlBorderData(show: false),
-                      minY: 10.0,
-                      maxY: maxY(),
-                      // TOD
-                      minX: c.pvPoints[1].x,
-                      maxX: c.pvPoints.last.x,
-                      lineBarsData: [
-                        sinLine(c.pvPoints,
-                            Theme.of(context).colorScheme.secondary, true),
-                        sinLine(c.sitePoints,
-                            Theme.of(context).colorScheme.primary, true),
-                        sinLine(c.gridPoints,
-                            Theme.of(context).colorScheme.tertiary, true)
-                      ],
-                    ),
-                    duration: const Duration(milliseconds: 300),
-                  ))
+                      duration: const Duration(milliseconds: 300)))
               : Container()),
           //),
           const Align(alignment: Alignment.topRight, child: SiteReadouts())
@@ -65,13 +63,28 @@ class SiteCard extends StatelessWidget {
     return LineChartBarData(
       spots: points,
       dotData: const FlDotData(show: false),
+      /*FlDotData(getDotPainter: (spot, percent, barData, index) {
+        if (index == c.gridPoints.length - 1) {
+          return FlDotCirclePainter(
+              radius: 3,
+              color: Colors.white,
+              strokeWidth: 1,
+              strokeColor: Colors.black);
+        } else {
+          return FlDotCirclePainter(
+              radius: 0,
+              color: Colors.transparent,
+              strokeWidth: 0,
+              strokeColor: Colors.transparent);
+        }
+      })*/
       color: color,
-      barWidth: 2,
-      isCurved: true,
+      barWidth: 3,
+      isCurved: false,
       preventCurveOverShooting: true,
-      shadow: const Shadow(
-        blurRadius: 8,
-      ),
+      //shadow: const Shadow(
+      //  blurRadius: 8,
+      //),
       belowBarData: BarAreaData(
           show: renderBelow,
           //color: color.withOpacity(0.38),
@@ -81,8 +94,8 @@ class SiteCard extends StatelessWidget {
             colors: [
               //color.withOpacity(0.38),
               //color.withOpacity(0.19),
-              color.withOpacity(0.5),
-              color.withOpacity(0.0),
+              color.withOpacity(0.4),
+              color.withOpacity(0.02),
             ],
             stops: const [0.0, 0.95],
           )),

@@ -3,14 +3,15 @@
 import 'dart:html' as html;
 import 'dart:convert';
 import 'package:get/get_rx/get_rx.dart';
-//import 'package:get/get_state_manager/get_state_manager.dart';
+import 'package:iotic/data/site_historic_data.dart';
 import 'package:iotic/data/site_live_data.dart';
 import 'package:iotic/data/thing_live_data.dart';
 import 'package:iotic/data/thing_property.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class Repository /*extends FullLifeCycleController with FullLifeCycleMixin*/ {
-  final siteLiveData = SiteLiveData(0, 0, 0).obs;
+  final siteLiveData = SiteLiveData(0, 0, 0, 0).obs;
+  final siteHistoricData = SiteHistoricData().obs;
   final things = <String, ThingLiveData>{}.obs;
 
   void set(String id, WritableThingProperty property, dynamic value) {
@@ -41,9 +42,15 @@ class Repository /*extends FullLifeCycleController with FullLifeCycleMixin*/ {
       Map<String, dynamic> liveData = jsonDecode(element);
       // Only accept jsons with exactly one top level object
       if (liveData.length != 1) return;
+
       var entry = liveData.entries.first;
       if (entry.key == "site") {
-        siteLiveData.value = SiteLiveData.fromMap(entry.value);
+        var map = Map<String, dynamic>.from(entry.value);
+        if (map.values.first is List) {
+          siteHistoricData.value = SiteHistoricData.fromMap(map);
+          return;
+        }
+        siteLiveData.value = SiteLiveData.fromMap(map);
         return;
       }
       if (!things.containsKey(entry.key)) {

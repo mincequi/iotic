@@ -29,6 +29,7 @@ private:
     void initWebServer();
 
     static QByteArray serializeMutableProperties(const ThingPtr& thing);
+    void sendHistoricSiteData(QWebSocket* client);
 
     const ThingsRepository& _thingsRepository;
 

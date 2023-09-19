@@ -21,15 +21,26 @@ Its main features are:
 
 ## Requirements
 - C++17
-- Qt (>=6.4) Core Network SerialBus WebSockets HttpServer (currently not working with Qt5)
+- Qt >= 6.4 Core Network SerialBus WebSockets HttpServer (currently not working with Qt5)
 - Flutter
 
 ## Installation (from source)
+### Raspberry Pi OS
+In order to compile and run iotic on Raspberry Pi OS, we need some updated packages.
+Please check the following steps (and potentially adapt commands to your needs).
+```
+wget http://ftp.debian.org/debian/pool/main/d/debian-archive-keyring/debian-archive-keyring_2023.4_all.deb
+sudo dpkg -i debian-archive-keyring_2023.4_all.deb
+sudo sh -c 'echo "deb http://deb.debian.org/debian bullseye-backports main" >> /etc/apt/sources.list'
+```
+
 ### Prerequisites (Debian/Ubuntu)
 ```
 sudo apt install \
   build-essential \
   cmake \
+  git \
+  snapd \
   libcurl4-openssl-dev \
   libqt6serialbus6-bin \
   qt6-httpserver-dev \
@@ -43,7 +54,9 @@ flutter   # init flutter first
 
 ```
 git clone https://github.com/mincequi/ElsewhereEdge
-cd ElsewhereEdge
+cd ElsewhereEdge/src/webapp
+flutter build web --web-renderer html --no-tree-shake-icons
+cd ../..
 mkdir build
 cd build
 cmake ..
@@ -58,8 +71,10 @@ Iotic will scan your subnet with a mask of /24. E.g. if an instance is running o
 This incoporates a small limitation, that currently there is only **one** Modbus device per host address supported, even though Modbus TCP would support multiple SunSpec devices per IP address.
 
 ### go-e Charger
+go-e Chargers are discovered using mDNS service discovery.
 
 ### Shelly
+Shellies are discovered using mDNS service discovery.
 
 ## MQTT API
 After being connected, the discovered things will be polled and published via MQTT every 5 seconds.
@@ -68,10 +83,6 @@ The MQTT topic follows this scheme: `/elsewhere_<mac address>/<unique sunspec id
 Under this topic there are two sub-topics: `live` and `stats`. The *statistics* show the min/max values of the current day, as well as some other collected information. Thus, the *stats* topic will not be updated as often as the *live* topic, which gets an update every 3 seconds.
 
 The payload is formatted as JSON.
-
-## InfluxDB export
-There is support for inserting data into an influxdb database. This is limited to InfluxDB 1.X on localhost at port 8086.
-Support for InfluxDB 2.X with auth and remote host will follow.
 
 ## Device support
 Currently, the following SunSpec models are supported: 101, 103, 160, 203. So, **ANY** solar inverter and smart meter that supports SunSpec / Modbus should also be supported here. As of now, the following devices are successfully tested:
@@ -95,3 +106,4 @@ Currently, the following SunSpec models are supported: 101, 103, 160, 203. So, *
 - command line interface
 - read battery inverters
 - control wallboxes
+- InfluxDB

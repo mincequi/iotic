@@ -1,19 +1,20 @@
 #pragma once
 
-#include <QNetworkAccessManager>
-
 #include <things/Thing.h>
 
-class HttpThing : public QObject, public Thing {
-    Q_OBJECT
+class QNetworkAccessManager;
+class QNetworkReply;
+
+class HttpThing : public Thing {
 public:
-    explicit HttpThing(const ThingInfo& info, QObject *parent = nullptr);
+    explicit HttpThing(const ThingInfo& info);
+    virtual ~HttpThing();
 
 protected:
     void read(const std::string& url);
     void write(const std::string& url);
     virtual void onRead(const QByteArray& reply) = 0;
 
-    QNetworkAccessManager _nam;
-    QNetworkReply* _pendingReplay = nullptr;
+    QNetworkAccessManager* _nam;
+    QNetworkReply* _pendingReply = nullptr;
 };

@@ -14,6 +14,8 @@ namespace sunspec {
 
 SunSpecThing::SunSpecThing(const ThingInfo& info)
     : Thing{info} {
+
+
     connect(&_modbusClient, &QModbusTcpClient::stateChanged, this, &SunSpecThing::onStateChanged);
     connect(&_modbusClient, &QModbusTcpClient::errorOccurred, this, &SunSpecThing::onErrorOccurred);
 
@@ -105,7 +107,7 @@ void SunSpecThing::doRead() {
     }
 }
 
-void SunSpecThing::doSetProperty(MutableProperty, Value) {
+void SunSpecThing::doSetProperty(MutableProperty, const Value&) {
 }
 
 uint8_t SunSpecThing::nextUnitId() {

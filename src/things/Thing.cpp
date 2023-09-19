@@ -2,6 +2,7 @@
 
 #include <rpp/operators.hpp>
 
+#include <common/Logger.h>
 #include <config/Config.h>
 #include <things/ThingValue.h>
 #include <things/sunspec/SunSpecDataPoint.h>
@@ -21,7 +22,7 @@ std::ostream& operator<<(std::ostream& s, std::variant<T0, Ts...> const& v){
 
 Thing::Thing(const ThingInfo& info) :
     ThingInfo(info),
-    _propertiesObservable(_propertiesSubject.get_observable()/*.multicast(_propertiesSubject)*/) {
+    _propertiesObservable(_propertiesSubject.get_observable()) {
     _propertiesObservable.subscribe([this](const auto& val) {
         std::stringstream ss;
         for (const auto& kv : val) {
@@ -52,7 +53,7 @@ void Thing::read() {
     doRead();
 }
 
-void Thing::setProperty(MutableProperty property, Value value) {
+void Thing::setProperty(MutableProperty property, const Value& value) {
     // Add property value to local storage for late subscribers
     _mutableProperties[property] = value;
 
@@ -62,7 +63,7 @@ void Thing::setProperty(MutableProperty property, Value value) {
     // Reflect changes back (to other clients as well).
     const auto property_ = magic_enum::enum_cast<Property>(magic_enum::enum_integer(property));
     LOG_IF_S(FATAL, !property_.has_value()) << util::toString(property) << " has no readable correspondent";
-    LOG_S(INFO) << id() << ".setProperty> " << util::toString(property_.value()) << ": " << value;
+    LOG_S(INFO) << id() << ".setProperty> " << util::toString(property_.value()) << ": " /*<< value*/;
     _propertiesSubject.get_subscriber().on_next({{ property_.value(), value }});
 }
 

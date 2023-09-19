@@ -17,6 +17,7 @@ enum class Property {
     //icon = 3398,
 
     // Our custom properties
+    timestamp = 3411,
     pv_power = 3412,
     grid_power = 3413,
     site_power = 3414,

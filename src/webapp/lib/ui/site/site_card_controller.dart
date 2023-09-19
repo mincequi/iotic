@@ -20,13 +20,27 @@ class SiteCardController extends GetxController {
 
   @override
   void onReady() {
+    repo.siteHistoricData.listen((p0) {
+      pvPoints.clear();
+      sitePoints.clear();
+      gridPoints.clear();
+      for (var i = 0; i < p0.ts.length; ++i) {
+        pvPoints.add(FlSpot(p0.ts[i].toDouble(), p0.pvPower[i].toDouble()));
+        sitePoints
+            .add(FlSpot(p0.ts[i].toDouble(), -p0.sitePower[i].toDouble()));
+        gridPoints.add(FlSpot(p0.ts[i].toDouble(), p0.gridPower[i].toDouble()));
+      }
+    });
+
     repo.siteLiveData.listen((p0) {
-      while (pvPoints.length > limitCount) {
+      var ts = p0.ts.toDouble();
+      while (pvPoints.length > limitCount ||
+          (pvPoints.isNotEmpty && pvPoints[0].x < (ts - (63 * 2)))) {
         pvPoints.removeAt(0);
         sitePoints.removeAt(0);
         gridPoints.removeAt(0);
       }
-      var ts = timeStamp();
+
       if (pvPoints.isEmpty) {
         pvPoints.add(FlSpot(ts - 4, p0.pvPower.toDouble()));
         sitePoints.add(FlSpot(ts - 4, -p0.sitePower.toDouble()));

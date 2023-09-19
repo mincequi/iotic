@@ -9,7 +9,8 @@ public:
 
 private:
     GoeCharger(const ThingInfo& info);
-    virtual void doSetProperty(MutableProperty property, Value value) override;
+    virtual ~GoeCharger();
+    virtual void doSetProperty(MutableProperty property, const Value& value) override;
     void doRead() override;
     void onRead(const QByteArray& response) override;
 

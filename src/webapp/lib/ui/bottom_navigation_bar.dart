@@ -14,6 +14,7 @@ class MyBottomNavigationBar extends StatelessWidget {
   @override
   Widget build(context) {
     return BottomNavigationBar(
+      backgroundColor: Colors.black,
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.line_axis),
