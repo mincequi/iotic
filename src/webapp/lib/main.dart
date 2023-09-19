@@ -1,5 +1,5 @@
 import 'ui/home_page.dart';
-import 'iotic_theme.dart';
+import 'ui/themes/iotic_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 

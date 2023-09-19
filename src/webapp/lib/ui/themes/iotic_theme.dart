@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:iotic/ui/themes/palette_v1.dart';
+import 'package:iotic/ui/themes/palette_v2.dart';
 
 class IoticTheme {
   // Private Constructor
@@ -11,12 +13,12 @@ class IoticTheme {
   //colorScheme: const ColorScheme.dark(onPrimary: Colors.yellow));
 
   // https://www.pinterest.com/pin/317433473719060822/
-  static const _yellow = Color.fromRGBO(247, 206, 92, 1.0);
-  static const _orange = Color.fromRGBO(236, 133, 50, 1.0);
-  static const _orange2 = Color.fromRGBO(247, 164, 92, 1);
-  static const _green = Color.fromRGBO(166, 191, 142, 1.0);
-  static const blue = Color.fromRGBO(135, 178, 176, 1.0);
-  static const other = Color.fromRGBO(211, 222, 211, 1.0);
+  static const _yellow = PaletteV2.yellow;
+  //static const _orange = PaletteV1.orange;
+  static const _orange = PaletteV2.orange;
+  static const _green = PaletteV2.green;
+  static const blue = PaletteV2.blue;
+  //static const other = PaletteV1.other;
 
   static final ThemeData dark = ThemeData(
       useMaterial3: true,
@@ -27,7 +29,7 @@ class IoticTheme {
           seedColor: _yellow,
           brightness: Brightness.dark,
           secondary: _green,
-          tertiary: _orange2),
+          tertiary: _orange),
       cardTheme: const CardTheme(
           color: Color.fromARGB(255, 49, 51, 52),
           surfaceTintColor: Colors.transparent)
