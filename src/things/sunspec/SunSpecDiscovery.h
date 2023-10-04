@@ -7,7 +7,7 @@ class SunSpecDiscovery : public QObject, public ThingsDiscovery {
 public:
     explicit SunSpecDiscovery(QObject *parent = nullptr);
 
-    void start(uint16_t seconds = 60) override;
+    void start(int msec) override;
     void stop() override;
 
 signals:

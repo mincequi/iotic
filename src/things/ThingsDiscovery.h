@@ -13,7 +13,7 @@ public:
     ThingsDiscovery();
     virtual ~ThingsDiscovery();
 
-    virtual void start(uint16_t seconds = 60) = 0;
+    virtual void start(int msec) = 0;
     virtual void stop() = 0;
 
     virtual const dynamic_observable<ThingInfo> thingDiscovered() const;

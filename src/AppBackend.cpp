@@ -48,7 +48,7 @@ AppBackend::AppBackend()
 #endif
 
     // Start discovery
-    _thingsManager.startDiscovery(60);
-    _sunSpecManager.startDiscovery(60);
+    _thingsManager.startDiscovery(60 * 1000);
+    _sunSpecManager.startDiscovery(60 * 1000);
 }
 

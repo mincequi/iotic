@@ -4,7 +4,7 @@ SunSpecDiscovery::SunSpecDiscovery(QObject *parent)
     : QObject{parent} {
 }
 
-void SunSpecDiscovery::start(uint16_t seconds) {
+void SunSpecDiscovery::start(int msec) {
 }
 
 void SunSpecDiscovery::stop() {

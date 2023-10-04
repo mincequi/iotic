@@ -22,7 +22,7 @@ public:
 
     explicit ThingsManager(ThingsRepository& thingsRepository, QObject *parent = nullptr);
 
-    void startDiscovery(uint seconds);
+    void startDiscovery(int msec);
     void stopDiscovery();
 
     void addTask(const Task& task);

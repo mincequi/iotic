@@ -14,7 +14,7 @@ public:
     explicit SunSpecManager(ThingsRepository& repository,
                             QObject *parent = nullptr);
 
-    void startDiscovery(uint16_t seconds = 60);
+    void startDiscovery(int msec);
 
     bool contains(const QString& host) const;
 

@@ -15,11 +15,6 @@ std::ostream& operator<<(std::ostream& os, const std::pair<E, double>& kv) {
 }
 */
 
-template <typename T0, typename ... Ts>
-std::ostream& operator<<(std::ostream& s, std::variant<T0, Ts...> const& v){
-    std::visit([&](auto && arg) { s << arg; }, v); return s;
-}
-
 Thing::Thing(const ThingInfo& info) :
     ThingInfo(info),
     _propertiesObservable(_propertiesSubject.get_observable()) {

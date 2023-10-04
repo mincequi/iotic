@@ -18,11 +18,11 @@ class MyBottomNavigationBar extends StatelessWidget {
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.line_axis),
-          label: 'Site',
+          label: 'site',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.library_books),
-          label: 'Things',
+          label: 'things',
         ),
         /*BottomNavigationBarItem(
           icon: Icon(Icons.multiline_chart_outlined),

@@ -19,7 +19,7 @@ Site::Site(const ThingsRepository& thingsRepository) {
     // Since Site is first client of config, it will init it. However, it should not be initialized here.
     Config::init(thingsRepository);
 
-    _siteData.get_observable().subscribe([this](const Site::SiteData& data){
+    _siteDataSubject.get_observable().subscribe([this](const Site::SiteData& data){
         LOG_S(INFO) << "{ pv_power: " << data.pvPower
                     << ", grid_power: " << data.gridPower
                     << ", site_power: " << data.sitePower << " }";
@@ -29,7 +29,7 @@ Site::Site(const ThingsRepository& thingsRepository) {
         properties[Property::pv_power] = (double)data.pvPower;
         properties[Property::grid_power] = (double)data.gridPower;
         properties[Property::site_power] = (double)data.sitePower;
-        _properties.get_subscriber().on_next(properties);
+        _propertiesSubject.get_subscriber().on_next(properties);
 
         while (_history.size() > 62) {
             _history.pop_front();
@@ -72,11 +72,11 @@ Site::Site(const ThingsRepository& thingsRepository) {
     }, _gridPower.get_observable())
     .debounce(std::chrono::milliseconds(cfg->valueOr<int>("site", Config::Key::debounce, 500)), rpp::schedulers::new_thread{})
     .observe_on(rppqt::schedulers::main_thread_scheduler{})
-    .subscribe(_siteData.get_subscriber());
+    .subscribe(_siteDataSubject.get_subscriber());
 }
 
 dynamic_observable<std::map<Property, Value>> Site::properties() const {
-    return _properties.get_observable();
+    return _propertiesSubject.get_observable();
 }
 
 const std::list<Site::SiteData>& Site::history() const {

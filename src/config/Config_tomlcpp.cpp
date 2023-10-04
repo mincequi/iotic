@@ -51,7 +51,7 @@ void Config::parse() {
         auto [ok1, interval1] = general->getInt("primary_interval");
         if (!ok1) { interval1 = 10000; }
         LOG_S(INFO) << "interval: " << interval1 << "ms";
-        _primaryInterval = std::chrono::milliseconds(interval1);
+        _thingInterval = std::chrono::milliseconds(interval1);
     };
 
     auto site = _p->_configTable->getTable("site");

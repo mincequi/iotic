@@ -20,9 +20,9 @@ ModbusDiscovery::ModbusDiscovery(//SunSpecManager& manager,
     _discoveryTimer.callOnTimeout(this, &ModbusDiscovery::onStartDiscovering);
 }
 
-void ModbusDiscovery::start(uint16_t seconds) {
+void ModbusDiscovery::start(int msec) {
     onStartDiscovering();
-    _discoveryTimer.start(seconds * 1000);
+    _discoveryTimer.start(msec);
 }
 
 void ModbusDiscovery::stop() {

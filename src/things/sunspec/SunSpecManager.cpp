@@ -16,8 +16,8 @@ SunSpecManager::SunSpecManager(ThingsRepository& repository,
     _timer.start(100);
 }
 
-void SunSpecManager::startDiscovery(uint16_t seconds) {
-    _discovery.start(seconds);
+void SunSpecManager::startDiscovery(int msec) {
+    _discovery.start(msec);
 }
 
 bool SunSpecManager::contains(const QString& host) const {

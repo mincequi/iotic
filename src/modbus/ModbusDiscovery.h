@@ -20,7 +20,7 @@ public:
     ModbusDiscovery(//sunspec::SunSpecManager& manager,
                     ThingsRepository& repository);
 
-    void start(uint16_t seconds = 60) override;
+    void start(int msec) override;
     void stop() override;
 
 private:

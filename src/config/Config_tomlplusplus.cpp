@@ -65,8 +65,10 @@ void Config::parse() {
         return;
     }
 
-    _primaryInterval = std::chrono::milliseconds(_p->configTable["general"]["primary_interval"].value_or(10000));
-    LOG_S(INFO) << "interval: " << _primaryInterval.count() << "ms";
+    _discoveryInterval = std::chrono::milliseconds(_p->configTable["general"]["discovery_interval"].value_or(60000));
+    LOG_S(INFO) << "discovery_interval: " << _thingInterval.count() << "ms";
+    _thingInterval = std::chrono::milliseconds(_p->configTable["general"]["thing_interval"].value_or(10000));
+    LOG_S(INFO) << "thing_interval: " << _thingInterval.count() << "ms";
 
     if (auto pvMeters = _p->configTable["site"]["pv"].as_array()) {
         pvMeters->for_each([this](auto& el) {

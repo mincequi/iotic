@@ -3,6 +3,7 @@
 #include <limits>
 
 #include <exprtk.hpp>
+#include <common/Logger.h>
 #include <config/Config.h>
 #include <things/ThingsRepository.h>
 
@@ -27,11 +28,17 @@ std::unique_ptr<Rule> RuleFactory::from(const ThingPtr& thing) const {
 
     auto onExpression = std::make_unique<exprtk::expression<double>>();
     onExpression->register_symbol_table(_symbolTable);
-    if (!parser.compile(onExpressionStr, *onExpression)) return {};
+    if (!parser.compile(onExpressionStr, *onExpression)) {
+        LOG_S(ERROR) << thing->id() << "> " << parser.error();
+        return {};
+    }
 
     auto offExpression = std::make_unique<exprtk::expression<double>>();
     offExpression->register_symbol_table(_symbolTable);
-    if (!parser.compile(offExpressionStr, *offExpression)) return {};
+    if (!parser.compile(offExpressionStr, *offExpression)) {
+        LOG_S(ERROR) << thing->id() << "> " << parser.error();
+        return {};
+    }
 
     // If we have a valid on and off rule, we provide offset property to thing
     thing->setProperty(MutableProperty::offset, 0.0);

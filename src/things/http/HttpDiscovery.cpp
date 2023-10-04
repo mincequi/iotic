@@ -12,7 +12,7 @@ HttpDiscovery::HttpDiscovery(QObject *parent)
     : QObject{parent} {
 }
 
-void HttpDiscovery::start(uint16_t seconds) {
+void HttpDiscovery::start(int /*msec*/) {
     stop();
     LOG_S(INFO) << "discovering things";
     _mdnsBrowser = new QMdnsEngine::Browser(&_mdnsServer, "_http._tcp.local.", &_mdnsCache);

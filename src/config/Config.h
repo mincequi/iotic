@@ -75,8 +75,11 @@ public:
     inline const std::string& gridMeter() const {
         return _gridMeter;
     }
-    inline std::chrono::milliseconds primaryInterval() const {
-        return _primaryInterval;
+    inline std::chrono::milliseconds discoveryInterval() const {
+        return _discoveryInterval;
+    }
+    inline std::chrono::milliseconds thingInterval() const {
+        return _thingInterval;
     }
 
 private:
@@ -96,5 +99,6 @@ private:
     std::set<std::string> _pvMeters;
     std::string _gridMeter;
 
-    std::chrono::milliseconds _primaryInterval = 5000ms;
+    std::chrono::milliseconds _discoveryInterval = 60000ms;
+    std::chrono::milliseconds _thingInterval = 10000ms;
 };

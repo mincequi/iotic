@@ -26,13 +26,13 @@ ThingsManager::ThingsManager(ThingsRepository& thingsRepository, QObject *parent
     }
 
     _thingsRepository.thingAdded().subscribe([this](const auto& v){
-        addTask({v->id(), cfg->primaryInterval()});
+        addTask({v->id(), cfg->thingInterval()});
     });
 }
 
-void ThingsManager::startDiscovery(uint seconds) {
+void ThingsManager::startDiscovery(int msec) {
     onDiscoveryTimer();
-    _discoveryTimer.start(seconds * 1000);
+    _discoveryTimer.start(msec);
 }
 
 void ThingsManager::stopDiscovery() {
@@ -73,7 +73,7 @@ void ThingsManager::onTimer() {
 
 void ThingsManager::onDiscoveryTimer() {
     for (const auto& d : _discoveries) {
-        d->start();
+        d->start(60000);
     }
 }
 

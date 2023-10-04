@@ -31,8 +31,8 @@ private:
     publish_subject<std::pair<std::string, int>> _pvPowers;
     publish_subject<int> _pvPower;
     publish_subject<int> _gridPower;
-    publish_subject<SiteData> _siteData;
-    publish_subject<std::map<Property, Value>> _properties;
+    publish_subject<SiteData> _siteDataSubject;
+    publish_subject<std::map<Property, Value>> _propertiesSubject;
 
     std::list<SiteData> _history;
 };

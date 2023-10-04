@@ -23,7 +23,7 @@ class HttpDiscovery : public QObject, public ThingsDiscovery {
 public:
     explicit HttpDiscovery(QObject *parent = nullptr);
 
-    void start(uint16_t seconds = 60) override;
+    void start(int msec) override;
     void stop() override;
 
 private:
