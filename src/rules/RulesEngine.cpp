@@ -1,7 +1,6 @@
 #include "RulesEngine.h"
 
-#include <common/Logger.h>
-#include <config/Config.h>
+#include <common/Util.h>
 #include <things/ThingsRepository.h>
 
 #include <exprtk.hpp>
@@ -16,11 +15,12 @@ RulesEngine::RulesEngine(const ThingsRepository& thingsRepository) :
     _thingsRepository(thingsRepository),
     _ruleFactory(primarySymbolTable, thingsRepository) {
 
+    // Site specific variables
     primarySymbolTable.create_variable(util::toString(Property::pv_power));
     primarySymbolTable.create_variable(util::toString(Property::grid_power));
     primarySymbolTable.create_variable(util::toString(Property::site_power));
 
-    _thingsRepository.site().properties().subscribe([](const auto& prop) {
+    _thingsRepository.site().properties().subscribe([this](const auto& prop) {
         for (const auto& kv : prop) {
             switch (kv.first) {
             case Property::pv_power:
@@ -34,8 +34,13 @@ RulesEngine::RulesEngine(const ThingsRepository& thingsRepository) :
                 break;
             }
         }
+        // After update of site, evaluate rules
+        for (const auto& r : _rules) {
+            r->evaluate();
+        }
     });
 
+    // For each new thing, we potentially subscribe
     _thingsRepository.thingAdded().subscribe([this](const ThingPtr& thing) {
         // Each new thing might be a dependency for previous rules
         subscribeDependencies();
@@ -43,8 +48,6 @@ RulesEngine::RulesEngine(const ThingsRepository& thingsRepository) :
         // Check if thing has rules
         auto rule = _ruleFactory.from(thing);
         if (!rule) return;
-
-        // Add new rule to list
         _rules.push_back(std::move(rule));
 
         // Creating rule might have updated the symbol table
@@ -58,13 +61,6 @@ RulesEngine::RulesEngine(const ThingsRepository& thingsRepository) :
 
         // Subscribe new thing and dependencies
         subscribeDependencies();
-    });
-
-    // Use site properties as pulse generator
-    _thingsRepository.site().properties().subscribe([this](const auto&) {
-        for (const auto& r : _rules) {
-            r->evaluate();
-        }
     });
 }
 

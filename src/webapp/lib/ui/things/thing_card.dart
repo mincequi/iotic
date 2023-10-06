@@ -26,16 +26,20 @@ class ThingCard extends StatelessWidget {
         () => Column(children: [
           ListTile(
             dense: true,
-            minVerticalPadding:
-                _control.propertyWidgets.isNotEmpty ? 0.0 : 18.0,
-            leading: Icon(_control.icon.value, size: 32),
+            //visualDensity: const VisualDensity(horizontal: 0, vertical: -2),
+            /*minVerticalPadding:
+                _control.propertyWidgets.isNotEmpty ? 0.0 : 18.0,*/
+            leading: Icon(
+              _control.icon.value,
+              size: 30,
+            ),
             title: titleWidget(),
             //Text(_control.name.value),
             subtitle: _control.propertyWidgets.isNotEmpty
                 ? Row(children: _control.propertyWidgets.values.toList())
                 : null,
             //isThreeLine: _control.propertyWidgets.isNotEmpty,
-            trailing: trailingButtons(),
+            trailing: trailingButtons(context),
           ),
           isPinnedCard ? ThingSlider(_id) : Container(),
         ]),
@@ -57,10 +61,12 @@ class ThingCard extends StatelessWidget {
     }
   }
 
-  Widget? trailingButtons() {
+  Widget? trailingButtons(BuildContext context) {
     if (isPinnedCard) {
       return _control.isOn.value != null
           ? Switch(
+              trackOutlineWidth:
+                  MaterialStateProperty.resolveWith((states) => 2.0),
               value: _control.isOn.value!,
               onChanged: (value) {
                 _repo.set(_id, WritableThingProperty.power_control, value);

@@ -40,10 +40,10 @@ std::unique_ptr<Rule> RuleFactory::from(const ThingPtr& thing) const {
         return {};
     }
 
-    // If we have a valid on and off rule, we provide offset property to thing
-    thing->setProperty(MutableProperty::offset, 0.0);
+    // TODO: If we have a valid on and off rule, we provide offset property to thing
+    //thing->setProperty(MutableProperty::offset, 0.0);
 
-    return std::make_unique<OnOffRule>(thing->id(), std::move(onExpression), std::move(offExpression), [&](bool isOn) {
+    return std::make_unique<OnOffRule<rpp::schedulers::new_thread>>(thing->id(), std::move(onExpression), std::move(offExpression), [&](bool isOn) {
         _thingsRepository.setThingProperty(thing->id(), MutableProperty::power_control, isOn);
     });
 }

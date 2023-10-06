@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:iotic/ui/themes/palette_v1.dart';
 import 'package:iotic/ui/themes/palette_v2.dart';
 import 'package:iotic/ui/themes/palette_v3.dart';
@@ -19,11 +20,13 @@ class IoticTheme {
   static const blue = PaletteV3.blue;
   static const other = PaletteV3.other;
 
-  static final ThemeData dark = ThemeData(
+  static ThemeData dark(BuildContext context) {
+    var baseTheme = ThemeData(brightness: Brightness.dark);
+    return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
       /*colorScheme: const ColorScheme.dark(
-          primary: _yellow, secondary: _green, tertiary: _orange),*/
+                primary: _yellow, secondary: _green, tertiary: _orange),*/
       colorScheme: ColorScheme.fromSeed(
           seedColor: _yellow,
           brightness: Brightness.dark,
@@ -39,8 +42,11 @@ class IoticTheme {
             //borderRadius: BorderRadius.circular(20.0),
           )),
       listTileTheme: const ListTileThemeData(
-          contentPadding: EdgeInsets.only(left: 18.0, right: 9.0))
+          contentPadding: EdgeInsets.only(left: 18.0, right: 9.0)),
+      //fontFamily: GoogleFonts.ub
+      //textTheme: GoogleFonts.ubuntuTextTheme(baseTheme.textTheme)
       //primarySwatch: Colors.red,
       //errorColor: Colors.amber,
-      );
+    );
+  }
 }

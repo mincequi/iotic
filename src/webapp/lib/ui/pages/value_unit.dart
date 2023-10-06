@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ValueUnit extends StatelessWidget {
   const ValueUnit(this._icon, this._value, this._color, {super.key});
@@ -9,13 +10,21 @@ class ValueUnit extends StatelessWidget {
 
   static const _offset = 1.0;
   static const _blurRadius = 1.0;
-  final _shadows = const [
+  static const _shadows = [
     Shadow(offset: Offset(_offset, 0.0), blurRadius: _blurRadius),
     Shadow(offset: Offset(-_offset, 0.0), blurRadius: _blurRadius),
     Shadow(offset: Offset(0.0, _offset), blurRadius: _blurRadius),
     Shadow(offset: Offset(0.0, -_offset), blurRadius: _blurRadius),
     //Shadow(offset: Offset(-1.0, -1.0), blurRadius: 0, color: Colors.black)
   ];
+
+  _textStyle() => /*GoogleFonts.ubuntu(
+      textStyle:*/
+      TextStyle(
+          color: _color,
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+          shadows: _shadows);
 
   @override
   Widget build(BuildContext context) {
@@ -34,20 +43,13 @@ class ValueUnit extends StatelessWidget {
             children: [
               Text(
                 value(_value),
-                style: TextStyle(
-                    color: _color,
-                    fontWeight: FontWeight.bold,
-                    shadows: _shadows),
+                style: _textStyle(),
                 //textAlign: TextAlign.right,
               ),
               const SizedBox(width: 2),
               Text(
                 unit(_value),
-                style: TextStyle(
-                    color: _color, //.withOpacity(0.6),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                    shadows: _shadows),
+                style: _textStyle(),
                 //textAlign: TextAlign.left,
               )
             ],

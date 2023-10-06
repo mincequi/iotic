@@ -9,11 +9,6 @@
 
 #include <common/Util.h>
 
-template <typename T0, typename ... Ts>
-std::ostream& operator<<(std::ostream& s, std::variant<T0, Ts...> const& v){
-    std::visit([&](auto && arg) { s << arg; }, v); return s;
-}
-
 namespace sunspec {
 class StatsModel;
 }

@@ -9,6 +9,7 @@ add_library(rules STATIC
   Rule.cpp
   RuleFactory.cpp
   RulesEngine.cpp
+  test_schedulers.cpp
 )
 
 target_include_directories(rules

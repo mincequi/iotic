@@ -37,7 +37,7 @@ class MyBottomNavigationBar extends StatelessWidget {
       currentIndex: _currentIndex,
       // TODO: why do i need to set this manually? It seems to use secondary per default
       selectedItemColor: Theme.of(context).colorScheme.primary,
-      //unselectedItemColor: Colors.grey,
+      //unselectedItemColor: Theme.of(context).colorScheme.secondary,
       onTap: (value) {
         _control.currentPage.value = value;
       },

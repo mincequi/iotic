@@ -79,12 +79,13 @@ class SiteCard extends StatelessWidget {
         }
       })*/
       color: color,
-      barWidth: 3,
+      barWidth: 3.0,
       isCurved: false,
       preventCurveOverShooting: true,
-      //shadow: const Shadow(
-      //  blurRadius: 8,
-      //),
+      shadow: const Shadow(
+        offset: Offset(1.0, 1.0),
+        blurRadius: 1,
+      ),
       belowBarData: BarAreaData(
           show: renderBelow,
           //color: color.withOpacity(0.38),

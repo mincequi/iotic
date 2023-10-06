@@ -9,6 +9,9 @@
 class Rule;
 class ThingsRepository;
 
+/**
+ * @brief The RulesEngine class
+ */
 class RulesEngine {
 public:
     RulesEngine(const ThingsRepository& thingsRepository);

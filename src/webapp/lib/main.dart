@@ -15,7 +15,7 @@ class IoticApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'iotic',
       theme: IoticTheme.light,
-      darkTheme: IoticTheme.dark,
+      darkTheme: IoticTheme.dark(context),
       themeMode: ThemeMode.dark,
       color: Colors.black,
       /* ThemeMode.system to follow system theme, 

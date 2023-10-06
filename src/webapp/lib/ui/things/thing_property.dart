@@ -20,12 +20,16 @@ class ThingProperty extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text(value(_value),
-                  style: Theme.of(context).textTheme.bodyMedium),
+              Text(
+                value(_value),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
               const SizedBox(width: 2),
-              Text(_unit, style: Theme.of(context).textTheme.bodySmall
-                  //textAlign: TextAlign.left,
-                  )
+              Text(
+                _unit,
+                style: Theme.of(context).textTheme.bodySmall,
+                //textAlign: TextAlign.left,
+              )
             ],
           ),
           const SizedBox(

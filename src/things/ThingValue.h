@@ -17,6 +17,11 @@ public:
 
 using Value = std::variant<bool, int, double, std::string>;
 
+template <typename T0, typename ... Ts>
+std::ostream& operator<<(std::ostream& s, std::variant<T0, Ts...> const& v){
+    std::visit([&](auto && arg) { s << arg; }, v); return s;
+}
+
 Value fromQJsonValue(const QJsonValue& value);
 QJsonValue toJsonValue(const Value& value);
 double toDouble(const Value& value);
