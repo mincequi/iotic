@@ -38,11 +38,11 @@ class IoticTheme {
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             //side: BorderSide(color: Colors.white, width: 1.0),
-            borderRadius: BorderRadius.all(Radius.circular(18.0)),
+            borderRadius: BorderRadius.all(Radius.circular(16.0)),
             //borderRadius: BorderRadius.circular(20.0),
           )),
       listTileTheme: const ListTileThemeData(
-          contentPadding: EdgeInsets.only(left: 18.0, right: 9.0)),
+          contentPadding: EdgeInsets.only(left: 16.0, right: 8.0)),
       //fontFamily: GoogleFonts.ub
       //textTheme: GoogleFonts.ubuntuTextTheme(baseTheme.textTheme)
       //primarySwatch: Colors.red,

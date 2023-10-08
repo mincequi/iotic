@@ -20,7 +20,7 @@ class ThingCardController extends GetxController {
 
   // Mutable properties
   final isOn = RxnBool();
-  final offset = Rxn<double>();
+  final offset = Rxn<int>();
 
   final readableProperties = <ReadableThingProperty, dynamic>{}.obs;
   final propertyWidgets = <ReadableThingProperty, ThingProperty>{}.obs;

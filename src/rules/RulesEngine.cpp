@@ -1,5 +1,6 @@
 #include "RulesEngine.h"
 
+#include <common/OffsetTable.h>
 #include <common/Util.h>
 #include <things/ThingsRepository.h>
 
@@ -74,7 +75,14 @@ void RulesEngine::subscribe(const ThingPtr& thing) {
         for (const auto& kv : prop) {
             const std::string var = thing->id() + "." + util::toString(kv.first);
             if (_subscribedVars.contains(var)) {
-                primarySymbolTable.variable_ref(var) = toDouble(kv.second);
+                switch (kv.first) {
+                case Property::offset:
+                    primarySymbolTable.variable_ref(var) = offsetTable[std::get<double>(kv.second)];
+                    break;
+                default:
+                    primarySymbolTable.variable_ref(var) = toDouble(kv.second);
+                    break;
+                }
             }
         }
     });
