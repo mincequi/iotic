@@ -25,12 +25,13 @@ public:
 
 private:
     void onStartDiscovering();
-    void onCandidateStateChanged(sunspec::SunSpecThing::State state);
+    //void onCandidateStateChanged(sunspec::SunSpecThing::State state);
+    void onCandidateStateChangedRpp(sunspec::SunSpecThing* thing, sunspec::SunSpecThing::State state);
 
     //sunspec::SunSpecManager& _manager;
     ThingsRepository& _thingsRepository;
     QTimer _discoveryTimer;
-    QList<sunspec::SunSpecThing*> _candidates;
+    QList<std::pair<sunspec::SunSpecThing*, rpp::composite_subscription>> _candidates;
 };
 
 } // namespace modbus

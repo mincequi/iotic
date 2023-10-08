@@ -13,17 +13,28 @@
 namespace sunspec {
 
 SunSpecThing::SunSpecThing(const ThingInfo& info)
-    : Thing{info} {
+    : Thing{info},
+    _modbusClient(new QModbusTcpClient) {
 
+    connect(_modbusClient, &QModbusTcpClient::stateChanged, this, &SunSpecThing::onStateChanged);
+    connect(_modbusClient, &QModbusTcpClient::errorOccurred, this, &SunSpecThing::onErrorOccurred);
 
-    connect(&_modbusClient, &QModbusTcpClient::stateChanged, this, &SunSpecThing::onStateChanged);
-    connect(&_modbusClient, &QModbusTcpClient::errorOccurred, this, &SunSpecThing::onErrorOccurred);
+    _modbusClient->setConnectionParameter(QModbusDevice::NetworkPortParameter, 502);
+    _modbusClient->setConnectionParameter(QModbusDevice::NetworkAddressParameter, QString::fromStdString(info.host()));
 
-    _modbusClient.setConnectionParameter(QModbusDevice::NetworkPortParameter, 502);
-    _modbusClient.setConnectionParameter(QModbusDevice::NetworkAddressParameter, QString::fromStdString(info.host()));
+    _modbusClient->setTimeout(2000);
+    _modbusClient->setNumberOfRetries(1);
 
-    _modbusClient.setTimeout(2000);
-    _modbusClient.setNumberOfRetries(1);
+    _stateSubject.get_observable().subscribe([this](const auto& state) {
+        if (state == State::Failed) {
+            _propertiesSubject.get_subscriber().on_completed();
+        }
+    });
+}
+
+SunSpecThing::~SunSpecThing() {
+    _modbusClient->disconnect();
+    _modbusClient->deleteLater();
 }
 
 ThingPtr SunSpecThing::from(const ThingInfo& thingInfo) {
@@ -31,7 +42,7 @@ ThingPtr SunSpecThing::from(const ThingInfo& thingInfo) {
 }
 
 QString SunSpecThing::host() const {
-    return _modbusClient.connectionParameter(QModbusDevice::NetworkAddressParameter).toString();
+    return _modbusClient->connectionParameter(QModbusDevice::NetworkAddressParameter).toString();
 }
 
 uint8_t SunSpecThing::modbusUnitId() const {
@@ -59,15 +70,15 @@ const std::map<uint16_t, std::pair<uint16_t, uint16_t>>& SunSpecThing::models() 
 }
 
 bool SunSpecThing::connectDevice() {
-    return _modbusClient.connectDevice();
+    return _modbusClient->connectDevice();
 }
 
 void SunSpecThing::disconnectDevice() {
-    return _modbusClient.disconnectDevice();
+    return _modbusClient->disconnectDevice();
 }
 
 bool SunSpecThing::isValid() const {
-    return _modbusClient.state() == QModbusDevice::State::ConnectedState;
+    return _modbusClient->state() == QModbusDevice::State::ConnectedState;
 }
 
 bool SunSpecThing::isSleeping() const {
@@ -90,6 +101,10 @@ void SunSpecThing::readModel(uint16_t modelId, uint32_t timestamp) {
 
 void SunSpecThing::reset() {
     _models.clear();
+}
+
+dynamic_observable<SunSpecThing::State> SunSpecThing::state() const {
+    return _stateSubject.get_observable();
 }
 
 void SunSpecThing::doRead() {
@@ -167,7 +182,8 @@ uint8_t SunSpecThing::nextUnitId() {
 void SunSpecThing::pollNextUnitId() {
     const uint8_t id = nextUnitId();
     if (id == 0) {
-        emit stateChanged(State::Failed);
+        //emit stateChanged(State::Failed);
+        _stateSubject.get_subscriber().on_next(State::Failed);
         return;
     }
 
@@ -176,12 +192,14 @@ void SunSpecThing::pollNextUnitId() {
 
 void SunSpecThing::readHeader(uint8_t id) {
     const QModbusDataUnit dataUnit(QModbusDataUnit::HoldingRegisters, 40000, 4);
-    auto* reply = _modbusClient.sendReadRequest(dataUnit, id);
+    auto* reply = _modbusClient->sendReadRequest(dataUnit, id);
     if  (!reply) {
-        emit stateChanged(State::Failed);
+        //emit stateChanged(State::Failed);
+        _stateSubject.get_subscriber().on_next(State::Failed);
     } else if (reply->isFinished()) {   // broadcast replies return immediately
         delete reply;
-        emit stateChanged(State::Failed);
+        //emit stateChanged(State::Failed);
+        _stateSubject.get_subscriber().on_next(State::Failed);
     } else {
         connect(reply, &QModbusReply::finished, this, &SunSpecThing::onReadHeader);
     }
@@ -190,7 +208,8 @@ void SunSpecThing::readHeader(uint8_t id) {
 void SunSpecThing::onReadHeader() {
     auto reply = qobject_cast<QModbusReply*>(sender());
     if (!reply) {
-        emit stateChanged(State::Failed);
+        //emit stateChanged(State::Failed);
+        _stateSubject.get_subscriber().on_next(State::Failed);
         return;
     }
 
@@ -206,12 +225,14 @@ void SunSpecThing::onReadHeader() {
             readBlock(1, 40004, unit.value(3), 0);
             readModelTable(40004 + unit.value(3));
         } else {
-            LOG_S(INFO) << "no SunSpec header found at host: " << _modbusClient.connectionParameter(QModbusDevice::NetworkAddressParameter).toString();;
-            emit stateChanged(State::Failed);
+            LOG_S(INFO) << "no SunSpec header found at host: " << _modbusClient->connectionParameter(QModbusDevice::NetworkAddressParameter).toString();;
+            //emit stateChanged(State::Failed);
+            _stateSubject.get_subscriber().on_next(State::Failed);
         }
     } else {
         LOG_S(WARNING) << host().toStdString() << "> reply error: " << reply->error();
-        emit stateChanged(State::Failed);
+        //emit stateChanged(State::Failed);
+        _stateSubject.get_subscriber().on_next(State::Failed);
     }
 
     reply->deleteLater();
@@ -219,12 +240,14 @@ void SunSpecThing::onReadHeader() {
 
 void SunSpecThing::readModelTable(uint16_t address) {
     const QModbusDataUnit dataUnit(QModbusDataUnit::HoldingRegisters, address, 2);
-    auto* reply = _modbusClient.sendReadRequest(dataUnit, _unitId);
+    auto* reply = _modbusClient->sendReadRequest(dataUnit, _unitId);
     if  (!reply) {
-        emit stateChanged(State::Failed);
+        //emit stateChanged(State::Failed);
+        _stateSubject.get_subscriber().on_next(State::Failed);
     } else if (reply->isFinished()) {   // broadcast replies return immediately
         delete reply;
-        emit stateChanged(State::Failed);
+        //emit stateChanged(State::Failed);
+        _stateSubject.get_subscriber().on_next(State::Failed);
     } else {
         connect(reply, &QModbusReply::finished, this, &SunSpecThing::onReadModelTable);
     }
@@ -233,7 +256,8 @@ void SunSpecThing::readModelTable(uint16_t address) {
 void SunSpecThing::onReadModelTable() {
     auto reply = qobject_cast<QModbusReply*>(sender());
     if (reply->error() != QModbusDevice::NoError) {
-        emit stateChanged(State::Failed);
+        //emit stateChanged(State::Failed);
+        _stateSubject.get_subscriber().on_next(State::Failed);
     } else {
         const QModbusDataUnit unit = reply->result();
         addModelAddress(unit.value(0), unit.startAddress() + 2, unit.value(1));
@@ -248,7 +272,8 @@ void SunSpecThing::onReadModelTable() {
                     break;
                 }
             }
-            emit stateChanged(State::Connected);
+            //emit stateChanged(State::Connected);
+            _stateSubject.get_subscriber().on_next(State::Connected);
         } else {
             readModelTable(unit.startAddress() + 2 + unit.value(1));
         }
@@ -277,12 +302,14 @@ void SunSpecThing::addModelAddress(uint16_t modelId, uint16_t startAddress, uint
 
 void SunSpecThing::readBlock(uint16_t modelId, uint16_t address, uint16_t length, uint32_t timestamp) {
     const QModbusDataUnit dataUnit(QModbusDataUnit::HoldingRegisters, address, length);
-    auto* reply = _modbusClient.sendReadRequest(dataUnit, _unitId);
+    auto* reply = _modbusClient->sendReadRequest(dataUnit, _unitId);
     if  (!reply) {
-        emit stateChanged(State::Failed);
+        //emit stateChanged(State::Failed);
+        _stateSubject.get_subscriber().on_next(State::Failed);
     } else if (reply->isFinished()) {   // broadcast replies return immediately
         delete reply;
-        emit stateChanged(State::Failed);
+        //emit stateChanged(State::Failed);
+        _stateSubject.get_subscriber().on_next(State::Failed);
     } else {
         LOG_S(2) << sunSpecId() << "> reading block at: " << address;
         connect(reply, &QModbusReply::finished, this, std::bind(&SunSpecThing::onReadBlock, this, modelId, timestamp));
@@ -311,19 +338,21 @@ void SunSpecThing::onReadBlockError(uint16_t modelId, QModbusReply* reply) {
         ++_timeoutCount;
         // Set device as failed if sunSpecId is empty or it timed out 5 times in a row.
         if (_timeoutCount > 4 || sunSpecId().empty()) {
-            emit stateChanged(State::Failed);
+            //emit stateChanged(State::Failed);
+            _stateSubject.get_subscriber().on_next(State::Failed);
         }
         break;
     default:
         LOG_S(WARNING) << sunSpecId() << "> error: " << reply->errorString().toStdString();
-        emit stateChanged(State::Failed);
+        //emit stateChanged(State::Failed);
+        _stateSubject.get_subscriber().on_next(State::Failed);
         break;
     }
 }
 
 void SunSpecThing::onStateChanged(QModbusDevice::State state) {
     if (state == QModbusDevice::State::ConnectedState && _sunSpecId.empty()) {
-        LOG_S(INFO) << "modbus host found: " << _modbusClient.connectionParameter(QModbusDevice::NetworkAddressParameter).toString();
+        LOG_S(INFO) << "modbus host found: " << _modbusClient->connectionParameter(QModbusDevice::NetworkAddressParameter).toString();
         pollNextUnitId();
     } else if (state == QModbusDevice::State::UnconnectedState && !_sunSpecId.empty()) {
         // Elgris smart meters disconnects after 10s. So, we automatically reconnect.
@@ -337,12 +366,13 @@ void SunSpecThing::onErrorOccurred(QModbusDevice::Error error) {
     }
 
     if (_sunSpecId.empty()) {
-        emit stateChanged(State::Failed);
+        //emit stateChanged(State::Failed);
+        _stateSubject.get_subscriber().on_next(State::Failed);
         return;
     }
 
     // We filter for connection error, because remotes might hang up.
-    LOG_IF_S(WARNING, error != QModbusDevice::Error::ConnectionError) << _sunSpecId << "> error occured: " << _modbusClient.errorString().toStdString();
+    LOG_IF_S(WARNING, error != QModbusDevice::Error::ConnectionError) << _sunSpecId << "> error occured: " << _modbusClient->errorString().toStdString();
 }
 
 void SunSpecThing::parseModel(uint16_t modelId, const std::vector<uint16_t>& buffer, uint32_t timestamp) {
@@ -366,7 +396,7 @@ void SunSpecThing::parseModel(uint16_t modelId, const std::vector<uint16_t>& buf
                 break;
             }
         }
-        emit modelRead(model, timestamp);
+        //emit modelRead(model, timestamp);
     }
 }
 

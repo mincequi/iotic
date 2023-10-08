@@ -18,6 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
+  # We need at least 2.17 for super parameter feature of dart
   sdk: ">=2.17.0 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
@@ -31,10 +32,10 @@ dependencies:
     sdk: flutter
 
   get: ^4.6.5
-  fl_chart: ^0.63.0
+  fl_chart: ^0.63.0   #0.63 is confirmed to be the minimum
   web_socket_channel: ^2.4.0
   client_information: ^2.0.2+2
-  google_fonts: ^6.1.0
+  #google_fonts: ^2.0.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

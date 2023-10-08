@@ -21,6 +21,7 @@ public:
 
     static ThingPtr from(const ThingInfo& info);
     SunSpecThing(const ThingInfo& info);
+    virtual ~SunSpecThing();
 
     QString host() const;
     uint8_t modbusUnitId() const;
@@ -43,9 +44,11 @@ public:
 
     void reset();
 
+    dynamic_observable<State> state() const;
+
 signals:
-    void stateChanged(State state);
-    void modelRead(const sunspec::Model& model, uint32_t timestamp);
+    //void stateChanged(State state);
+    //void modelRead(const sunspec::Model& model, uint32_t timestamp);
 
 private:
     void doRead() override;
@@ -72,7 +75,7 @@ private:
 
     static std::string toString(const LiveValue& v);
 
-    QModbusTcpClient _modbusClient;
+    QModbusTcpClient* _modbusClient;
     uint8_t _unitId = 0;
     uint8_t _unitIdx = 0;
 
@@ -86,6 +89,8 @@ private:
     std::map<uint16_t, std::pair<uint16_t, uint16_t>> _modelAddresses;
 
     std::map<uint16_t, sunspec::Model> _models;
+
+    publish_subject<State> _stateSubject;
 };
 
 } // namespace sunspec

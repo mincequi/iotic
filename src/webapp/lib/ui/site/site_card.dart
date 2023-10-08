@@ -83,8 +83,8 @@ class SiteCard extends StatelessWidget {
       isCurved: false,
       preventCurveOverShooting: true,
       shadow: const Shadow(
-        offset: Offset(1.0, 1.0),
-        blurRadius: 1,
+        offset: Offset(1.5, 1.5),
+        blurRadius: 0,
       ),
       belowBarData: BarAreaData(
           show: renderBelow,

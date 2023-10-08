@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+//import 'package:google_fonts/google_fonts.dart';
 
 class ValueUnit extends StatelessWidget {
   const ValueUnit(this._icon, this._value, this._color, {super.key});
@@ -9,7 +9,7 @@ class ValueUnit extends StatelessWidget {
   final Color _color;
 
   static const _offset = 1.0;
-  static const _blurRadius = 1.0;
+  static const _blurRadius = 0.5;
   static const _shadows = [
     Shadow(offset: Offset(_offset, 0.0), blurRadius: _blurRadius),
     Shadow(offset: Offset(-_offset, 0.0), blurRadius: _blurRadius),

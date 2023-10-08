@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+//import 'package:google_fonts/google_fonts.dart';
 import 'package:iotic/ui/themes/palette_v1.dart';
 import 'package:iotic/ui/themes/palette_v2.dart';
 import 'package:iotic/ui/themes/palette_v3.dart';
