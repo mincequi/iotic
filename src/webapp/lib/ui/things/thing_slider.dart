@@ -143,5 +143,5 @@ class ThingSlider extends StatelessWidget {
                   })))
       : Container());
 
-  final double _opacity = 0.4;
+  final double _opacity = 0.5;
 }

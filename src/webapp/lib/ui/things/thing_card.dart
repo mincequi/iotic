@@ -65,8 +65,10 @@ class ThingCard extends StatelessWidget {
     if (isPinnedCard) {
       return _control.isOn.value != null
           ? Switch(
+              trackOutlineColor: MaterialStateColor.resolveWith(
+                  (states) => Colors.transparent),
               trackOutlineWidth:
-                  MaterialStateProperty.resolveWith((states) => 2.0),
+                  MaterialStateProperty.resolveWith((states) => 1.5),
               value: _control.isOn.value!,
               onChanged: (value) {
                 _repo.set(_id, WritableThingProperty.power_control, value);

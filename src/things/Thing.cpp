@@ -69,3 +69,7 @@ const std::map<MutableProperty, Value>& Thing::mutableProperties() const {
 dynamic_observable<std::map<Property, Value>> Thing::properties() const {
     return _propertiesObservable;
 }
+
+dynamic_observable<Thing::State> Thing::state() const {
+    return _stateSubject.get_observable();
+}

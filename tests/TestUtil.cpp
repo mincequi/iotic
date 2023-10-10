@@ -3,6 +3,7 @@
 #include <common/Util.h>
 #include <rules/GenericActuationStrategy.h>
 #include <rules/test_scheduler.hpp>
+#include <things/ThingsRepository.h>
 
 class TestThing : public Thing {
 public:
@@ -20,13 +21,13 @@ TestUtil::TestUtil() {
 }
 
 void TestUtil::setProperty(const std::string& id, Property property, const Value& value) {
-    const auto& thing = _repo.thingById(id);
+    const auto& thing = repo->thingById(id);
     if (!thing) {
         ThingInfo thingInfo(ThingInfo::DiscoveryType::Http, id, id);
         auto t = std::make_unique<TestThing>(thingInfo);
-        _repo.addThing(std::move(t));
+        repo->addThing(std::move(t));
     }
-    const auto testThing = (TestThing*)(_repo.thingById(id).get());
+    const auto testThing = (TestThing*)(repo->thingById(id).get());
     testThing->setProperty(property, value);
     const std::string var = id + "." + util::toString(property);
     _symbolTable.variable_ref(var) = toDouble(value);
@@ -48,13 +49,11 @@ void TestUtil::setOnOffRule(const std::string& id,
         return;
     }
 
-    _onOffRule = std::make_unique<GenericActuationStrategy<test_scheduler>>(id, std::move(onExpression), std::move(offExpression), [&](bool isOn) {
-        _repo.setThingProperty(id, MutableProperty::power_control, isOn);
-    });
+    _onOffRule = std::make_unique<GenericActuationStrategy<test_scheduler>>(id, std::move(onExpression), std::move(offExpression));
 }
 
 const ThingPtr& TestUtil::thingById(const std::string& id) const {
-    return _repo.thingById(id);
+    return repo->thingById(id);
 }
 
 Strategy* TestUtil::onOffRule() const {

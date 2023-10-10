@@ -20,9 +20,8 @@ template<rpp::schedulers::constraint::scheduler TScheduler>
 class GenericActuationStrategy : public Strategy {
 public:
     GenericActuationStrategy(const std::string& thingId,
-              ExprPtr&& onExpression,
-              ExprPtr&& offExpression,
-              Action action);
+                             ExprPtr&& onExpression,
+                             ExprPtr&& offExpression);
     ~GenericActuationStrategy();
 
     void evaluate() override;

@@ -23,6 +23,11 @@ public:
         Relay
     };
 
+    enum class State {
+        Connected,
+        Failed
+    };
+
     explicit Thing(const ThingInfo& info);
     virtual ~Thing();
 
@@ -42,6 +47,8 @@ public:
      */
     dynamic_observable<std::map<Property, Value>> properties() const;
 
+    dynamic_observable<State> state() const;
+
 protected:
     virtual void doRead() = 0;
     virtual void doSetProperty(MutableProperty property, const Value& value) = 0;
@@ -53,6 +60,8 @@ protected:
     std::map<MutableProperty, Value> _mutableProperties;
     publish_subject<std::map<Property, Value>> _propertiesSubject;
     dynamic_observable<std::map<Property, Value>> _propertiesObservable;
+
+    publish_subject<State> _stateSubject;
 };
 
 using ThingPtr = std::unique_ptr<Thing>;

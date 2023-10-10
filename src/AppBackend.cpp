@@ -11,11 +11,12 @@
 using namespace sunspec;
 
 AppBackend::AppBackend()
-    : _thingsManager(_thingsRepository),
-      _sunSpecManager(_thingsRepository),
+    : _thingsRepository(ThingsRepository::instance()),
+      _thingsManager(*_thingsRepository),
+      _sunSpecManager(*_thingsRepository),
       _mqttExporter("broker.hivemq.com"),
-      _rulesEngine(_thingsRepository),
-      _webSocketExporter(_thingsRepository) {
+      _rulesEngine(*_thingsRepository),
+      _webSocketExporter(*_thingsRepository) {
 
     // Setup Statistics
     QObject::connect(&_stats, &Statistics::statsChanged, [&](const sunspec::SunSpecThing& thing, const sunspec::StatsModel& model) {

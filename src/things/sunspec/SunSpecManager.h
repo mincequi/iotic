@@ -28,7 +28,6 @@ signals:
     void endOfDayReached();
 
 private:
-    void removeThing(SunSpecThing*);
     void onTimer();
     //void onThingStateChanged(SunSpecThing::State state);
 

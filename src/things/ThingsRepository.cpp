@@ -2,6 +2,11 @@
 
 #include <common/Logger.h>
 
+ThingsRepository* ThingsRepository::instance() {
+    if (!_instance) _instance = new ThingsRepository();
+    return _instance;
+}
+
 ThingsRepository::ThingsRepository() :
     _site(*this) {
 }
@@ -24,9 +29,12 @@ void ThingsRepository::addThing(ThingPtr&& thing) {
     _things.push_back(std::move(thing));
     _thingAdded.get_subscriber().on_next(_things.back());
 
-    _things.back()->properties().subscribe({}, {}, [this, id] {
-        LOG_S(WARNING) << "thing completed: " << id;
-        std::erase_if(_things, [id](const auto& t) { return t->id() == id; });
+    _things.back()->state().subscribe([this, id](auto state) {
+        if (state == Thing::State::Failed) {
+            LOG_S(WARNING) << "thing completed: " << id;
+            std::erase_if(_things, [id](const auto& t) { return t->id() == id; });
+            _thingRemoved.get_subscriber().on_next(id);
+        }
     });
 }
 
@@ -53,7 +61,7 @@ dynamic_observable<ThingPtr> ThingsRepository::thingAdded() const {
     return _thingAdded.get_observable();
 }
 
-dynamic_observable<ThingPtr> ThingsRepository::thingRemoved() const {
+dynamic_observable<std::string> ThingsRepository::thingRemoved() const {
     return _thingRemoved.get_observable();
 }
 

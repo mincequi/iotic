@@ -15,7 +15,7 @@ HttpThing::HttpThing(const ThingInfo& info)
             LOG_S(WARNING) << id() << "> error: " << reply->errorString().toStdString();
             reply->deleteLater();
             _pendingReply = nullptr;
-            _propertiesSubject.get_subscriber().on_completed();
+            _stateSubject.get_subscriber().on_next(State::Failed);
         } else if (_pendingReply == reply) {
             onRead(reply->readAll());
             reply->deleteLater();

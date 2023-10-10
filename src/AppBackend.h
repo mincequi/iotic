@@ -23,7 +23,7 @@ public:
 
 private:
     Statistics _stats;
-    ThingsRepository _thingsRepository;
+    ThingsRepository* _thingsRepository;
     ThingsManager _thingsManager;
     sunspec::SunSpecManager _sunSpecManager;
     MqttExporter _mqttExporter;

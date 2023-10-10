@@ -44,7 +44,5 @@ std::unique_ptr<Strategy> StrategyFactory::from(const ThingPtr& thing) const {
         thing->setProperty(MutableProperty::offset, 4.0);
     }
 
-    return std::make_unique<GenericActuationStrategy<rpp::schedulers::new_thread>>(thing->id(), std::move(onExpression), std::move(offExpression), [&](bool isOn) {
-        _thingsRepository.setThingProperty(thing->id(), MutableProperty::power_control, isOn);
-    });
+    return std::make_unique<GenericActuationStrategy<rpp::schedulers::new_thread>>(thing->id(), std::move(onExpression), std::move(offExpression));
 }

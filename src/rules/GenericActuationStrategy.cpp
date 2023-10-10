@@ -10,6 +10,7 @@
 
 #include <common/Logger.h>
 #include <config/Config.h>
+#include <things/ThingsRepository.h>
 
 #include "test_scheduler.hpp"
 
@@ -17,13 +18,11 @@ using namespace std::chrono_literals;
 
 template<rpp::schedulers::constraint::scheduler TScheduler>
 GenericActuationStrategy<TScheduler>::GenericActuationStrategy(const std::string& thingId,
-                     ExprPtr&& onExpression,
-                     ExprPtr&& offExpression,
-                     Action action) :
+                                                               ExprPtr&& onExpression,
+                                                               ExprPtr&& offExpression) :
     Strategy(thingId),
     _onExpression(std::move(onExpression)),
-    _offExpression(std::move(offExpression)),
-    _action(action) {
+    _offExpression(std::move(offExpression)) {
     _expressionSubject.get_observable()
             .distinct_until_changed()
             .debounce(std::chrono::milliseconds(cfg->valueOr<int>(thingId, Config::Key::debounce, 60000)), _scheduler)
@@ -45,18 +44,18 @@ void GenericActuationStrategy<TScheduler>::evaluate() {
         _expressionSubject.get_subscriber().on_next(false);
         // 1.1 Check if this is the initial state
         if (!_actionState.has_value()) _actionState = false;
-    // 2. Check for on condition
+        // 2. Check for on condition
     } else if (_onExpression->value()) {
         _expressionSubject.get_subscriber().on_next(true);
         // 2.1 Check if this is the initial state
         if (!_actionState.has_value()) _actionState = true;
-    // 3. No condition matched. Retrigger last state (if present)
+        // 3. No condition matched. Retrigger last state (if present)
     } else if (_actionState.has_value()) {
         _expressionSubject.get_subscriber().on_next(_actionState.value());
     }
 
     if (_actionState.has_value()) {
-        _action(_actionState.value());
+        repo->setThingProperty(thingId(), MutableProperty::power_control, _actionState.value());
     }
 }
 

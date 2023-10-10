@@ -27,6 +27,8 @@ enum class Property {
 
     offset = 3426,
 
+    type = 5750,
+
     status = 5848,
     events = 5849,
 

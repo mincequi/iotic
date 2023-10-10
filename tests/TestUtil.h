@@ -3,7 +3,9 @@
 #include <exprtk.hpp>
 
 #include <strategies/Strategy.h>
-#include <things/ThingsRepository.h>
+#include <things/Thing.h>
+#include <things/ThingProperty.h>
+#include <things/ThingValue.h>
 
 class TestUtil {
 public:
@@ -22,7 +24,6 @@ public:
     Strategy* onOffRule() const;
 
 private:
-    ThingsRepository _repo;
     exprtk::parser<double> _parser;
     exprtk::symbol_table<double> _symbolTable;
     std::unique_ptr<Strategy> _onOffRule;

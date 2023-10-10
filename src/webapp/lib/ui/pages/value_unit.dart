@@ -8,7 +8,7 @@ class ValueUnit extends StatelessWidget {
   final int _value;
   final Color _color;
 
-  static const _offset = 1.5;
+  static const _offset = 1.0;
   static const _blurRadius = 0.5;
   static const _shadows = [
     Shadow(offset: Offset(_offset, 0.0), blurRadius: _blurRadius),

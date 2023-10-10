@@ -67,15 +67,13 @@ WebServer::WebServer(const ThingsRepository& thingsRepository,
 
     _thingsRepository.thingAdded().subscribe([this](const ThingPtr& thing) {
         // When new thing is added, send persistent properties to each client
-        auto message = serializeMutableProperties(thing);
+        auto message = serializeUserProperties(thing);
         for (const auto& c : std::as_const(_clients)) {
             c->sendTextMessage(message);
         }
 
         thing->properties().subscribe([this, &thing](const std::map<Property, Value>& prop) {
             QJsonObject thing_;
-            if (thing->type() != Thing::Type::Undefined)
-                thing_["type"] = QString::fromStdString(util::toString(thing->type()));
             if (thing->icon())
                 thing_["icon"] = thing->icon();
             for (const auto& kv : prop) {
@@ -102,7 +100,7 @@ void WebServer::onNewConnection() {
 
     // Send all things and their persistent properties to new client.
     for (const auto& t : _thingsRepository.things()) {
-        const QByteArray message = serializeMutableProperties(t);
+        const QByteArray message = serializeUserProperties(t);
         client->sendTextMessage(message);
     }
 
@@ -139,11 +137,14 @@ void WebServer::onSocketDisconnected() {
     }
 }
 
-QByteArray WebServer::serializeMutableProperties(const ThingPtr& t) {
+QByteArray WebServer::serializeUserProperties(const ThingPtr& t) {
     QJsonObject properties;
     for (const auto& kv : t->mutableProperties()) {
         properties[QString::fromStdString(util::toString(kv.first))] = toJsonValue(kv.second);
     }
+    if (t->type() != Thing::Type::Undefined)
+        properties["type"] = QString::fromStdString(util::toString(t->type()));
+
     QJsonObject thing;
     thing[QString::fromStdString(t->id())] = properties;
     return QJsonDocument(thing).toJson(QJsonDocument::JsonFormat::Compact);

@@ -26,14 +26,6 @@ bool SunSpecManager::contains(const QString& host) const {
     }) != _things.end();
 }
 
-void SunSpecManager::removeThing(SunSpecThing* thing) {
-    if (_things.count(thing->sunSpecId())) {
-        LOG_S(WARNING) << "thing removed: " << thing->sunSpecId();
-        _things.remove(thing->sunSpecId());
-    }
-    thing->deleteLater();
-}
-
 void SunSpecManager::onTimer() {
     const auto timestamp = (int64_t)std::round(QDateTime::currentMSecsSinceEpoch() / 100.0) * 100;
 

@@ -10,15 +10,8 @@
 
 namespace sunspec {
 
-class SunSpecThing : public QObject, public Thing {
-    Q_OBJECT
-
+class SunSpecThing : public Thing {
 public:
-    enum class State {
-        Connected,
-        Failed
-    };
-
     static ThingPtr from(const ThingInfo& info);
     SunSpecThing(const ThingInfo& info);
     virtual ~SunSpecThing();
@@ -58,14 +51,14 @@ private:
     void pollNextUnitId();
 
     void readHeader(uint8_t id);
-    void onReadHeader();
+    void onReadHeader(QModbusReply* reply);
 
     void readModelTable(uint16_t address);
-    void onReadModelTable();
+    void onReadModelTable(QModbusReply* reply);
     void addModelAddress(uint16_t modelId, uint16_t startAddress, uint16_t length);
 
     void readBlock(uint16_t modelId, uint16_t address, uint16_t size, uint32_t timestamp);
-    void onReadBlock(uint16_t modelId, uint32_t timestamp);
+    void onReadBlock(uint16_t modelId, uint32_t timestamp, QModbusReply* reply);
     void onReadBlockError(uint16_t modelId, QModbusReply* reply);
 
     void onStateChanged(QModbusDevice::State state);
@@ -89,8 +82,6 @@ private:
     std::map<uint16_t, std::pair<uint16_t, uint16_t>> _modelAddresses;
 
     std::map<uint16_t, sunspec::Model> _models;
-
-    publish_subject<State> _stateSubject;
 };
 
 } // namespace sunspec

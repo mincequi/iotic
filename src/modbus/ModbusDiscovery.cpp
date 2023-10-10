@@ -33,7 +33,8 @@ void ModbusDiscovery::stop() {
 void ModbusDiscovery::onStartDiscovering() {
     foreach (auto thing, _candidates) {
         thing.second.unsubscribe();
-        thing.first->deleteLater();
+        //thing.first->deleteLater();
+        delete thing.first;
     }
     _candidates.clear();
 
@@ -68,11 +69,12 @@ void ModbusDiscovery::onCandidateStateChangedRpp(sunspec::SunSpecThing* candidat
         // If connection failed, delete candidate
         //_candidates.removeOne(candidate);
         _candidates.removeIf([&](const auto& c) { return c.first == candidate; } );
-        candidate->deleteLater();
+        //candidate->deleteLater();
+        delete candidate;
         break;
     case SunSpecThing::State::Connected:
         // Disconnect signals, since we are handing off this object
-        candidate->disconnect();
+        //candidate->disconnect();
         //_candidates.removeAll(candidate);
         _candidates.removeIf([&](const auto& c) { if (c.first == candidate) {
                 c.second.unsubscribe();
@@ -88,7 +90,7 @@ void ModbusDiscovery::onCandidateStateChangedRpp(sunspec::SunSpecThing* candidat
                     << ", modbusUnitId: " << (uint32_t)candidate->modbusUnitId()
                     << ", models: " << ss.str();
         candidate->_id = candidate->sunSpecId();
-        candidate->Thing::setProperty(MutableProperty::name, candidate->sunSpecId());
+        candidate->setProperty(MutableProperty::name, candidate->sunSpecId());
         _thingsRepository.addThing(ThingPtr(candidate));
         break;
     }
@@ -120,7 +122,7 @@ void ModbusDiscovery::onCandidateStateChanged(SunSpecThing::State state) {
                     << ", modbusUnitId: " << (uint32_t)candidate->modbusUnitId()
                     << ", models: " << ss.str();
         candidate->_id = candidate->sunSpecId();
-        candidate->Thing::setProperty(MutableProperty::name, candidate->sunSpecId());
+        candidate->setProperty(MutableProperty::name, candidate->sunSpecId());
         _thingsRepository.addThing(ThingPtr(candidate));
         break;
     }
