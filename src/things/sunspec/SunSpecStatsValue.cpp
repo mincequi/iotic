@@ -9,7 +9,7 @@ StatsValue& StatsValue::operator=(const LiveValue& v) {
     std::visit(overload {
                    [&](uint32_t v) { m_variant = v; },
                    [&](InverterEvents v) { *this |= v; },
-                   [&](InverterOperatingState v) { *this |= v; },
+                   [&](InverterOperatingStatus v) { *this |= v; },
                    [&](int32_t v)  { m_variant = MeasuredValue<double>(v); },
                    [&](double v)   { m_variant = MeasuredValue<double>(v); },
                    [&](const std::vector<Block<double>>& v) {
@@ -30,12 +30,12 @@ StatsValue& StatsValue::operator=(const LiveValue& v) {
     return *this;
 }
 
-StatsValue& StatsValue::operator|=(const InverterOperatingState& v) {
-    if (!std::holds_alternative<std::set<InverterOperatingState>>(m_variant)) {
-        m_variant.emplace<std::set<InverterOperatingState>>();
+StatsValue& StatsValue::operator|=(const InverterOperatingStatus& v) {
+    if (!std::holds_alternative<std::set<InverterOperatingStatus>>(m_variant)) {
+        m_variant.emplace<std::set<InverterOperatingStatus>>();
     }
 
-    auto& states = std::get<std::set<InverterOperatingState>>(m_variant);
+    auto& states = std::get<std::set<InverterOperatingStatus>>(m_variant);
     m_isDirty = !states.count(v);
 
     states.insert(v);

@@ -6,7 +6,7 @@
 #include <rpp/schedulers/new_thread_scheduler.hpp>
 #include <rpp/subjects/behavior_subject.hpp>
 #include <rpp/subjects/publish_subject.hpp>
-#include <rules/Rule.h>
+#include <strategies/Strategy.h>
 
 namespace exprtk {
 template<class>
@@ -17,13 +17,13 @@ using ExprPtr = std::unique_ptr<exprtk::expression<double>>;
 using Action = std::function<void(bool)>;
 
 template<rpp::schedulers::constraint::scheduler TScheduler>
-class OnOffRule : public Rule {
+class GenericActuationStrategy : public Strategy {
 public:
-    OnOffRule(const std::string& thingId,
+    GenericActuationStrategy(const std::string& thingId,
               ExprPtr&& onExpression,
               ExprPtr&& offExpression,
               Action action);
-    ~OnOffRule();
+    ~GenericActuationStrategy();
 
     void evaluate() override;
 

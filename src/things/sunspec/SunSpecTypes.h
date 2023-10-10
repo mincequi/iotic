@@ -6,22 +6,24 @@
 
 namespace sunspec {
 
-enum InverterOperatingState : uint16_t {
-    off                              = 1,
-    sleeping                         = 2,
-    starting                         = 3,
-    mpp                              = 4,
-    throttled                        = 5,
-    shuttingDown                     = 6,
-    error                            = 7,
-    waitingForElectricUtilityCompany = 8
+enum InverterOperatingStatus : uint16_t {
+    invalid         = 0,
+    off             = 1,
+    sleeping        = 2,
+    starting        = 3,
+    mpp             = 4,
+    throttled       = 5,
+    shuttingDown    = 6,
+    error           = 7,
+    service         = 8
 };
-std::ostream& operator<<(std::ostream& os, sunspec::InverterOperatingState state);
+std::ostream& operator<<(std::ostream& os, sunspec::InverterOperatingStatus state);
 
 enum InverterEvent : uint16_t {
     groundingError      = 0,
     dcOvervoltage       = 1,
-
+    acDisconnected      = 2,
+    dcDisconnected      = 3,
     gridDisconnected    = 4,
     enclosureOpen       = 5,
     shutdownManually    = 6,

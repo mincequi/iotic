@@ -4,8 +4,10 @@
 
 #include <QString>
 
-#include <loguru.hpp>
 #include <magic_enum.hpp>
+using namespace magic_enum::ostream_operators; // Define this before including loguru
+
+#include <loguru.hpp>
 
 #include <common/Util.h>
 

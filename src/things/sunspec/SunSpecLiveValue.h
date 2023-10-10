@@ -7,7 +7,7 @@ namespace sunspec {
 
 using LiveValue = std::variant<
     uint32_t,   // timestamp
-    InverterOperatingState,
+    InverterOperatingStatus,
     InverterEvents,
     int32_t,    //
     double,     // regular value

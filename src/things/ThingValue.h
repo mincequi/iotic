@@ -15,6 +15,7 @@ public:
 };
 */
 
+// TODO: remove int
 using Value = std::variant<bool, int, double, std::string>;
 
 template <typename T0, typename ... Ts>

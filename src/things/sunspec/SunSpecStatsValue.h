@@ -15,7 +15,7 @@ namespace sunspec {
 class StatsValue {
 public:
     StatsValue& operator=(const LiveValue& v);
-    StatsValue& operator|=(const InverterOperatingState& v);
+    StatsValue& operator|=(const InverterOperatingStatus& v);
     StatsValue& operator|=(const InverterEvents& v);
 
     bool isDirty() const;
@@ -26,7 +26,7 @@ public:
 private:
     std::variant<
             uint32_t,
-            std::set<InverterOperatingState>,
+            std::set<InverterOperatingStatus>,
             InverterEvents,
             //MeasuredValue<int32_t>,
             MeasuredValue<double>,

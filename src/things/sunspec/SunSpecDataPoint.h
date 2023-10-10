@@ -24,7 +24,7 @@ enum DataPoint {
     totalActiveAcPower,
     totalExportedActiveEnergy,
     totalImportedActiveEnergy,
-    operatingState,
+    operatingStatus,
     events,
 
     // blocks (collection of data points)

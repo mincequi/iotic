@@ -3,7 +3,7 @@
 #include <exprtk.hpp>
 #include <rpp/schedulers/immediate_scheduler.hpp>
 
-#include <rules/OnOffRule.h>
+#include <rules/GenericActuationStrategy.h>
 #include <rules/test_scheduler.hpp>
 #include "TestUtil.h"
 
@@ -25,7 +25,7 @@ TEST_CASE("OnOffRule", "[rules]") {
     util.onOffRule()->evaluate();
     REQUIRE(thing->mutableProperties().at(MutableProperty::power_control) == Value(true));
 
-    auto rule = (OnOffRule<test_scheduler>*)util.onOffRule();
+    auto rule = (GenericActuationStrategy<test_scheduler>*)util.onOffRule();
     rule->scheduler().time_advance(std::chrono::seconds{2});
     util.onOffRule()->evaluate();
     REQUIRE(thing->mutableProperties().at(MutableProperty::power_control) == Value(false));

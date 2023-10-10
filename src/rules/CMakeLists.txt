@@ -5,9 +5,8 @@ FetchContent_Declare(exprtk
 FetchContent_MakeAvailable(exprtk)
 
 add_library(rules STATIC
-  OnOffRule.cpp
-  Rule.cpp
-  RuleFactory.cpp
+  GenericActuationStrategy.cpp
+  StrategyFactory.cpp
   RulesEngine.cpp
   #test_schedulers.cpp
 )
@@ -22,4 +21,5 @@ target_link_libraries(rules
 PRIVATE
   common
   config
+  strategies
 )

@@ -6,7 +6,7 @@
 
 namespace sunspec {
 
-std::ostream& operator<<(std::ostream& os, sunspec::InverterOperatingState state) {
+std::ostream& operator<<(std::ostream& os, sunspec::InverterOperatingStatus state) {
     return os << "\"" << magic_enum::enum_name(state) << "\"";
 }
 

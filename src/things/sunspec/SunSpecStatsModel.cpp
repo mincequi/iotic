@@ -34,7 +34,7 @@ bool StatsModel::isDirty() const {
                     overload{
                         [](uint32_t)    { return false; },
                         [](InverterEvents)    { return false; },
-                        [](std::set<InverterOperatingState>) { return false; },
+                        [](std::set<InverterOperatingStatus>) { return false; },
                         [](MeasuredValue<int32_t> v)  { return v.isDirty(); },
                         [](MeasuredValue<double> v)  { return v.isDirty(); },
                         [](const std::vector<Block<MeasuredValue<double>>>& v) {

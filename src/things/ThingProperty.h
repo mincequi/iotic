@@ -26,7 +26,11 @@ enum class Property {
     pinned = 3421,
 
     offset = 3426,
-    max_value = 3427
+
+    status = 5848,
+    events = 5849,
+
+    max_value = 6000
 };
 // We have to inject a custom range for this enum, since magic_enum only allows -128 to 128 per default.
 template<>

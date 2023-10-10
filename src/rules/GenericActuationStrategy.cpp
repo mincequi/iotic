@@ -1,4 +1,4 @@
-#include "OnOffRule.h"
+#include "GenericActuationStrategy.h"
 
 #include <exprtk.hpp>
 #include <rpp/operators/debounce.hpp>
@@ -16,11 +16,11 @@
 using namespace std::chrono_literals;
 
 template<rpp::schedulers::constraint::scheduler TScheduler>
-OnOffRule<TScheduler>::OnOffRule(const std::string& thingId,
+GenericActuationStrategy<TScheduler>::GenericActuationStrategy(const std::string& thingId,
                      ExprPtr&& onExpression,
                      ExprPtr&& offExpression,
                      Action action) :
-    Rule(thingId),
+    Strategy(thingId),
     _onExpression(std::move(onExpression)),
     _offExpression(std::move(offExpression)),
     _action(action) {
@@ -35,11 +35,11 @@ OnOffRule<TScheduler>::OnOffRule(const std::string& thingId,
 }
 
 template<rpp::schedulers::constraint::scheduler TScheduler>
-OnOffRule<TScheduler>::~OnOffRule() {
+GenericActuationStrategy<TScheduler>::~GenericActuationStrategy() {
 }
 
 template<rpp::schedulers::constraint::scheduler TScheduler>
-void OnOffRule<TScheduler>::evaluate() {
+void GenericActuationStrategy<TScheduler>::evaluate() {
     // 1. Check for off condition
     if (_offExpression->value()) {
         _expressionSubject.get_subscriber().on_next(false);
@@ -61,10 +61,10 @@ void OnOffRule<TScheduler>::evaluate() {
 }
 
 template<rpp::schedulers::constraint::scheduler TScheduler>
-TScheduler& OnOffRule<TScheduler>::scheduler() {
+TScheduler& GenericActuationStrategy<TScheduler>::scheduler() {
     return _scheduler;
 }
 
 // Explicit template instantiation
-template class OnOffRule<rpp::schedulers::new_thread>;
-template class OnOffRule<test_scheduler>;
+template class GenericActuationStrategy<rpp::schedulers::new_thread>;
+template class GenericActuationStrategy<test_scheduler>;

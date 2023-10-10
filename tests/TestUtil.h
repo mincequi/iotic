@@ -2,7 +2,7 @@
 
 #include <exprtk.hpp>
 
-#include <rules/Rule.h>
+#include <strategies/Strategy.h>
 #include <things/ThingsRepository.h>
 
 class TestUtil {
@@ -19,11 +19,11 @@ public:
 
     const ThingPtr& thingById(const std::string& id) const;
 
-    Rule* onOffRule() const;
+    Strategy* onOffRule() const;
 
 private:
     ThingsRepository _repo;
     exprtk::parser<double> _parser;
     exprtk::symbol_table<double> _symbolTable;
-    std::unique_ptr<Rule> _onOffRule;
+    std::unique_ptr<Strategy> _onOffRule;
 };

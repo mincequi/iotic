@@ -2,10 +2,10 @@
 
 #include <string>
 
-class Rule {
+class Strategy {
 public:
-    Rule(const std::string& thingId);
-    virtual ~Rule();
+    Strategy(const std::string& thingId);
+    virtual ~Strategy();
 
     const std::string& thingId() const;
 

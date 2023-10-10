@@ -4,6 +4,7 @@ import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:iotic/ui/things/thing_property.dart';
+import 'package:iotic/ui/things/thing_util.dart';
 
 import '../../data/repository.dart';
 import '../../data/thing_live_data.dart';
@@ -21,6 +22,7 @@ class ThingCardController extends GetxController {
   // Mutable properties
   final isOn = RxnBool();
   final offset = Rxn<int>();
+  final status = Rxn<IconData>();
 
   final readableProperties = <ReadableThingProperty, dynamic>{}.obs;
   final propertyWidgets = <ReadableThingProperty, ThingProperty>{}.obs;
@@ -53,7 +55,7 @@ class ThingCardController extends GetxController {
       name.value = _id;
     }
 
-    // Check for isOnSite
+    // Check if thing isPinned
     if (p0.containsKey(ReadableThingProperty.pinned)) {
       isPinned.value = p0[ReadableThingProperty.pinned];
     }
@@ -62,6 +64,7 @@ class ThingCardController extends GetxController {
     icon.value =
         _typeToIcon[p0[ReadableThingProperty.type]] ?? Icons.device_hub;
     offset.value = p0[ReadableThingProperty.offset];
+    status.value = toIcon(p0[ReadableThingProperty.status]);
 
     // Check for power control
     //hasPowerControl.value = p0.containsKey(ReadableThingProperty.power_control);

@@ -1,25 +1,24 @@
 #include "RulesEngine.h"
 
-#include <common/OffsetTable.h>
-#include <common/Util.h>
-#include <things/ThingsRepository.h>
-
 #include <exprtk.hpp>
 
-#include "Rule.h"
+#include <common/OffsetTable.h>
+#include <common/Util.h>
+#include <strategies/Strategy.h>
+#include <things/ThingsRepository.h>
 
 // TODO: for now our rules engine is based on exprtk. This might change.
 // Check https://caiorss.github.io/C-Cpp-Notes/embedded_scripting_languages.html
-static exprtk::symbol_table<double> primarySymbolTable;
+static exprtk::symbol_table<double> s_primarySymbolTable;
 
 RulesEngine::RulesEngine(const ThingsRepository& thingsRepository) :
     _thingsRepository(thingsRepository),
-    _ruleFactory(primarySymbolTable, thingsRepository) {
+    _strategyFactory(s_primarySymbolTable, thingsRepository) {
 
     // Site specific variables
-    primarySymbolTable.create_variable(util::toString(Property::pv_power));
-    primarySymbolTable.create_variable(util::toString(Property::grid_power));
-    primarySymbolTable.create_variable(util::toString(Property::site_power));
+    s_primarySymbolTable.create_variable(util::toString(Property::pv_power));
+    s_primarySymbolTable.create_variable(util::toString(Property::grid_power));
+    s_primarySymbolTable.create_variable(util::toString(Property::site_power));
 
     _thingsRepository.site().properties().subscribe([this](const auto& prop) {
         for (const auto& kv : prop) {
@@ -28,16 +27,16 @@ RulesEngine::RulesEngine(const ThingsRepository& thingsRepository) :
             case Property::grid_power:
             case Property::site_power: {
                 const std::string var = util::toString(kv.first);
-                primarySymbolTable.variable_ref(var) = toDouble(kv.second);
+                s_primarySymbolTable.variable_ref(var) = toDouble(kv.second);
                 break;
             }
             default:
                 break;
             }
         }
-        // After update of site, evaluate rules
-        for (const auto& r : _rules) {
-            r->evaluate();
+        // After update of site, evaluate strategies
+        for (const auto& s : _strategies) {
+            s->evaluate();
         }
     });
 
@@ -47,13 +46,13 @@ RulesEngine::RulesEngine(const ThingsRepository& thingsRepository) :
         subscribeDependencies();
 
         // Check if thing has rules
-        auto rule = _ruleFactory.from(thing);
-        if (!rule) return;
-        _rules.push_back(std::move(rule));
+        auto strategy = _strategyFactory.from(thing);
+        if (!strategy) return;
+        _strategies.push_back(std::move(strategy));
 
         // Creating rule might have updated the symbol table
         std::list<std::string> vars_;
-        primarySymbolTable.get_variable_list(vars_);
+        s_primarySymbolTable.get_variable_list(vars_);
         _subscribedVars = { vars_.begin(), vars_.end() };
         for (const auto& v : vars_) {
             addDependency(v.substr(0, v.find(".")));
@@ -77,10 +76,10 @@ void RulesEngine::subscribe(const ThingPtr& thing) {
             if (_subscribedVars.contains(var)) {
                 switch (kv.first) {
                 case Property::offset:
-                    primarySymbolTable.variable_ref(var) = offsetTable[std::get<double>(kv.second)];
+                    s_primarySymbolTable.variable_ref(var) = offsetTable[std::get<double>(kv.second)];
                     break;
                 default:
-                    primarySymbolTable.variable_ref(var) = toDouble(kv.second);
+                    s_primarySymbolTable.variable_ref(var) = toDouble(kv.second);
                     break;
                 }
             }

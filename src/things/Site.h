@@ -14,14 +14,14 @@ using rpp::subjects::publish_subject;
 
 class Site {
 public:
-    Site(const ThingsRepository& thingsRepository);
-
     struct SiteData {
         int ts = 0;
         int pvPower = 0;
         int gridPower = 0;
         int sitePower = 0;
     };
+
+    Site(const ThingsRepository& thingsRepository);
 
     dynamic_observable<std::map<Property, Value>> properties() const;
 

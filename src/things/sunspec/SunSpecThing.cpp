@@ -83,8 +83,8 @@ bool SunSpecThing::isValid() const {
 
 bool SunSpecThing::isSleeping() const {
     for (const auto& kv : _models) {
-        if (kv.second.values().count(sunspec::operatingState) &&
-                kv.second.values().count(sunspec::operatingState) == InverterOperatingState::sleeping) {
+        if (kv.second.values().count(sunspec::operatingStatus) &&
+                kv.second.values().count(sunspec::operatingStatus) == InverterOperatingStatus::sleeping) {
             return true;
         }
     }
@@ -387,15 +387,19 @@ void SunSpecThing::parseModel(uint16_t modelId, const std::vector<uint16_t>& buf
         }
     } else if (sunspec::ModelFactory::updateFromBuffer(_models, modelId, buffer, timestamp)) {
         const auto& model = _models[modelId];
+        std::map<Property, Value> props;
         for (const auto& v : model.values()) {
             switch (v.first) {
             case DataPoint::totalActiveAcPower:
-                _propertiesSubject.get_subscriber().on_next({{Property::power, (double)std::get<int32_t>(v.second)}});
+                props[Property::power] = (double)std::get<int32_t>(v.second);
                 break;
+            case DataPoint::operatingStatus:
+                props[Property::status] = std::get<InverterOperatingStatus>(v.second);
             default:
                 break;
             }
         }
+        _propertiesSubject.get_subscriber().on_next(props);
         //emit modelRead(model, timestamp);
     }
 }

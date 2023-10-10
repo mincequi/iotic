@@ -54,6 +54,6 @@ bool MeasuredValue<T>::isDirty() const {
 // Explicit template instantiation
 template class MeasuredValue<int32_t>;
 template class MeasuredValue<double>;
-template class MeasuredValue<InverterOperatingState>;
+template class MeasuredValue<InverterOperatingStatus>;
 
 } // namespace sunspec

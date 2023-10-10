@@ -26,7 +26,7 @@ bool InverterModelFactory::updateFromBuffer(Model& model,
     model._values[sunspec::timestamp] = timestamp;
     model._values[sunspec::totalActiveAcPower] = totalActiveAcPower;
     model._values[sunspec::totalExportedActiveEnergy] = (int32_t)(round(totalYield/100.0)*100.0);
-    model._values[sunspec::operatingState] = static_cast<InverterOperatingState>(buffer.at(36));
+    model._values[sunspec::operatingStatus] = static_cast<InverterOperatingStatus>(buffer.at(36));
     model._values[sunspec::events] = InverterEvents(buffer.at(38));
 
     return true;

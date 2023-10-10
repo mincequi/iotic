@@ -4,9 +4,9 @@
 #include <memory>
 #include <set>
 
-#include <rules/RuleFactory.h>
+#include <rules/StrategyFactory.h>
 
-class Rule;
+class Strategy;
 class ThingsRepository;
 
 /**
@@ -26,8 +26,8 @@ private:
     void subscribeDependencies();
 
     const ThingsRepository& _thingsRepository;
-    RuleFactory _ruleFactory;
-    std::list<std::unique_ptr<Rule>> _rules;
+    StrategyFactory _strategyFactory;
+    std::list<std::unique_ptr<Strategy>> _strategies;
     std::set<std::string> _dependentThings;
     std::set<std::string> _subscribedThings;
     std::set<std::string> _subscribedVars;

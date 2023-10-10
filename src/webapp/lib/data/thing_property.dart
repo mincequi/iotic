@@ -11,7 +11,10 @@ enum ReadableThingProperty {
   temperature,
   power,
   power_control,
-  offset
+  offset,
+
+  status,
+  events
 }
 
 enum WritableThingProperty { name, pinned, offset, power_control, is_visible }

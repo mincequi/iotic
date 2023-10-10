@@ -72,7 +72,7 @@ class ThingCard extends StatelessWidget {
                 _repo.set(_id, WritableThingProperty.power_control, value);
               },
             )
-          : null;
+          : Icon(_control.status.value);
     }
 
     return Wrap(children: [

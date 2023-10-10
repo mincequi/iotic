@@ -61,5 +61,7 @@ void ThingsRepository::setThingProperty(const std::string& id, MutableProperty p
     const auto& thing = thingById(id);
     if (thing) {
         thing->setProperty(property, value);
+    } else {
+        LOG_S(WARNING) << "thing not found: " << id;
     }
 }

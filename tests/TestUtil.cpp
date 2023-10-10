@@ -1,8 +1,8 @@
 #include "TestUtil.h"
 
-#include <rules/OnOffRule.h>
-#include <rules/test_scheduler.hpp>
 #include <common/Util.h>
+#include <rules/GenericActuationStrategy.h>
+#include <rules/test_scheduler.hpp>
 
 class TestThing : public Thing {
 public:
@@ -48,7 +48,7 @@ void TestUtil::setOnOffRule(const std::string& id,
         return;
     }
 
-    _onOffRule = std::make_unique<OnOffRule<test_scheduler>>(id, std::move(onExpression), std::move(offExpression), [&](bool isOn) {
+    _onOffRule = std::make_unique<GenericActuationStrategy<test_scheduler>>(id, std::move(onExpression), std::move(offExpression), [&](bool isOn) {
         _repo.setThingProperty(id, MutableProperty::power_control, isOn);
     });
 }
@@ -57,6 +57,6 @@ const ThingPtr& TestUtil::thingById(const std::string& id) const {
     return _repo.thingById(id);
 }
 
-Rule* TestUtil::onOffRule() const {
+Strategy* TestUtil::onOffRule() const {
     return _onOffRule.get();
 }

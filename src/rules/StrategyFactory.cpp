@@ -1,4 +1,4 @@
-#include "RuleFactory.h"
+#include "StrategyFactory.h"
 
 #include <limits>
 
@@ -7,18 +7,18 @@
 #include <config/Config.h>
 #include <things/ThingsRepository.h>
 
-#include "OnOffRule.h"
+#include "GenericActuationStrategy.h"
 
 static exprtk::parser<double> parser;
 
-RuleFactory::RuleFactory(exprtk::symbol_table<double>& symbolTable,
+StrategyFactory::StrategyFactory(exprtk::symbol_table<double>& symbolTable,
                          const ThingsRepository& thingsRepository) :
     _symbolTable(symbolTable),
     _thingsRepository(thingsRepository) {
     parser.enable_unknown_symbol_resolver();
 }
 
-std::unique_ptr<Rule> RuleFactory::from(const ThingPtr& thing) const {
+std::unique_ptr<Strategy> StrategyFactory::from(const ThingPtr& thing) const {
     // TODO: move the on/off rule check to OnOffRule
     // Check if thing has "on" and "off" expression
     const auto onExpressionStr = cfg->valueOr<std::string>(thing->id(), Config::Key::on);
@@ -44,7 +44,7 @@ std::unique_ptr<Rule> RuleFactory::from(const ThingPtr& thing) const {
         thing->setProperty(MutableProperty::offset, 4.0);
     }
 
-    return std::make_unique<OnOffRule<rpp::schedulers::new_thread>>(thing->id(), std::move(onExpression), std::move(offExpression), [&](bool isOn) {
+    return std::make_unique<GenericActuationStrategy<rpp::schedulers::new_thread>>(thing->id(), std::move(onExpression), std::move(offExpression), [&](bool isOn) {
         _thingsRepository.setThingProperty(thing->id(), MutableProperty::power_control, isOn);
     });
 }
