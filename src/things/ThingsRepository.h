@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include <set>
 #include <things/Site.h>
 #include <things/Thing.h>
 
@@ -41,6 +42,7 @@ private:
     static inline ThingsRepository* _instance;
 
     std::list<ThingPtr> _things;
+    std::set<std::string> _removableThings;
     publish_subject<ThingPtr> _thingAdded;
     publish_subject<std::string> _thingRemoved;
     Site _site;

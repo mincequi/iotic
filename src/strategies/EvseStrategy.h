@@ -7,34 +7,41 @@
 #include <rpp/subjects/publish_subject.hpp>
 
 #include <strategies/Strategy.h>
+#include <things/Thing.h>
 
 class EvseStrategy : public Strategy {
 public:
     struct EvseData {
         std::array<double, 3> voltages;
-        int power = 0;
+        double power = 0;
     };
 
-    EvseStrategy(const std::string& thingId);
+    static std::unique_ptr<Strategy> from(const ThingPtr& thing);
     ~EvseStrategy();
 
     void setChargingData(const EvseData& data);
-    void setGridPower(int watts);
-    void setOffsetPower(int watts);
 
 private:
+    EvseStrategy(const ThingPtr& thing);
+
     enum class Phases {
-        Off = 0,
-        SinglePhase = 1,
-        ThreePhase = 3
+        off = 0,
+        single_phase = 1,
+        three_phase = 3
     };
 
     void evaluate() override;
 
-    EvseData _chargingData;
-    int _gridPower = 0;
-    int _offsetPower = 0;
+    //EvseData _chargingData;
+    double _power = 0;
+    std::array<double, 3> _voltages;
+    double _gridPower = 0;
+    double _offsetPower = 0;
+    double _availablePower = 0.0;
 
     rpp::subjects::publish_subject<Phases> _phasesSubject;
     std::optional<Phases> _phasesState;
+
+    //rpp::subjects::publish_subject<bool> _isOnSubject;
+    //std::optional<bool> _isOnState;
 };

@@ -22,6 +22,7 @@ public:
     };
 
     Site(const ThingsRepository& thingsRepository);
+    ~Site();
 
     dynamic_observable<std::map<Property, Value>> properties() const;
 

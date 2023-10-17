@@ -5,6 +5,7 @@
 #include <QTcpSocket>
 
 #include <common/Logger.h>
+#include <config/Config.h>
 #include <things/ThingsRepository.h>
 #include <things/sunspec/SunSpecManager.h>
 #include <things/sunspec/SunSpecThing.h>
@@ -90,7 +91,7 @@ void ModbusDiscovery::onCandidateStateChangedRpp(sunspec::SunSpecThing* candidat
                     << ", modbusUnitId: " << (uint32_t)candidate->modbusUnitId()
                     << ", models: " << ss.str();
         candidate->_id = candidate->sunSpecId();
-        candidate->setProperty(MutableProperty::name, candidate->sunSpecId());
+        candidate->setProperty(MutableProperty::name, cfg->valueOr(candidate->sunSpecId(), Config::Key::name, candidate->sunSpecId()));
         _thingsRepository.addThing(ThingPtr(candidate));
         break;
     }

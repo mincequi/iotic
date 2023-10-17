@@ -5,6 +5,7 @@
 #include <exprtk.hpp>
 #include <common/Logger.h>
 #include <config/Config.h>
+#include <strategies/EvseStrategy.h>
 #include <things/ThingsRepository.h>
 
 #include "GenericActuationStrategy.h"
@@ -19,7 +20,10 @@ StrategyFactory::StrategyFactory(exprtk::symbol_table<double>& symbolTable,
 }
 
 std::unique_ptr<Strategy> StrategyFactory::from(const ThingPtr& thing) const {
-    // TODO: move the on/off rule check to OnOffRule
+    auto strategy = EvseStrategy::from(thing);
+    if (strategy) return strategy;
+
+    // TODO: move the on/off rule check to GenericActuationStrategy
     // Check if thing has "on" and "off" expression
     const auto onExpressionStr = cfg->valueOr<std::string>(thing->id(), Config::Key::on);
     if (onExpressionStr.empty()) return {};

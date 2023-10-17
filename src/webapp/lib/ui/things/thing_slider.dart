@@ -16,27 +16,20 @@ class ThingSlider extends StatelessWidget {
   final String _id;
   final _offsets = [
     "Off",
-    //"500 W",
-    "400 W",
-    "250 W",
-    "150 W",
+    "500 W",
+    "300 W",
+    "200 W",
     "0 W",
-    "150 W",
-    "250 W",
-    "400 W",
-    //"500 W",
-    "600 W",
-    //"800 W",
+    "200 W",
+    "300 W",
+    "500 W",
+    "700 W",
     "1 kW",
-    //"1.2 kW",
     "1.5 kW",
-    //"2.0 kW",
-    "2.5 kW",
-    //"3 kW",
-    "4 kW",
-    //"5 kW",
-    "6 kW",
-    //"8 kW",
+    "2.0 kW",
+    "3 kW",
+    "5 kW",
+    "7 kW",
     "10 kW"
   ];
 
@@ -87,7 +80,7 @@ class ThingSlider extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Obx(() => _control.offset.value != null
       ? Container(
-          margin: const EdgeInsets.only(left: 12, right: 12, bottom: 4.0),
+          margin: const EdgeInsets.only(left: 12, right: 12, bottom: 12.0),
           padding: const EdgeInsets.only(left: 4.0, right: 4.0),
           height: 32,
           decoration: BoxDecoration(

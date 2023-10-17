@@ -38,7 +38,6 @@ class ThingCard extends StatelessWidget {
             subtitle: _control.propertyWidgets.isNotEmpty
                 ? Row(children: _control.propertyWidgets.values.toList())
                 : null,
-            //isThreeLine: _control.propertyWidgets.isNotEmpty,
             trailing: trailingButtons(context),
           ),
           isPinnedCard ? ThingSlider(_id) : Container(),

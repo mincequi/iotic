@@ -79,7 +79,7 @@ class SiteCard extends StatelessWidget {
         }
       })*/
       color: color,
-      barWidth: 3.0,
+      barWidth: 2.5,
       isCurved: false,
       preventCurveOverShooting: true,
       shadow: const Shadow(
@@ -95,7 +95,7 @@ class SiteCard extends StatelessWidget {
             colors: [
               //color.withOpacity(0.38),
               //color.withOpacity(0.19),
-              color.withOpacity(0.4),
+              color.withOpacity(0.2),
               color.withOpacity(0.02),
             ],
             stops: const [0.0, 0.95],

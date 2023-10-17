@@ -77,22 +77,12 @@ bool SunSpecThing::isValid() const {
     return _modbusClient->state() == QModbusDevice::State::ConnectedState;
 }
 
-bool SunSpecThing::isSleeping() const {
-    for (const auto& kv : _models) {
-        if (kv.second.values().count(sunspec::operatingStatus) &&
-                kv.second.values().count(sunspec::operatingStatus) == InverterOperatingStatus::sleeping) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void SunSpecThing::readModel(uint16_t modelId, uint32_t timestamp) {
+bool SunSpecThing::readModel(uint16_t modelId, uint32_t timestamp) {
     LOG_S(2) << this->sunSpecId() << "> reading model: " << modelId;
     if (_modelAddresses.count(modelId)) {
-        readBlock(modelId, _modelAddresses[modelId].first, _modelAddresses[modelId].second, timestamp);
+        return readBlock(modelId, _modelAddresses[modelId].first, _modelAddresses[modelId].second, timestamp);
     }
+    return false;
 }
 
 void SunSpecThing::reset() {
@@ -110,7 +100,10 @@ void SunSpecThing::doRead() {
         case Model::Id::InverterThreePhase:
         case Model::Id::InverterSplitPhase:
         case Model::Id::MeterWyeConnectThreePhase:
-            readModel(kv.first, QDateTime::currentSecsSinceEpoch());
+            if (!readModel(kv.first, QDateTime::currentSecsSinceEpoch())) {
+                _stateSubject.get_subscriber().on_next(State::Failed);
+                return;
+            }
             break;
         default:
             break;
@@ -226,6 +219,7 @@ void SunSpecThing::onReadHeader(QModbusReply* reply) {
             _stateSubject.get_subscriber().on_next(State::Failed);
         }
     } else {
+        // TODO: we have a crash here. This call arrives, although _modbusClient is already deleted.
         LOG_S(WARNING) << host().toStdString() << "> reply error: " << reply->error();
         //emit stateChanged(State::Failed);
         _stateSubject.get_subscriber().on_next(State::Failed);
@@ -297,20 +291,19 @@ void SunSpecThing::addModelAddress(uint16_t modelId, uint16_t startAddress, uint
     _modelAddresses[modelId] = { startAddress, length };
 }
 
-void SunSpecThing::readBlock(uint16_t modelId, uint16_t address, uint16_t length, uint32_t timestamp) {
+bool SunSpecThing::readBlock(uint16_t modelId, uint16_t address, uint16_t length, uint32_t timestamp) {
     const QModbusDataUnit dataUnit(QModbusDataUnit::HoldingRegisters, address, length);
     auto* reply = _modbusClient->sendReadRequest(dataUnit, _unitId);
     if  (!reply) {
-        //emit stateChanged(State::Failed);
-        _stateSubject.get_subscriber().on_next(State::Failed);
+        return false;
     } else if (reply->isFinished()) {   // broadcast replies return immediately
         delete reply;
-        //emit stateChanged(State::Failed);
-        _stateSubject.get_subscriber().on_next(State::Failed);
-    } else {
-        LOG_S(2) << sunSpecId() << "> reading block at: " << address;
-        reply->connect(reply, &QModbusReply::finished, std::bind(&SunSpecThing::onReadBlock, this, modelId, timestamp, reply));
+        return false;
     }
+
+    LOG_S(2) << sunSpecId() << "> reading block at: " << address;
+    reply->connect(reply, &QModbusReply::finished, std::bind(&SunSpecThing::onReadBlock, this, modelId, timestamp, reply));
+    return true;
 }
 
 void SunSpecThing::onReadBlock(uint16_t modelId, uint32_t timestamp, QModbusReply* reply) {

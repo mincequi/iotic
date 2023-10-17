@@ -10,7 +10,7 @@ ThingStatus toStatus(int v) {
     case 1: return ThingStatus::idle;
     case 2: return ThingStatus::charging;
     case 3: return ThingStatus::waiting;
-    case 4: return ThingStatus::complete;
+    case 4: return ThingStatus::waiting; //complete from goe is missleading here.
     case 5: return ThingStatus::error;
     default: return ThingStatus::unknown;
     }

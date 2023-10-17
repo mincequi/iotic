@@ -3,15 +3,13 @@ import 'package:flutter/material.dart';
 IconData? toIcon(dynamic v) {
   switch (v) {
     case 0:
-      return null;
     case 1:
-      return Icons.power_off_sharp;
     case 2:
-      return Icons.mode_night_sharp;
+      return null;
     case 3:
-      return Icons.timelapse_sharp;
+      return Icons.hourglass_top_sharp;
     case 4:
-      return Icons.battery_3_bar_sharp;
+      return Icons.flash_on_sharp;
     //case 5: return Icons.turt
     case 6:
       return Icons.battery_charging_full_sharp;

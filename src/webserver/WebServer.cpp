@@ -77,7 +77,8 @@ WebServer::WebServer(const ThingsRepository& thingsRepository,
             if (thing->icon())
                 thing_["icon"] = thing->icon();
             for (const auto& kv : prop) {
-                thing_[QString::fromStdString(util::toString(kv.first))] = toJsonValue(kv.second);
+                if (kv.first <= Property::power_control)
+                    thing_[QString::fromStdString(util::toString(kv.first))] = toJsonValue(kv.second);
             }
             QJsonObject json;
             json[QString::fromStdString(thing->id())] = thing_;
@@ -140,7 +141,8 @@ void WebServer::onSocketDisconnected() {
 QByteArray WebServer::serializeUserProperties(const ThingPtr& t) {
     QJsonObject properties;
     for (const auto& kv : t->mutableProperties()) {
-        properties[QString::fromStdString(util::toString(kv.first))] = toJsonValue(kv.second);
+        if (kv.first <= MutableProperty::power_control)
+            properties[QString::fromStdString(util::toString(kv.first))] = toJsonValue(kv.second);
     }
     if (t->type() != Thing::Type::Undefined)
         properties["type"] = QString::fromStdString(util::toString(t->type()));

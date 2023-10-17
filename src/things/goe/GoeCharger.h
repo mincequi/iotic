@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <things/ThingStatus.h>
 #include <things/http/HttpThing.h>
 
 class GoeCharger : HttpThing {
@@ -14,12 +15,5 @@ private:
     void doRead() override;
     void onRead(const QByteArray& response) override;
 
-    // site values
-    double _availablePower = 0;
-
-    // ev station values
-    std::array<double, 3> _voltage;
-    double _power = 0.0;
-    int _phases = 0;
-    int _amperage = 0;
+    ThingStatus _status = ThingStatus::unknown;
 };

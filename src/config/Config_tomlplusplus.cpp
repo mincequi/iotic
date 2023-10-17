@@ -39,7 +39,9 @@ Config::~Config() {
 
 template<class T>
 T Config::valueOr(const std::string& table_, Key key, T fallback) const {
-    return _p->configTable[table_][util::toString(key)].value_or(fallback);
+    auto val = _p->configTable[table_][util::toString(key)].value_or(fallback);
+    //LOG_S(INFO) << table_ << "> " << key << ": " << val;
+    return val;
 }
 // Explicit template instantiation
 template std::string Config::valueOr(const std::string& table, Key key, std::string) const;
@@ -51,7 +53,14 @@ void Config::setValue(const std::string& table, Property key, const Value& value
     _p->configTable.table().insert_or_assign(table, toml::table{});
     }
     auto section = _p->configTable.table().at(table).as_table();
-    std::visit([&](const auto& arg){ section->insert_or_assign(util::toString(key), arg); }, value);
+    //std::visit([&](const auto& arg){ section->insert_or_assign(util::toString(key), arg); }, value);
+    std::visit([&](auto& arg) {
+        using T = std::decay_t<decltype(arg)>;
+        if constexpr (std::is_same_v<T, std::array<double, 3>>) {}
+        else {
+            section->insert_or_assign(util::toString(key), arg);
+        }
+    }, value);
 
     std::ofstream configFile;
     configFile.open(_configFile);

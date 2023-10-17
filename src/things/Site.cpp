@@ -75,6 +75,9 @@ Site::Site(const ThingsRepository& thingsRepository) {
     .subscribe(_siteDataSubject.get_subscriber());
 }
 
+Site::~Site() {
+}
+
 dynamic_observable<std::map<Property, Value>> Site::properties() const {
     return _propertiesSubject.get_observable();
 }

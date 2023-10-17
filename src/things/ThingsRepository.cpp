@@ -9,6 +9,14 @@ ThingsRepository* ThingsRepository::instance() {
 
 ThingsRepository::ThingsRepository() :
     _site(*this) {
+
+    // Use site update as pulse generator to clean up things
+    _site.properties().subscribe([this](const auto&) {
+        std::erase_if(_things, [this](const auto& t) {
+            return _removableThings.contains(t->id());
+        });
+        _removableThings.clear();
+    });
 }
 
 const Site& ThingsRepository::site() const {
@@ -32,8 +40,8 @@ void ThingsRepository::addThing(ThingPtr&& thing) {
     _things.back()->state().subscribe([this, id](auto state) {
         if (state == Thing::State::Failed) {
             LOG_S(WARNING) << "thing completed: " << id;
-            std::erase_if(_things, [id](const auto& t) { return t->id() == id; });
-            _thingRemoved.get_subscriber().on_next(id);
+            // We must not directly delete this thing because thing itself might still process something.
+            _removableThings.insert(id);
         }
     });
 }
@@ -42,8 +50,10 @@ const ThingPtr& ThingsRepository::thingById(const std::string& id) const {
     const auto it = std::find_if(_things.begin(), _things.end(), [&](const auto& t) {
         return t->id() == id;
     });
-    static const ThingPtr noThing = nullptr;
-    return (it != _things.end()) ? *it : noThing;
+    static const ThingPtr noThing;
+    const ThingPtr& ret = (it != _things.end()) ? *it : noThing;
+    if (!ret) LOG_S(1) << "thing not found: " << id;
+    return ret;
 }
 
 const Thing* ThingsRepository::thingByHost(const std::string& host) const {

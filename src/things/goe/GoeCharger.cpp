@@ -23,29 +23,55 @@ GoeCharger::~GoeCharger() {
 }
 
 void GoeCharger::doSetProperty(MutableProperty property, const Value& value) {
-    if (property != MutableProperty::power_control) return;
+    if (_status != ThingStatus::waiting && _status != ThingStatus::charging) return;
 
-    _availablePower = std::get<double>(value);
+    switch (property) {
+    case MutableProperty::current:
+        std::visit([&](auto&& arg) {
+            using T = std::decay_t<decltype(arg)>;
+            if constexpr (std::is_same_v<T, double>) {
+                if (arg > 0.0) {
+                read(host() + "/api/set?psm=1"); // force 1 phase
+                read(host() + "/api/set?amp=" + std::to_string(std::clamp((int)std::round(arg), 6, 32)));
+                read(host() + "/api/set?frc=2"); // switch on
+                } else {
+                    read(host() + "/api/set?frc=1");
+                }
+            } else if constexpr (std::is_same_v<T, std::array<double, 3>>) {
+                read(host() + "/api/set?psm=2"); // force 3 phase
+                read(host() + "/api/set?amp=" + std::to_string(std::clamp((int)std::round(arg.front()), 6, 32)));
+                read(host() + "/api/set?frc=2");
+            }
+        }, value);
+        break;
+    //case MutableProperty::actuation:
+    //    read(host() + "/api/set?frc=" + (std::get<bool>(value) ? "2" : "1")); // switch on
+    //    break;
+    default:
+        break;
+    }
 }
 
 void GoeCharger::doRead() {
     // alw,car,eto,nrg,wh,trx,cards"
-    HttpThing::read(host() + "/api/status?filter=amp,nrg,psm,car"); // psm (for phases) and amp (for amps)
+    HttpThing::read(host() + "/api/status?filter=nrg,car"); // psm (for phases) and amp (for amps)
 }
 
 void GoeCharger::onRead(const QByteArray& response) {
     const auto doc = QJsonDocument::fromJson(response);
-    _amperage = doc["amp"].toInt();
     const auto nrg = doc["nrg"].toArray();
-    _voltage.at(0) = nrg.at(0).toInt();
-    _voltage.at(1) = nrg.at(1).toInt();
-    _voltage.at(2) = nrg.at(2).toInt();
-    _power = nrg.at(11).toDouble();
-    static int phases[] = { 0, 1, 3};
-    _phases = phases[doc["psm"].toInt()];
+    if (nrg.isEmpty()) return;
+
+    std::array<double, 3> voltage;
+    voltage.at(0) = nrg.at(0).toDouble();
+    voltage.at(1) = nrg.at(1).toDouble();
+    voltage.at(2) = nrg.at(2).toDouble();
+
+    _status = goe::toStatus(doc["car"].toInt());
 
     _propertiesSubject.get_subscriber().on_next({
-        { Property::status, static_cast<int>(goe::toStatus(doc["car"].toInt())) },
-        { Property::power, _power }
+        { Property::status, static_cast<int>(_status) },
+        { Property::power, nrg.at(11).toDouble() },
+        { Property::voltage, voltage }
     });
 }

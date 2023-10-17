@@ -3,6 +3,7 @@
 // Dart does not allow enum inheritance. However, every WritableThingProperty
 // shall also have corresponding value in ReadableThingProperty.
 enum ReadableThingProperty {
+  // custom properties - things
   type,
   name,
   icon,
@@ -10,11 +11,13 @@ enum ReadableThingProperty {
 
   temperature,
   power,
+  actuation,
   power_control,
+  // custom properties - strategies
   offset,
 
   status,
   events
 }
 
-enum WritableThingProperty { name, pinned, offset, power_control, is_visible }
+enum WritableThingProperty { name, pinned, offset, power_control }

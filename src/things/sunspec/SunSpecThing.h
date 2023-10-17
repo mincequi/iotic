@@ -31,9 +31,8 @@ public:
 
     bool isValid() const;
     bool hasCommonModel() const;
-    bool isSleeping() const;
 
-    void readModel(uint16_t modelId, uint32_t timestamp);
+    bool readModel(uint16_t modelId, uint32_t timestamp);
 
     void reset();
 
@@ -57,7 +56,7 @@ private:
     void onReadModelTable(QModbusReply* reply);
     void addModelAddress(uint16_t modelId, uint16_t startAddress, uint16_t length);
 
-    void readBlock(uint16_t modelId, uint16_t address, uint16_t size, uint32_t timestamp);
+    bool readBlock(uint16_t modelId, uint16_t address, uint16_t size, uint32_t timestamp);
     void onReadBlock(uint16_t modelId, uint32_t timestamp, QModbusReply* reply);
     void onReadBlockError(uint16_t modelId, QModbusReply* reply);
 
