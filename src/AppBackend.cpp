@@ -39,7 +39,7 @@ AppBackend::AppBackend()
 
 #ifdef USE_INFLUXDB
     // Setup InfluxExporter
-    const QString db = "elsewhere_" + util::getMacAddress().remove(':');
+    const QString db = "iotic_" + util::getMacAddress().remove(':');
     _influxExporter = InfluxExporter::build(db.toStdString())
                       .host("localhost")
                       .port(8086);

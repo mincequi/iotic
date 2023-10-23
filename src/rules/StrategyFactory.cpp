@@ -4,6 +4,7 @@
 
 #include <exprtk.hpp>
 #include <common/Logger.h>
+#include <common/OffsetTable.h>
 #include <config/Config.h>
 #include <strategies/EvseStrategy.h>
 #include <things/ThingsRepository.h>
@@ -45,7 +46,7 @@ std::unique_ptr<Strategy> StrategyFactory::from(const ThingPtr& thing) const {
     }
 
     if (_symbolTable.is_variable(thing->id() + ".offset")) {
-        thing->setProperty(MutableProperty::offset, 4.0);
+        thing->setProperty(MutableProperty::offset, defaultOffset);
     }
 
     return std::make_unique<GenericActuationStrategy<rpp::schedulers::new_thread>>(thing->id(), std::move(onExpression), std::move(offExpression));

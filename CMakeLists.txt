@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(elsewhere
-  VERSION 0.1.0
+project(iotic
+  VERSION 0.2.0
   LANGUAGES C CXX)
 
 include(FetchContent)
@@ -36,13 +36,13 @@ if(BUILD_TESTS)
   add_subdirectory(tests)
 endif()
 
-add_executable(elsewhere
+add_executable(iotic
   src/main.cpp
   src/AppBackend.cpp
   src/Statistics.cpp
 )
 
-target_link_libraries(elsewhere
+target_link_libraries(iotic
   Threads::Threads
   ${CMAKE_DL_LIBS}
   common
@@ -55,8 +55,9 @@ target_link_libraries(elsewhere
   webserver
 )
 
-install(TARGETS elsewhere DESTINATION bin)
-install(FILES ${PROJECT_SOURCE_DIR}/etc/elsewhere.conf DESTINATION /etc)
+install(TARGETS iotic DESTINATION bin)
+install(FILES ${PROJECT_SOURCE_DIR}/etc/iotic.conf DESTINATION /var/lib/iotic)
+install(FILES ${PROJECT_SOURCE_DIR}/debian/iotic.service DESTINATION /usr/lib/systemd/system)
 
 set(CPACK_GENERATOR "DEB")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Manuel Weichselbaumer <mincequi@web.de>") #required

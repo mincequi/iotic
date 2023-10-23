@@ -16,7 +16,7 @@ MqttExporter::MqttExporter(const std::string& host, uint16_t port, QObject *pare
     QObject::connect(&_client, &QMQTT::Client::error, this, &MqttExporter::onError);
     _client.connectToHost();
 
-    _topic = "elsewhere_" + util::getMacAddress().remove(':');
+    _topic = "iotic_" + util::getMacAddress().remove(':');
     LOG_S(INFO) << "host: " << host << ", topic: " << _topic;
 }
 

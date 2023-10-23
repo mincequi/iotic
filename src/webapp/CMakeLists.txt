@@ -3,7 +3,10 @@ FetchContent_Declare(cmakerc
   GIT_REPOSITORY    https://github.com/vector-of-bool/cmrc.git
   GIT_TAG           952ffddba731fc110bd50409e8d2b8a06abbd237
 )
-FetchContent_MakeAvailable(cmakerc)
+if(NOT cmakerc_POPULATED)
+    FetchContent_Populate(cmakerc)
+    add_subdirectory(${cmakerc_SOURCE_DIR} ${cmakerc_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
 
 include(${cmakerc_SOURCE_DIR}/CMakeRC.cmake)
 

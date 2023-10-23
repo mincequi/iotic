@@ -7,7 +7,11 @@ FetchContent_Declare(qmdns
     GIT_TAG        0ca80117e853671d909b3cec9e2bdcac85a13b9f # main from Jan 16, 2022
     GIT_PROGRESS TRUE
 )
-FetchContent_MakeAvailable(qmdns)
+if(NOT qmdns_POPULATED)
+    FetchContent_Populate(qmdns)
+    set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build SHARED libraries")
+    add_subdirectory(${qmdns_SOURCE_DIR} ${qmdns_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
 
 add_library(http STATIC
   HttpDiscovery.cpp

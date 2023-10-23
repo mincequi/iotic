@@ -75,7 +75,7 @@ void Config::parse() {
     }
 
     _discoveryInterval = std::chrono::milliseconds(_p->configTable["general"]["discovery_interval"].value_or(60000));
-    LOG_S(INFO) << "discovery_interval: " << _thingInterval.count() << "ms";
+    LOG_S(INFO) << "discovery_interval: " << _discoveryInterval.count() << "ms";
     _thingInterval = std::chrono::milliseconds(_p->configTable["general"]["thing_interval"].value_or(10000));
     LOG_S(INFO) << "thing_interval: " << _thingInterval.count() << "ms";
 

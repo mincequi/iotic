@@ -91,7 +91,7 @@ private:
     static inline Config* _instance = nullptr;
     const ThingsRepository& _thingsRepository;
 
-    std::string _configFile = "/etc/elsewhere.conf";
+    std::string _configFile = "/var/lib/iotic/iotic.conf";
 
     class Impl;
     std::unique_ptr<Impl> _p;

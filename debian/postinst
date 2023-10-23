@@ -1,15 +1,17 @@
 #!/bin/sh
 
+#https://stackoverflow.com/questions/71066592/how-to-correctly-add-a-systemd-service-to-a-cpack-generated-debian-package
+
 set -e
 
 case "$1" in
     configure)
-    # create elsewhere user if not there already
-    if ! getent passwd elsewhere >/dev/null; then
-        adduser --disabled-password --quiet --system --home /var/lib/elsewhere --group elsewhere
+    # create iotic user if not there already
+    if ! getent passwd iotic >/dev/null; then
+        adduser --disabled-password --quiet --system --home /var/lib/iotic --group iotic
     fi
-    chown elsewhere:elsewhere /var/lib/elsewhere
-    rm -rf /var/lib/elsewhere/* > /dev/null 2>&1 || true
+    chown -R iotic:iotic /var/lib/iotic
+    #rm -rf /var/lib/iotic/* > /dev/null 2>&1 || true
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

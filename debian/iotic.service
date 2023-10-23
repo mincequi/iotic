@@ -1,0 +1,12 @@
+[Unit]
+Description=Iotic service
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/iotic
+User=iotic
+Group=iotic
+
+[Install]
+WantedBy=multi-user.target
