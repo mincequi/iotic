@@ -70,9 +70,12 @@ Site::Site(const ThingsRepository& thingsRepository) {
         const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
         return Site::SiteData { (int)seconds, pvPower, gridPower, -pvPower - gridPower };
     }, _gridPower.get_observable())
-    .debounce(std::chrono::milliseconds(cfg->valueOr<int>("site", Config::Key::debounce, 500)), rpp::schedulers::new_thread{})
+    .debounce(std::chrono::milliseconds(cfg->valueOr<int>("site", Config::Key::debounce, 400)), rpp::schedulers::new_thread{})
     .observe_on(rppqt::schedulers::main_thread_scheduler{})
     .subscribe(_siteDataSubject.get_subscriber());
+
+    // Init Inverter
+    _pvPower.get_subscriber().on_next(0);
 }
 
 Site::~Site() {

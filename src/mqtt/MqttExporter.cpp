@@ -44,7 +44,7 @@ void MqttExporter::exportLiveData(const sunspec::SunSpecThing& thing, const suns
                            0,
                            true);
 
-    LOG_F(1, "publishing topic: {}, payload size: {} bytes", topic.toStdString().c_str(), ss.str().size());
+    //LOG_F(1, "publishing topic: {}, payload size: {} bytes", topic.toStdString().c_str(), ss.str().size());
     _client.publish(message);
 }
 
@@ -69,7 +69,7 @@ void MqttExporter::exportStatsData(const sunspec::SunSpecThing& thing, const sun
                            0,
                            true);
 
-    LOG_F(1, "publishing topic: {}, payload size: {} bytes", topic.toStdString().c_str(), ss.str().size());
+    //LOG_F(1, "publishing topic: {}, payload size: {} bytes", topic.toStdString().c_str(), ss.str().size());
     _client.publish(message);
 }
 

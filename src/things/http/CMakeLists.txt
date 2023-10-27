@@ -13,6 +13,17 @@ if(NOT qmdns_POPULATED)
     add_subdirectory(${qmdns_SOURCE_DIR} ${qmdns_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
+#set(LIFT_BUILD_EXAMPLES OFF)
+#set(LIFT_BUILD_TESTS OFF)
+#set(LIFT_USER_LINK_LIBRARIES uv)
+#FetchContent_Declare(lift
+#    URL   https://github.com/jbaldwin/liblifthttp/archive/refs/tags/v2022.1.tar.gz
+#)
+#if(NOT lift_POPULATED)
+#    FetchContent_Populate(lift)
+#    add_subdirectory(${lift_SOURCE_DIR} ${lift_BINARY_DIR} EXCLUDE_FROM_ALL)
+#endif()
+
 add_library(http STATIC
   HttpDiscovery.cpp
   HttpThing.cpp
@@ -22,9 +33,5 @@ target_link_libraries(http
 PUBLIC
   common
   qmdnsengine
+  #lifthttp
 )
-
-#target_include_directories(http
-#PUBLIC
-#  ../
-#)

@@ -25,20 +25,14 @@ std::unique_ptr<Strategy> EvseStrategy::from(const ThingPtr& thing) {
 
 EvseStrategy::EvseStrategy(const ThingPtr& thing) :
     Strategy(thing->id()) {
-    _phasesSubject.get_observable()
+    _wantsToSwitch.get_observable()
             .distinct_until_changed()
             .debounce(std::chrono::milliseconds(cfg->valueOr<int>(thing->id(), Config::Key::debounce, 300000)), rpp::schedulers::new_thread())
             .observe_on(rppqt::schedulers::main_thread_scheduler{})
-            .subscribe([this](const Phases& phases) {
-        _phasesState = phases;
+            .subscribe([this](bool wantsToSwitch) {
+        if (wantsToSwitch)
+            _phases = computePhases();
     });
-    //_isOnSubject.get_observable()
-    //        .distinct_until_changed()
-    //        .debounce(std::chrono::milliseconds(cfg->valueOr<int>(thing->id(), Config::Key::debounce, 300000)), rpp::schedulers::new_thread())
-    //        .observe_on(rppqt::schedulers::main_thread_scheduler{})
-    //        .subscribe([this](bool isOn) {
-    //    _isOnState = isOn;
-    //});
 
     thing->properties().subscribe([this](const std::map<Property, Value>& map) {
         for (const auto& kv : map) {
@@ -75,49 +69,48 @@ EvseStrategy::~EvseStrategy() {
 }
 
 void EvseStrategy::evaluate() {
-    // if _gridPower is not set yet.
+    // If _gridPower is not set yet, do nothing
     if (_gridPower == 0.0) return;
 
+    // Compute available power
     const double availablePower = _power - _gridPower + _offsetPower;
-    // Init _availablePower
-    if (_availablePower == 0.0) _availablePower = availablePower;
+    if (_shortTermAvailablePower == 0.0) _shortTermAvailablePower = availablePower;
+    if (_longTermAvailablePower == 0.0) _longTermAvailablePower = availablePower;
+    _shortTermAvailablePower += _shortTermAlpha * (availablePower - _shortTermAvailablePower);
+    _longTermAvailablePower += _longTermAlpha * (availablePower - _longTermAvailablePower);
 
-    _availablePower = (_availablePower + availablePower) / 2.0;
-    const double sumVoltage = std::reduce(_voltages.begin(), _voltages.end());
-    Phases phases = Phases::off;
-    bool isOn = false;
-    if (_availablePower > (6 * sumVoltage)) {
-        phases = Phases::three_phase;
-        isOn = true;
-    } else if (_availablePower > (6 * _voltages.front())) {
-        phases = Phases::single_phase;
-        isOn = true;
+    // Compute possible phases
+    const Phases phases = computePhases();
+    if (!_phases.has_value()) _phases = phases;
+
+    // If current phases differ, trigger switch subject
+    _wantsToSwitch.get_subscriber().on_next(_phases.value() != phases);
+
+    LOG_S(1) << thingId() << "> longTermAvailablePower: " << _longTermAvailablePower <<
+                ", shortTermAvailablePower: " << _shortTermAvailablePower;
+
+    // Set current
+    repo->setThingProperty(thingId(), MutableProperty::current, computeCurrent());
+}
+
+EvseStrategy::Phases EvseStrategy::computePhases() const {
+    if (_longTermAvailablePower > (6 * std::reduce(_voltages.begin(), _voltages.end()))) {
+        return Phases::three_phase;
+    } else if (_longTermAvailablePower > (6 * _voltages.front())) {
+        return Phases::single_phase;
     }
+    return Phases::off;
+}
 
-    // Set initial values
-    if (!_phasesState.has_value()) _phasesState = phases;
-    //if (!_isOnState.has_value()) _isOnState = isOn;
-
-    // Trigger subjects
-    _phasesSubject.get_subscriber().on_next(phases);
-    //_isOnSubject.get_subscriber().on_next(isOn);
-
-    // Emit
-    double amps = 0;
-    switch (_phasesState.value()) {
+Value EvseStrategy::computeCurrent() const {
+    switch (_phases.value()) {
     case Phases::single_phase:
-        amps = _availablePower / _voltages.front();
-        repo->setThingProperty(thingId(), MutableProperty::current, amps);
-        break;
-    case Phases::three_phase:
-        amps = _availablePower / sumVoltage;
-        repo->setThingProperty(thingId(), MutableProperty::current, std::array{ amps, amps, amps });
-        break;
-    default:
-        repo->setThingProperty(thingId(), MutableProperty::current, 0.0);
-        break;
+        return _shortTermAvailablePower / _voltages.front();
+    case Phases::three_phase: {
+        const double amps = _shortTermAvailablePower / std::reduce(_voltages.begin(), _voltages.end());
+        return std::array{ amps, amps, amps };
     }
-    LOG_S(INFO) << this->thingId() << "> { \"phases\": " << phases << ", \"amps\": " << amps << " }";
-    //repo->setThingProperty(thingId(), MutableProperty::actuation, _isOnState.value());
-    //LOG_S(INFO) << this->thingId() << "> { \"isOn\": " << _isOnState.value() << ", \"phases\": " << _phasesState.value() << ", \"amps\": " << amps << " }";
+    default:
+        return 0.0;
+    }
 }

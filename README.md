@@ -37,7 +37,7 @@ iotic implements several strategies to realize PC surplus charging of electric v
 
 # Requirements
 - C++17
-- Qt >= 6.4 Core Network SerialBus WebSockets HttpServer (not working with Qt5)
+- Qt >= 6.4 Core Network SerialBus HttpServer (not working with Qt5)
 - Flutter
 
 # Installation (Debian/Ubuntu)
@@ -45,6 +45,7 @@ iotic implements several strategies to realize PC surplus charging of electric v
 You need at least Bookworm (not working with Bullseye).
 Installation
 ```
+wget https://github.com/mincequi/iotic/releases/download/v0.2.0/iotic_0.2.0_armhf.deb
 sudo apt install ./iotic_0.2.0_armhf.deb
 ```
 Starting
@@ -65,8 +66,7 @@ sudo apt install \
   libqt6serialbus6-bin \
   qt6-httpserver-dev \
   qt6-serialbus-dev \
-  qt6-serialport-dev \
-  qt6-websockets-dev
+  qt6-serialport-dev
 
 sudo snap install flutter --classic
 flutter   # init flutter first

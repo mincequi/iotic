@@ -22,26 +22,32 @@ public:
     void setChargingData(const EvseData& data);
 
 private:
-    EvseStrategy(const ThingPtr& thing);
-
     enum class Phases {
         off = 0,
         single_phase = 1,
         three_phase = 3
     };
 
+    EvseStrategy(const ThingPtr& thing);
     void evaluate() override;
+
+    Phases computePhases() const;
+    Value computeCurrent() const;
 
     //EvseData _chargingData;
     double _power = 0;
     std::array<double, 3> _voltages;
     double _gridPower = 0;
     double _offsetPower = 0;
-    double _availablePower = 0.0;
+    // Short term is used for amperage
+    double _shortTermAvailablePower = 0.0;
+    double _shortTermAlpha = 2.0/3.0;
+    // Long term is used for phases
+    double _longTermAvailablePower = 0.0;
+    // alpha = 1 - e^{-deltaT/tau }
+    // deltaT = 2s, tau = 5minutes * 60seconds / 3tau(95%) / 2(correction)
+    double _longTermAlpha = 0.039210560847677;
 
-    rpp::subjects::publish_subject<Phases> _phasesSubject;
-    std::optional<Phases> _phasesState;
-
-    //rpp::subjects::publish_subject<bool> _isOnSubject;
-    //std::optional<bool> _isOnState;
+    rpp::subjects::publish_subject<bool> _wantsToSwitch;
+    std::optional<Phases> _phases;
 };

@@ -30,12 +30,12 @@ void GoeCharger::doSetProperty(MutableProperty property, const Value& value) {
         std::visit([&](auto&& arg) {
             using T = std::decay_t<decltype(arg)>;
             if constexpr (std::is_same_v<T, double>) {
-                if (arg > 0.0) {
-                read(host() + "/api/set?psm=1"); // force 1 phase
-                read(host() + "/api/set?amp=" + std::to_string(std::clamp((int)std::round(arg), 6, 32)));
-                read(host() + "/api/set?frc=2"); // switch on
-                } else {
+                if (arg == 0.0) {
                     read(host() + "/api/set?frc=1");
+                } else {
+                    read(host() + "/api/set?psm=1"); // force 1 phase
+                    read(host() + "/api/set?amp=" + std::to_string(std::clamp((int)std::round(arg), 6, 32)));
+                    read(host() + "/api/set?frc=2"); // switch on
                 }
             } else if constexpr (std::is_same_v<T, std::array<double, 3>>) {
                 read(host() + "/api/set?psm=2"); // force 3 phase

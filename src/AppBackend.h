@@ -19,7 +19,7 @@ using namespace sunspec;
 class AppBackend : public QObject {
     Q_OBJECT
 public:
-    AppBackend();
+    AppBackend(void* mainLoop);
 
 private:
     Statistics _stats;
@@ -29,5 +29,5 @@ private:
     MqttExporter _mqttExporter;
     //std::optional<InfluxExporter> _influxExporter;
     RulesEngine _rulesEngine;
-    WebServer _webSocketExporter;
+    WebServer _webServer;
 };

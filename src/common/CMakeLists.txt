@@ -41,6 +41,15 @@ if(NOT rpp_POPULATED)
     add_subdirectory(${rpp_SOURCE_DIR} ${rpp_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
+set(BUILD_UVW_LIBS ON)
+FetchContent_Declare(uvw
+  URL https://github.com/skypjack/uvw/archive/refs/tags/v3.2.0_libuv_v1.46.tar.gz
+)
+if(NOT uvw_POPULATED)
+    FetchContent_Populate(uvw)
+    add_subdirectory(${uvw_SOURCE_DIR} ${uvw_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
+
 add_library(common STATIC
   Logger.cpp
   Util.cpp
@@ -65,4 +74,5 @@ PUBLIC
   magic_enum
   rpp
   rppqt
+  uvw::uvw-static
 )
