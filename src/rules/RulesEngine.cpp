@@ -1,37 +1,30 @@
 #include "RulesEngine.h"
 
-#include <exprtk.hpp>
+#include <map>
+#include <tinyexpr.h>
 
+#include <common/Logger.h>
 #include <common/OffsetTable.h>
 #include <common/Util.h>
 #include <strategies/Strategy.h>
 #include <things/ThingsRepository.h>
 
-// TODO: for now our rules engine is based on exprtk. This might change.
-// Check https://caiorss.github.io/C-Cpp-Notes/embedded_scripting_languages.html
-static exprtk::symbol_table<double> s_primarySymbolTable;
+using namespace std::placeholders;
+
+RulesEngine* RulesEngine::instance() {
+    if (!_instance) _instance = new RulesEngine(*repo);
+    return _instance;
+}
 
 RulesEngine::RulesEngine(const ThingsRepository& thingsRepository) :
-    _thingsRepository(thingsRepository),
-    _strategyFactory(s_primarySymbolTable, thingsRepository) {
-
-    // Site specific variables
-    s_primarySymbolTable.create_variable(util::toString(Property::pv_power));
-    s_primarySymbolTable.create_variable(util::toString(Property::grid_power));
-    s_primarySymbolTable.create_variable(util::toString(Property::site_power));
-
+    _thingsRepository(thingsRepository) {
     _thingsRepository.site().properties().subscribe([this](const auto& prop) {
         for (const auto& kv : prop) {
             switch (kv.first) {
-            case Property::pv_power:
-            case Property::grid_power:
-            case Property::site_power: {
-                const std::string var = util::toString(kv.first);
-                s_primarySymbolTable.variable_ref(var) = toDouble(kv.second);
-                break;
-            }
-            default:
-                break;
+            case Property::pv_power:   _symbolTable["pv_power"] = std::get<double>(kv.second); break;
+            case Property::grid_power: _symbolTable["grid_power"] = std::get<double>(kv.second); break;
+            case Property::site_power: _symbolTable["site_power"] = std::get<double>(kv.second); break;
+            default: break;
             }
         }
         // After update of site, evaluate strategies
@@ -45,17 +38,14 @@ RulesEngine::RulesEngine(const ThingsRepository& thingsRepository) :
         // Each new thing might be a dependency for previous rules
         subscribeDependencies();
 
-        // Check if thing has rules
-        auto strategy = _strategyFactory.from(thing);
+        // Check if thing has strategies
+        auto strategy = StrategyFactory::from(thing);
         if (!strategy) return;
         _strategies.push_back(std::move(strategy));
 
         // Creating rule might have updated the symbol table
-        std::list<std::string> vars_;
-        s_primarySymbolTable.get_variable_list(vars_);
-        _subscribedVars = { vars_.begin(), vars_.end() };
-        for (const auto& v : vars_) {
-            addDependency(v.substr(0, v.find(".")));
+        for (const auto& kv : _symbolTable) {
+            addDependency(kv.first.substr(0, kv.first.find(".")));
         }
         addDependency(thing->id());
 
@@ -64,22 +54,63 @@ RulesEngine::RulesEngine(const ThingsRepository& thingsRepository) :
     });
 }
 
-RulesEngine::~RulesEngine() {
+bool RulesEngine::containsSymbol(const std::string& symbol) {
+    return _symbolTable.contains(symbol);
+}
+
+double RulesEngine::resolveSymbol(const std::string& symbol) {
+    LOG_S(INFO) << "resolveSymbol: " << symbol;
+    return _symbolTable[symbol];
+}
+
+std::unique_ptr<te_parser> RulesEngine::createParser(const std::string& expr) {
+    auto parser = std::make_unique<te_parser>();
+    parser->set_unknown_symbol_resolver([this](std::string_view symbol) {
+        return resolveSymbol(std::string(symbol));
+    }, false); // <- we must set false here for further usage of parser
+    if (!parser->compile(expr)) {
+        LOG_S(ERROR) << "error parsing expression: " << parser->get_last_error_message();
+        return {};
+    }
+
+    // We set the symbol table to the parser
+    for (const auto& kv : _symbolTable) {
+        auto var = std::string(kv.first);
+        LOG_S(1) << "add variable: " << var;
+        parser->add_variable_or_function({ var, &kv.second });
+    }
+    // We must recompile parser
+    parser->compile(expr);
+
+    return parser;
+}
+
+void RulesEngine::subscribeDependencies() {
+    for (auto it = _dependentThings.begin(); it != _dependentThings.end();) {
+        const auto& thing = _thingsRepository.thingById(std::string(*it));
+        if (thing) {
+            subscribe(thing);
+            it = _dependentThings.erase(it);
+            continue;
+        };
+        ++it;
+    }
 }
 
 void RulesEngine::subscribe(const ThingPtr& thing) {
     if (_subscribedThings.contains(thing->id())) return;
 
+    LOG_S(INFO) << "subscribe to dependent thing: " << thing->id();
     thing->properties().subscribe([this, &thing](const std::map<Property, Value>& prop) {
         for (const auto& kv : prop) {
             const std::string var = thing->id() + "." + util::toString(kv.first);
-            if (_subscribedVars.contains(var)) {
+            if (_symbolTable.contains(var)) {
                 switch (kv.first) {
                 case Property::offset:
-                    s_primarySymbolTable.variable_ref(var) = offsetTable[std::get<double>(kv.second)];
+                    _symbolTable[var] = offsetTable[std::get<double>(kv.second)];
                     break;
                 default:
-                    s_primarySymbolTable.variable_ref(var) = toDouble(kv.second);
+                    _symbolTable[var] = toDouble(kv.second);
                     break;
                 }
             }
@@ -92,16 +123,4 @@ void RulesEngine::addDependency(const std::string& id) {
     if (_subscribedThings.contains(id)) return;
 
     _dependentThings.insert(id);
-}
-
-void RulesEngine::subscribeDependencies() {
-    for (auto it = _dependentThings.begin(); it != _dependentThings.end();) {
-        const auto& thing = _thingsRepository.thingById(*it);
-        if (thing) {
-            subscribe(thing);
-            it = _dependentThings.erase(it);
-            continue;
-        };
-        ++it;
-    }
 }

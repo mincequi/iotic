@@ -1,34 +1,45 @@
 #pragma once
 
 #include <list>
+#include <map>
 #include <memory>
 #include <set>
+#include <string>
 
 #include <rules/StrategyFactory.h>
+#include <things/Thing.h>
 
 class Strategy;
 class ThingsRepository;
+class te_parser;
 
-/**
- * @brief The RulesEngine class
- */
+#define rules RulesEngine::instance()
+
 class RulesEngine {
 public:
-    RulesEngine(const ThingsRepository& thingsRepository);
-    ~RulesEngine();
+    static RulesEngine* instance();
+
+    bool containsSymbol(const std::string& symbol);
+    double resolveSymbol(const std::string& symbol);
+
+    std::unique_ptr<te_parser> createParser(const std::string& expr);
 
 private:
-    // TODO: this does not work: raw pointer gets invalidated from time to time
-    //void subscribe(const Thing* thing);
-    // Using const ThingPtr& instead works.
+    RulesEngine(const ThingsRepository& thingsRepository);
+
+    void subscribeDependencies();
     void subscribe(const ThingPtr& thing);
     void addDependency(const std::string& id);
-    void subscribeDependencies();
+
+    static inline RulesEngine* _instance = nullptr;
 
     const ThingsRepository& _thingsRepository;
-    StrategyFactory _strategyFactory;
+
+    std::map<std::string, double> _symbolTable;
+
     std::list<std::unique_ptr<Strategy>> _strategies;
     std::set<std::string> _dependentThings;
     std::set<std::string> _subscribedThings;
-    std::set<std::string> _subscribedVars;
+
+    friend class TestUtil;
 };

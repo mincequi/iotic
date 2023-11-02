@@ -58,7 +58,7 @@ void Thing::setProperty(MutableProperty property, const Value& value) {
     // Reflect changes back (to other clients as well).
     const auto property_ = magic_enum::enum_cast<Property>(magic_enum::enum_integer(property));
     LOG_IF_S(FATAL, !property_.has_value()) << util::toString(property) << " has no readable correspondent";
-    LOG_S(INFO) << id() << ".setProperty> " << util::toString(property_.value()) << ": " << value;
+    LOG_S(1) << id() << ".setProperty> " << util::toString(property_.value()) << ": " << value;
     _propertiesSubject.get_subscriber().on_next({{ property_.value(), value }});
 }
 

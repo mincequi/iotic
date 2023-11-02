@@ -1,7 +1,9 @@
 #include "TestUtil.h"
 
 #include <common/Util.h>
-#include <rules/GenericActuationStrategy.h>
+#include <config/Config.h>
+#include <rules/RuleActuationStrategy.h>
+#include <rules/RulesEngine.h>
 #include <rules/test_scheduler.hpp>
 #include <things/ThingsRepository.h>
 
@@ -17,7 +19,15 @@ public:
 };
 
 TestUtil::TestUtil() {
-    _parser.enable_unknown_symbol_resolver();
+}
+
+void TestUtil::createThing(const std::string& id) {
+    const auto& thing = repo->thingById(id);
+    if (!thing) {
+        ThingInfo thingInfo(ThingInfo::DiscoveryType::Http, id, id);
+        auto t = std::make_unique<TestThing>(thingInfo);
+        repo->addThing(std::move(t));
+    }
 }
 
 void TestUtil::setProperty(const std::string& id, Property property, const Value& value) {
@@ -30,32 +40,9 @@ void TestUtil::setProperty(const std::string& id, Property property, const Value
     const auto testThing = (TestThing*)(repo->thingById(id).get());
     testThing->setProperty(property, value);
     const std::string var = id + "." + util::toString(property);
-    _symbolTable.variable_ref(var) = toDouble(value);
+    rules->_symbolTable[var] = toDouble(value);
 }
 
-void TestUtil::setOnOffRule(const std::string& id,
-                            const std::string& onExpressionStr,
-                            const std::string& offExpressionStr) {
-
-    auto onExpression = std::make_unique<exprtk::expression<double>>();
-    onExpression->register_symbol_table(_symbolTable);
-    if (!_parser.compile(onExpressionStr, *onExpression)) {
-        return;
-    }
-
-    auto offExpression = std::make_unique<exprtk::expression<double>>();
-    offExpression->register_symbol_table(_symbolTable);
-    if (!_parser.compile(offExpressionStr, *offExpression)) {
-        return;
-    }
-
-    _onOffRule = std::make_unique<GenericActuationStrategy<test_scheduler>>(id, std::move(onExpression), std::move(offExpression));
-}
-
-const ThingPtr& TestUtil::thingById(const std::string& id) const {
-    return repo->thingById(id);
-}
-
-Strategy* TestUtil::onOffRule() const {
-    return _onOffRule.get();
+double TestUtil::symbol(const std::string& id) {
+    return rules->_symbolTable[id];
 }

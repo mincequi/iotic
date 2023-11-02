@@ -82,6 +82,8 @@ public:
         return _thingInterval;
     }
 
+    bool _testing = false;
+
 private:
     Config(const ThingsRepository& thingsRepository);
 

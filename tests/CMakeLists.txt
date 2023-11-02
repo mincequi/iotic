@@ -2,8 +2,8 @@ find_package(Catch2 REQUIRED)
 
 add_executable(tests
   #RppTest.cpp
-  CppTest.cpp
-  #RulesTest.cpp
+  #CppTest.cpp
+  RulesTest.cpp
   TestUtil.cpp
 )
 

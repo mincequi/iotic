@@ -1,24 +1,22 @@
 include(FetchContent)
-FetchContent_Declare(exprtk
-    URL    https://github.com/ArashPartow/exprtk/archive/refs/tags/0.0.2.tar.gz
+
+FetchContent_Declare(tinyexpr
+    GIT_REPOSITORY    https://github.com/Blake-Madden/tinyexpr-plusplus.git
+    GIT_TAG           f0038215766c79e295d9bd6daa8da7c15a8e952b
 )
-FetchContent_MakeAvailable(exprtk)
-if(NOT exprtk_POPULATED)
-    FetchContent_Populate(exprtk)
-    add_subdirectory(${exprtk_SOURCE_DIR} ${exprtk_BINARY_DIR} EXCLUDE_FROM_ALL)
-endif()
+FetchContent_MakeAvailable(tinyexpr)
 
 add_library(rules STATIC
-  GenericActuationStrategy.cpp
-  StrategyFactory.cpp
+  RuleActuationStrategy.cpp
   RulesEngine.cpp
-  #test_schedulers.cpp
+  StrategyFactory.cpp
+  ${tinyexpr_SOURCE_DIR}/tinyexpr.cpp
 )
 
 target_include_directories(rules
 PUBLIC
   ../
-  ${exprtk_SOURCE_DIR}
+  ${tinyexpr_SOURCE_DIR}
 )
 
 target_link_libraries(rules

@@ -4,8 +4,6 @@
 
 #include <magic_enum.hpp>
 
-#include <rpp/subjects/publish_subject.hpp>
-
 #include <strategies/Strategy.h>
 #include <things/Thing.h>
 
@@ -44,6 +42,7 @@ private:
     double _shortTermAlpha = 2.0/3.0;
     // Long term is used for phases
     double _longTermAvailablePower = 0.0;
+    // https://en.wikipedia.org/wiki/Time_constant
     // alpha = 1 - e^{-deltaT/tau }
     // deltaT = 2s, tau = 5minutes * 60seconds / 3tau(95%) / 2(correction)
     double _longTermAlpha = 0.039210560847677;

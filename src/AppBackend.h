@@ -4,10 +4,8 @@
 
 //#include <influx/InfluxExporter.h>
 #include <mqtt/MqttExporter.h>
-#include <rules/RulesEngine.h>
 #include <things/ThingsManager.h>
 #include <things/ThingsRepository.h>
-#include <things/http/HttpDiscovery.h>
 #include <things/sunspec/SunSpecManager.h>
 #include <webserver/WebServer.h>
 
@@ -28,6 +26,5 @@ private:
     sunspec::SunSpecManager _sunSpecManager;
     MqttExporter _mqttExporter;
     //std::optional<InfluxExporter> _influxExporter;
-    RulesEngine _rulesEngine;
     WebServer _webServer;
 };

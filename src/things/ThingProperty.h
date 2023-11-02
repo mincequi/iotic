@@ -11,6 +11,8 @@ enum class Property {
     grid_power = 3213,
     site_power = 3214,
     // custom properties - things
+    //on = 3218,
+    //off = 3219,
     name = 3220,
     pinned = 3221,
     status = 3222,

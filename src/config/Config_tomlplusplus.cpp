@@ -62,6 +62,8 @@ void Config::setValue(const std::string& table, Property key, const Value& value
         }
     }, value);
 
+    if (_testing) return;
+
     std::ofstream configFile;
     configFile.open(_configFile);
     configFile << _p->configTable;

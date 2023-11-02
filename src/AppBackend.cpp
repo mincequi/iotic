@@ -2,6 +2,7 @@
 
 #include <config/Config.h>
 #include <common/Util.h>
+#include <rules/RulesEngine.h>
 #include <things/sunspec/SunSpecLogger.h>
 #include <things/sunspec/SunSpecModel.h>
 
@@ -15,8 +16,9 @@ AppBackend::AppBackend(void* mainLoop)
       _thingsManager(*_thingsRepository),
       _sunSpecManager(*_thingsRepository),
       _mqttExporter("broker.hivemq.com"),
-      _rulesEngine(*_thingsRepository),
       _webServer(mainLoop, *_thingsRepository) {
+    // We define order of singleton instantiations here.
+    rules;
 
     // Setup Statistics
     QObject::connect(&_stats, &Statistics::statsChanged, [&](const sunspec::SunSpecThing& thing, const sunspec::StatsModel& model) {
