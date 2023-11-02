@@ -1,11 +1,12 @@
 include(FetchContent)
+
 FetchContent_Declare(cmakerc
   GIT_REPOSITORY    https://github.com/vector-of-bool/cmrc.git
   GIT_TAG           952ffddba731fc110bd50409e8d2b8a06abbd237
 )
 if(NOT cmakerc_POPULATED)
-    FetchContent_Populate(cmakerc)
-    add_subdirectory(${cmakerc_SOURCE_DIR} ${cmakerc_BINARY_DIR} EXCLUDE_FROM_ALL)
+  FetchContent_Populate(cmakerc)
+  add_subdirectory(${cmakerc_SOURCE_DIR} ${cmakerc_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
 include(${cmakerc_SOURCE_DIR}/CMakeRC.cmake)
@@ -20,20 +21,16 @@ include(${cmakerc_SOURCE_DIR}/CMakeRC.cmake)
 #  COMMAND flutter build web --web-renderer html --no-tree-shake-icons
 #)
 
-file(GLOB_RECURSE webapp_src
-  "build/web/*.bin"
-  "build/web/*.frag"
-  "build/web/*.html"
-  "build/web/*.ico"
-  "build/web/*.js"
-  "build/web/*.json"
-  "build/web/*.otf"
-  "build/web/*.png"
-  "build/web/*.wasm"
-)
-
 cmrc_add_resource_library(webapp WHENCE build/web
-  ${webapp_src}
+  build/web/favicon.png
+  build/web/flutter.js
+  build/web/flutter_service_worker.js
+  build/web/index.html
+  build/web/main.dart.js
+  build/web/manifest.json
+  build/web/assets/FontManifest.json
+  build/web/assets/fonts/MaterialIcons-Regular.otf
+  build/web/icons/Icon-192.png
 )
 
 #add_custom_command(TARGET webapp

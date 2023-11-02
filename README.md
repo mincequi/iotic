@@ -37,7 +37,7 @@ iotic implements several strategies to realize PC surplus charging of electric v
 
 # Requirements
 - C++17
-- Qt >= 6.4 Core Network SerialBus HttpServer (not working with Qt5)
+- Qt >= 6.4 Core Network SerialBus (not working with Qt5)
 - Flutter
 
 # Installation (Debian/Ubuntu)
@@ -64,7 +64,6 @@ sudo apt install \
   snapd \
   libcurl4-openssl-dev \
   libqt6serialbus6-bin \
-  qt6-httpserver-dev \
   qt6-serialbus-dev \
   qt6-serialport-dev
 

@@ -1,5 +1,3 @@
-find_package(Qt6 REQUIRED COMPONENTS HttpServer)
-
 FetchContent_Declare(uws
   URL           https://github.com/uNetworking/uWebSockets/archive/refs/tags/v20.47.0.tar.gz
   GIT_PROGRESS  TRUE
@@ -26,6 +24,7 @@ PRIVATE
   -DLIBUS_NO_SSL
   -DLIBUS_USE_LIBUV
   -DUWS_NO_ZLIB
+  -DCMRC_NO_EXCEPTIONS
 )
 
 target_include_directories(webserver
@@ -35,8 +34,6 @@ PRIVATE
 )
 
 target_link_libraries(webserver
-PUBLIC
-  Qt6::HttpServer
 PRIVATE
   things
   webapp

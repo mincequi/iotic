@@ -1,7 +1,6 @@
 #include "WebServer.h"
 
 #include <App.h>
-#include <QHttpServer>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -15,29 +14,8 @@ CMRC_DECLARE(webapp);
 
 WebServer::WebServer(void* mainLoop,
                      const ThingsRepository& thingsRepository) :
-    _thingsRepository(thingsRepository),
-    _httpServer(new QHttpServer()) {
-
+    _thingsRepository(thingsRepository) {
     _fs = std::make_unique<cmrc::embedded_filesystem>(cmrc::webapp::get_filesystem());
-
-    _httpServer->route("/", [this]() {
-        auto f = _fs->open("index.html");
-        return QHttpServerResponse(f.begin());
-    });
-    _httpServer->route("/<arg>", [this](const QUrl& url) {
-        const auto fileName = url.path().toStdString();
-        if (!_fs->exists(fileName)) {
-            LOG_S(ERROR) << "file not found: " << fileName;
-            return QHttpServerResponse(QHttpServerResponse::StatusCode::NotFound);
-        }
-        auto f = _fs->open(fileName);
-        return QHttpServerResponse(QByteArray(f.begin(), f.end()-f.begin()));
-    });
-    auto httpPort = _httpServer->listen(QHostAddress::Any, 8030);
-    if (httpPort == 0) {
-        LOG_S(FATAL) << "port 8030 already in use";
-    }
-
     uWS::Loop::get(mainLoop);
     struct UserData {};
     uWS::App::WebSocketBehavior<UserData> behavior;
@@ -85,18 +63,28 @@ WebServer::WebServer(void* mainLoop,
     };
 
     _uwsApp = std::make_unique<uWS::App>();
-    _uwsApp->ws<UserData>("/ws", std::move(behavior)).listen(httpPort+1, [](auto* listenSocket) {
+    _uwsApp->get("/", [this](uWS::HttpResponse<false>* res, auto* req) {
+        auto f = _fs->open("index.html");
+        res->end(std::string_view(f.begin(), f.end()-f.begin()));
+    });
+    _uwsApp->get("/*", [this](uWS::HttpResponse<false>* res, uWS::HttpRequest* req) {
+        const auto fileName = std::string(req->getUrl());
+        LOG_S(INFO) << "get> " << fileName;
+
+        if (!_fs->exists(fileName)) {
+            LOG_S(ERROR) << "file not found: " << fileName;
+            res->end("file not found: " + fileName);
+            return;
+        }
+        auto f = _fs->open(fileName);
+        res->end(std::string_view(f.begin(), f.end()-f.begin()));
+    });
+    _uwsApp->ws<UserData>("/ws", std::move(behavior)).listen(8030, [](auto* listenSocket) {
         if (!listenSocket) {
-            LOG_S(FATAL) << "port 8031 already in use";
+            LOG_S(FATAL) << "port 8030 already in use";
         }
     });
 
-    /*
-    MoveOnlyFunction<void(HttpResponse<SSL> *, HttpRequest *, struct us_socket_context_t *)> upgrade = nullptr;
-    MoveOnlyFunction<void(WebSocket<SSL, true, UserData> *)> drain = nullptr;
-    MoveOnlyFunction<void(WebSocket<SSL, true, UserData> *, std::string_view, int, int)> subscription = nullptr;
-    MoveOnlyFunction<void(WebSocket<SSL, true, UserData> *, int, std::string_view)> close = nullptr;
-    */
     _thingsRepository.site().properties().subscribe([this](const auto& props) {
         QJsonObject siteProperties;
         for (const auto& p : props) {
@@ -134,7 +122,6 @@ WebServer::WebServer(void* mainLoop,
 }
 
 WebServer::~WebServer() {
-    _httpServer->deleteLater();
 }
 
 std::string WebServer::serializeUserProperties(const ThingPtr& t) {
