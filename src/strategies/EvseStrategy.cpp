@@ -13,6 +13,7 @@
 #include <common/Logger.h>
 #include <common/OffsetTable.h>
 #include <config/Config.h>
+#include <things/Site.h>
 #include <things/ThingsRepository.h>
 
 std::unique_ptr<Strategy> EvseStrategy::from(const ThingPtr& thing) {
@@ -52,7 +53,7 @@ EvseStrategy::EvseStrategy(const ThingPtr& thing) :
         }
     });
 
-    repo->site().properties().subscribe([this](const std::map<Property, Value>& map) {
+    _site->properties().subscribe([this](const std::map<Property, Value>& map) {
         for (const auto& kv : map) {
             switch (kv.first) {
             case Property::grid_power:
@@ -76,8 +77,8 @@ void EvseStrategy::evaluate() {
     const double availablePower = _power - _gridPower + _offsetPower;
     if (_shortTermAvailablePower == 0.0) _shortTermAvailablePower = availablePower;
     if (_longTermAvailablePower == 0.0) _longTermAvailablePower = availablePower;
-    _shortTermAvailablePower += _shortTermAlpha * (availablePower - _shortTermAvailablePower);
-    _longTermAvailablePower += _longTermAlpha * (availablePower - _longTermAvailablePower);
+    _shortTermAvailablePower += cfg->evseAlpha() * (availablePower - _shortTermAvailablePower);
+    _longTermAvailablePower += cfg->evseBeta() * (availablePower - _longTermAvailablePower);
 
     // Compute possible phases
     const Phases phases = computePhases();
@@ -86,7 +87,8 @@ void EvseStrategy::evaluate() {
     // If current phases differ, trigger switch subject
     _wantsToSwitch.get_subscriber().on_next(_phases.value() != phases);
 
-    LOG_S(1) << thingId() << "> longTermAvailablePower: " << _longTermAvailablePower <<
+    LOG_S(1) << thingId() <<
+                "> longTermAvailablePower: " << _longTermAvailablePower <<
                 ", shortTermAvailablePower: " << _shortTermAvailablePower;
 
     // Set current

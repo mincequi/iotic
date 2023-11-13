@@ -1,26 +1,21 @@
 #include "ThingsRepository.h"
 
 #include <common/Logger.h>
+#include <things/Site.h>
 
 ThingsRepository* ThingsRepository::instance() {
     if (!_instance) _instance = new ThingsRepository();
     return _instance;
 }
 
-ThingsRepository::ThingsRepository() :
-    _site(*this) {
-
-    // Use site update as pulse generator to clean up things
-    _site.properties().subscribe([this](const auto&) {
-        std::erase_if(_things, [this](const auto& t) {
-            return _removableThings.contains(t->id());
-        });
-        _removableThings.clear();
-    });
+ThingsRepository::ThingsRepository() {
 }
 
-const Site& ThingsRepository::site() const {
-    return _site;
+void ThingsRepository::update() {
+    std::erase_if(_things, [this](const auto& t) {
+        return _removableThings.contains(t->id());
+    });
+    _removableThings.clear();
 }
 
 void ThingsRepository::addThing(ThingPtr&& thing) {
@@ -41,6 +36,7 @@ void ThingsRepository::addThing(ThingPtr&& thing) {
         if (state == Thing::State::Failed) {
             LOG_S(WARNING) << "thing completed: " << id;
             // We must not directly delete this thing because thing itself might still process something.
+            _thingRemoved.get_subscriber().on_next(id);
             _removableThings.insert(id);
         }
     });

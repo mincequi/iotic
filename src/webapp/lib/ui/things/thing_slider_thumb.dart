@@ -60,14 +60,14 @@ class ThingSliderThumb extends SliderComponentShape {
     final _rect = RRect.fromRectAndRadius(
       Rect.fromCenter(
           center: center, width: thumbRadius * 4.0, height: thumbRadius * 2.0),
-      Radius.circular(thumbRadius),
+      Radius.circular(thumbRadius - 4.0),
     );
     final _shadow = RRect.fromRectAndRadius(
       Rect.fromCenter(
           center: Offset(center.dx + 1.5, center.dy + 1.5),
           width: thumbRadius * 4.0,
           height: thumbRadius * 2.0),
-      Radius.circular(thumbRadius),
+      Radius.circular(thumbRadius - 4.0),
     );
     canvas.drawRRect(_shadow, Paint());
     canvas.drawRRect(_rect, paint);

@@ -6,13 +6,13 @@ import '../../data/repository.dart';
 import '../../data/thing_property.dart';
 
 class ThingCard extends StatelessWidget {
-  late final _control = Get.put(ThingCardController(_id), tag: _id);
-
   ThingCard(this._id, {this.isPinnedCard = false, super.key}) {
     _editingController = TextEditingController(text: _control.name.value);
   }
 
   final String _id;
+  late final _control = Get.put(ThingCardController(_id), tag: _id);
+
   final bool isPinnedCard;
 
   final _repo = Get.find<Repository>();
@@ -64,10 +64,6 @@ class ThingCard extends StatelessWidget {
     if (isPinnedCard) {
       return _control.isOn.value != null
           ? Switch(
-              trackOutlineColor: MaterialStateColor.resolveWith(
-                  (states) => Colors.transparent),
-              trackOutlineWidth:
-                  MaterialStateProperty.resolveWith((states) => 1.5),
               value: _control.isOn.value!,
               onChanged: (value) {
                 _repo.set(_id, WritableThingProperty.power_control, value);

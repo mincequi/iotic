@@ -19,6 +19,7 @@ enum class Property {
     events = 3223,
     // custom properties - strategies
     offset = 3226,
+    thing_interval = 3227,
     // ipso properties
     generic_sensor = 3300,
     temperature = 3303,
@@ -51,6 +52,8 @@ enum class MutableProperty {
     pinned = 3221,
     // custom properties - strategies
     offset = 3226,
+    thing_interval = 3227,
+
     // ipso properties
     actuation = 3306,
     power_control = 3312,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get_core/get_core.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:iotic/ui/pages/historic.dart';
+import 'package:iotic/ui/settings/settings_page.dart';
 import 'package:iotic/ui/site/site_page.dart';
 import 'package:iotic/ui/things/things_page.dart';
 
@@ -17,7 +17,8 @@ class Home extends StatelessWidget {
     SitePage(),
     //const Live(),
     ThingsPage(),
-    const Historic(),
+    SettingsPage()
+    //const Historic(),
   ];
 
   @override
@@ -33,7 +34,10 @@ class Home extends StatelessWidget {
         backgroundColor: Colors.transparent,
         title: const Text("this is iotic"),
       ),
-      body: SafeArea(child: Obx(() => _pages[c.currentPage.value])),
+      body: SafeArea(
+          child: Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8),
+              child: Obx(() => _pages[c.currentPage.value]))),
       bottomNavigationBar: Padding(
           padding: const EdgeInsets.only(bottom: 34),
           child: Obx(() => MyBottomNavigationBar(c.currentPage.value))),

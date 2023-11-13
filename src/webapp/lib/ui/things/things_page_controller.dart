@@ -6,14 +6,14 @@ import 'package:get/get_state_manager/get_state_manager.dart';
 import '../../data/repository.dart';
 
 class ThingsPageController extends GetxController {
-  var thingIds = <String>{};
   final thingCount = 0.obs;
+  var thingIds = <String>{};
 
   @override
   void onReady() {
-    _repo.things.listen((p0) {
-      thingCount.value = p0.length;
-      thingIds = p0.keys.toSet();
+    _repo.things.listen((things) {
+      thingCount.value = things.length;
+      thingIds = things.keys.toSet();
     });
     super.onReady();
   }

@@ -40,11 +40,6 @@ class ThingsRepository;
 
 class Config {
 public:
-    // These are persistent thing properties
-    enum class KeyMutable {
-        name,
-    };
-
     enum class Key {
         name,
         pinned,
@@ -54,16 +49,7 @@ public:
         debounce
     };
 
-    static inline void init(const ThingsRepository& thingsRepository) {
-        if (_instance) return;
-
-        _instance = new Config(thingsRepository);
-    }
-
-    static inline Config* instance() {
-        return _instance;
-    }
-    virtual ~Config();
+    static Config* instance();
 
     template<class T>
     T valueOr(const std::string& table, Key key, T fallback = {}) const;
@@ -78,29 +64,31 @@ public:
     inline std::chrono::milliseconds discoveryInterval() const {
         return _discoveryInterval;
     }
-    inline std::chrono::milliseconds thingInterval() const {
-        return _thingInterval;
-    }
+    void setThingInterval(int seconds);
+    std::chrono::milliseconds thingInterval() const;
+
+    void setEvseTau(double tau);
+    double evseAlpha() const;
+    double evseBeta() const;
+    double evsePhi() const;
 
     bool _testing = false;
 
 private:
-    Config(const ThingsRepository& thingsRepository);
+    Config();
 
     void parse();
 
 private:
     static inline Config* _instance = nullptr;
-    const ThingsRepository& _thingsRepository;
 
     std::string _configFile = "/var/lib/iotic/iotic.conf";
 
-    class Impl;
+    struct Impl;
     std::unique_ptr<Impl> _p;
 
     std::set<std::string> _pvMeters;
     std::string _gridMeter;
 
     std::chrono::milliseconds _discoveryInterval = 60000ms;
-    std::chrono::milliseconds _thingInterval = 10000ms;
 };

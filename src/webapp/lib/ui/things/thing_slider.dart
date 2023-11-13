@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iotic/ui/themes/iotic_theme.dart';
 import 'package:iotic/ui/things/thing_card_controller.dart';
 import 'package:iotic/ui/things/thing_slider_thumb.dart';
 import 'package:iotic/ui/things/thing_slider_track.dart';
@@ -9,6 +10,7 @@ import '../../data/thing_property.dart';
 
 class ThingSlider extends StatelessWidget {
   late final _control = Get.find<ThingCardController>(tag: _id);
+  //late final _control = Get.put(ThingCardController(_id));
   final _repo = Get.find<Repository>();
 
   ThingSlider(this._id, {super.key});
@@ -85,7 +87,7 @@ class ThingSlider extends StatelessWidget {
           height: 32,
           decoration: BoxDecoration(
             borderRadius: const BorderRadius.all(
-              Radius.circular(16.0),
+              Radius.circular(8.0),
             ),
             gradient: LinearGradient(
                 colors: [
@@ -109,31 +111,46 @@ class ThingSlider extends StatelessWidget {
                 ],
                 tileMode: TileMode.clamp),
           ),
-          child: SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                  trackHeight: 1.0,
-                  trackShape: ThingSliderTrack(),
-                  //activeTickMarkColor: Colors.transparent,
-                  //inactiveTickMarkColor: Colors.transparent,
-                  inactiveTrackColor: Colors.transparent,
-                  activeTrackColor: Colors.transparent,
-                  thumbShape: ThingSliderThumb(
-                    thumbRadius: 12.0,
-                    offsets: _offsets,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  )),
-              child: Slider(
-                  activeColor: _color(context),
-                  thumbColor: _color(context),
-                  //thumbColor: Theme.of(context).colorScheme.inversePrimary,
-                  max: (_offsets.length - 1).toDouble(),
-                  divisions: _offsets.length - 1,
-                  value: _control.offset.value!.toDouble(),
-                  //label: _offsets[_control.offset.value!.toInt()],
-                  onChanged: (value) {
-                    _control.offset.value = value.round();
-                    _repo.set(_id, WritableThingProperty.offset, value);
-                  })))
+          child: Stack(children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: Container(
+                  padding: EdgeInsets.only(right: 12),
+                  child: Text("PV OFFSET",
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                          letterSpacing: -4.0,
+                          fontSize: 46,
+                          height: 0.67,
+                          fontWeight: FontWeight.w900,
+                          color: IoticTheme.other))),
+            ),
+            SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                    trackHeight: 1.0,
+                    trackShape: ThingSliderTrack(),
+                    //activeTickMarkColor: Colors.transparent,
+                    //inactiveTickMarkColor: Colors.transparent,
+                    inactiveTrackColor: Colors.transparent,
+                    activeTrackColor: Colors.transparent,
+                    thumbShape: ThingSliderThumb(
+                      thumbRadius: 12.0,
+                      offsets: _offsets,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    )),
+                child: Slider(
+                    activeColor: _color(context),
+                    thumbColor: _color(context),
+                    //thumbColor: Theme.of(context).colorScheme.inversePrimary,
+                    max: (_offsets.length - 1).toDouble(),
+                    divisions: _offsets.length - 1,
+                    value: _control.offset.value!.toDouble(),
+                    //label: _offsets[_control.offset.value!.toInt()],
+                    onChanged: (value) {
+                      _control.offset.value = value.round();
+                      _repo.set(_id, WritableThingProperty.offset, value);
+                    }))
+          ]))
       : Container());
 
   final double _opacity = 0.5;

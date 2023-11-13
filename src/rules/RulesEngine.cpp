@@ -7,6 +7,7 @@
 #include <common/OffsetTable.h>
 #include <common/Util.h>
 #include <strategies/Strategy.h>
+#include <things/Site.h>
 #include <things/ThingsRepository.h>
 
 using namespace std::placeholders;
@@ -18,7 +19,7 @@ RulesEngine* RulesEngine::instance() {
 
 RulesEngine::RulesEngine(const ThingsRepository& thingsRepository) :
     _thingsRepository(thingsRepository) {
-    _thingsRepository.site().properties().subscribe([this](const auto& prop) {
+    _site->properties().subscribe([this](const auto& prop) {
         for (const auto& kv : prop) {
             switch (kv.first) {
             case Property::pv_power:   _symbolTable["pv_power"] = std::get<double>(kv.second); break;
@@ -51,6 +52,12 @@ RulesEngine::RulesEngine(const ThingsRepository& thingsRepository) :
 
         // Subscribe new thing and dependencies
         subscribeDependencies();
+    });
+
+    _thingsRepository.thingRemoved().subscribe([this](const auto& id) {
+        std::erase_if(_strategies, [&, this](const auto& t) {
+            return t->thingId() == id;
+        });
     });
 }
 

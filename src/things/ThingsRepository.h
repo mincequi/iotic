@@ -2,7 +2,6 @@
 
 #include <list>
 #include <set>
-#include <things/Site.h>
 #include <things/Thing.h>
 
 using rpp::subjects::publish_subject;
@@ -16,7 +15,7 @@ class ThingsRepository {
 public:
     static ThingsRepository* instance();
 
-    const Site& site() const;
+    void update();
 
     void addThing(ThingPtr&& thing);
     // According to: https://stackoverflow.com/questions/43400850/return-a-unique-ptr-by-reference
@@ -41,9 +40,8 @@ private:
 
     static inline ThingsRepository* _instance;
 
-    std::list<ThingPtr> _things;
-    std::set<std::string> _removableThings;
+    mutable std::list<ThingPtr> _things;
+    mutable std::set<std::string> _removableThings;
     publish_subject<ThingPtr> _thingAdded;
     publish_subject<std::string> _thingRemoved;
-    Site _site;
 };

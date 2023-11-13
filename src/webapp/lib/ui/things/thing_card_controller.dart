@@ -7,7 +7,7 @@ import 'package:iotic/ui/things/thing_property.dart';
 import 'package:iotic/ui/things/thing_util.dart';
 
 import '../../data/repository.dart';
-import '../../data/thing_live_data.dart';
+import '../../data/properties.dart';
 import '../../data/thing_property.dart';
 
 class ThingCardController extends GetxController {
@@ -24,7 +24,6 @@ class ThingCardController extends GetxController {
   final offset = Rxn<int>();
   final status = Rxn<IconData>();
 
-  final readableProperties = <ReadableThingProperty, dynamic>{}.obs;
   final propertyWidgets = <ReadableThingProperty, ThingProperty>{}.obs;
 
   @override
@@ -43,7 +42,7 @@ class ThingCardController extends GetxController {
     super.onClose();
   }
 
-  void assignProperties(Map<String, ThingLiveData> props) {
+  void assignProperties(Map<String, Properties> props) {
     var p0 = props[_id]?.properties;
     if (p0 == null) return;
 
@@ -86,8 +85,6 @@ class ThingCardController extends GetxController {
       propertyWidgets[ReadableThingProperty.temperature] =
           ThingProperty(Icons.thermostat, p, '°C');
     }
-
-    readableProperties.value = p0;
   }
 
   final Repository _repo = Get.find<Repository>();

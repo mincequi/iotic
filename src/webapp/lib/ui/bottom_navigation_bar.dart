@@ -27,12 +27,11 @@ class MyBottomNavigationBar extends StatelessWidget {
         /*BottomNavigationBarItem(
           icon: Icon(Icons.multiline_chart_outlined),
           label: 'Historic',
-        ),
+        ),*/
         BottomNavigationBarItem(
           icon: Icon(Icons.settings),
-          label: 'Settings',
+          label: 'settings',
         ),
-        */
       ],
       currentIndex: _currentIndex,
       // TODO: why do i need to set this manually? It seems to use secondary per default

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <things/Site.h>
 #include <things/Thing.h>
 
 class ThingsRepository;
@@ -22,6 +23,8 @@ public:
 
 private:
     static std::string serializeUserProperties(const ThingPtr& thing);
+    static std::string serializeSiteProperties(const Site& site);
+    static std::string serializeSiteHistory(const std::list<Site::SiteData>& siteHistory);
 
     const ThingsRepository& _thingsRepository;
     std::unique_ptr<cmrc::embedded_filesystem> _fs;

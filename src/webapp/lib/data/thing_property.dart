@@ -15,9 +15,16 @@ enum ReadableThingProperty {
   power_control,
   // custom properties - strategies
   offset,
+  thing_interval,
 
   status,
   events
 }
 
-enum WritableThingProperty { name, pinned, offset, power_control }
+enum WritableThingProperty {
+  name,
+  pinned,
+  power_control,
+  offset,
+  thing_interval
+}

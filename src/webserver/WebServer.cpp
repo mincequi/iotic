@@ -27,27 +27,8 @@ WebServer::WebServer(void* mainLoop,
             ws->send(serializeUserProperties(t), uWS::OpCode::TEXT);
         }
 
-        // Send historic site data to new client
-        QJsonArray timestamps;
-        QJsonArray pvPower;
-        QJsonArray sitePower;
-        QJsonArray gridPower;
-        for (const auto& p : _thingsRepository.site().history()) {
-            timestamps.append(p.ts);
-            pvPower.append(p.pvPower);
-            sitePower.append(p.sitePower);
-            gridPower.append(p.gridPower);
-        }
-
-        QJsonObject siteProperties;
-        siteProperties.insert(QString::fromStdString(util::toString(Property::timestamp)), timestamps);
-        siteProperties.insert(QString::fromStdString(util::toString(Property::pv_power)), pvPower);
-        siteProperties.insert(QString::fromStdString(util::toString(Property::site_power)), sitePower);
-        siteProperties.insert(QString::fromStdString(util::toString(Property::grid_power)), gridPower);
-        QJsonObject json;
-        json["site"] = siteProperties;
-
-        ws->send(QJsonDocument(json).toJson(QJsonDocument::JsonFormat::Compact).toStdString(), uWS::OpCode::TEXT);
+        ws->send(serializeSiteProperties(*_site), uWS::OpCode::TEXT);
+        ws->send(serializeSiteHistory(_site->history()), uWS::OpCode::TEXT);
     };
     behavior.message = [this](auto* ws, std::string_view message, uWS::OpCode opCode) {
         //ws->send(message, opCode);
@@ -58,8 +39,13 @@ WebServer::WebServer(void* mainLoop,
         const auto property = magic_enum::enum_cast<MutableProperty>(obj.begin().value().toObject().begin().key().toStdString());
         const QJsonValue value = obj.begin().value().toObject().begin().value();
 
-        if (property)
-            _thingsRepository.setThingProperty(thingId, property.value(), fromQJsonValue(value));
+        if (property) {
+            if (thingId == "site") {
+                _site->setProperty(property.value(), fromQJsonValue(value));
+            } else {
+                _thingsRepository.setThingProperty(thingId, property.value(), fromQJsonValue(value));
+            }
+        }
     };
 
     _uwsApp = std::make_unique<uWS::App>();
@@ -85,7 +71,7 @@ WebServer::WebServer(void* mainLoop,
         }
     });
 
-    _thingsRepository.site().properties().subscribe([this](const auto& props) {
+    _site->properties().subscribe([this](const auto& props) {
         QJsonObject siteProperties;
         for (const auto& p : props) {
             siteProperties[QString::fromStdString(util::toString(p.first))] = toJsonValue(p.second);
@@ -136,4 +122,40 @@ std::string WebServer::serializeUserProperties(const ThingPtr& t) {
     QJsonObject thing;
     thing[QString::fromStdString(t->id())] = properties;
     return QJsonDocument(thing).toJson(QJsonDocument::JsonFormat::Compact).toStdString();
+}
+
+std::string WebServer::serializeSiteProperties(const Site& site) {
+    QJsonObject properties;
+    for (const auto& kv : site.mutableProperties()) {
+        if (kv.first <= MutableProperty::power_control)
+            properties[QString::fromStdString(util::toString(kv.first))] = toJsonValue(kv.second);
+    }
+
+    QJsonObject thing;
+    thing["site"] = properties;
+    return QJsonDocument(thing).toJson(QJsonDocument::JsonFormat::Compact).toStdString();
+}
+
+std::string WebServer::serializeSiteHistory(const std::list<Site::SiteData>& siteHistory) {
+    // Send historic site data to new client
+    QJsonArray timestamps;
+    QJsonArray pvPower;
+    QJsonArray sitePower;
+    QJsonArray gridPower;
+    for (const auto& p : siteHistory) {
+        timestamps.append(p.ts);
+        pvPower.append(p.pvPower);
+        sitePower.append(p.sitePower);
+        gridPower.append(p.gridPower);
+    }
+
+    QJsonObject siteProperties;
+    siteProperties.insert(QString::fromStdString(util::toString(Property::timestamp)), timestamps);
+    siteProperties.insert(QString::fromStdString(util::toString(Property::pv_power)), pvPower);
+    siteProperties.insert(QString::fromStdString(util::toString(Property::site_power)), sitePower);
+    siteProperties.insert(QString::fromStdString(util::toString(Property::grid_power)), gridPower);
+    QJsonObject json;
+    json["site"] = siteProperties;
+
+    return QJsonDocument(json).toJson(QJsonDocument::JsonFormat::Compact).toStdString();
 }

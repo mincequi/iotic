@@ -1,18 +1,21 @@
-// ignore_for_file: avoid_web_libraries_in_flutter
+// ignore_for_file: avoid_web_libraries_in_flutter, iterable_contains_unrelated_type
 
 import 'dart:html' as html;
 import 'dart:convert';
 import 'package:get/get_rx/get_rx.dart';
+import 'package:iotic/data/rx_properties.dart';
 import 'package:iotic/data/site_historic_data.dart';
 import 'package:iotic/data/site_live_data.dart';
-import 'package:iotic/data/thing_live_data.dart';
+import 'package:iotic/data/thing_id.dart';
+import 'package:iotic/data/properties.dart';
 import 'package:iotic/data/thing_property.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class Repository /*extends FullLifeCycleController with FullLifeCycleMixin*/ {
   final siteLiveData = SiteLiveData(0, 0, 0, 0).obs;
   final siteHistoricData = SiteHistoricData().obs;
-  final things = <String, ThingLiveData>{}.obs;
+  final things = <String, Properties>{}.obs;
+  final settings = RxMap<ThingId, RxProperties>();
 
   void set(String id, WritableThingProperty property, dynamic value) {
     var json = jsonEncode({
@@ -21,8 +24,9 @@ class Repository /*extends FullLifeCycleController with FullLifeCycleMixin*/ {
     _channel.sink.add(json);
   }
 
-  //final _port = (int.parse(html.window.location.port) + 1);
-  final _port = 8030;
+  final _host = html.window.location.hostname;
+  final _port = int.parse(html.window.location.port);
+  //final _port = 8030;
 
   late WebSocketChannel _channel;
 
@@ -35,34 +39,78 @@ class Repository /*extends FullLifeCycleController with FullLifeCycleMixin*/ {
     if (doDisconnect) {
       _channel.sink.close();
     }
-    _channel = WebSocketChannel.connect(
-        Uri.parse('ws://${html.window.location.hostname}:$_port/ws'));
+    _channel = WebSocketChannel.connect(Uri.parse('ws://$_host:$_port/ws'));
 
     _channel.stream.forEach((element) {
-      Map<String, dynamic> liveData = jsonDecode(element);
+      // JSON always has string as keys
+      Map<String, dynamic> json = jsonDecode(element);
       // Only accept jsons with exactly one top level object
-      if (liveData.length != 1) return;
+      if (json.length != 1) return;
 
-      var entry = liveData.entries.first;
-      if (entry.key == "site") {
-        var map = Map<String, dynamic>.from(entry.value);
-        if (map.values.first is List) {
-          siteHistoricData.value = SiteHistoricData.fromMap(map);
-          return;
-        }
-        siteLiveData.value = SiteLiveData.fromMap(map);
-        return;
-      }
-      if (!things.containsKey(entry.key)) {
-        things[entry.key] = ThingLiveData.fromMap(entry.value);
-        return;
-      }
+      var entry = json.entries.first;
 
-      ThingLiveData.fromMap(entry.value).properties.forEach((key, value) {
-        things[entry.key]?.properties[key] = value;
-      });
-      things.refresh();
+      // 1. Check if this is site
+      if (_parseSite(entry)) return;
+
+      // 2. Check if this is EV Charging Strategy
+      //if (_parseSettings(entry)) return;
+
+      _parseThing(entry);
     });
+  }
+
+  bool _parseSite(MapEntry<String, dynamic> entry) {
+    if (entry.key != "site") return false;
+
+    var map = Map<String, dynamic>.from(entry.value);
+    if (map.values.first is List) {
+      siteHistoricData.value = SiteHistoricData.fromMap(map);
+      return true;
+    }
+
+    var liveData = SiteLiveData.fromMap(map);
+    if (liveData != null) {
+      siteLiveData.value = liveData;
+      return true;
+    }
+
+    if (!settings.containsKey(ThingId.site)) {
+      settings[ThingId.site] = RxProperties.fromMap(entry.value);
+    } else {
+      Properties.fromMap(entry.value).properties.forEach((key, value) {
+        settings[ThingId.site]?.properties[key] = value;
+      });
+    }
+
+    return true;
+  }
+
+  bool _parseSettings(MapEntry<String, dynamic> entry) {
+    int? thing = int.tryParse(entry.key);
+    if (thing == null || !ThingId.values.contains(thing)) return false;
+
+    ThingId thingId = ThingId.values[thing];
+
+    if (!settings.containsKey(thingId)) {
+      settings[thingId] = RxProperties.fromMap(entry.value);
+      return true;
+    }
+    Properties.fromMap(entry.value).properties.forEach((key, value) {
+      settings[entry.key]?.properties[key] = value;
+    });
+    return true;
+  }
+
+  void _parseThing(MapEntry<String, dynamic> entry) {
+    if (!things.containsKey(entry.key)) {
+      things[entry.key] = Properties.fromMap(entry.value);
+      return;
+    }
+    Properties.fromMap(entry.value).properties.forEach((key, value) {
+      things[entry.key]?.properties[key] = value;
+    });
+    // TODO: is this needed?
+    things.refresh();
   }
 
   void onVisibilityChange(html.Event e) {

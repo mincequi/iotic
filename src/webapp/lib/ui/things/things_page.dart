@@ -11,7 +11,6 @@ class ThingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() => ListView.builder(
-          padding: const EdgeInsets.only(left: 8, right: 8),
           itemCount: _control.thingCount.value,
           itemBuilder: (BuildContext context, int index) {
             return ThingCard(_control.thingIds.elementAt(index));

@@ -18,12 +18,9 @@ class SitePage extends StatelessWidget {
           //height: 266,
           height: 194,
           width: double.infinity,
-          child: Padding(
-              padding: const EdgeInsets.only(left: 8, right: 8),
-              child: SiteCard())),
+          child: SiteCard()),
       Expanded(
           child: Obx(() => ListView.builder(
-                padding: const EdgeInsets.only(left: 8, right: 8),
                 itemCount: _control.thingCount.value,
                 itemBuilder: (BuildContext context, int index) {
                   return SiteThingCard(_control.thingIds.elementAt(index));

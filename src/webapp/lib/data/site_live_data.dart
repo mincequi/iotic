@@ -6,9 +6,14 @@ class SiteLiveData {
 
   SiteLiveData(this.ts, this.pvPower, this.gridPower, this.sitePower);
 
-  SiteLiveData.fromMap(Map<String, dynamic> json)
-      : ts = json['timestamp'],
-        pvPower = json['pv_power'],
-        gridPower = json['grid_power'],
-        sitePower = json['site_power'];
+  static SiteLiveData? fromMap(Map<String, dynamic> json) {
+    if (json.containsKey('timestamp') &&
+        json.containsKey('pv_power') &&
+        json.containsKey('grid_power') &&
+        json.containsKey('site_power')) {
+      return SiteLiveData(json['timestamp'], json['pv_power'],
+          json['grid_power'], json['site_power']);
+    }
+    return null;
+  }
 }

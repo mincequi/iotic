@@ -10,15 +10,17 @@
 
 #include <common/Logger.h>
 #include <config/Config.h>
+#include <things/ThingId.h>
 #include <things/ThingsRepository.h>
 
 using namespace std::chrono_literals;
 
-Site::Site(const ThingsRepository& thingsRepository) {
-    // TODO: add proper depedency injection/management/singletons
-    // Since Site is first client of config, it will init it. However, it should not be initialized here.
-    Config::init(thingsRepository);
+Site* Site::instance() {
+    if (!_instance) _instance = new Site();
+    return _instance;
+}
 
+Site::Site() {
     _siteDataSubject.get_observable().subscribe([this](const Site::SiteData& data){
         LOG_S(INFO) << "{ pv_power: " << data.pvPower
                     << ", grid_power: " << data.gridPower
@@ -35,9 +37,11 @@ Site::Site(const ThingsRepository& thingsRepository) {
             _history.pop_front();
         }
         _history.push_back(data);
+
+        repo->update();
     });
 
-    thingsRepository.thingAdded().subscribe([this](const ThingPtr& thing) {
+    repo->thingAdded().subscribe([this](const ThingPtr& thing) {
         // If we configured this meter for site (or there is no explicit config)
         if (thing->type() == Thing::Type::SmartMeter &&
                 (cfg->gridMeter() == thing->id() || cfg->gridMeter().empty())) {
@@ -76,9 +80,35 @@ Site::Site(const ThingsRepository& thingsRepository) {
 
     // Init Inverter
     _pvPower.get_subscriber().on_next(0);
+
+    _mutableProperties[MutableProperty::thing_interval] = (int)cfg->thingInterval().count()/1000;
+
+    properties().subscribe([this](const std::map<Property, Value>& props) {
+        for (const auto& kv : props) {
+            switch (kv.first) {
+            case Property::thing_interval:
+                cfg->setThingInterval(std::get<double>(kv.second));
+                break;
+            default:
+                break;
+            }
+        }
+    });
 }
 
-Site::~Site() {
+void Site::setProperty(MutableProperty property, const Value& value) const {
+    // Add property value to local storage for late subscribers
+    _mutableProperties[property] = value;
+
+    // Reflect changes back (to other clients as well).
+    const auto property_ = magic_enum::enum_cast<Property>(magic_enum::enum_integer(property));
+    LOG_IF_S(FATAL, !property_.has_value()) << util::toString(property) << " has no readable correspondent";
+    LOG_S(INFO) << "site.setProperty> " << util::toString(property_.value()) << ": " << value;
+    _propertiesSubject.get_subscriber().on_next({{ property_.value(), value }});
+}
+
+const std::map<MutableProperty, Value>& Site::mutableProperties() const {
+    return _mutableProperties;
 }
 
 dynamic_observable<std::map<Property, Value>> Site::properties() const {
