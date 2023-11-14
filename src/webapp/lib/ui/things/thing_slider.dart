@@ -115,7 +115,7 @@ class ThingSlider extends StatelessWidget {
             Align(
               alignment: Alignment.centerRight,
               child: Container(
-                  padding: EdgeInsets.only(right: 4, top: 16),
+                  padding: EdgeInsets.only(right: 4, top: 15),
                   child: Text("PV OFFSET",
                       textAlign: TextAlign.right,
                       style: TextStyle(

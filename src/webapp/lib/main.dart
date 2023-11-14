@@ -1,7 +1,8 @@
-import 'ui/home_page.dart';
-import 'ui/themes/iotic_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/get_navigation.dart';
+
+import 'ui/home_page.dart';
+import 'ui/themes/iotic_theme.dart';
 
 void main() async {
   runApp(const IoticApp());
@@ -18,10 +19,6 @@ class IoticApp extends StatelessWidget {
       darkTheme: IoticTheme.dark(context),
       themeMode: ThemeMode.dark,
       color: Colors.black,
-      /* ThemeMode.system to follow system theme, 
-         ThemeMode.light for light theme, 
-         ThemeMode.dark for dark theme
-      */
       home: const Home(),
     );
   }

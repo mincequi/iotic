@@ -66,6 +66,11 @@ class Repository /*extends FullLifeCycleController with FullLifeCycleMixin*/ {
     var map = Map<String, dynamic>.from(entry.value);
     if (map.values.first is List) {
       siteHistoricData.value = SiteHistoricData.fromMap(map);
+      siteLiveData.value = SiteLiveData(
+          siteHistoricData.value.ts.last,
+          siteHistoricData.value.pvPower.last,
+          siteHistoricData.value.gridPower.last,
+          siteHistoricData.value.sitePower.last);
       return true;
     }
 
