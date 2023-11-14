@@ -34,7 +34,6 @@ void ModbusDiscovery::stop() {
 void ModbusDiscovery::onStartDiscovering() {
     foreach (auto thing, _candidates) {
         thing.second.unsubscribe();
-        //thing.first->deleteLater();
         delete thing.first;
     }
     _candidates.clear();
@@ -91,43 +90,11 @@ void ModbusDiscovery::onCandidateStateChangedRpp(sunspec::SunSpecThing* candidat
                     << ", modbusUnitId: " << (uint32_t)candidate->modbusUnitId()
                     << ", models: " << ss.str();
         candidate->_id = candidate->sunSpecId();
+        candidate->setProperty(MutableProperty::pinned, cfg->valueOr(candidate->sunSpecId(), Config::Key::pinned, false));
         candidate->setProperty(MutableProperty::name, cfg->valueOr(candidate->sunSpecId(), Config::Key::name, candidate->sunSpecId()));
         _thingsRepository.addThing(ThingPtr(candidate));
         break;
     }
 }
-
-/*
-void ModbusDiscovery::onCandidateStateChanged(SunSpecThing::State state) {
-    auto candidate = qobject_cast<SunSpecThing*>(sender());
-    if (!candidate) {
-        qFatal("IMPOSSIBLE");
-    }
-    switch (state) {
-    case SunSpecThing::State::Failed:
-        // If connection failed, delete candidate
-        _candidates.removeOne(candidate);
-        candidate->deleteLater();
-        break;
-    case SunSpecThing::State::Connected:
-        // Disconnect signals, since we are handing off this object
-        candidate->disconnect();
-        _candidates.removeAll(candidate);
-        //_manager.addThing(candidate);
-        std::stringstream ss;
-        for (const auto& kv : candidate->models()) {
-            ss << kv.first << "(" << kv.second.second << "), ";
-        }
-        LOG_S(INFO) << "thing discovered> id: " << candidate->sunSpecId()
-                    << ", host: " << candidate->host()
-                    << ", modbusUnitId: " << (uint32_t)candidate->modbusUnitId()
-                    << ", models: " << ss.str();
-        candidate->_id = candidate->sunSpecId();
-        candidate->setProperty(MutableProperty::name, candidate->sunSpecId());
-        _thingsRepository.addThing(ThingPtr(candidate));
-        break;
-    }
-}
-*/
 
 } // namespace modbus

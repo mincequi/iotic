@@ -15,7 +15,7 @@ class SettingsCardController extends GetxController {
   @override
   void onReady() {
     _properties.properties.listen((p0) {
-      time.value = p0[ReadableThingProperty.thing_interval];
+      time.value = p0[ThingProperty.thing_interval];
     });
 
     super.onReady();

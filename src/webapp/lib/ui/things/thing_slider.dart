@@ -115,13 +115,12 @@ class ThingSlider extends StatelessWidget {
             Align(
               alignment: Alignment.centerRight,
               child: Container(
-                  padding: EdgeInsets.only(right: 12),
+                  padding: EdgeInsets.only(right: 4, top: 16),
                   child: Text("PV OFFSET",
                       textAlign: TextAlign.right,
                       style: TextStyle(
-                          letterSpacing: -4.0,
-                          fontSize: 46,
-                          height: 0.67,
+                          letterSpacing: -2.0,
+                          fontSize: 16,
                           fontWeight: FontWeight.w900,
                           color: IoticTheme.other))),
             ),
@@ -148,7 +147,7 @@ class ThingSlider extends StatelessWidget {
                     //label: _offsets[_control.offset.value!.toInt()],
                     onChanged: (value) {
                       _control.offset.value = value.round();
-                      _repo.set(_id, WritableThingProperty.offset, value);
+                      _repo.set(_id, ThingProperty.offset, value);
                     }))
           ]))
       : Container());

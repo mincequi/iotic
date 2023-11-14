@@ -16,7 +16,7 @@ class SitePageController extends GetxController {
     _repo.things.listen((things) {
       var things_ = <String, Properties>{};
       for (MapEntry<String, Properties> t in things.entries) {
-        if (t.value.properties[ReadableThingProperty.pinned] ?? false) {
+        if (t.value.properties[ThingProperty.pinned] ?? false) {
           things_[t.key] = t.value;
         }
       }

@@ -2,14 +2,14 @@ import 'package:get/get_rx/get_rx.dart';
 import 'package:iotic/data/thing_property.dart';
 
 class RxProperties {
-  final properties = RxMap<ReadableThingProperty, dynamic>();
+  final properties = RxMap<ThingProperty, dynamic>();
 
   RxProperties();
 
   RxProperties.fromMap(Map<String, dynamic> json) {
     for (var kv in json.entries) {
-      ReadableThingProperty p = ReadableThingProperty.values
-          .firstWhere((e) => e.toString() == 'ReadableThingProperty.' + kv.key);
+      ThingProperty p = ThingProperty.values
+          .firstWhere((e) => e.toString() == 'ThingProperty.' + kv.key);
       properties[p] = kv.value;
     }
   }

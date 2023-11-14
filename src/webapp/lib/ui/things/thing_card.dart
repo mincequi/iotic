@@ -66,7 +66,7 @@ class ThingCard extends StatelessWidget {
           ? Switch(
               value: _control.isOn.value!,
               onChanged: (value) {
-                _repo.set(_id, WritableThingProperty.power_control, value);
+                _repo.set(_id, ThingProperty.power_control, value);
               },
             )
           : Icon(_control.status.value);
@@ -90,20 +90,20 @@ class ThingCard extends StatelessWidget {
           ? IconButton(
               icon: const Icon(Icons.bookmark_added),
               onPressed: () {
-                _repo.set(_id, WritableThingProperty.pinned, false);
+                _repo.set(_id, ThingProperty.pinned, false);
               },
             )
           : IconButton(
               icon: const Icon(Icons.bookmark_add_outlined),
               onPressed: () {
-                _repo.set(_id, WritableThingProperty.pinned, true);
+                _repo.set(_id, ThingProperty.pinned, true);
               },
             ))
     ]);
   }
 
   void _saveName() {
-    _repo.set(_id, WritableThingProperty.name, _editingController.text);
+    _repo.set(_id, ThingProperty.name, _editingController.text);
     _control.isEditingMode.value = false;
   }
 }

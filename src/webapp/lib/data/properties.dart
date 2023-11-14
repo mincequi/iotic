@@ -1,14 +1,14 @@
 import 'package:iotic/data/thing_property.dart';
 
 class Properties {
-  final properties = <ReadableThingProperty, dynamic>{};
+  final properties = <ThingProperty, dynamic>{};
 
   Properties();
 
   Properties.fromMap(Map<String, dynamic> json) {
     for (var kv in json.entries) {
-      ReadableThingProperty p = ReadableThingProperty.values
-          .firstWhere((e) => e.toString() == 'ReadableThingProperty.' + kv.key);
+      ThingProperty p = ThingProperty.values
+          .firstWhere((e) => e.toString() == 'ThingProperty.' + kv.key);
       properties[p] = kv.value;
     }
   }

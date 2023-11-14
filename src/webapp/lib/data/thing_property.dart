@@ -1,8 +1,6 @@
 // ignore_for_file: constant_identifier_names
 
-// Dart does not allow enum inheritance. However, every WritableThingProperty
-// shall also have corresponding value in ReadableThingProperty.
-enum ReadableThingProperty {
+enum ThingProperty {
   // custom properties - things
   type,
   name,
@@ -16,15 +14,14 @@ enum ReadableThingProperty {
   // custom properties - strategies
   offset,
   thing_interval,
+  time_constant,
 
   status,
   events
 }
 
-enum WritableThingProperty {
-  name,
-  pinned,
-  power_control,
-  offset,
-  thing_interval
+extension ThingIdFormatting on ThingProperty {
+  String toUiString() {
+    return name.replaceAll("_", " ");
+  }
 }

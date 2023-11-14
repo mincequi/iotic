@@ -40,24 +40,4 @@ void SunSpecManager::onTimer() {
     _currentTimestamp = timestamp;
 }
 
-/*
-void SunSpecManager::onThingStateChanged(SunSpecThing::State state) {
-    auto thing = qobject_cast<SunSpecThing*>(sender());
-    if (!thing) {
-        qFatal("IMPOSSIBLE");
-    }
-    switch (state) {
-    case SunSpecThing::State::Failed:
-        // If connection failed, delete thing
-        if (_things.count(thing->sunSpecId())) {
-            LOG_S(WARNING) << "discovered thing removed: " << thing->sunSpecId();
-            _things.remove(thing->sunSpecId());
-        }
-        break;
-    default:
-        break;
-    }
-}
-*/
-
 } // namespace sunspec

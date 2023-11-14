@@ -57,7 +57,7 @@ RuleActuationStrategy<TScheduler>::RuleActuationStrategy(const std::string& thin
     _offExpression(std::move(offExpression)) {
     _expressionSubject.get_observable()
             .distinct_until_changed()
-            .debounce(std::chrono::milliseconds(cfg->valueOr<int>(thingId, Config::Key::debounce, 60000)), _scheduler)
+            .debounce(std::chrono::seconds(cfg->valueOr<int>(thingId, Config::Key::debounce, 60)), _scheduler)
             .observe_on(rppqt::schedulers::main_thread_scheduler{})
             .subscribe([this](bool value) {
         LOG_S(INFO) << this->thingId() << "> " << value;
@@ -67,13 +67,6 @@ RuleActuationStrategy<TScheduler>::RuleActuationStrategy(const std::string& thin
 
 template<rpp::schedulers::constraint::scheduler TScheduler>
 void RuleActuationStrategy<TScheduler>::evaluate() {
-    //auto vars = _onExpression->get_variables_and_functions();
-    //std::stringstream ss;
-    //for (const auto& kv : vars) {
-    //    ss << kv.m_name << ": " << *std::get<const double*>(kv.m_value) << ", ";
-    //}
-    //LOG_S(INFO) << ss.str();
-
     // 1. Check for off condition
     if (_offExpression->evaluate()) {
         _expressionSubject.get_subscriber().on_next(false);

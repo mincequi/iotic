@@ -8,6 +8,7 @@
 
 #include <common/Logger.h>
 #include <common/Util.h>
+#include <config/Config.h>
 #include <things/ThingsRepository.h>
 
 CMRC_DECLARE(webapp);
@@ -28,9 +29,10 @@ WebServer::WebServer(void* mainLoop,
         }
 
         ws->send(serializeSiteProperties(*_site), uWS::OpCode::TEXT);
+        ws->send(serializeEvChargingStrategyProperties(*cfg), uWS::OpCode::TEXT);
         ws->send(serializeSiteHistory(_site->history()), uWS::OpCode::TEXT);
     };
-    behavior.message = [this](auto* ws, std::string_view message, uWS::OpCode opCode) {
+    behavior.message = [this](auto* ws, std::string_view message, uWS::OpCode) {
         //ws->send(message, opCode);
         const auto obj = QJsonDocument::fromJson({message.data(), (int)message.size()}).object();
         if (obj.isEmpty()) return;
@@ -40,9 +42,7 @@ WebServer::WebServer(void* mainLoop,
         const QJsonValue value = obj.begin().value().toObject().begin().value();
 
         if (property) {
-            if (thingId == "site") {
-                _site->setProperty(property.value(), fromQJsonValue(value));
-            } else {
+            if (!_router.route(thingId, property.value(), fromQJsonValue(value))) {
                 _thingsRepository.setThingProperty(thingId, property.value(), fromQJsonValue(value));
             }
         }
@@ -79,6 +79,18 @@ WebServer::WebServer(void* mainLoop,
 
         QJsonObject json;
         json["site"] = siteProperties;
+
+        _uwsApp->publish("broadcast",
+                         QJsonDocument(json).toJson(QJsonDocument::JsonFormat::Compact).toStdString(),
+                         uWS::OpCode::TEXT);
+    });
+
+    cfg->timeConstant().get_observable().subscribe([this](int value) {
+        QJsonObject properties;
+        properties[QString::fromStdString(util::toString(MutableProperty::time_constant))] = QJsonValue(value);
+
+        QJsonObject json;
+        json["ev_charging_strategy"] = properties;
 
         _uwsApp->publish("broadcast",
                          QJsonDocument(json).toJson(QJsonDocument::JsonFormat::Compact).toStdString(),
@@ -156,6 +168,14 @@ std::string WebServer::serializeSiteHistory(const std::list<Site::SiteData>& sit
     siteProperties.insert(QString::fromStdString(util::toString(Property::grid_power)), gridPower);
     QJsonObject json;
     json["site"] = siteProperties;
-
     return QJsonDocument(json).toJson(QJsonDocument::JsonFormat::Compact).toStdString();
+}
+
+std::string WebServer::serializeEvChargingStrategyProperties(const Config& config) {
+    QJsonObject properties;
+    properties[QString::fromStdString(util::toString(MutableProperty::time_constant))] = QJsonValue(config.timeConstant().get_value());
+
+    QJsonObject thing;
+    thing["ev_charging_strategy"] = properties;
+    return QJsonDocument(thing).toJson(QJsonDocument::JsonFormat::Compact).toStdString();
 }

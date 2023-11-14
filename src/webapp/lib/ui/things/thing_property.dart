@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class ThingProperty extends StatelessWidget {
-  const ThingProperty(this._icon, this._value, this._unit, {super.key});
+class ThingUiProperty extends StatelessWidget {
+  const ThingUiProperty(this._icon, this._value, this._unit, {super.key});
 
   final IconData _icon;
   final double _value;

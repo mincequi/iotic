@@ -12,7 +12,7 @@ class SettingsPageController extends GetxController {
   @override
   void onReady() {
     _repo.settings.listen((s0) {
-      sections.addAll(s0.keys);
+      sections.assignAll(s0.keys);
     });
     super.onReady();
   }

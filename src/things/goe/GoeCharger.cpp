@@ -44,9 +44,6 @@ void GoeCharger::doSetProperty(MutableProperty property, const Value& value) {
             }
         }, value);
         break;
-    //case MutableProperty::actuation:
-    //    read(host() + "/api/set?frc=" + (std::get<bool>(value) ? "2" : "1")); // switch on
-    //    break;
     default:
         break;
     }

@@ -25,6 +25,7 @@
 #include <utility>
 #include <vector>
 
+#include <common/Rpp.h>
 #include <things/ThingProperty.h>
 #include <things/ThingValue.h>
 
@@ -61,13 +62,15 @@ public:
     inline const std::string& gridMeter() const {
         return _gridMeter;
     }
-    inline std::chrono::milliseconds discoveryInterval() const {
+    inline int discoveryInterval() const {
         return _discoveryInterval;
     }
     void setThingInterval(int seconds);
-    std::chrono::milliseconds thingInterval() const;
+    int thingInterval() const;
 
-    void setEvseTau(double tau);
+    void setTimeConstant(const Value& tau);
+    const behavior_subject<int>& timeConstant() const;
+
     double evseAlpha() const;
     double evseBeta() const;
     double evsePhi() const;
@@ -90,5 +93,5 @@ private:
     std::set<std::string> _pvMeters;
     std::string _gridMeter;
 
-    std::chrono::milliseconds _discoveryInterval = 60000ms;
+    int _discoveryInterval = 60;
 };

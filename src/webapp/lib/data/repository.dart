@@ -17,7 +17,7 @@ class Repository /*extends FullLifeCycleController with FullLifeCycleMixin*/ {
   final things = <String, Properties>{}.obs;
   final settings = RxMap<ThingId, RxProperties>();
 
-  void set(String id, WritableThingProperty property, dynamic value) {
+  void set(String id, ThingProperty property, dynamic value) {
     var json = jsonEncode({
       id: {property.name: value}
     });
@@ -26,6 +26,7 @@ class Repository /*extends FullLifeCycleController with FullLifeCycleMixin*/ {
 
   final _host = html.window.location.hostname;
   final _port = int.parse(html.window.location.port);
+  //final _host = "raspberrypi";
   //final _port = 8030;
 
   late WebSocketChannel _channel;
@@ -53,7 +54,7 @@ class Repository /*extends FullLifeCycleController with FullLifeCycleMixin*/ {
       if (_parseSite(entry)) return;
 
       // 2. Check if this is EV Charging Strategy
-      //if (_parseSettings(entry)) return;
+      if (_parseSettings(entry)) return;
 
       _parseThing(entry);
     });
@@ -86,18 +87,18 @@ class Repository /*extends FullLifeCycleController with FullLifeCycleMixin*/ {
   }
 
   bool _parseSettings(MapEntry<String, dynamic> entry) {
-    int? thing = int.tryParse(entry.key);
-    if (thing == null || !ThingId.values.contains(thing)) return false;
+    if (entry.key != "ev_charging_strategy") return false;
 
-    ThingId thingId = ThingId.values[thing];
+    ThingId thingId = ThingId.ev_charging_strategy;
 
     if (!settings.containsKey(thingId)) {
       settings[thingId] = RxProperties.fromMap(entry.value);
-      return true;
+    } else {
+      Properties.fromMap(entry.value).properties.forEach((key, value) {
+        settings[thingId]?.properties[key] = value;
+      });
     }
-    Properties.fromMap(entry.value).properties.forEach((key, value) {
-      settings[entry.key]?.properties[key] = value;
-    });
+
     return true;
   }
 

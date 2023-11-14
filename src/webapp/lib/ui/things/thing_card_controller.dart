@@ -24,7 +24,7 @@ class ThingCardController extends GetxController {
   final offset = Rxn<int>();
   final status = Rxn<IconData>();
 
-  final propertyWidgets = <ReadableThingProperty, ThingProperty>{}.obs;
+  final propertyWidgets = <ThingProperty, ThingUiProperty>{}.obs;
 
   @override
   void onReady() {
@@ -47,28 +47,27 @@ class ThingCardController extends GetxController {
     if (p0 == null) return;
 
     // Check for name
-    if (p0.containsKey(ReadableThingProperty.name) &&
-        p0[ReadableThingProperty.name].toString().isNotEmpty) {
-      name.value = p0[ReadableThingProperty.name];
+    if (p0.containsKey(ThingProperty.name) &&
+        p0[ThingProperty.name].toString().isNotEmpty) {
+      name.value = p0[ThingProperty.name];
     } else {
       name.value = _id;
     }
 
     // Check if thing isPinned
-    if (p0.containsKey(ReadableThingProperty.pinned)) {
-      isPinned.value = p0[ReadableThingProperty.pinned];
+    if (p0.containsKey(ThingProperty.pinned)) {
+      isPinned.value = p0[ThingProperty.pinned];
     }
 
     // Check for type
-    icon.value =
-        _typeToIcon[p0[ReadableThingProperty.type]] ?? Icons.device_hub;
-    offset.value = p0[ReadableThingProperty.offset];
-    status.value = toIcon(p0[ReadableThingProperty.status]);
+    icon.value = _typeToIcon[p0[ThingProperty.type]] ?? Icons.device_hub;
+    offset.value = p0[ThingProperty.offset];
+    status.value = toIcon(p0[ThingProperty.status]);
 
     // Check for power control
     //hasPowerControl.value = p0.containsKey(ReadableThingProperty.power_control);
     //if (hasPowerControl.value) {
-    isOn.value = p0[ReadableThingProperty.power_control];
+    isOn.value = p0[ThingProperty.power_control];
     if (icon.value == Icons.device_hub) {
       icon.value = Icons.electrical_services;
     }
@@ -77,13 +76,13 @@ class ThingCardController extends GetxController {
     // TODO: this has to be dynamic. Otherwise things cards won't get updated.
     // No idea why.
     dynamic p;
-    if ((p = p0[ReadableThingProperty.power]) != null) {
-      propertyWidgets[ReadableThingProperty.power] =
-          ThingProperty(Icons.electric_bolt, p, _powerUnit(p.round()));
+    if ((p = p0[ThingProperty.power]) != null) {
+      propertyWidgets[ThingProperty.power] =
+          ThingUiProperty(Icons.electric_bolt, p, _powerUnit(p.round()));
     }
-    if ((p = p0[ReadableThingProperty.temperature]) != null) {
-      propertyWidgets[ReadableThingProperty.temperature] =
-          ThingProperty(Icons.thermostat, p, '°C');
+    if ((p = p0[ThingProperty.temperature]) != null) {
+      propertyWidgets[ThingProperty.temperature] =
+          ThingUiProperty(Icons.thermostat, p, '°C');
     }
   }
 

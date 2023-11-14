@@ -12,7 +12,7 @@ class SiteCardController extends GetxController {
 
   // We have to extend the points by 2, because there are artefacts when curve
   // moves out on the left side.
-  final limitCount = 62;
+  final limitCount = 122;
 
   final pvPoints = List<FlSpot>.empty().obs;
   final sitePoints = List<FlSpot>.empty().obs;

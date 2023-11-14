@@ -33,7 +33,7 @@ Site::Site() {
         properties[Property::site_power] = (double)data.sitePower;
         _propertiesSubject.get_subscriber().on_next(properties);
 
-        while (_history.size() > 62) {
+        while (_history.size() > 122) {
             _history.pop_front();
         }
         _history.push_back(data);
@@ -81,7 +81,7 @@ Site::Site() {
     // Init Inverter
     _pvPower.get_subscriber().on_next(0);
 
-    _mutableProperties[MutableProperty::thing_interval] = (int)cfg->thingInterval().count()/1000;
+    _mutableProperties[MutableProperty::thing_interval] = cfg->thingInterval();
 
     properties().subscribe([this](const std::map<Property, Value>& props) {
         for (const auto& kv : props) {

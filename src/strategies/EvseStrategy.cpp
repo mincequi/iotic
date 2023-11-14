@@ -28,7 +28,7 @@ EvseStrategy::EvseStrategy(const ThingPtr& thing) :
     Strategy(thing->id()) {
     _wantsToSwitch.get_observable()
             .distinct_until_changed()
-            .debounce(std::chrono::milliseconds(cfg->valueOr<int>(thing->id(), Config::Key::debounce, 300000)), rpp::schedulers::new_thread())
+            .debounce(std::chrono::seconds(cfg->valueOr<int>(thing->id(), Config::Key::debounce, 300)), rpp::schedulers::new_thread())
             .observe_on(rppqt::schedulers::main_thread_scheduler{})
             .subscribe([this](bool wantsToSwitch) {
         if (wantsToSwitch)

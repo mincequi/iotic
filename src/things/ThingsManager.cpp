@@ -49,7 +49,7 @@ void ThingsManager::onTimer() {
     }
 
     // Read things
-    if ((timestamp % cfg->thingInterval().count()) == 0) {
+    if ((timestamp % (cfg->thingInterval() * 1000)) == 0) {
         for (const auto& t : _thingsRepository.things()) {
             t->read();
         }

@@ -13,11 +13,11 @@
 
 struct Config::Impl {
     toml::parse_result configTable;
-    behavior_subject<std::chrono::milliseconds> thingInterval = 10000ms;
-    behavior_subject<double> tau = 3.0;
+    behavior_subject<int> thingInterval = 10;
+    behavior_subject<int> tau = 3;
 
-    double evseAlpha = computeFactor(thingInterval.get_value().count()/1000.0, tau.get_value());
-    double evseBeta = computeFactor(thingInterval.get_value().count()/1000.0, 60.0);
+    double evseAlpha = computeFactor(thingInterval.get_value(), tau.get_value());
+    double evseBeta = computeFactor(thingInterval.get_value(), 60.0);
     double evsePhi = 0.95;
 
     static double computeFactor(double dT, double tau) {
@@ -25,14 +25,14 @@ struct Config::Impl {
     }
 
     Impl() {
-        thingInterval.get_observable().combine_latest([](const auto& dT, double tau) {
-            const auto alpha = computeFactor(dT.count()/1000.0, tau);
+        thingInterval.get_observable().combine_latest([](double dT, double tau) {
+            const auto alpha = computeFactor(dT, tau);
             LOG_S(INFO) << "EV charging strategy alpha> " << alpha;
             return alpha;
         }, tau.get_observable()).subscribe([this](const auto& v) { evseAlpha = v; });
 
-        thingInterval.get_observable().map([](const auto& dT) {
-            const auto beta = computeFactor(dT.count()/1000.0, 60.0);
+        thingInterval.get_observable().map([](double dT) {
+            const auto beta = computeFactor(dT, 60.0);
             LOG_S(INFO) << "EV charging strategy beta> " << beta;
             return beta;
         }).subscribe([this](const auto& v) { evseBeta = v; });
@@ -89,16 +89,21 @@ void Config::setValue(const std::string& table, Property key, const Value& value
 }
 
 void Config::setThingInterval(int seconds) {
-    _p->thingInterval.get_subscriber().on_next(std::chrono::milliseconds(seconds * 1000));
-    setValue("site", Property::thing_interval, seconds * 1000);
+    _p->thingInterval.get_subscriber().on_next(seconds);
+    setValue("site", Property::thing_interval, seconds);
 }
 
-std::chrono::milliseconds Config::thingInterval() const {
+int Config::thingInterval() const {
     return _p->thingInterval.get_value();
 }
 
-void Config::setEvseTau(double tau) {
-    _p->tau.get_subscriber().on_next(tau);
+void Config::setTimeConstant(const Value& tau) {
+    _p->tau.get_subscriber().on_next(std::get<double>(tau));
+    setValue("ev_charging_strategy", Property::time_constant, (int)(std::get<double>(tau)));
+}
+
+const behavior_subject<int>& Config::timeConstant() const {
+    return _p->tau;
 }
 
 double Config::evseAlpha() const {
@@ -120,10 +125,11 @@ void Config::parse() {
         return;
     }
 
-    _discoveryInterval = std::chrono::milliseconds(_p->configTable["site"]["discovery_interval"].value_or(60000));
-    LOG_S(INFO) << "discovery_interval: " << _discoveryInterval.count() << "ms";
-    _p->thingInterval.get_subscriber().on_next(std::chrono::milliseconds(_p->configTable["site"]["thing_interval"].value_or(10000)));
-    LOG_S(INFO) << "thing_interval: " << thingInterval().count() << "ms";
+    _discoveryInterval = _p->configTable["site"]["discovery_interval"].value_or(60);
+    LOG_S(INFO) << "discovery_interval: " << _discoveryInterval << "s";
+    _p->thingInterval.get_subscriber().on_next(_p->configTable["site"]["thing_interval"].value_or(10));
+    LOG_S(INFO) << "thing_interval: " << thingInterval() << "s";
+    _p->tau.get_subscriber().on_next(_p->configTable["ev_charging_strategy"]["time_constant"].value_or(10));
 
     if (auto pvMeters = _p->configTable["site"]["pv"].as_array()) {
         pvMeters->for_each([this](auto& el) {
@@ -131,7 +137,6 @@ void Config::parse() {
                     _pvMeters.insert(el.get());
         });
     }
-
     _gridMeter = _p->configTable["site"]["grid"].value_or("");
 }
 

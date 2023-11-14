@@ -11,8 +11,8 @@ class SettingsSlider extends StatelessWidget {
 
   final ThingId _sectionName;
   final _repo = Get.find<Repository>();
-
   late final _properties = _repo.settings[_sectionName]?.properties;
+  late final ThingProperty _property = _properties!.keys.first;
 
   @override
   Widget build(BuildContext context) {
@@ -25,20 +25,18 @@ class SettingsSlider extends StatelessWidget {
             "τ",
             style: TextStyle(fontSize: 30, height: 0.5),
           ),
-          title: Text("thing interval"),
+          title: Text(_property.toUiString()),
           trailing: Obx(() => Text(
-                _properties![ReadableThingProperty.thing_interval].toString() +
-                    " s",
+                _properties![_property].toString() + " s",
               )),
         ),
         Obx(() => Slider(
-              min: 2.0,
+              min: 1.0,
               max: 10.0,
-              divisions: 8,
-              value: _properties?[ReadableThingProperty.thing_interval],
+              divisions: 9,
+              value: _properties?[_property],
               onChanged: (double value) {
-                _repo.set(_sectionName.name,
-                    WritableThingProperty.thing_interval, value);
+                _repo.set(_sectionName.name, _property, value);
               },
             )),
       ]),
