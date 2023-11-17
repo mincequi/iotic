@@ -11,33 +11,14 @@
 
 using namespace sunspec;
 
-AppBackend::AppBackend(void* mainLoop)
+AppBackend::AppBackend()
     : _thingsRepository(ThingsRepository::instance()),
       _thingsManager(*_thingsRepository),
       _sunSpecManager(*_thingsRepository),
       _mqttExporter("broker.hivemq.com"),
-      _webServer(mainLoop, *_thingsRepository) {
+      _webServer(*_thingsRepository) {
     // We define order of singleton instantiations here.
     rules;
-
-    // Setup Statistics
-    QObject::connect(&_stats, &Statistics::statsChanged, [&](const sunspec::SunSpecThing& thing, const sunspec::StatsModel& model) {
-        LOG_S(INFO) << thing.sunSpecId() << "> stats: " << model;
-    });
-
-    // Setup SunSpecManager
-    /*
-    QObject::connect(&_sunSpecManager, &sunspec::SunSpecManager::modelRead, [&](const sunspec::SunSpecThing& thing, const sunspec::Model& model) {
-        LOG_S(1) << thing.sunSpecId() << "> " << model;
-        _stats.feedModel(thing, model);
-    });
-    */
-
-    QObject::connect(&_sunSpecManager, &sunspec::SunSpecManager::endOfDayReached, &_stats, &Statistics::reset);
-
-    // Setup MqttExporter
-    //QObject::connect(&_sunSpecManager, &SunSpecManager::modelRead, &_mqttExporter, &MqttExporter::exportLiveData);
-    QObject::connect(&_stats, &Statistics::statsChanged, &_mqttExporter, &MqttExporter::exportStatsData);
 
 #ifdef USE_INFLUXDB
     // Setup InfluxExporter

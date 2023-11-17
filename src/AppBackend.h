@@ -1,7 +1,5 @@
 #pragma once
 
-#include <QObject>
-
 //#include <influx/InfluxExporter.h>
 #include <mqtt/MqttExporter.h>
 #include <things/ThingsManager.h>
@@ -14,13 +12,11 @@
 using namespace std::placeholders;
 using namespace sunspec;
 
-class AppBackend : public QObject {
-    Q_OBJECT
+class AppBackend {
 public:
-    AppBackend(void* mainLoop);
+    AppBackend();
 
 private:
-    Statistics _stats;
     ThingsRepository* _thingsRepository;
     ThingsManager _thingsManager;
     sunspec::SunSpecManager _sunSpecManager;

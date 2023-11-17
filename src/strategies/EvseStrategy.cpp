@@ -69,7 +69,7 @@ EvseStrategy::EvseStrategy(const ThingPtr& thing) :
 EvseStrategy::~EvseStrategy() {
 }
 
-void EvseStrategy::evaluate() {
+void EvseStrategy::evaluate(const std::map<Property, Value>& siteProperties) {
     // If _gridPower is not set yet, do nothing
     if (_gridPower == 0.0) return;
 

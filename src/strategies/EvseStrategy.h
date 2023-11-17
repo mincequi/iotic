@@ -16,7 +16,7 @@ private:
     };
 
     EvseStrategy(const ThingPtr& thing);
-    void evaluate() override;
+    void evaluate(const std::map<Property, Value>& siteProperties) override;
 
     Phases computePhases() const;
     Value computeCurrent() const;
