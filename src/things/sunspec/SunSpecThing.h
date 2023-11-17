@@ -14,7 +14,7 @@ class SunSpecThing : public Thing {
 public:
     static ThingPtr from(const ThingInfo& info);
     SunSpecThing(const ThingInfo& info);
-    virtual ~SunSpecThing();
+    ~SunSpecThing();
 
     QString host() const;
     uint8_t modbusUnitId() const;

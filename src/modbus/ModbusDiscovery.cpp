@@ -66,10 +66,7 @@ void ModbusDiscovery::onStartDiscovering() {
 void ModbusDiscovery::onCandidateStateChangedRpp(sunspec::SunSpecThing* candidate, sunspec::SunSpecThing::State state) {
     switch (state) {
     case SunSpecThing::State::Failed:
-        // If connection failed, delete candidate
-        //_candidates.removeOne(candidate);
         _candidates.removeIf([&](const auto& c) { return c.first == candidate; } );
-        //candidate->deleteLater();
         delete candidate;
         break;
     case SunSpecThing::State::Connected:
@@ -83,7 +80,7 @@ void ModbusDiscovery::onCandidateStateChangedRpp(sunspec::SunSpecThing* candidat
         //_manager.addThing(candidate);
         std::stringstream ss;
         for (const auto& kv : candidate->models()) {
-            ss << kv.first << "(" << kv.second.second << "), ";
+            ss << kv.first << kv.second.second << ", ";
         }
         LOG_S(INFO) << "thing discovered> id: " << candidate->sunSpecId()
                     << ", host: " << candidate->host()

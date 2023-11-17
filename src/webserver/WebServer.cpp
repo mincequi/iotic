@@ -13,11 +13,11 @@
 
 CMRC_DECLARE(webapp);
 
-WebServer::WebServer(void* mainLoop,
-                     const ThingsRepository& thingsRepository) :
+WebServer::WebServer(const ThingsRepository& thingsRepository) :
     _thingsRepository(thingsRepository) {
     _fs = std::make_unique<cmrc::embedded_filesystem>(cmrc::webapp::get_filesystem());
-    uWS::Loop::get(mainLoop);
+    //uWS::Loop::get(mainLoop);
+    uWS::Loop::get(_loop->raw());
     struct UserData {};
     uWS::App::WebSocketBehavior<UserData> behavior;
     behavior.open = [this](uWS::WebSocket<false, true, UserData>* ws) {
@@ -117,6 +117,11 @@ WebServer::WebServer(void* mainLoop,
                              uWS::OpCode::TEXT);
         });
     });
+
+    QObject::connect(&_timer, &QTimer::timeout, [this]() {
+        _loop->run(uvw::loop::run_mode::NOWAIT);
+    });
+    _timer.start(100ms);
 }
 
 WebServer::~WebServer() {

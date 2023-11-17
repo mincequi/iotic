@@ -17,7 +17,7 @@ public:
                           std::unique_ptr<te_parser> onExpression,
                           std::unique_ptr<te_parser> offExpression);
 
-    void evaluate() override;
+    void evaluate(const std::map<Property, Value>& siteProperties) override;
 
 private:
     std::unique_ptr<te_parser> _onExpression;

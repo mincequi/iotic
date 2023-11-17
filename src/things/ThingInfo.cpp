@@ -11,6 +11,9 @@ ThingInfo::ThingInfo(DiscoveryType type, const std::string& id, const std::strin
     _id = std::regex_replace(_id, std::regex("[^a-z0-9]"), "_");
 }
 
+ThingInfo::~ThingInfo() {
+}
+
 bool ThingInfo::isValid() const {
     return _discoveryType != DiscoveryType::Invalid && !_id.empty();
 }

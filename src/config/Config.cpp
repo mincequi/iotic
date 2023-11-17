@@ -13,6 +13,9 @@
 
 struct Config::Impl {
     toml::parse_result configTable;
+
+    // Sane values for interval is > 2s
+    // Sane values for tau is > 3s (mayber better 4s)
     behavior_subject<int> thingInterval = 10;
     behavior_subject<int> tau = 3;
 

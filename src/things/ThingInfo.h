@@ -17,6 +17,7 @@ public:
     ThingInfo(DiscoveryType type,
               const std::string& id,
               const std::string& host);
+    virtual ~ThingInfo();
 
     bool isValid() const;
     DiscoveryType discoveryType() const;

@@ -28,9 +28,10 @@ RulesEngine::RulesEngine(const ThingsRepository& thingsRepository) :
             default: break;
             }
         }
+        // TODO: move strategy collection out of rules engine.
         // After update of site, evaluate strategies
         for (const auto& s : _strategies) {
-            s->evaluate();
+            s->evaluate(prop);
         }
     });
 

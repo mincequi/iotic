@@ -10,7 +10,6 @@
 
 #include <common/Logger.h>
 #include <config/Config.h>
-#include <things/ThingId.h>
 #include <things/ThingsRepository.h>
 
 using namespace std::chrono_literals;
