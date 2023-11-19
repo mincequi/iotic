@@ -21,7 +21,7 @@ typedef TemplatedApp<false> App;
 
 class WebServer {
 public:
-    explicit WebServer(const ThingsRepository& thingsRepository);
+    explicit WebServer(void* mainLoop, const ThingsRepository& thingsRepository);
     ~WebServer();
 
 private:
@@ -32,7 +32,7 @@ private:
 
     const ThingsRepository& _thingsRepository;
     std::unique_ptr<cmrc::embedded_filesystem> _fs;
-    std::shared_ptr<uvw::loop> _loop = uvw::loop::get_default();
+    //std::shared_ptr<uvw::loop> _loop = uvw::loop::get_default();
     std::unique_ptr<uWS::App> _uwsApp;
 
     Router _router;

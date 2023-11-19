@@ -4,7 +4,12 @@
 
 #include <common/Logger.h>
 
+#include "LibUvEventDispatcher.h"
+
 int main(int argc, char *argv[]) {
+
+    iz::Eventing::LibUvEventDispatcher dispatcher;
+    QCoreApplication::setEventDispatcher(&dispatcher);
 
     // Create application instance
     QCoreApplication a(argc, argv);
@@ -13,7 +18,7 @@ int main(int argc, char *argv[]) {
     Logger::init(argc, argv);
 
     // Setup main loop
-    AppBackend backend;
+    AppBackend backend(dispatcher.rawLoop());
 
     return a.exec();
 }

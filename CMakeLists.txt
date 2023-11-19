@@ -40,6 +40,7 @@ add_executable(iotic
   src/main.cpp
   src/AppBackend.cpp
   src/Statistics.cpp
+  src/LibUvEventDispatcher.cpp
 )
 
 target_link_libraries(iotic

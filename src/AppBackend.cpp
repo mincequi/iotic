@@ -11,12 +11,12 @@
 
 using namespace sunspec;
 
-AppBackend::AppBackend()
+AppBackend::AppBackend(void* mainLoop)
     : _thingsRepository(ThingsRepository::instance()),
       _thingsManager(*_thingsRepository),
       _sunSpecManager(*_thingsRepository),
       _mqttExporter("broker.hivemq.com"),
-      _webServer(*_thingsRepository) {
+      _webServer(mainLoop, *_thingsRepository) {
     // We define order of singleton instantiations here.
     rules;
 

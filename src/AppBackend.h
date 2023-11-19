@@ -14,7 +14,7 @@ using namespace sunspec;
 
 class AppBackend {
 public:
-    AppBackend();
+    AppBackend(void* mainLoop);
 
 private:
     ThingsRepository* _thingsRepository;
