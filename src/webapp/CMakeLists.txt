@@ -22,15 +22,15 @@ include(${cmakerc_SOURCE_DIR}/CMakeRC.cmake)
 #)
 
 cmrc_add_resource_library(webapp WHENCE build/web
-  build/web/favicon.png
-  build/web/flutter.js
-  build/web/flutter_service_worker.js
-  build/web/index.html
-  build/web/main.dart.js
-  build/web/manifest.json
-  build/web/assets/FontManifest.json
-  build/web/assets/fonts/MaterialIcons-Regular.otf
-  build/web/icons/Icon-192.png
+  #build/web/favicon.png
+  #build/web/flutter.js
+  #build/web/flutter_service_worker.js
+  #build/web/index.html
+  #build/web/main.dart.js
+  #build/web/manifest.json
+  #build/web/assets/FontManifest.json
+  #build/web/assets/fonts/MaterialIcons-Regular.otf
+  #build/web/icons/Icon-192.png
 )
 
 #add_custom_command(TARGET webapp
