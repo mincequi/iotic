@@ -54,8 +54,8 @@ void GoeCharger::doRead() {
     HttpThing::read(host() + "/api/status?filter=nrg,car"); // psm (for phases) and amp (for amps)
 }
 
-void GoeCharger::onRead(const QByteArray& response) {
-    const auto doc = QJsonDocument::fromJson(response);
+void GoeCharger::onRead(const std::string& response) {
+    const auto doc = QJsonDocument::fromJson(QByteArray::fromStdString(response));
     const auto nrg = doc["nrg"].toArray();
     if (nrg.isEmpty()) return;
 

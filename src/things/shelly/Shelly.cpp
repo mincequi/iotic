@@ -43,8 +43,8 @@ void Shelly::doRead() {
     //setProperty(WriteableThingProperty::powerControl, 1.0);
 }
 
-void Shelly::onRead(const QByteArray& response) {
-    const auto doc = QJsonDocument::fromJson(response);
+void Shelly::onRead(const std::string& response) {
+    const auto doc = QJsonDocument::fromJson(QByteArray::fromStdString(response));
     std::map<Property, Value> properties;
     {
         const auto val = doc["relays"][0]["ison"];

@@ -73,3 +73,6 @@ dynamic_observable<std::map<Property, Value>> Thing::properties() const {
 dynamic_observable<Thing::State> Thing::state() const {
     return _stateSubject.get_observable();
 }
+
+void Thing::onRead(const std::string&) {
+}

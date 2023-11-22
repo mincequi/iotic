@@ -24,8 +24,8 @@ SunSpecThing::SunSpecThing(const ThingInfo& info)
     _modbusClient->setConnectionParameter(QModbusDevice::NetworkPortParameter, 502);
     _modbusClient->setConnectionParameter(QModbusDevice::NetworkAddressParameter, QString::fromStdString(info.host()));
 
-    _modbusClient->setTimeout(2000);
-    _modbusClient->setNumberOfRetries(1);
+    _modbusClient->setTimeout(5000);
+    _modbusClient->setNumberOfRetries(2);
 }
 
 SunSpecThing::~SunSpecThing() {

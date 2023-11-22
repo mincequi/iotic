@@ -75,7 +75,30 @@ void ThingsRepository::setThingProperty(const std::string& id, MutableProperty p
     const auto& thing = thingById(id);
     if (thing) {
         thing->setProperty(property, value);
-    } else {
-        LOG_S(WARNING) << "thing not found: " << id;
+    }
+}
+
+void ThingsRepository::onRead(const std::string& id, const std::string& response, int error) {
+    if (error < 0) {
+        LOG_S(WARNING) << "thing completed: " << id;
+        // We must not directly delete this thing because thing itself might still process something.
+        _thingRemoved.get_subscriber().on_next(id);
+        _removableThings.insert(id);
+        return;
+    }
+
+    const auto& thing = thingById(id);
+    if (thing) {
+        thing->onRead(response);
+    }
+}
+
+void ThingsRepository::onReadOnlyError(const std::string& id, int error) {
+    if (error < 0) {
+        LOG_S(WARNING) << "thing completed: " << id;
+        // We must not directly delete this thing because thing itself might still process something.
+        _thingRemoved.get_subscriber().on_next(id);
+        _removableThings.insert(id);
+        return;
     }
 }

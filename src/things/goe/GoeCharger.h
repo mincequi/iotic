@@ -13,7 +13,7 @@ private:
     ~GoeCharger();
     virtual void doSetProperty(MutableProperty property, const Value& value) override;
     void doRead() override;
-    void onRead(const QByteArray& response) override;
+    void onRead(const std::string& response) override;
 
     ThingStatus _status = ThingStatus::unknown;
 };

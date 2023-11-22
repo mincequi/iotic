@@ -1,16 +1,11 @@
 #pragma once
 
-#include <QList>
 #include <QTimer>
+
 #include <things/ThingsDiscovery.h>
 #include <things/sunspec/SunSpecThing.h>
 
 class ThingsRepository;
-
-namespace sunspec {
-class SunSpecThing;
-class SunSpecManager;
-}
 
 namespace modbus {
 
@@ -26,12 +21,12 @@ public:
 private:
     void onStartDiscovering();
     //void onCandidateStateChanged(sunspec::SunSpecThing::State state);
-    void onCandidateStateChangedRpp(sunspec::SunSpecThing* thing, sunspec::SunSpecThing::State state);
+    void onCandidateStateChangedRpp(const sunspec::SunSpecThing* thing, sunspec::SunSpecThing::State state);
 
     //sunspec::SunSpecManager& _manager;
     ThingsRepository& _thingsRepository;
     QTimer _discoveryTimer;
-    QList<std::pair<sunspec::SunSpecThing*, rpp::composite_subscription>> _candidates;
+    std::list<std::pair<std::unique_ptr<sunspec::SunSpecThing>, rpp::composite_subscription>> _candidates;
 };
 
 } // namespace modbus

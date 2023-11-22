@@ -3,35 +3,47 @@ set(FETCHCONTENT_QUIET FALSE)
 set(BUILD_TESTS OFF)
 
 FetchContent_Declare(qmdns
-    GIT_REPOSITORY https://github.com/nitroshare/qmdnsengine.git
-    GIT_TAG        0ca80117e853671d909b3cec9e2bdcac85a13b9f # main from Jan 16, 2022
-    GIT_PROGRESS TRUE
+  GIT_REPOSITORY  https://github.com/nitroshare/qmdnsengine.git
+  GIT_TAG         0ca80117e853671d909b3cec9e2bdcac85a13b9f # main from Jan 16, 2022
+  GIT_PROGRESS    TRUE
 )
 if(NOT qmdns_POPULATED)
-    FetchContent_Populate(qmdns)
-    set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build SHARED libraries")
-    add_subdirectory(${qmdns_SOURCE_DIR} ${qmdns_BINARY_DIR} EXCLUDE_FROM_ALL)
+  FetchContent_Populate(qmdns)
+  set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build SHARED libraries")
+  add_subdirectory(${qmdns_SOURCE_DIR} ${qmdns_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
-#set(LIFT_BUILD_EXAMPLES OFF)
-#set(LIFT_BUILD_TESTS OFF)
-#set(LIFT_USER_LINK_LIBRARIES uv)
-#FetchContent_Declare(lift
-#    URL   https://github.com/jbaldwin/liblifthttp/archive/refs/tags/v2022.1.tar.gz
-#)
-#if(NOT lift_POPULATED)
-#    FetchContent_Populate(lift)
-#    add_subdirectory(${lift_SOURCE_DIR} ${lift_BINARY_DIR} EXCLUDE_FROM_ALL)
-#endif()
+FetchContent_Declare(lhttp
+  GIT_REPOSITORY  https://github.com/neithern/libhttp.git
+  GIT_TAG         2a19dabe1337c03e9499b95dafc81105e63dc197
+  GIT_PROGRESS    TRUE
+)
+if(NOT lhttp_POPULATED)
+  FetchContent_Populate(lhttp)
+endif()
+#FetchContent_MakeAvailable(lhttp)
 
 add_library(http STATIC
   HttpDiscovery.cpp
   HttpThing.cpp
+  ${lhttp_SOURCE_DIR}/src/buffer-pool.cpp
+  ${lhttp_SOURCE_DIR}/src/chunked-decoder.cpp
+  ${lhttp_SOURCE_DIR}/src/client.cpp
+  ${lhttp_SOURCE_DIR}/src/content-writer.cpp
+  ${lhttp_SOURCE_DIR}/src/loop.cpp
+  ${lhttp_SOURCE_DIR}/src/parser.cpp
+  ${lhttp_SOURCE_DIR}/src/uri.cpp
+  ${lhttp_SOURCE_DIR}/src/utils.cpp
+  ${lhttp_SOURCE_DIR}/src/pico/picohttpparser.c
+)
+
+target_include_directories(http
+PRIVATE
+  ${lhttp_SOURCE_DIR}/include
 )
 
 target_link_libraries(http
 PUBLIC
   common
   qmdnsengine
-  #lifthttp
 )

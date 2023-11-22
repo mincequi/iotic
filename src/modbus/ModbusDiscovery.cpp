@@ -32,10 +32,10 @@ void ModbusDiscovery::stop() {
 }
 
 void ModbusDiscovery::onStartDiscovering() {
-    foreach (auto thing, _candidates) {
-        thing.second.unsubscribe();
-        delete thing.first;
-    }
+    // TODO: do we actually need to unsubscribe?
+    //for (const auto& c : _candidates) {
+    //    c.second.unsubscribe();
+    //}
     _candidates.clear();
 
     // Find network interfaces
@@ -55,41 +55,48 @@ void ModbusDiscovery::onStartDiscovering() {
         if (_thingsRepository.thingByHost(host.toStdString())) {
             continue;
         }
-        auto* candidate = new SunSpecThing({ ThingInfo::SunSpec, host.toStdString(), host.toStdString() });
-        //candidate->connect(candidate, &SunSpecThing::stateChanged, this, &ModbusDiscovery::onCandidateStateChanged);
-        auto sub = candidate->state().subscribe(std::bind(&ModbusDiscovery::onCandidateStateChangedRpp, this, candidate, _1));
-        _candidates.append({candidate, sub});
+        auto candidate = std::make_unique<SunSpecThing>(ThingInfo{ThingInfo::SunSpec, host.toStdString(), host.toStdString()});
+        auto sub = candidate->state().subscribe(std::bind(&ModbusDiscovery::onCandidateStateChangedRpp, this, candidate.get(), _1));
         candidate->connectDevice();
+        _candidates.push_back({std::move(candidate), sub});
     }
 }
 
-void ModbusDiscovery::onCandidateStateChangedRpp(sunspec::SunSpecThing* candidate, sunspec::SunSpecThing::State state) {
+void ModbusDiscovery::onCandidateStateChangedRpp(const SunSpecThing* candidate_, SunSpecThing::State state) {
     switch (state) {
     case SunSpecThing::State::Failed:
-        _candidates.removeIf([&](const auto& c) { return c.first == candidate; } );
-        delete candidate;
+        // TODO: do we actually need to unsubscribe?
+        _candidates.remove_if([&](const auto& c) {
+            return c.first.get() == candidate_;
+        });
         break;
     case SunSpecThing::State::Connected:
+        // Steal candidate from container
+        auto it = std::find_if(_candidates.begin(), _candidates.end(), [&](const auto& c) {
+            return c.first.get() == candidate_;
+        });
+
+        auto candidate = std::move(*it);
+        _candidates.erase(it);
+
+        // TODO: do we actually need to unsubscribe?
         // Disconnect signals, since we are handing off this object
-        //candidate->disconnect();
-        //_candidates.removeAll(candidate);
-        _candidates.removeIf([&](const auto& c) { if (c.first == candidate) {
-                c.second.unsubscribe();
-                return true;
-            } return false; } );
-        //_manager.addThing(candidate);
+        //candidate.second.unsubscribe();
+
+        // Prepare thing
+        auto thing = std::move(candidate.first);
         std::stringstream ss;
-        for (const auto& kv : candidate->models()) {
+        for (const auto& kv : thing->models()) {
             ss << kv.first << kv.second.second << ", ";
         }
-        LOG_S(INFO) << "thing discovered> id: " << candidate->sunSpecId()
-                    << ", host: " << candidate->host()
-                    << ", modbusUnitId: " << (uint32_t)candidate->modbusUnitId()
+        LOG_S(INFO) << "thing discovered> id: " << thing->sunSpecId()
+                    << ", host: " << thing->host()
+                    << ", modbusUnitId: " << (uint32_t)thing->modbusUnitId()
                     << ", models: " << ss.str();
-        candidate->_id = candidate->sunSpecId();
-        candidate->setProperty(MutableProperty::pinned, cfg->valueOr(candidate->sunSpecId(), Config::Key::pinned, false));
-        candidate->setProperty(MutableProperty::name, cfg->valueOr(candidate->sunSpecId(), Config::Key::name, candidate->sunSpecId()));
-        _thingsRepository.addThing(ThingPtr(candidate));
+        thing->_id = thing->sunSpecId();
+        thing->setProperty(MutableProperty::pinned, cfg->valueOr(thing->sunSpecId(), Config::Key::pinned, false));
+        thing->setProperty(MutableProperty::name, cfg->valueOr(thing->sunSpecId(), Config::Key::name, thing->sunSpecId()));
+        _thingsRepository.addThing(std::move(thing));
         break;
     }
 }

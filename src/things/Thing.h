@@ -51,6 +51,7 @@ public:
 
 protected:
     virtual void doRead() = 0;
+    virtual void onRead(const std::string& response);
     virtual void doSetProperty(MutableProperty property, const Value& value) = 0;
 
     Type _type = Type::Undefined;
@@ -62,6 +63,8 @@ protected:
     dynamic_observable<std::map<Property, Value>> _propertiesObservable;
 
     publish_subject<State> _stateSubject;
+
+    friend class ThingsRepository;
 };
 
 using ThingPtr = std::unique_ptr<Thing>;

@@ -38,10 +38,15 @@ public:
 private:
     ThingsRepository();
 
+    void onRead(const std::string& id, const std::string& response, int error);
+    void onReadOnlyError(const std::string& id, int error);
+
     static inline ThingsRepository* _instance;
 
     mutable std::list<ThingPtr> _things;
     mutable std::set<std::string> _removableThings;
     publish_subject<ThingPtr> _thingAdded;
     publish_subject<std::string> _thingRemoved;
+
+    friend class HttpThing;
 };

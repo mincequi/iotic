@@ -83,5 +83,7 @@ private:
     std::map<uint16_t, sunspec::Model> _models;
 };
 
+using SunSpecThingPtr = std::unique_ptr<SunSpecThing>;
+
 } // namespace sunspec
 

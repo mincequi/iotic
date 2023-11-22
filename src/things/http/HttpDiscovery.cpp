@@ -28,6 +28,7 @@ void HttpDiscovery::stop() {
     if (_mdnsBrowser) {
         _mdnsBrowser->disconnect();
         _mdnsBrowser->deleteLater();
+        _mdnsBrowser = nullptr;
     }
 }
 
