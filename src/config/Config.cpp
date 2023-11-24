@@ -3,7 +3,6 @@
 #include <fstream>
 #include <iostream>
 
-#define TOML_EXCEPTIONS 0
 #include <toml.hpp>
 
 #include <common/Logger.h>
@@ -12,7 +11,7 @@
 #include <things/ThingsRepository.h>
 
 struct Config::Impl {
-    toml::parse_result configTable;
+    toml::table configTable;
 
     // Sane values for interval is > 2s
     // Sane values for tau is > 3s (mayber better 4s)
@@ -68,27 +67,36 @@ Config::Config() :
 
 template<class T>
 T Config::valueOr(const std::string& table_, Key key, T fallback) const {
-    return _p->configTable[table_][util::toString(key)].value_or(fallback);
+    if (!_p->configTable.contains(table_) ||
+            !_p->configTable.at(table_).contains(util::toString(key))) {
+        return fallback;
+    }
+
+    return toml::get_or(_p->configTable[table_][util::toString(key)], fallback);
 }
 
 void Config::setValue(const std::string& table, Property key, const Value& value) {
-    if (!_p->configTable.table().contains(table)) {
-        _p->configTable.table().insert_or_assign(table, toml::table{});
-    }
-    auto section = _p->configTable.table().at(table).as_table();
+    if (!_p->configTable.contains(table))
+        _p->configTable[table] = toml::table();
+    auto& section = _p->configTable[table].as_table();
+
     std::visit([&](auto& arg) {
         using T = std::decay_t<decltype(arg)>;
         if constexpr (std::is_same_v<T, std::array<double, 3>>) {}
         else {
-            section->insert_or_assign(util::toString(key), arg);
+            section.insert_or_assign(util::toString(key), arg);
         }
     }, value);
 
     if (_testing) return;
 
+    //for (const auto& e : _p->configTable) {
+    //    LOG_S(INFO) << "key: " << e.first << ", value: " << e.second;
+    //}
+
     std::ofstream configFile;
     configFile.open(_configFile);
-    configFile << _p->configTable;
+    configFile << toml::value(_p->configTable);
 }
 
 void Config::setThingInterval(int seconds) {
@@ -122,25 +130,25 @@ double Config::evsePhi() const {
 }
 
 void Config::parse() {
-    _p->configTable = toml::parse_file(_configFile);
-    if (!_p->configTable) {
-        LOG_S(FATAL) << "Error parsing config file: " << _configFile;
-        return;
+    std::ifstream configFile(_configFile);
+    if (configFile.good()) {
+        _p->configTable = toml::parse(_configFile).as_table();
+    } else {
+        LOG_S(WARNING) << "Error parsing config file: " << _configFile;
+        _p->configTable = toml::table();
     }
 
-    _discoveryInterval = _p->configTable["site"]["discovery_interval"].value_or(60);
+    _discoveryInterval = valueOr("site", Key::discovery_interval, 60);
     LOG_S(INFO) << "discovery_interval: " << _discoveryInterval << "s";
-    _p->thingInterval.get_subscriber().on_next(_p->configTable["site"]["thing_interval"].value_or(10));
+    _p->thingInterval.get_subscriber().on_next(valueOr("site", Key::thing_interval, 10));
     LOG_S(INFO) << "thing_interval: " << thingInterval() << "s";
-    _p->tau.get_subscriber().on_next(_p->configTable["ev_charging_strategy"]["time_constant"].value_or(10));
+    _p->tau.get_subscriber().on_next(valueOr("ev_charging_strategy", Key::time_constant, 10));
 
-    if (auto pvMeters = _p->configTable["site"]["pv"].as_array()) {
-        pvMeters->for_each([this](auto& el) {
-            if constexpr (toml::is_string<decltype(el)>)
-                    _pvMeters.insert(el.get());
-        });
+    for (const auto& el : valueOr("site", Key::pv, toml::array())) {
+        if (el.is_string())
+            _pvMeters.insert(el.as_string());
     }
-    _gridMeter = _p->configTable["site"]["grid"].value_or("");
+    _gridMeter = valueOr("site", Key::grid, std::string());
 }
 
 // Explicit template instantiation

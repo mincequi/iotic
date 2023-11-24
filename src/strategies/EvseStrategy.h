@@ -23,7 +23,6 @@ private:
 
     double _power = 0;
     std::array<double, 3> _voltages;
-    double _gridPower = 0;
     double _offsetPower = 0;
     // Short term is used for amperage
     double _shortTermAvailablePower = 0.0;

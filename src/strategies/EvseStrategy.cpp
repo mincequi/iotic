@@ -52,18 +52,6 @@ EvseStrategy::EvseStrategy(const ThingPtr& thing) :
             }
         }
     });
-
-    _site->properties().subscribe([this](const std::map<Property, Value>& map) {
-        for (const auto& kv : map) {
-            switch (kv.first) {
-            case Property::grid_power:
-                _gridPower = std::get<double>(kv.second);
-                break;
-            default:
-                break;
-            }
-        }
-    });
 }
 
 EvseStrategy::~EvseStrategy() {
@@ -71,10 +59,11 @@ EvseStrategy::~EvseStrategy() {
 
 void EvseStrategy::evaluate(const std::map<Property, Value>& siteProperties) {
     // If _gridPower is not set yet, do nothing
-    if (_gridPower == 0.0) return;
+    if (!siteProperties.contains(Property::grid_power)) return;
+    double gridPower = std::get<double>(siteProperties.at(Property::grid_power));
 
     // Compute available power
-    const double availablePower = _power - _gridPower + _offsetPower;
+    const double availablePower = _power - gridPower + _offsetPower;
     if (_shortTermAvailablePower == 0.0) _shortTermAvailablePower = availablePower;
     if (_longTermAvailablePower == 0.0) _longTermAvailablePower = availablePower;
     _shortTermAvailablePower += cfg->evseAlpha() * (availablePower - _shortTermAvailablePower);

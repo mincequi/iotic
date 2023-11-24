@@ -42,6 +42,12 @@ class ThingsRepository;
 class Config {
 public:
     enum class Key {
+        discovery_interval,
+        thing_interval,
+        time_constant,
+        grid,
+        pv,
+
         name,
         pinned,
 

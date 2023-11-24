@@ -264,7 +264,7 @@ void SunSpecThing::onReadModelTable(QModbusReply* reply) {
                 }
             }
             //emit stateChanged(State::Connected);
-            _stateSubject.get_subscriber().on_next(State::Connected);
+            _stateSubject.get_subscriber().on_next(State::Ready);
         } else {
             readModelTable(unit.startAddress() + 2 + unit.value(1));
         }

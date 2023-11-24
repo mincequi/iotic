@@ -56,7 +56,7 @@ target_link_libraries(iotic
 )
 
 install(TARGETS iotic DESTINATION bin)
-install(FILES ${PROJECT_SOURCE_DIR}/etc/iotic.conf DESTINATION /var/lib/iotic)
+#install(FILES ${PROJECT_SOURCE_DIR}/etc/iotic.conf DESTINATION /var/lib/iotic)
 install(FILES ${PROJECT_SOURCE_DIR}/debian/iotic.service DESTINATION /usr/lib/systemd/system)
 
 set(CPACK_GENERATOR "DEB")

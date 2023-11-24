@@ -70,7 +70,7 @@ void ModbusDiscovery::onCandidateStateChangedRpp(const SunSpecThing* candidate_,
             return c.first.get() == candidate_;
         });
         break;
-    case SunSpecThing::State::Connected:
+    case SunSpecThing::State::Ready:
         // Steal candidate from container
         auto it = std::find_if(_candidates.begin(), _candidates.end(), [&](const auto& c) {
             return c.first.get() == candidate_;
@@ -79,9 +79,8 @@ void ModbusDiscovery::onCandidateStateChangedRpp(const SunSpecThing* candidate_,
         auto candidate = std::move(*it);
         _candidates.erase(it);
 
-        // TODO: do we actually need to unsubscribe?
         // Disconnect signals, since we are handing off this object
-        //candidate.second.unsubscribe();
+        candidate.second.unsubscribe();
 
         // Prepare thing
         auto thing = std::move(candidate.first);

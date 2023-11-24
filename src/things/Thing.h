@@ -24,7 +24,7 @@ public:
     };
 
     enum class State {
-        Connected,
+        Ready,
         Failed
     };
 

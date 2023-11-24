@@ -1,13 +1,10 @@
 include(FetchContent)
 
-FetchContent_Declare(tomlplusplus
-    URL https://github.com/marzer/tomlplusplus/archive/refs/tags/v3.3.0.tar.gz
-    #GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
-    #GIT_TAG        v3.3.0
+FetchContent_Declare(toml11
+    URL https://github.com/ToruNiina/toml11/archive/refs/tags/v3.7.1.tar.gz
 )
-if(NOT tomlplusplus_POPULATED)
-    FetchContent_Populate(tomlplusplus)
-    add_subdirectory(${tomlplusplus_SOURCE_DIR} ${tomlplusplus_BINARY_DIR} EXCLUDE_FROM_ALL)
+if(NOT toml11_POPULATED)
+    FetchContent_Populate(toml11)
 endif()
 
 add_library(config
@@ -17,7 +14,7 @@ STATIC
 
 target_include_directories(config
 PRIVATE
-  ${tomlplusplus_SOURCE_DIR}
+  ${toml11_SOURCE_DIR}
 )
 
 target_link_libraries(config
