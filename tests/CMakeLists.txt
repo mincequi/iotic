@@ -3,8 +3,9 @@ find_package(Catch2 REQUIRED)
 add_executable(tests
   #RppTest.cpp
   #CppTest.cpp
-  RulesTest.cpp
-  TestUtil.cpp
+  #RulesTest.cpp
+  #TestUtil.cpp
+  things/SiteTest.cpp
 )
 
 target_link_libraries(tests

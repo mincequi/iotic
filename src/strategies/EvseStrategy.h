@@ -16,7 +16,7 @@ private:
     };
 
     EvseStrategy(const ThingPtr& thing);
-    void evaluate(const std::map<Property, Value>& siteProperties) override;
+    void evaluate(double gridPower) override;
 
     Phases computePhases() const;
     Value computeCurrent() const;

@@ -66,7 +66,7 @@ RuleActuationStrategy<TScheduler>::RuleActuationStrategy(const std::string& thin
 }
 
 template<rpp::schedulers::constraint::scheduler TScheduler>
-void RuleActuationStrategy<TScheduler>::evaluate(const std::map<Property, Value>& siteProperties) {
+void RuleActuationStrategy<TScheduler>::evaluate(double /*gridPower*/) {
     // 1. Check for off condition
     if (_offExpression->evaluate()) {
         _expressionSubject.get_subscriber().on_next(false);

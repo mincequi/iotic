@@ -19,19 +19,12 @@ RulesEngine* RulesEngine::instance() {
 
 RulesEngine::RulesEngine(const ThingsRepository& thingsRepository) :
     _thingsRepository(thingsRepository) {
-    _site->properties().subscribe([this](const auto& prop) {
-        for (const auto& kv : prop) {
-            switch (kv.first) {
-            case Property::pv_power:   _symbolTable["pv_power"] = std::get<double>(kv.second); break;
-            case Property::grid_power: _symbolTable["grid_power"] = std::get<double>(kv.second); break;
-            case Property::site_power: _symbolTable["site_power"] = std::get<double>(kv.second); break;
-            default: break;
-            }
-        }
+    _site->gridPower().subscribe([this](int power) {
+        _symbolTable["grid_power"] = power;
         // TODO: move strategy collection out of rules engine.
         // After update of site, evaluate strategies
         for (const auto& s : _strategies) {
-            s->evaluate(prop);
+            s->evaluate(power);
         }
     });
 

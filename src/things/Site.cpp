@@ -114,6 +114,22 @@ dynamic_observable<std::map<Property, Value>> Site::properties() const {
     return _propertiesSubject.get_observable();
 }
 
+dynamic_observable<int> Site::gridPower() const {
+    return _gridPower.get_observable()
+            .scan(std::deque<int>{}, [](std::deque<int>&& seed, int value) {
+                seed.push_back(value);
+                while (seed.size() < 3) seed.push_back(value);
+                while (seed.size() > 3) seed.pop_front();
+                return std::move(seed);
+            })
+            .map([](std::deque<int> v) {
+                //LOG_S(INFO) << "gridPower> { " << v.at(0) << ", " << v.at(1) << ", " << v.at(2) << " }";
+                std::sort(v.begin(), v.end());
+                //LOG_S(INFO) << "gridPower> " << v.at(1);
+                return v.at(1);
+            });
+}
+
 const std::list<Site::SiteData>& Site::history() const {
     return _history;
 }

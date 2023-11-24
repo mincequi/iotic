@@ -17,7 +17,7 @@ public:
                           std::unique_ptr<te_parser> onExpression,
                           std::unique_ptr<te_parser> offExpression);
 
-    void evaluate(const std::map<Property, Value>& siteProperties) override;
+    void evaluate(double gridPower) override;
 
 private:
     std::unique_ptr<te_parser> _onExpression;

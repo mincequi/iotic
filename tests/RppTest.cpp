@@ -9,39 +9,20 @@
 #include <common/Logger.h>
 #include <things/ThingsRepository.h>
 
-class SomeThing : public Thing {
-public:
-    using Thing::Thing;
-    virtual void doRead() override {};
-    virtual void doSetProperty(MutableProperty property, const Value& value) override {};
-
-    void tick() {
-        static int i = 0;
-        if (i%4 == 0)
-            _propertiesSubject.get_subscriber().on_next({});
-        if (i%4 == 1)
-            _propertiesSubject.get_subscriber().on_next({});
-        if (i%4 == 2)
-            _propertiesSubject.get_subscriber().on_next({});
-        if (i%4 == 3)
-            _propertiesSubject.get_subscriber().on_completed();
-        ++i;
-    }
-};
+#include "things/TestThing.h"
 
 //TEST_CASE("Thing can be deleted", "[rpp]") {
 int main() {
     int i = 0;
     QCoreApplication a(i, nullptr);
 
-    ThingsRepository _repo;
-    _repo.thingAdded().subscribe([](const auto& thing) {
+    repo->thingAdded().subscribe([](const auto& thing) {
         thing->properties().subscribe([](const auto& prop) {
         });
     });
 
     ThingInfo thingInfo(ThingInfo::DiscoveryType::Http, "id", "host");
-    _repo.addThing(std::make_unique<SomeThing>(thingInfo));
+    repo->addThing(std::make_unique<TestThing>(thingInfo));
 
     const auto& thing = _repo.thingById("id");
     SomeThing* someThing = static_cast<SomeThing*>(thing.get());

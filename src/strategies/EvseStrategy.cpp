@@ -57,11 +57,7 @@ EvseStrategy::EvseStrategy(const ThingPtr& thing) :
 EvseStrategy::~EvseStrategy() {
 }
 
-void EvseStrategy::evaluate(const std::map<Property, Value>& siteProperties) {
-    // If _gridPower is not set yet, do nothing
-    if (!siteProperties.contains(Property::grid_power)) return;
-    double gridPower = std::get<double>(siteProperties.at(Property::grid_power));
-
+void EvseStrategy::evaluate(double gridPower) {
     // Compute available power
     const double availablePower = _power - gridPower + _offsetPower;
     if (_shortTermAvailablePower == 0.0) _shortTermAvailablePower = availablePower;

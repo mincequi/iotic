@@ -29,6 +29,7 @@ public:
     const std::map<MutableProperty, Value>& mutableProperties() const;
 
     dynamic_observable<std::map<Property, Value>> properties() const;
+    dynamic_observable<int> gridPower() const;
 
     const std::list<SiteData>& history() const;
 
