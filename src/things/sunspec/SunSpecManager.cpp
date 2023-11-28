@@ -8,10 +8,8 @@ using namespace std::placeholders;
 
 namespace sunspec {
 
-SunSpecManager::SunSpecManager(ThingsRepository& repository,
-                               QObject *parent) :
-    QObject(parent),
-    _discovery(repository) {
+SunSpecManager::SunSpecManager(QObject *parent) :
+    QObject(parent) {
     _timer.callOnTimeout(this, &SunSpecManager::onTimer);
     _timer.start(100);
 }

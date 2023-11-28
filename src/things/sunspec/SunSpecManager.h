@@ -11,17 +11,13 @@ namespace sunspec {
 class SunSpecManager : public QObject {
     Q_OBJECT
 public:
-    explicit SunSpecManager(ThingsRepository& repository,
-                            QObject *parent = nullptr);
+    explicit SunSpecManager(QObject *parent = nullptr);
 
     void startDiscovery(int msec);
 
     bool contains(const QString& host) const;
 
 signals:
-    void thingDiscovered(const sunspec::SunSpecThing&);
-    void thingDisappeared(const sunspec::SunSpecThing&);
-
     void modelRead(const SunSpecThing& thing, const sunspec::Model& model, uint32_t timestamp);
 
     // TOOD: probably not the right class to emit this. However, this is a simple solution for now.

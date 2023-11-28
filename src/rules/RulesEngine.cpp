@@ -49,7 +49,7 @@ RulesEngine::RulesEngine(const ThingsRepository& thingsRepository) :
     });
 
     _thingsRepository.thingRemoved().subscribe([this](const auto& id) {
-        std::erase_if(_strategies, [&, this](const auto& t) {
+        std::erase_if(_strategies, [&](const auto& t) {
             return t->thingId() == id;
         });
     });

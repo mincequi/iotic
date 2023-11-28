@@ -32,15 +32,15 @@ void HttpDiscovery::stop() {
     }
 }
 
-void HttpDiscovery::onServiceAdded(const QMdnsEngine::Service &service) {
+void HttpDiscovery::onServiceAdded(const QMdnsEngine::Service& service) {
     const std::string name = service.name().toStdString();
     LOG_S(INFO) << "thing discovered> host: " << service.hostname().toStdString() << ", name: " << name;
     // TODO: shall we get a subscriber each time, we want to emit (or keep it as class member)?
     _thingDiscovered.get_subscriber().on_next({ ThingInfo::DiscoveryType::Http, name, name });
 }
 
-void HttpDiscovery::onServiceUpdated(const QMdnsEngine::Service &service) {
+void HttpDiscovery::onServiceUpdated(const QMdnsEngine::Service&) {
 }
 
-void HttpDiscovery::onServiceRemoved(const QMdnsEngine::Service &service) {
+void HttpDiscovery::onServiceRemoved(const QMdnsEngine::Service&) {
 }

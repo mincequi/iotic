@@ -15,10 +15,7 @@ namespace modbus {
 using namespace std::placeholders;
 using namespace sunspec;
 
-ModbusDiscovery::ModbusDiscovery(//SunSpecManager& manager,
-                                 ThingsRepository& repository) :
-    //_manager(manager),
-    _thingsRepository(repository) {
+ModbusDiscovery::ModbusDiscovery() {
     _discoveryTimer.callOnTimeout(this, &ModbusDiscovery::onStartDiscovering);
 }
 
@@ -52,17 +49,17 @@ void ModbusDiscovery::onStartDiscovering() {
     LOG_S(INFO) << "discovering things in subnet: " << subnet << "0/24";
     for (uint8_t i = 1; i < 255; ++i) {
         const QString host = subnet + QString::number(i);
-        if (_thingsRepository.thingByHost(host.toStdString())) {
+        if (repo->thingByHost(host.toStdString())) {
             continue;
         }
         auto candidate = std::make_unique<SunSpecThing>(ThingInfo{ThingInfo::SunSpec, host.toStdString(), host.toStdString()});
-        auto sub = candidate->state().subscribe(std::bind(&ModbusDiscovery::onCandidateStateChangedRpp, this, candidate.get(), _1));
+        auto sub = candidate->state().subscribe(std::bind(&ModbusDiscovery::onCandidateStateChanged, this, candidate.get(), _1));
         candidate->connectDevice();
         _candidates.push_back({std::move(candidate), sub});
     }
 }
 
-void ModbusDiscovery::onCandidateStateChangedRpp(const SunSpecThing* candidate_, SunSpecThing::State state) {
+void ModbusDiscovery::onCandidateStateChanged(const SunSpecThing* candidate_, SunSpecThing::State state) {
     switch (state) {
     case SunSpecThing::State::Failed:
         // TODO: do we actually need to unsubscribe?
@@ -86,16 +83,18 @@ void ModbusDiscovery::onCandidateStateChangedRpp(const SunSpecThing* candidate_,
         auto thing = std::move(candidate.first);
         std::stringstream ss;
         for (const auto& kv : thing->models()) {
-            ss << kv.first << kv.second.second << ", ";
+            ss << kv.first << ", ";
         }
         LOG_S(INFO) << "thing discovered> id: " << thing->sunSpecId()
                     << ", host: " << thing->host()
                     << ", modbusUnitId: " << (uint32_t)thing->modbusUnitId()
                     << ", models: " << ss.str();
         thing->_id = thing->sunSpecId();
+
+        // TODO: Remove dependency to thingsRepository
         thing->setProperty(MutableProperty::pinned, cfg->valueOr(thing->sunSpecId(), Config::Key::pinned, false));
         thing->setProperty(MutableProperty::name, cfg->valueOr(thing->sunSpecId(), Config::Key::name, thing->sunSpecId()));
-        _thingsRepository.addThing(std::move(thing));
+        repo->addThing(std::move(thing));
         break;
     }
 }

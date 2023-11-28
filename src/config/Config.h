@@ -50,6 +50,7 @@ public:
 
         name,
         pinned,
+        offset,
 
         on,
         off,

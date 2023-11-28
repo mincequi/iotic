@@ -3,7 +3,7 @@
 #include <memory>
 #include <rpp/observables/dynamic_observable.hpp>
 #include <rpp/subjects/publish_subject.hpp>
-#include <things/ThingInfo.h>
+#include <things/Thing.h>
 
 using rpp::dynamic_observable;
 using rpp::subjects::publish_subject;

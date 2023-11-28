@@ -2,8 +2,10 @@
 
 #include <uvw/loop.h>
 
-#include "AppBackend.h"
+#include "appDaemon/AppBackend.h"
+#include "appDiscover/AppDiscover.h"
 
+#include <cli/Cli.h>
 #include <common/Logger.h>
 
 using namespace std::chrono_literals;
@@ -13,11 +15,26 @@ int main(int argc, char *argv[]) {
     // Create application instance
     QCoreApplication a(argc, argv);
 
-    // Setup logger
-    Logger::init(argc, argv);
+    std::unique_ptr<AppBackend> backend;
+    std::unique_ptr<AppDiscover> discover;
 
-    // Setup app backend
-    AppBackend backend;
+    // Parse command line
+    switch (Cli::parseCommandLine(argc, argv)) {
+    case mode::daemon:
+        // Setup logger
+        Logger::init(argc, argv);
+        // Setup app backend
+        backend = std::make_unique<AppBackend>();
+        break;
+    case mode::discover:
+        // Setup logger
+        Logger::init(argc, argv);
+        // Setup app backend
+        discover = std::make_unique<AppDiscover>();
+        break;
+    case mode::help:
+    return 0;
+    }
 
     // Setup main loop (drive libuv event loop from Qt using QTimer)
     QTimer timer;

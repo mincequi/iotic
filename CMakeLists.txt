@@ -21,6 +21,7 @@ find_package(Threads)
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Network SerialBus REQUIRED)
 
+add_subdirectory(src/cli)
 add_subdirectory(src/common)
 add_subdirectory(src/config)
 #add_subdirectory(src/influx)
@@ -37,13 +38,15 @@ endif()
 
 add_executable(iotic
   src/main.cpp
-  src/AppBackend.cpp
   src/Statistics.cpp
+  src/appDaemon/AppBackend.cpp
+  src/appDiscover/AppDiscover.cpp
 )
 
 target_link_libraries(iotic
   Threads::Threads
   ${CMAKE_DL_LIBS}
+  cli
   common
   config
   #influx

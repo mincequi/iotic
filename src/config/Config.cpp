@@ -55,6 +55,7 @@ Config::Config() :
                 switch (kv.first) {
                 case Property::name:
                 case Property::pinned:
+                case Property::offset:
                     setValue(thing->id(), kv.first, kv.second);
                     break;
                 default:
@@ -83,7 +84,9 @@ void Config::setValue(const std::string& table, Property key, const Value& value
     std::visit([&](auto& arg) {
         using T = std::decay_t<decltype(arg)>;
         if constexpr (std::is_same_v<T, std::array<double, 3>>) {}
-        else {
+        else if constexpr (std::is_same_v<T, double>) {
+            section.insert_or_assign(util::toString(key), (int)std::round(arg));
+        } else {
             section.insert_or_assign(util::toString(key), arg);
         }
     }, value);

@@ -14,7 +14,6 @@ using namespace sunspec;
 AppBackend::AppBackend()
     : _thingsRepository(ThingsRepository::instance()),
       _thingsManager(*_thingsRepository),
-      _sunSpecManager(*_thingsRepository),
       _mqttExporter("broker.hivemq.com"),
       _webServer(*_thingsRepository) {
     // We define order of singleton instantiations here.
