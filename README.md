@@ -37,7 +37,7 @@ iotic implements several strategies to realize PC surplus charging of electric v
 
 # Requirements
 - C++17
-- Qt >= 6.4 Core Network SerialBus (not working with Qt5)
+- Qt5 or Qt6: Core Network SerialBus
 - Flutter
 
 # Installation (Debian/Ubuntu)

@@ -2,10 +2,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(FETCHCONTENT_QUIET FALSE)
 set(CMAKE_CXX_FLAGS "-DLOGURU_WITH_STREAMS" CACHE INTERNAL "")
 
-set(CMAKE_AUTOMOC ON CACHE INTERNAL "Auto moc")
-
-find_package(Qt6 COMPONENTS Core Network SerialBus REQUIRED)
-
 FetchContent_Declare(loguru
   GIT_REPOSITORY https://github.com/emilk/loguru.git
   GIT_TAG        v2.1.0

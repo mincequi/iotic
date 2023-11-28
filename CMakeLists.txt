@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(iotic
-  VERSION 0.2.0
-  LANGUAGES C CXX)
+project(iotic VERSION 0.3.0 LANGUAGES C CXX)
 
 include(FetchContent)
 set(FETCHCONTENT_QUIET FALSE)
@@ -13,14 +11,15 @@ set(CMAKE_CXX_EXTENSIONS ON)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(CMAKE_AUTOUIC ON)
+#set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
+#set(CMAKE_AUTORCC ON)
 
 option(BUILD_TESTS "Build test programs" OFF)
 
 find_package(Threads)
-find_package(Qt6 COMPONENTS Core Network SerialBus REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Network SerialBus REQUIRED)
 
 add_subdirectory(src/common)
 add_subdirectory(src/config)
