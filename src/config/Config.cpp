@@ -124,7 +124,7 @@ double Config::evsePhi() const {
 void Config::parse() {
     _p->configTable = toml::parse_file(_configFile);
     if (!_p->configTable) {
-        LOG_S(FATAL) << "Error parsing config file: " << _configFile;
+        LOG_S(1) << "Error parsing config file: " << _configFile;
         return;
     }
 
