@@ -15,7 +15,10 @@ namespace modbus {
 using namespace std::placeholders;
 using namespace sunspec;
 
-ModbusDiscovery::ModbusDiscovery() {
+asio::io_context ModbusDiscovery::ioc;
+
+ModbusDiscovery::ModbusDiscovery() :
+    _httpClient(std::make_shared<HttpClient>(ioc)) {
     _discoveryTimer.callOnTimeout(this, &ModbusDiscovery::onStartDiscovering);
 }
 
@@ -52,6 +55,8 @@ void ModbusDiscovery::onStartDiscovering() {
         if (repo->thingByHost(host.toStdString())) {
             continue;
         }
+
+        //_httpClient->connect(host.toStdString(), 502);
         auto candidate = std::make_unique<SunSpecThing>(ThingInfo{ThingInfo::SunSpec, host.toStdString(), host.toStdString()});
         auto sub = candidate->state().subscribe(std::bind(&ModbusDiscovery::onCandidateStateChanged, this, candidate.get(), _1));
         candidate->connectDevice();
@@ -94,7 +99,8 @@ void ModbusDiscovery::onCandidateStateChanged(const SunSpecThing* candidate_, Su
         // TODO: Remove dependency to thingsRepository
         thing->setProperty(MutableProperty::pinned, cfg->valueOr(thing->sunSpecId(), Config::Key::pinned, false));
         thing->setProperty(MutableProperty::name, cfg->valueOr(thing->sunSpecId(), Config::Key::name, thing->sunSpecId()));
-        repo->addThing(std::move(thing));
+        //repo->addThing(std::move(thing));
+        thingDiscoveredSubscriber().on_next(thing);
         break;
     }
 }

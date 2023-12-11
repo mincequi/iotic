@@ -1,12 +1,9 @@
 #include "HttpDiscovery.h"
 
-#include <QDateTime>
 #include <qmdnsengine/service.h>
 
 #include <common/Logger.h>
-#include <rpp/operators/map.hpp>
-#include <rpp/operators.hpp>
-#include <rpp/sources.hpp>
+#include <things/http/HttpThingFactory.h>
 
 HttpDiscovery::HttpDiscovery(QObject *parent)
     : QObject{parent} {
@@ -35,8 +32,9 @@ void HttpDiscovery::stop() {
 void HttpDiscovery::onServiceAdded(const QMdnsEngine::Service& service) {
     const std::string name = service.name().toStdString();
     LOG_S(INFO) << "thing discovered> host: " << service.hostname().toStdString() << ", name: " << name;
+    auto thing = HttpThingFactory::from({ ThingInfo::DiscoveryType::Http, name, name });
     // TODO: shall we get a subscriber each time, we want to emit (or keep it as class member)?
-    _thingDiscovered.get_subscriber().on_next({ ThingInfo::DiscoveryType::Http, name, name });
+    if (thing) thingDiscoveredSubscriber().on_next(thing);
 }
 
 void HttpDiscovery::onServiceUpdated(const QMdnsEngine::Service&) {

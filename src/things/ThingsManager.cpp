@@ -3,25 +3,27 @@
 #include <QDateTime>
 #include <config/Config.h>
 #include <common/Logger.h>
-#include <things/ThingFactory.h>
+#include <modbus/ModbusDiscovery.h>
 #include <things/ThingsRepository.h>
 #include <things/http/HttpDiscovery.h>
+#include <things/http/HttpThingFactory.h>
 
-ThingsManager::ThingsManager(ThingsRepository& thingsRepository, QObject *parent)
+ThingsManager::ThingsManager(CandidatesRepository& candidatesRepository,
+                             ThingsRepository& thingsRepository,
+                             QObject *parent)
     : QObject{parent},
+      _candidatesRepository(candidatesRepository),
       _thingsRepository(thingsRepository) {
     _timer.callOnTimeout(this, &ThingsManager::onTimer);
     _timer.start(100);
     _discoveryTimer.callOnTimeout(this, &ThingsManager::onDiscoveryTimer);
 
     _discoveries.push_back(std::make_unique<HttpDiscovery>());
+    _discoveries.push_back(std::make_unique<modbus::ModbusDiscovery>());
 
     for (const auto& d : _discoveries) {
-        d->thingDiscovered().subscribe([this](const ThingInfo& t) {
-            auto thing = ThingFactory::from(t);
-            if (thing) {
-                _thingsRepository.addThing(std::move(thing));
-            }
+        d->thingDiscovered().subscribe([this](ThingPtr thing) {
+            _thingsRepository.addThing(std::move(thing));
         });
     }
 }

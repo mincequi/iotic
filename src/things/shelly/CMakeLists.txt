@@ -4,5 +4,5 @@ add_library(shelly STATIC
 
 target_link_libraries(shelly
 PUBLIC
-  http
+  httpthing
 )

@@ -8,12 +8,15 @@
 #include <things/Thing.h>
 #include <things/ThingsDiscovery.h>
 
+class CandidatesRepository;
 class ThingsRepository;
 
 class ThingsManager : public QObject {
     Q_OBJECT
 public:
-    explicit ThingsManager(ThingsRepository& thingsRepository, QObject *parent = nullptr);
+    explicit ThingsManager(CandidatesRepository& candidatesRepository,
+                           ThingsRepository& thingsRepository,
+                           QObject *parent = nullptr);
 
     void startDiscovery(int msec);
     void stopDiscovery();
@@ -26,6 +29,7 @@ private:
     void onTimer();
     void onDiscoveryTimer();
 
+    CandidatesRepository& _candidatesRepository;
     ThingsRepository& _thingsRepository;
 
     QTimer _timer;

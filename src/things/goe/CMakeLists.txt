@@ -6,5 +6,5 @@ add_library(goe STATIC
 target_link_libraries(goe
 PUBLIC
   things
-  http
+  httpthing
 )

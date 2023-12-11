@@ -3,11 +3,10 @@
 #include <things/Thing.h>
 
 // TODO: think about this. We might create things directly in the discoveries
-class ThingFactory {
+class HttpThingFactory {
 public:
     static ThingPtr from(const ThingInfo& ThingInfo);
 
 private:
-    static void registerFactory();
-    ThingFactory();
+    HttpThingFactory();
 };

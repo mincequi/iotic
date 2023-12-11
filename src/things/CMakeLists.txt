@@ -1,4 +1,3 @@
-Set(FETCHCONTENT_QUIET FALSE)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_subdirectory(goe)
@@ -7,9 +6,9 @@ add_subdirectory(shelly)
 add_subdirectory(sunspec)
 
 add_library(things STATIC
+  CandidatesRepository.cpp
   Site.cpp
   Thing.cpp
-  ThingFactory.cpp
   ThingInfo.cpp
   ThingValue.cpp
   ThingsDiscovery.cpp

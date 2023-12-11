@@ -3,15 +3,10 @@
 #include <map>
 #include <memory>
 
-#include <rpp/observables/dynamic_observable.hpp>
-#include <rpp/subjects/publish_subject.hpp>
-
+#include <common/Rpp.h>
 #include <things/ThingInfo.h>
 #include <things/ThingProperty.h>
 #include <things/ThingValue.h>
-
-using rpp::dynamic_observable;
-using rpp::subjects::publish_subject;
 
 class Thing : public ThingInfo {
 public:
@@ -67,4 +62,4 @@ protected:
     friend class ThingsRepository;
 };
 
-using ThingPtr = std::unique_ptr<Thing>;
+using ThingPtr = std::shared_ptr<Thing>;

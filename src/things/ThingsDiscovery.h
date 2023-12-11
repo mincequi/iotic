@@ -1,12 +1,8 @@
 #pragma once
 
 #include <memory>
-#include <rpp/observables/dynamic_observable.hpp>
-#include <rpp/subjects/publish_subject.hpp>
+#include <common/Rpp.h>
 #include <things/Thing.h>
-
-using rpp::dynamic_observable;
-using rpp::subjects::publish_subject;
 
 class ThingsDiscovery {
 public:
@@ -16,10 +12,13 @@ public:
     virtual void start(int msec) = 0;
     virtual void stop() = 0;
 
-    virtual const dynamic_observable<ThingInfo> thingDiscovered() const;
+    const dynamic_observable<ThingPtr> thingDiscovered() const;
 
 protected:
-    publish_subject<ThingInfo> _thingDiscovered;
+    dynamic_subscriber<ThingPtr> thingDiscoveredSubscriber() const;
+
+private:
+    publish_subject<ThingPtr> _thingDiscovered;
 };
 
 using ThingsDiscoveryPtr = std::unique_ptr<ThingsDiscovery>;

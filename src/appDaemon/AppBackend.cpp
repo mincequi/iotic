@@ -1,19 +1,11 @@
 #include "AppBackend.h"
 
 #include <config/Config.h>
-#include <common/Util.h>
 #include <rules/RulesEngine.h>
-#include <things/sunspec/SunSpecLogger.h>
-#include <things/sunspec/SunSpecModel.h>
-
-#include <QCoreApplication>
-#include <QThread>
-
-using namespace sunspec;
 
 AppBackend::AppBackend()
     : _thingsRepository(ThingsRepository::instance()),
-      _thingsManager(*_thingsRepository),
+      _thingsManager(_candidatesRepository, *_thingsRepository),
       _mqttExporter("broker.hivemq.com"),
       _webServer(*_thingsRepository) {
     // We define order of singleton instantiations here.
@@ -32,6 +24,5 @@ AppBackend::AppBackend()
 
     // Start discovery
     _thingsManager.startDiscovery(60 * 1000);
-    _sunSpecManager.startDiscovery(60 * 1000);
 }
 

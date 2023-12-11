@@ -62,6 +62,7 @@ sudo apt install \
   cmake \
   git \
   snapd \
+  libboost-dev \
   libcurl4-openssl-dev \
   libqt6serialbus6-bin \
   qt6-serialbus-dev \

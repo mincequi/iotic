@@ -1,8 +1,7 @@
 #pragma once
 
-#include <things/sunspec/SunSpecManager.h>
-
-using namespace sunspec;
+#include <QTimer>
+#include <things/ThingsDiscovery.h>
 
 class AppDiscover {
 public:
@@ -10,7 +9,6 @@ public:
 
 private:
     std::list<ThingsDiscoveryPtr> _discoveries;
-    //sunspec::SunSpecManager _sunSpecManager;
 
     QTimer _timer;
 };

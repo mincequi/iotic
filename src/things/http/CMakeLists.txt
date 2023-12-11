@@ -23,9 +23,10 @@ if(NOT lhttp_POPULATED)
 endif()
 #FetchContent_MakeAvailable(lhttp)
 
-add_library(http STATIC
+add_library(httpthing STATIC
   HttpDiscovery.cpp
   HttpThing.cpp
+  HttpThingFactory.cpp
   ${lhttp_SOURCE_DIR}/src/buffer-pool.cpp
   ${lhttp_SOURCE_DIR}/src/chunked-decoder.cpp
   ${lhttp_SOURCE_DIR}/src/client.cpp
@@ -37,12 +38,12 @@ add_library(http STATIC
   ${lhttp_SOURCE_DIR}/src/pico/picohttpparser.c
 )
 
-target_include_directories(http
+target_include_directories(httpthing
 PRIVATE
   ${lhttp_SOURCE_DIR}/include
 )
 
-target_link_libraries(http
+target_link_libraries(httpthing
 PUBLIC
   common
   qmdnsengine
