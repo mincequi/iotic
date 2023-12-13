@@ -66,7 +66,7 @@ void GoeCharger::onRead(const std::string& response) {
 
     _status = goe::toStatus(doc["car"].toInt());
 
-    _propertiesSubject.get_subscriber().on_next({
+    propertiesSubscriber().on_next({
         { Property::status, static_cast<int>(_status) },
         { Property::power, nrg.at(11).toDouble() },
         { Property::voltage, voltage }

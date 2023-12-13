@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
     QTimer timer;
     QObject::connect(&timer, &QTimer::timeout, []() {
         uvw::loop::get_default()->run(uvw::loop::run_mode::NOWAIT);
-        modbus::ModbusDiscovery::ioc.poll();
+        //modbus::ModbusDiscovery::ioc.poll();
     });
     timer.start(100ms);
 

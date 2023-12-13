@@ -13,19 +13,19 @@ public:
     virtual void doSetProperty(MutableProperty property, const Value& value) override {};
 
     void setProperty(Property property, const Value& value) {
-        _propertiesSubject.get_subscriber().on_next( {{property, value }} );
+        propertiesSubscriber().on_next( {{property, value }} );
     }
 
     void tick() {
         static int i = 0;
         if (i%4 == 0)
-            _propertiesSubject.get_subscriber().on_next({});
+            propertiesSubscriber().on_next({});
         if (i%4 == 1)
-            _propertiesSubject.get_subscriber().on_next({});
+            propertiesSubscriber().on_next({});
         if (i%4 == 2)
-            _propertiesSubject.get_subscriber().on_next({});
+            propertiesSubscriber().on_next({});
         if (i%4 == 3)
-            _propertiesSubject.get_subscriber().on_completed();
+            propertiesSubscriber().on_completed();
         ++i;
     }
 };

@@ -32,7 +32,7 @@ void ThingsRepository::addThing(ThingPtr&& thing) {
     _things.push_back(std::move(thing));
     _thingAdded.get_subscriber().on_next(_things.back());
 
-    _things.back()->state().subscribe([this, id](auto state) {
+    _things.back()->stateObservable().subscribe([this, id](auto state) {
         if (state == Thing::State::Failed) {
             LOG_S(WARNING) << "thing completed: " << id;
             // We must not directly delete this thing because thing itself might still process something.

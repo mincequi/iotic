@@ -70,9 +70,24 @@ dynamic_observable<std::map<Property, Value>> Thing::properties() const {
     return _propertiesObservable;
 }
 
-dynamic_observable<Thing::State> Thing::state() const {
+dynamic_observable<Thing::State> Thing::stateObservable() const {
     return _stateSubject.get_observable();
 }
 
 void Thing::onRead(const std::string&) {
+}
+
+void Thing::doSetProperty(MutableProperty, const Value&) {
+}
+
+Thing::State Thing::state() const {
+    return _stateSubject.get_value();
+}
+
+dynamic_subscriber<Thing::State> Thing::stateSubscriber() const {
+    return _stateSubject.get_subscriber().as_dynamic();
+}
+
+dynamic_subscriber<std::map<Property, Value>> Thing::propertiesSubscriber() const {
+    return _propertiesSubject.get_subscriber().as_dynamic();
 }

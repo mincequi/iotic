@@ -65,11 +65,11 @@ const std::map<uint16_t, std::pair<uint16_t, uint16_t>>& SunSpecThing::models() 
     return _modelAddresses;
 }
 
-bool SunSpecThing::connectDevice() {
+bool SunSpecThing::connect() {
     return _modbusClient->connectDevice();
 }
 
-void SunSpecThing::disconnectDevice() {
+void SunSpecThing::disconnect() {
     return _modbusClient->disconnectDevice();
 }
 
@@ -89,10 +89,6 @@ void SunSpecThing::reset() {
     _models.clear();
 }
 
-dynamic_observable<SunSpecThing::State> SunSpecThing::state() const {
-    return _stateSubject.get_observable();
-}
-
 void SunSpecThing::doRead() {
     for (const auto& kv : _modelAddresses) {
         switch (kv.first) {
@@ -101,7 +97,7 @@ void SunSpecThing::doRead() {
         case Model::Id::InverterSplitPhase:
         case Model::Id::MeterWyeConnectThreePhase:
             if (!readModel(kv.first, QDateTime::currentSecsSinceEpoch())) {
-                _stateSubject.get_subscriber().on_next(State::Failed);
+                stateSubscriber().on_next(State::Failed);
                 return;
             }
             break;
@@ -109,9 +105,6 @@ void SunSpecThing::doRead() {
             break;
         }
     }
-}
-
-void SunSpecThing::doSetProperty(MutableProperty, const Value&) {
 }
 
 uint8_t SunSpecThing::nextUnitId() {
@@ -189,8 +182,7 @@ uint8_t SunSpecThing::nextUnitId() {
 void SunSpecThing::pollNextUnitId() {
     const uint8_t id = nextUnitId();
     if (id == 0) {
-        //emit stateChanged(State::Failed);
-        _stateSubject.get_subscriber().on_next(State::Failed);
+        stateSubscriber().on_next(State::Failed);
         return;
     }
 
@@ -202,11 +194,11 @@ void SunSpecThing::readHeader(uint8_t id) {
     auto* reply = _modbusClient->sendReadRequest(dataUnit, id);
     if  (!reply) {
         //emit stateChanged(State::Failed);
-        _stateSubject.get_subscriber().on_next(State::Failed);
+        stateSubscriber().on_next(State::Failed);
     } else if (reply->isFinished()) {   // broadcast replies return immediately
         delete reply;
         //emit stateChanged(State::Failed);
-        _stateSubject.get_subscriber().on_next(State::Failed);
+        stateSubscriber().on_next(State::Failed);
     } else {
         reply->connect(reply, &QModbusReply::finished, std::bind(&SunSpecThing::onReadHeader, this, reply));
     }
@@ -216,7 +208,7 @@ void SunSpecThing::onReadHeader(QModbusReply* reply) {
     //auto reply = qobject_cast<QModbusReply*>(sender());
     if (!reply) {
         //emit stateChanged(State::Failed);
-        _stateSubject.get_subscriber().on_next(State::Failed);
+        stateSubscriber().on_next(State::Failed);
         return;
     }
 
@@ -234,13 +226,13 @@ void SunSpecThing::onReadHeader(QModbusReply* reply) {
         } else {
             LOG_S(INFO) << "no SunSpec header found at host: " << _modbusClient->connectionParameter(QModbusDevice::NetworkAddressParameter).toString();;
             //emit stateChanged(State::Failed);
-            _stateSubject.get_subscriber().on_next(State::Failed);
+            stateSubscriber().on_next(State::Failed);
         }
     } else {
         // TODO: we have a crash here. This call arrives, although _modbusClient is already deleted.
         LOG_S(WARNING) << host().toStdString() << "> reply error: " << reply->error();
         //emit stateChanged(State::Failed);
-        _stateSubject.get_subscriber().on_next(State::Failed);
+        stateSubscriber().on_next(State::Failed);
     }
 
     reply->disconnect();
@@ -252,11 +244,11 @@ void SunSpecThing::readModelTable(uint16_t address) {
     auto* reply = _modbusClient->sendReadRequest(dataUnit, _unitId);
     if  (!reply) {
         //emit stateChanged(State::Failed);
-        _stateSubject.get_subscriber().on_next(State::Failed);
+        stateSubscriber().on_next(State::Failed);
     } else if (reply->isFinished()) {   // broadcast replies return immediately
         delete reply;
         //emit stateChanged(State::Failed);
-        _stateSubject.get_subscriber().on_next(State::Failed);
+        stateSubscriber().on_next(State::Failed);
     } else {
         reply->connect(reply, &QModbusReply::finished, std::bind(&SunSpecThing::onReadModelTable, this, reply));
     }
@@ -266,7 +258,7 @@ void SunSpecThing::onReadModelTable(QModbusReply* reply) {
     //auto reply = qobject_cast<QModbusReply*>(sender());
     if (reply->error() != QModbusDevice::NoError) {
         //emit stateChanged(State::Failed);
-        _stateSubject.get_subscriber().on_next(State::Failed);
+        stateSubscriber().on_next(State::Failed);
     } else {
         const QModbusDataUnit unit = reply->result();
         addModelAddress(unit.value(0), unit.startAddress() + 2, unit.value(1));
@@ -282,7 +274,7 @@ void SunSpecThing::onReadModelTable(QModbusReply* reply) {
                 }
             }
             //emit stateChanged(State::Connected);
-            _stateSubject.get_subscriber().on_next(State::Ready);
+            stateSubscriber().on_next(State::Ready);
         } else {
             readModelTable(unit.startAddress() + 2 + unit.value(1));
         }
@@ -346,14 +338,12 @@ void SunSpecThing::onReadBlockError(uint16_t modelId, QModbusReply* reply) {
         ++_timeoutCount;
         // Set device as failed if sunSpecId is empty or it timed out 5 times in a row.
         if (_timeoutCount > 4 || sunSpecId().empty()) {
-            //emit stateChanged(State::Failed);
-            _stateSubject.get_subscriber().on_next(State::Failed);
+            stateSubscriber().on_next(State::Failed);
         }
         break;
     default:
         LOG_S(WARNING) << sunSpecId() << "> error: " << reply->errorString().toStdString();
-        //emit stateChanged(State::Failed);
-        _stateSubject.get_subscriber().on_next(State::Failed);
+        stateSubscriber().on_next(State::Failed);
         break;
     }
 }
@@ -364,7 +354,8 @@ void SunSpecThing::onStateChanged(QModbusDevice::State state) {
         pollNextUnitId();
     } else if (state == QModbusDevice::State::UnconnectedState && !_sunSpecId.empty()) {
         // Elgris smart meters disconnects after 10s. So, we automatically reconnect.
-        connectDevice();
+        LOG_S(WARNING) << _sunSpecId << "> disconnected. Reconnecting...";
+        connect();
     }
 }
 
@@ -374,8 +365,7 @@ void SunSpecThing::onErrorOccurred(QModbusDevice::Error error) {
     }
 
     if (_sunSpecId.empty()) {
-        //emit stateChanged(State::Failed);
-        _stateSubject.get_subscriber().on_next(State::Failed);
+        stateSubscriber().on_next(State::Failed);
         return;
     }
 
@@ -407,8 +397,7 @@ void SunSpecThing::parseModel(uint16_t modelId, const std::vector<uint16_t>& buf
                 break;
             }
         }
-        _propertiesSubject.get_subscriber().on_next(props);
-        //emit modelRead(model, timestamp);
+        propertiesSubscriber().on_next(props);
     }
 }
 
