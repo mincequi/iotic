@@ -61,6 +61,6 @@ void Shelly::onRead(const std::string& response) {
     }
 
     if (!properties.empty()) {
-        _propertiesSubject.get_subscriber().on_next(properties);
+        propertiesSubscriber().on_next(properties);
     }
 }

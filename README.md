@@ -45,8 +45,8 @@ iotic implements several strategies to realize PC surplus charging of electric v
 You need at least Bookworm (not working with Bullseye).
 Installation
 ```
-wget https://github.com/mincequi/iotic/releases/download/v0.3.0/iotic_0.3.0_armhf.deb
-sudo apt install ./iotic_0.3.0_armhf.deb
+wget https://github.com/mincequi/iotic/releases/download/v0.3.1/iotic_0.3.1_armhf.deb
+sudo apt install ./iotic_0.3.1_armhf.deb
 ```
 Starting
 ```

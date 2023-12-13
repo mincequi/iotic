@@ -46,5 +46,7 @@ PRIVATE
 target_link_libraries(httpthing
 PUBLIC
   common
+  goe
   qmdnsengine
+  shelly
 )

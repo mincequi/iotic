@@ -39,8 +39,7 @@ void HttpClient::run(char const* host, char const* port, char const* target) {
 }
 
 void HttpClient::on_resolve(beast::error_code ec, tcp::resolver::results_type results) {
-    if (ec)
-        return fail(ec, "resolve");
+    if (ec) return fail(ec, "resolve");
 
     // Set a timeout on the operation
     _stream.expires_after(std::chrono::seconds(30));
@@ -52,8 +51,7 @@ void HttpClient::on_resolve(beast::error_code ec, tcp::resolver::results_type re
 }
 
 void HttpClient::on_connect(beast::error_code ec, tcp::resolver::results_type::endpoint_type) {
-    if (ec)
-        return fail(ec, "connect");
+    if (ec) return fail(ec, "connect");
 
     // Set a timeout on the operation
     _stream.expires_after(std::chrono::seconds(30));
@@ -63,16 +61,14 @@ void HttpClient::on_connect(beast::error_code ec, tcp::resolver::results_type::e
 }
 
 void HttpClient::on_write(beast::error_code ec, std::size_t /*bytes_transferred*/) {
-    if (ec)
-        return fail(ec, "write");
+    if (ec) return fail(ec, "write");
 
     // Receive the HTTP response
     http::async_read(_stream, _buffer, _response, beast::bind_front_handler(&HttpClient::on_read, shared_from_this()));
 }
 
 void HttpClient::on_read(beast::error_code ec, std::size_t /*bytes_transferred*/) {
-    if(ec)
-        return fail(ec, "read");
+    if (ec) return fail(ec, "read");
 
     // Write the message to standard out
     std::cout << _response << std::endl;

@@ -26,8 +26,8 @@ public:
 
     const std::map<uint16_t, std::pair<uint16_t, uint16_t>>& models() const;
 
-    bool connectDevice();
-    void disconnectDevice();
+    bool connect();
+    void disconnect();
 
     bool isValid() const;
     bool hasCommonModel() const;
@@ -36,15 +36,8 @@ public:
 
     void reset();
 
-    dynamic_observable<State> state() const;
-
-signals:
-    //void stateChanged(State state);
-    //void modelRead(const sunspec::Model& model, uint32_t timestamp);
-
 private:
     void doRead() override;
-    void doSetProperty(MutableProperty, const Value&) override;
 
     uint8_t nextUnitId();
     void pollNextUnitId();

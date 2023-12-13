@@ -1,8 +1,8 @@
 #include <things/ThingsDiscovery.h>
 
-class SunSpecFactory : public ThingsDiscovery {
+class SunSpecDiscovery : public ThingsDiscovery {
 public:
-    SunSpecFactory();
+    SunSpecDiscovery();
 
     void start(int msec) override;
     void stop() override;
