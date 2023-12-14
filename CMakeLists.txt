@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(iotic VERSION 0.3.1 LANGUAGES C CXX)
+project(iotic VERSION 0.3.2 LANGUAGES C CXX)
 
 include(FetchContent)
 set(FETCHCONTENT_QUIET FALSE)

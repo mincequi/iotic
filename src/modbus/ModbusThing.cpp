@@ -7,7 +7,7 @@
 using namespace std::placeholders;
 
 ModbusThing::ModbusThing(const ThingInfo& info) :
-    Thing{info},
+    Thing(info),
     _modbusClient(new QModbusTcpClient) {
 
     _modbusClient->connect(_modbusClient, &QModbusTcpClient::stateChanged, std::bind(&ModbusThing::onStateChanged, this, _1));

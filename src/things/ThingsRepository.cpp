@@ -23,7 +23,7 @@ void ThingsRepository::addThing(ThingPtr&& thing) {
         return t->id() == thing->id();
     });
     if (it != _things.end()) {
-        LOG_S(INFO) << "thing already added: " << thing->id();
+        LOG_S(1) << "thing already added: " << thing->id();
         return;
     };
 
@@ -80,22 +80,26 @@ void ThingsRepository::setThingProperty(const std::string& id, MutableProperty p
 
 void ThingsRepository::onRead(const std::string& id, const std::string& response, int error) {
     if (error < 0) {
-        LOG_S(WARNING) << "thing completed: " << id;
+        LOG_S(WARNING) << id << "> read error: " << error;
+        _errorCounts[id]++;
         // We must not directly delete this thing because thing itself might still process something.
-        _thingRemoved.get_subscriber().on_next(id);
-        _removableThings.insert(id);
+        if (_errorCounts[id] > 4) {
+            _thingRemoved.get_subscriber().on_next(id);
+            _removableThings.insert(id);
+        }
         return;
     }
 
+    _errorCounts[id] = 0;
     const auto& thing = thingById(id);
     if (thing) {
         thing->onRead(response);
     }
 }
 
-void ThingsRepository::onReadOnlyError(const std::string& id, int error) {
+void ThingsRepository::onWrite(const std::string& id, int error) {
     if (error < 0) {
-        LOG_S(WARNING) << "thing completed: " << id;
+        LOG_S(WARNING) << id << "> write error: " << id;
         // We must not directly delete this thing because thing itself might still process something.
         _thingRemoved.get_subscriber().on_next(id);
         _removableThings.insert(id);

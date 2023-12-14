@@ -21,7 +21,7 @@ Site* Site::instance() {
 
 Site::Site() {
     _siteDataSubject.get_observable().subscribe([this](const Site::SiteData& data){
-        LOG_S(INFO) << "{ pv_power: " << data.pvPower
+        LOG_S(1) << "{ pv_power: " << data.pvPower
                     << ", grid_power: " << data.gridPower
                     << ", site_power: " << data.sitePower << " }";
 

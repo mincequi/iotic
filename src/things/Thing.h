@@ -45,11 +45,12 @@ protected:
     dynamic_subscriber<State> stateSubscriber() const;
     dynamic_subscriber<std::map<Property, Value>> propertiesSubscriber() const;
 
+    virtual void onRead(const std::string& response);
+
     Type _type = Type::Undefined;
 
 private:
     virtual void doRead() = 0;
-    virtual void onRead(const std::string& response);
     virtual void doSetProperty(MutableProperty property, const Value& value);
 
     uint16_t _materialIcon = 0;

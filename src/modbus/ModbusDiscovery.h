@@ -4,6 +4,7 @@
 
 #include <uvw/tcp.h>
 
+#include <modbus/ModbusThing.h>
 #include <things/ThingsDiscovery.h>
 #include <things/sunspec/SunSpecThing.h>
 
@@ -21,9 +22,11 @@ public:
 
 private:
     void onStartDiscovering();
-    void onCandidateStateChanged(const sunspec::SunSpecThing* thing, Thing::State state);
+    void onCandidateStateChanged(const ModbusThingPtr& thing, Thing::State state);
+    void onSunspecCandidateStateChanged(const sunspec::SunSpecThing* thing, Thing::State state);
 
     QTimer _discoveryTimer;
+    //std::list<std::pair<ModbusThingPtr, rpp::composite_subscription>> _candidates;
     std::list<std::pair<std::shared_ptr<sunspec::SunSpecThing>, rpp::composite_subscription>> _candidates;
 };
 

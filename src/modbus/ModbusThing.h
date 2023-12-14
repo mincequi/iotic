@@ -22,3 +22,5 @@ private:
 
     QModbusTcpClient* _modbusClient;
 };
+
+using ModbusThingPtr = std::shared_ptr<ModbusThing>;
