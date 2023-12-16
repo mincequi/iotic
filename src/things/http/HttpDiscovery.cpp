@@ -31,7 +31,7 @@ void HttpDiscovery::stop() {
 
 void HttpDiscovery::onServiceAdded(const QMdnsEngine::Service& service) {
     const std::string name = service.name().toStdString();
-    LOG_S(INFO) << "thing discovered> host: " << service.hostname().toStdString() << ", name: " << name;
+    LOG_S(INFO) << "thing found> host: " << service.hostname().toStdString() << ", name: " << name;
     auto thing = HttpThingFactory::from({ ThingInfo::DiscoveryType::Http, name, name });
     // TODO: shall we get a subscriber each time, we want to emit (or keep it as class member)?
     if (thing) thingDiscoveredSubscriber().on_next(thing);

@@ -77,6 +77,9 @@ dynamic_observable<Thing::State> Thing::stateObservable() const {
 void Thing::onRead(const std::string&) {
 }
 
+void Thing::doRead() {
+};
+
 void Thing::doSetProperty(MutableProperty, const Value&) {
 }
 

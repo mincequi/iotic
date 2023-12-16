@@ -3,7 +3,6 @@ add_library(sunspec STATIC
   SunSpecDataPoint.cpp
   SunSpecDiscovery.cpp
   SunSpecLogger.cpp
-  SunSpecManager.cpp
   SunSpecMeasuredValue.cpp
   SunSpecModel.cpp
   SunSpecModelFactory.cpp

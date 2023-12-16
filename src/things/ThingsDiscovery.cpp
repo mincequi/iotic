@@ -6,6 +6,12 @@ ThingsDiscovery::ThingsDiscovery() {
 ThingsDiscovery::~ThingsDiscovery() {
 }
 
+void ThingsDiscovery::start(int) {
+}
+
+void ThingsDiscovery::stop() {
+}
+
 const dynamic_observable<ThingPtr> ThingsDiscovery::thingDiscovered() const {
     return _thingDiscovered.get_observable();
 }

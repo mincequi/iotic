@@ -4,6 +4,8 @@
 
 #include <things/Thing.h>
 
+class QModbusDataUnit;
+class QModbusReply;
 class QModbusTcpClient;
 
 class ModbusThing : public Thing {
@@ -14,9 +16,11 @@ public:
     bool connect();
     void disconnect();
 
-private:
-    virtual void doRead() override;
+    QString host() const;
 
+    QModbusReply* sendReadRequest(const QModbusDataUnit& read, int serverAddress);
+
+private:
     void onStateChanged(QModbusDevice::State state);
     void onErrorOccurred(QModbusDevice::Error error);
 

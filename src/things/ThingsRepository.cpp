@@ -23,18 +23,18 @@ void ThingsRepository::addThing(ThingPtr&& thing) {
         return t->id() == thing->id();
     });
     if (it != _things.end()) {
-        LOG_S(1) << "thing already added: " << thing->id();
+        LOG_S(1) << "thing already added> " << thing->id();
         return;
     };
 
     const auto id = thing->id();
-    LOG_S(INFO) << "thing added: " << id;
+    LOG_S(INFO) << "thing added> " << id;
     _things.push_back(std::move(thing));
     _thingAdded.get_subscriber().on_next(_things.back());
 
     _things.back()->stateObservable().subscribe([this, id](auto state) {
         if (state == Thing::State::Failed) {
-            LOG_S(WARNING) << "thing completed: " << id;
+            LOG_S(WARNING) << "thing completed> " << id;
             // We must not directly delete this thing because thing itself might still process something.
             _thingRemoved.get_subscriber().on_next(id);
             _removableThings.insert(id);
@@ -48,7 +48,7 @@ const ThingPtr& ThingsRepository::thingById(const std::string& id) const {
     });
     static const ThingPtr noThing;
     const ThingPtr& ret = (it != _things.end()) ? *it : noThing;
-    if (!ret) LOG_S(1) << "thing not found: " << id;
+    if (!ret) LOG_S(INFO) << "thing not found> " << id;
     return ret;
 }
 

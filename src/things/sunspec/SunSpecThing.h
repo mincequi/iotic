@@ -2,8 +2,9 @@
 
 #include <set>
 
-#include <QModbusTcpClient>
+#include <QModbusReply>
 
+#include <modbus/ModbusThing.h>
 #include <things/Thing.h>
 #include <things/sunspec/models/SunSpecCommonModelFactory.h>
 #include <things/sunspec/SunSpecLiveValue.h>
@@ -12,8 +13,7 @@ namespace sunspec {
 
 class SunSpecThing : public Thing {
 public:
-    static ThingPtr from(const ThingInfo& info);
-    SunSpecThing(const ThingInfo& info);
+    SunSpecThing(ModbusThingPtr modbusThing);
     ~SunSpecThing();
 
     QString host() const;
@@ -25,12 +25,6 @@ public:
     std::string sunSpecId() const;
 
     const std::map<uint16_t, std::pair<uint16_t, uint16_t>>& models() const;
-
-    bool connect();
-    void disconnect();
-
-    bool isValid() const;
-    bool hasCommonModel() const;
 
     bool readModel(uint16_t modelId, uint32_t timestamp);
 
@@ -53,14 +47,11 @@ private:
     void onReadBlock(uint16_t modelId, uint32_t timestamp, QModbusReply* reply);
     void onReadBlockError(uint16_t modelId, QModbusReply* reply);
 
-    void onStateChanged(QModbusDevice::State state);
-    void onErrorOccurred(QModbusDevice::Error error);
-
     void parseModel(uint16_t modelId, const std::vector<uint16_t>& buffer, uint32_t timestamp);
 
-    static std::string toString(const LiveValue& v);
+    static std::string toString(const sunspec::LiveValue& v);
 
-    QModbusTcpClient* _modbusClient;
+    ModbusThingPtr _modbusThing;
     uint8_t _unitId = 0;
     uint8_t _unitIdx = 0;
 
@@ -76,7 +67,6 @@ private:
     std::map<uint16_t, sunspec::Model> _models;
 };
 
-using SunSpecThingPtr = std::unique_ptr<SunSpecThing>;
-
 } // namespace sunspec
 
+using SunSpecThingPtr = std::shared_ptr<sunspec::SunSpecThing>;

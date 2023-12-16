@@ -25,6 +25,14 @@ ModbusThing::~ModbusThing() {
     _modbusClient->deleteLater();
 }
 
+QString ModbusThing::host() const {
+    return _modbusClient->connectionParameter(QModbusDevice::NetworkAddressParameter).toString();
+}
+
+QModbusReply* ModbusThing::sendReadRequest(const QModbusDataUnit& read, int serverAddress) {
+    return _modbusClient->sendReadRequest(read, serverAddress);
+}
+
 bool ModbusThing::connect() {
     return _modbusClient->connectDevice();
 }
@@ -33,12 +41,8 @@ void ModbusThing::disconnect() {
     return _modbusClient->disconnectDevice();
 }
 
-void ModbusThing::doRead() {
-};
-
 void ModbusThing::onStateChanged(QModbusDevice::State state_) {
     if (state_ == QModbusDevice::State::ConnectedState && state() == Thing::State::Uninitialized) {
-        LOG_S(INFO) << "host found: " << _modbusClient->connectionParameter(QModbusDevice::NetworkAddressParameter).toString();
         stateSubscriber().on_next(State::Ready);
         //pollNextUnitId();
     } else if (state_ == QModbusDevice::State::UnconnectedState && state() != Thing::State::Uninitialized) {

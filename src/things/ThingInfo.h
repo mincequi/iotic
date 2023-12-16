@@ -2,9 +2,7 @@
 
 #include <string>
 
-namespace modbus {
 class ModbusDiscovery;
-}
 
 class ThingInfo {
 public:
@@ -31,5 +29,6 @@ private:
     std::string _id;
     std::string _host;
 
-    friend class modbus::ModbusDiscovery;
+    friend class ModbusDiscovery;
+    friend class SunSpecDiscovery;
 };

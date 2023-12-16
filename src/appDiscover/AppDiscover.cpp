@@ -9,7 +9,7 @@ using namespace std::chrono_literals;
 
 AppDiscover::AppDiscover() {
     _discoveries.push_back(std::make_unique<HttpDiscovery>());
-    _discoveries.push_back(std::make_unique<modbus::ModbusDiscovery>());
+    _discoveries.push_back(std::make_unique<ModbusDiscovery>());
 
     for (const auto& d : _discoveries) {
         d->start(70000);

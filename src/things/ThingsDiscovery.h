@@ -9,8 +9,8 @@ public:
     ThingsDiscovery();
     virtual ~ThingsDiscovery();
 
-    virtual void start(int msec) = 0;
-    virtual void stop() = 0;
+    virtual void start(int msec);
+    virtual void stop();
 
     const dynamic_observable<ThingPtr> thingDiscovered() const;
 
@@ -21,4 +21,4 @@ private:
     publish_subject<ThingPtr> _thingDiscovered;
 };
 
-using ThingsDiscoveryPtr = std::unique_ptr<ThingsDiscovery>;
+using ThingsDiscoveryPtr = std::shared_ptr<ThingsDiscovery>;

@@ -2,19 +2,13 @@
 
 #include <modbus/ModbusThing.h>
 
-class ModbusThingDecorator : public ModbusThing {
+class ModbusThingDecorator : public Thing {
 public:
-    ModbusThingDecorator(std::unique_ptr<ModbusThing> component);
-
-    virtual void drink() = 0;
+    ModbusThingDecorator(ModbusThingPtr component);
 
 protected:
-    void callComponentDrink() {
-        if (_component) {
-            //_component->drink();
-        }
-    }
+
 
 private:
-    std::unique_ptr<ModbusThing> _component;
+    ModbusThingPtr _component;
 };

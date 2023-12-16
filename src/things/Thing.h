@@ -50,7 +50,7 @@ protected:
     Type _type = Type::Undefined;
 
 private:
-    virtual void doRead() = 0;
+    virtual void doRead();
     virtual void doSetProperty(MutableProperty property, const Value& value);
 
     uint16_t _materialIcon = 0;

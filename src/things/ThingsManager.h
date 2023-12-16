@@ -1,10 +1,8 @@
 #pragma once
 
-#include <map>
-#include <rpp/observables/dynamic_observable.hpp>
-#include <rpp/subjects/publish_subject.hpp>
 #include <QObject>
 #include <QTimer>
+#include <modbus/ModbusDiscovery.h>
 #include <things/Thing.h>
 #include <things/ThingsDiscovery.h>
 
@@ -37,4 +35,5 @@ private:
     uint64_t _currentTimestamp = 0;
 
     std::list<ThingsDiscoveryPtr> _discoveries;
+    ModbusDiscoveryPtr _modbusDiscovery;
 };
