@@ -5,9 +5,9 @@
 #include <things/ThingProperty.h>
 #include <things/ThingValue.h>
 
-class Router {
+class WebAppRouter {
 public:
-    Router();
+    WebAppRouter();
 
     bool route(const std::string& thing, MutableProperty property, const Value& value);
 

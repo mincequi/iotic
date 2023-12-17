@@ -2,7 +2,7 @@
 
 #include <things/Site.h>
 #include <things/Thing.h>
-#include <webserver/Router.h>
+#include <webserver/WebAppRouter.h>
 
 class Config;
 class ThingsRepository;
@@ -23,14 +23,9 @@ public:
     ~WebServer();
 
 private:
-    static std::string serializeUserProperties(const ThingPtr& thing);
-    static std::string serializeSiteProperties(const Site& site);
-    static std::string serializeSiteHistory(const std::list<Site::SiteData>& siteHistory);
-    static std::string serializeEvChargingStrategyProperties(const Config& config);
-
     const ThingsRepository& _thingsRepository;
     std::unique_ptr<cmrc::embedded_filesystem> _fs;
     std::unique_ptr<uWS::App> _uwsApp;
 
-    Router _router;
+    WebAppRouter _router;
 };

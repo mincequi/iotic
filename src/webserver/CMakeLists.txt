@@ -11,7 +11,9 @@ FetchContent_Declare(us
 FetchContent_MakeAvailable(us)
 
 add_library(webserver STATIC
-  Router.cpp
+  OcppBehavior.cpp
+  WebAppBehavior.cpp
+  WebAppRouter.cpp
   WebServer.cpp
   ${us_SOURCE_DIR}/src/bsd.c
   ${us_SOURCE_DIR}/src/context.c

@@ -50,7 +50,7 @@ void SunSpecDiscovery::onCandidateStateChanged(const SunSpecThingPtr& candidate_
                     << ", host: " << thing->host()
                     << ", modbusUnitId: " << (uint32_t)thing->modbusUnitId()
                     << ", supportedModels: " << supportedModels.str()
-                    << ", unsupportedModels: " << unsupportedModels.str();
+                    << "unsupportedModels: " << unsupportedModels.str();
         thing->_id = thing->sunSpecId();
 
         thing->setProperty(MutableProperty::pinned, cfg->valueOr(thing->sunSpecId(), Config::Key::pinned, false));

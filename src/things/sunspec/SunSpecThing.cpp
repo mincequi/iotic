@@ -4,6 +4,8 @@
 #include <QDateTime>
 #include <QVariant>
 
+#include <rpp/operators/filter.hpp>
+
 #include <things/sunspec/SunSpecLogger.h>
 #include <things/sunspec/SunSpecModelFactory.h>
 #include <things/sunspec/models/SunSpecWyeConnectMeterModelFactory.h>
@@ -20,10 +22,15 @@ SunSpecThing::SunSpecThing(ModbusThingPtr modbusThing)
     _modbusThing->stateObservable().subscribe([this](State state) {
         if (state == State::Ready && _sunSpecId.empty()) {
             pollNextUnitId();
-        } else if (state == State::Failed) {
-            stateSubscriber().on_next(State::Failed);
         }
+        // Note: we must not re-emit on subscription. Use .filter and .subscribe instead.
+        /*else if (state == State::Failed) {
+            stateSubscriber().on_next(State::Failed);
+        }*/
     });
+    _modbusThing->stateObservable().filter([](State state) {
+        return state == State::Failed;
+    }).subscribe(stateSubscriber());
 }
 
 SunSpecThing::~SunSpecThing() {
@@ -235,7 +242,6 @@ void SunSpecThing::readModelTable(uint16_t address) {
 void SunSpecThing::onReadModelTable(QModbusReply* reply) {
     //auto reply = qobject_cast<QModbusReply*>(sender());
     if (reply->error() != QModbusDevice::NoError) {
-        //emit stateChanged(State::Failed);
         stateSubscriber().on_next(State::Failed);
     } else {
         const QModbusDataUnit unit = reply->result();
@@ -251,7 +257,6 @@ void SunSpecThing::onReadModelTable(QModbusReply* reply) {
                     break;
                 }
             }
-            //emit stateChanged(State::Connected);
             stateSubscriber().on_next(State::Ready);
         } else {
             readModelTable(unit.startAddress() + 2 + unit.value(1));
@@ -271,11 +276,6 @@ void SunSpecThing::addModelAddress(uint16_t modelId, uint16_t startAddress, uint
     if (modelId == Model::Id::InverterMpptExtension) {
         length = std::min(length, (uint16_t)48);
     }
-    // Tried to tune inverter requests, however reducing amount of registers did not help.
-    /*else if (modelId == 103) {
-        startAddress += 12;
-        length = 2;
-    }*/
     _modelAddresses[modelId] = { startAddress, length };
 }
 
