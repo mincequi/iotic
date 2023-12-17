@@ -20,6 +20,7 @@ target_link_libraries(things
 PUBLIC
   common
   config
+  fronius
   goe
   shelly
   sunspec

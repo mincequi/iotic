@@ -65,6 +65,8 @@ private:
     std::map<uint16_t, std::pair<uint16_t, uint16_t>> _modelAddresses;
 
     std::map<uint16_t, sunspec::Model> _models;
+
+    friend class FroniusDiscovery;
 };
 
 } // namespace sunspec

@@ -3,6 +3,7 @@
 #include <QDateTime>
 #include <config/Config.h>
 #include <common/Logger.h>
+#include <fronius/FroniusDiscovery.h>
 #include <modbus/ModbusDiscovery.h>
 #include <sunspec/SunSpecDiscovery.h>
 #include <things/ThingsRepository.h>
@@ -21,7 +22,9 @@ ThingsManager::ThingsManager(CandidatesRepository& candidatesRepository,
 
     _discoveries.push_back(std::make_shared<HttpDiscovery>());
     auto modbusDiscovery = std::make_shared<ModbusDiscovery>();
-    _discoveries.push_back(std::make_shared<SunSpecDiscovery>(modbusDiscovery));
+    auto sunSpecDiscovery = std::make_shared<SunSpecDiscovery>(modbusDiscovery);
+    _discoveries.push_back(sunSpecDiscovery);
+    _discoveries.push_back(std::make_shared<FroniusDiscovery>(sunSpecDiscovery));
 
     for (const auto& d : _discoveries) {
         d->thingDiscovered().subscribe([this](ThingPtr thing) {

@@ -40,7 +40,7 @@ void ModbusDiscovery::onStartDiscovering() {
     }
 
     // Scan subnets
-    LOG_S(INFO) << "discovering things in subnet: " << subnet << "0/24";
+    LOG_S(INFO) << "find things> subnet: " << subnet << "0/24";
     for (uint8_t i = 1; i < 255; ++i) {
         const QString host = subnet + QString::number(i);
         if (repo->thingByHost(host.toStdString())) {

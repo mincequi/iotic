@@ -3,6 +3,8 @@
 #include <common/Logger.h>
 #include <config/Config.h>
 
+#include "SunSpecModel.h"
+
 using namespace sunspec;
 using namespace std::placeholders;
 
@@ -35,14 +37,20 @@ void SunSpecDiscovery::onCandidateStateChanged(const SunSpecThingPtr& candidate_
     case Thing::State::Ready: {
         // Prepare thing
         auto thing = std::move(candidate.first);
-        std::stringstream ss;
+        std::stringstream supportedModels;
+        std::stringstream unsupportedModels;
         for (const auto& kv : thing->models()) {
-            ss << kv.first << ", ";
+            auto m = magic_enum::enum_cast<Model::Id>(kv.first);
+            if (m.has_value())
+                supportedModels << magic_enum::enum_name(m.value())  << " (" << kv.first << "), ";
+            else
+                unsupportedModels << kv.first << ", ";
         }
         LOG_S(INFO) << "thing found> id: " << thing->sunSpecId()
                     << ", host: " << thing->host()
                     << ", modbusUnitId: " << (uint32_t)thing->modbusUnitId()
-                    << ", models: " << ss.str();
+                    << ", supportedModels: " << supportedModels.str()
+                    << ", unsupportedModels: " << unsupportedModels.str();
         thing->_id = thing->sunSpecId();
 
         thing->setProperty(MutableProperty::pinned, cfg->valueOr(thing->sunSpecId(), Config::Key::pinned, false));

@@ -9,6 +9,7 @@
 class CandidatesRepository;
 class ThingsRepository;
 
+// TODO: ThingsManager should probably not belong to things (due to cyclic dependencies).
 class ThingsManager : public QObject {
     Q_OBJECT
 public:

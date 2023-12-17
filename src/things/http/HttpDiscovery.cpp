@@ -11,7 +11,7 @@ HttpDiscovery::HttpDiscovery(QObject *parent)
 
 void HttpDiscovery::start(int /*msec*/) {
     stop();
-    LOG_S(INFO) << "discovering things";
+    LOG_S(INFO) << "find things>";
     _mdnsBrowser = new QMdnsEngine::Browser(&_mdnsServer, "_http._tcp.local.", &_mdnsCache);
     QObject::connect(_mdnsBrowser, &QMdnsEngine::Browser::serviceAdded,
                      this, &HttpDiscovery::onServiceAdded);

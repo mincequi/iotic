@@ -40,9 +40,6 @@ public:
         MeterWyeConnectThreePhase = 203, // (abcn) meter
 
         /*
-        Meter (Single Phase)single phase   = 201,
-        split single phase (ABN) meter = 202,
-        wye-connect three phase (abcn) meter = 203,
         delta-connect three phase (abc) meter = 204,
         single phase (AN or AB) meter = 211,
         split single phase (ABN) meter = 212,
