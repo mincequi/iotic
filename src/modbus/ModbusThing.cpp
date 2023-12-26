@@ -1,67 +1,86 @@
 #include "ModbusThing.h"
 
-#include <QModbusTcpClient>
-
 #include <common/Logger.h>
 
-using namespace std::placeholders;
+#include <uvw/loop.h>
+#include <uvw/tcp.h>
 
 ModbusThing::ModbusThing(const ThingInfo& info) :
-    Thing(info),
-    _modbusClient(new QModbusTcpClient) {
-
-    _modbusClient->connect(_modbusClient, &QModbusTcpClient::stateChanged, std::bind(&ModbusThing::onStateChanged, this, _1));
-    _modbusClient->connect(_modbusClient, &QModbusTcpClient::errorOccurred, std::bind(&ModbusThing::onErrorOccurred, this, _1));
-
-    _modbusClient->setConnectionParameter(QModbusDevice::NetworkPortParameter, 502);
-    _modbusClient->setConnectionParameter(QModbusDevice::NetworkAddressParameter, QString::fromStdString(info.host()));
-
-    _modbusClient->setTimeout(5000);
-    _modbusClient->setNumberOfRetries(2);
+    Thing(info) {
 }
 
 ModbusThing::~ModbusThing() {
-    _modbusClient->disconnect();
-    _modbusClient->deleteLater();
+    LOG_S(2) << host() << "> destroyed";
 }
 
-QString ModbusThing::host() const {
-    return _modbusClient->connectionParameter(QModbusDevice::NetworkAddressParameter).toString();
-}
+void ModbusThing::connect() {
+    if (!_tcpClient) {
+        _tcpClient = uvw::loop::get_default()->resource<uvw::tcp_handle>();
+        // Set this as user data
+        _tcpClient->data(shared_from_this());
+        // Set error handler
+        _tcpClient->on<uvw::error_event>([](const uvw::error_event& error, uvw::tcp_handle& tcpClient) {
+            auto self = tcpClient.data<ModbusThing>();
+            switch (-error.code()) {
+            case ECONNREFUSED:
+            case ETIMEDOUT:
+                LOG_S(1) << self->host() << "> error: " << error.what();
+                break;
+            default:
+                LOG_S(1) << self->host() << "> error: " << error.what();
+                break;
+            }
 
-QModbusReply* ModbusThing::sendReadRequest(const QModbusDataUnit& read, int serverAddress) {
-    return _modbusClient->sendReadRequest(read, serverAddress);
-}
+            //TODO: we might need to change the order here
+            tcpClient.close();
+            // Release ourselves from tcpClient
+            tcpClient.data(nullptr);
+            self->stateSubscriber().on_next(State::Failed);
+        });
+        // Set connect handler
+        _tcpClient->on<uvw::connect_event>([](const uvw::connect_event&, uvw::tcp_handle& tcpClient) {
+            auto self = tcpClient.data<ModbusThing>();
+            LOG_S(INFO) << self->host() << "> connected";
+            self->stateSubscriber().on_next(State::Ready);
+        });
 
-bool ModbusThing::connect() {
-    return _modbusClient->connectDevice();
-}
+        // Start reading after writing
+        _tcpClient->on<uvw::write_event>([](const uvw::write_event&, uvw::tcp_handle& tcpClient) {
+            tcpClient.read();
+        });
 
-void ModbusThing::disconnect() {
-    return _modbusClient->disconnectDevice();
-}
 
-void ModbusThing::onStateChanged(QModbusDevice::State state_) {
-    if (state_ == QModbusDevice::State::ConnectedState && state() == Thing::State::Uninitialized) {
-        stateSubscriber().on_next(State::Ready);
-        //pollNextUnitId();
-    } else if (state_ == QModbusDevice::State::UnconnectedState && state() != Thing::State::Uninitialized) {
-        // Elgris smart meters disconnects after 10s. So, we automatically reconnect.
-        LOG_S(WARNING) << id() << "> disconnected. Reconnecting...";
-        connect();
+        _tcpClient->on<uvw::data_event>([](const uvw::data_event& event, uvw::tcp_handle& tcpClient) {
+            auto self = tcpClient.data<ModbusThing>();
+            auto response = ModbusResponse::deserialize((uint8_t*)event.data.get(), event.length);
+            if (response.exceptionCode != 0) {
+                LOG_S(1) << self->host() << "> exception: " << (int)response.exceptionCode;
+                self->_exceptionSubject.get_subscriber().on_next(response.exceptionCode);
+            } else if (self->_transactionsUserData.contains(response.transactionId)) {
+                LOG_S(1) << self->host() << "> received: " << response.transactionId;
+                response.userData = self->_transactionsUserData[response.transactionId];
+                self->_holdingRegistersSubject.get_subscriber().on_next(response);
+            }
+            self->_transactionsUserData.erase(response.transactionId);
+        });
     }
+
+    _tcpClient->connect(host(), 502);
 }
 
-void ModbusThing::onErrorOccurred(QModbusDevice::Error error) {
-    if (error == QModbusDevice::Error::NoError) {
-        return;
-    }
+void ModbusThing::readHoldingRegisters(uint8_t unitId, uint16_t address, uint16_t length, uint16_t userData) {
+    _request.unitId = unitId;
+    _request.memoryAddress = address;
+    _request.memoryLength = length;
+    const auto& buffer = _request.serialize();
+    _transactionsUserData[_request.transactionId] = userData;
+    _tcpClient->write((char*)buffer.data(), buffer.size());
+}
 
-    if (state() == Thing::State::Uninitialized) {
-        stateSubscriber().on_next(State::Failed);
-        return;
-    }
+dynamic_observable<ModbusResponse> ModbusThing::holdingRegistersObservable() const {
+    return _holdingRegistersSubject.get_observable();
+}
 
-    // We filter for connection error, because remotes might hang up.
-    LOG_IF_S(WARNING, error != QModbusDevice::Error::ConnectionError) << host() << "> error occured: " << _modbusClient->errorString().toStdString();
+dynamic_observable<uint8_t> ModbusThing::exceptionObservable() const {
+    return _exceptionSubject.get_observable();
 }

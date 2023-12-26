@@ -5,26 +5,15 @@
 
 #include <common/Logger.h>
 #include <config/Config.h>
-#include <modbus/ModbusThing.h>
 #include <things/ThingsRepository.h>
 
 using namespace std::placeholders;
 using namespace sunspec;
 
 ModbusDiscovery::ModbusDiscovery() {
-    _discoveryTimer.callOnTimeout(this, &ModbusDiscovery::onStartDiscovering);
 }
 
 void ModbusDiscovery::start(int msec) {
-    onStartDiscovering();
-    _discoveryTimer.start(msec);
-}
-
-void ModbusDiscovery::stop() {
-    _discoveryTimer.stop();
-}
-
-void ModbusDiscovery::onStartDiscovering() {
     for (const auto& c : _candidates) {
         c.second.unsubscribe();
     }
@@ -40,14 +29,14 @@ void ModbusDiscovery::onStartDiscovering() {
     }
 
     // Scan subnets
-    LOG_S(INFO) << "find things> subnet: " << subnet << "0/24";
+    LOG_S(1) << "find things> subnet: " << subnet << "0/24";
     for (uint8_t i = 1; i < 255; ++i) {
         const QString host = subnet + QString::number(i);
         if (repo->thingByHost(host.toStdString())) {
             continue;
         }
 
-        //auto candidate = std::make_unique<SunSpecThing>(ThingInfo{ThingInfo::SunSpec, host.toStdString(), host.toStdString()});
+        //auto candidate = std::make_shared<ModbusThing>(ThingInfo{ThingInfo::SunSpec, host.toStdString(), host.toStdString()});
         auto candidate = std::make_shared<ModbusThing>(ThingInfo{ThingInfo::SunSpec, host.toStdString(), host.toStdString()});
         auto sub = candidate->stateObservable().subscribe(std::bind(&ModbusDiscovery::onCandidateStateChanged, this, candidate, _1));
         candidate->connect();
@@ -55,11 +44,15 @@ void ModbusDiscovery::onStartDiscovering() {
     }
 }
 
-void ModbusDiscovery::onCandidateStateChanged(const ModbusThingPtr& candidate_, Thing::State state) {
+void ModbusDiscovery::stop() {
+}
+
+void ModbusDiscovery::onCandidateStateChanged(const ModbusThingPtr_asio& candidate_, Thing::State state) {
+    assert(!_candidates.empty());
     auto it = std::find_if(_candidates.begin(), _candidates.end(), [&](const auto& c) {
         return c.first == candidate_;
     });
-    if (it == _candidates.end()) return;
+    assert(it != _candidates.end());
 
     // Steal candidate from container
     auto candidate = std::move(*it);

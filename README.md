@@ -63,10 +63,7 @@ sudo apt install \
   git \
   snapd \
   libboost-dev \
-  libcurl4-openssl-dev \
-  libqt6serialbus6-bin \
-  qt6-serialbus-dev \
-  qt6-serialport-dev
+  qt6-base-dev
 
 sudo snap install flutter --classic
 flutter   # init flutter first

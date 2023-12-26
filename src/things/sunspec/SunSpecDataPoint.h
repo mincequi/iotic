@@ -6,7 +6,7 @@ namespace sunspec {
 
 enum DataPoint {
     // meta data
-    timestamp,
+    //timestamp,
 
     // measurement value
     //curr,

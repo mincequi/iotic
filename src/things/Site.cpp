@@ -82,7 +82,7 @@ Site::Site() {
 
     _mutableProperties[MutableProperty::thing_interval] = cfg->thingInterval();
 
-    properties().subscribe([this](const std::map<Property, Value>& props) {
+    properties().subscribe([](const std::map<Property, Value>& props) {
         for (const auto& kv : props) {
             switch (kv.first) {
             case Property::thing_interval:

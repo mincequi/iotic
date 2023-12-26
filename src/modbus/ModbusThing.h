@@ -1,30 +1,34 @@
 #pragma once
 
-#include <QModbusDevice>
-
+#include <modbus/ModbusRequest.h>
+#include <modbus/ModbusResponse.h>
 #include <things/Thing.h>
 
-class QModbusDataUnit;
-class QModbusReply;
-class QModbusTcpClient;
+namespace uvw {
+class tcp_handle;
+}
 
-class ModbusThing : public Thing {
+class ModbusThing : public Thing, public std::enable_shared_from_this<ModbusThing> {
 public:
     ModbusThing(const ThingInfo& info);
     virtual ~ModbusThing();
 
-    bool connect();
-    void disconnect();
+    void connect();
 
-    QString host() const;
+    void readHoldingRegisters(uint8_t uintId, uint16_t address, uint16_t length, uint16_t userData = 0);
 
-    QModbusReply* sendReadRequest(const QModbusDataUnit& read, int serverAddress);
+    dynamic_observable<ModbusResponse> holdingRegistersObservable() const;
+    dynamic_observable<uint8_t> exceptionObservable() const;
 
 private:
-    void onStateChanged(QModbusDevice::State state);
-    void onErrorOccurred(QModbusDevice::Error error);
+    publish_subject<ModbusResponse> _holdingRegistersSubject;
+    publish_subject<uint8_t> _exceptionSubject;
 
-    QModbusTcpClient* _modbusClient;
+    std::shared_ptr<uvw::tcp_handle> _tcpClient;
+
+    ModbusRequest _request;
+
+    std::map<uint16_t, uint16_t> _transactionsUserData;
 };
 
-using ModbusThingPtr = std::shared_ptr<ModbusThing>;
+using ModbusThingPtr_asio = std::shared_ptr<ModbusThing>;

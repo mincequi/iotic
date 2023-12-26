@@ -15,8 +15,7 @@
 namespace sunspec {
 
 static std::map<uint16_t, std::function<void(Model& model,
-                                             const std::vector<uint16_t>& buffer,
-                                             uint32_t timestamp)>> s_factories = {
+                                             const std::vector<uint16_t>& buffer)>> s_factories = {
     //{ 1,   &SunSpecCommonModelFactory::updateFromBuffer },
     { Model::Id::InverterSinglePhase, &InverterModelFactory::updateFromBuffer },
     { Model::Id::InverterThreePhase, &InverterModelFactory::updateFromBuffer },
@@ -26,8 +25,7 @@ static std::map<uint16_t, std::function<void(Model& model,
 
 bool ModelFactory::updateFromBuffer(std::map<uint16_t, Model>& models,
                                     uint16_t modelId,
-                                    const std::vector<uint16_t>& buffer,
-                                    uint32_t timestamp) {
+                                    const std::vector<uint16_t>& buffer) {
     if (buffer.empty() || s_factories.count(modelId) == 0) {
         return false;
     }
@@ -39,9 +37,9 @@ bool ModelFactory::updateFromBuffer(std::map<uint16_t, Model>& models,
     // Special handling for elgris smart meter
     if (models[1].values().count(sunspec::Manufacturer) &&
             std::get<std::string>(models[1].values().at(sunspec::Manufacturer)) == "elgris") {
-        ElgrisSmartMeterModelFactory::updateFromBuffer(models[modelId], buffer, timestamp);
+        ElgrisSmartMeterModelFactory::updateFromBuffer(models[modelId], buffer);
     } else {
-        s_factories.at(modelId)(models[modelId], buffer, timestamp);
+        s_factories.at(modelId)(models[modelId], buffer);
     }
 
     return true;

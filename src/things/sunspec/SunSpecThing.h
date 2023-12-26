@@ -1,23 +1,36 @@
 #pragma once
 
-#include <set>
-
-#include <QModbusReply>
-
 #include <modbus/ModbusThing.h>
-#include <things/Thing.h>
-#include <things/sunspec/models/SunSpecCommonModelFactory.h>
 #include <things/sunspec/SunSpecLiveValue.h>
+#include <things/sunspec/SunSpecModel.h>
 
 namespace sunspec {
 
+/**
+ * Implementation of a SunSpec thing via modbus
+ *
+ * At construction time this thing will poll any modbus unitId (in a strategic
+ * order) for a valid SunSpec device. If it finds something it will check for
+ * supported models.
+ * A modbus host can actually house multiple modbus things (1 to 247). However,
+ * we stop polling after finding the first valid unitId.
+ * If we want to check for further unitIds, this has to be part of higher level
+ * classes/implementations (e.g. FroniusDiscovery).
+ */
 class SunSpecThing : public Thing {
 public:
-    SunSpecThing(ModbusThingPtr modbusThing);
+    enum OperationId : uint16_t {
+        ValidStart = 40000,
+        ValidEnd = 49999,
+        ReadHeader = 63000,
+        ReadModelEntry = 63001
+    };
+
+    SunSpecThing(ModbusThingPtr_asio modbusThing);
     ~SunSpecThing();
 
-    QString host() const;
-    uint8_t modbusUnitId() const;
+    std::string host() const;
+    uint8_t unitId() const;
 
     std::string manufacturer() const;
     std::string product() const;
@@ -26,9 +39,7 @@ public:
 
     const std::map<uint16_t, std::pair<uint16_t, uint16_t>>& models() const;
 
-    bool readModel(uint16_t modelId, uint32_t timestamp);
-
-    void reset();
+    bool readModel(uint16_t modelId);
 
 private:
     void doRead() override;
@@ -37,24 +48,23 @@ private:
     void pollNextUnitId();
 
     void readHeader(uint8_t id);
-    void onReadHeader(QModbusReply* reply);
+    std::optional<State> onReadHeader(const ModbusResponse& response);
 
-    void readModelTable(uint16_t address);
-    void onReadModelTable(QModbusReply* reply);
+    void readModelEntry(uint16_t address);
+    std::optional<State> onReadModelEntry(const ModbusResponse& response);
     void addModelAddress(uint16_t modelId, uint16_t startAddress, uint16_t length);
 
-    bool readBlock(uint16_t modelId, uint16_t address, uint16_t size, uint32_t timestamp);
-    void onReadBlock(uint16_t modelId, uint32_t timestamp, QModbusReply* reply);
-    void onReadBlockError(uint16_t modelId, QModbusReply* reply);
-
-    void parseModel(uint16_t modelId, const std::vector<uint16_t>& buffer, uint32_t timestamp);
+    void readBlock(uint16_t modelId, uint16_t address, uint16_t size);
+    void onReadBlock(const ModbusResponse& response);
+    void parseBlock(uint16_t modelId, const std::vector<uint16_t>& buffer);
 
     static std::string toString(const sunspec::LiveValue& v);
 
-    ModbusThingPtr _modbusThing;
+    ModbusThingPtr_asio _modbusThing;
     uint8_t _unitId = 0;
     uint8_t _unitIdx = 0;
 
+    uint16_t _headerLength = 0;
     std::string _manufacturer;
     std::string _product;
     std::string _serial;
@@ -62,7 +72,7 @@ private:
 
     uint8_t _timeoutCount = 0;
 
-    std::map<uint16_t, std::pair<uint16_t, uint16_t>> _modelAddresses;
+    std::map<uint16_t, std::pair<uint16_t, uint16_t>> _blockAddresses;
 
     std::map<uint16_t, sunspec::Model> _models;
 

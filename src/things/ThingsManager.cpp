@@ -28,6 +28,7 @@ ThingsManager::ThingsManager(CandidatesRepository& candidatesRepository,
 
     for (const auto& d : _discoveries) {
         d->thingDiscovered().subscribe([this](ThingPtr thing) {
+            LOG_S(2) << "add thing> id: " << thing->id();
             _thingsRepository.addThing(std::move(thing));
         });
     }
@@ -54,7 +55,7 @@ void ThingsManager::onTimer() {
     const auto prev = QDateTime::fromMSecsSinceEpoch(_currentTimestamp);
     const auto now = QDateTime::fromMSecsSinceEpoch(timestamp);
     if (prev.date().day() != now.date().day()) {
-        LOG_S(INFO) << "statistics reset";
+        LOG_S(1) << "statistics reset";
         emit endOfDayReached();
     }
 

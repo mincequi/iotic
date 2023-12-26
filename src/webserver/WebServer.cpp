@@ -21,7 +21,6 @@ WebServer::WebServer(const ThingsRepository& thingsRepository) :
     _thingsRepository(thingsRepository) {
     _fs = std::make_unique<cmrc::embedded_filesystem>(cmrc::webapp::get_filesystem());
     uWS::Loop::get(uvw::loop::get_default()->raw());
-
     _uwsApp = std::make_unique<uWS::App>();
     _uwsApp->get("/", [this](uWS::HttpResponse<false>* res, auto* req) {
         auto f = _fs->open("index.html");

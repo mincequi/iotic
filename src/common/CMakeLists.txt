@@ -55,7 +55,6 @@ PUBLIC
   ${CMAKE_DL_LIBS}
   Qt${QT_VERSION_MAJOR}::Core
   Qt${QT_VERSION_MAJOR}::Network
-  Qt${QT_VERSION_MAJOR}::SerialBus
   magic_enum
   rpp
   rppqt

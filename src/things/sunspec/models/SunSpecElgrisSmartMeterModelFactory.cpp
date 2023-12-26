@@ -7,9 +7,7 @@
 
 namespace sunspec {
 
-bool ElgrisSmartMeterModelFactory::updateFromBuffer(Model& model,
-                                                   const std::vector<uint16_t>& buffer,
-                                                   uint32_t timestamp) {
+bool ElgrisSmartMeterModelFactory::updateFromBuffer(Model& model, const std::vector<uint16_t>& buffer) {
     if (buffer.size() != 105) {
         return false;
     }
@@ -20,7 +18,6 @@ bool ElgrisSmartMeterModelFactory::updateFromBuffer(Model& model,
     }
     const int32_t totalActivePower = *(int16_t*)&buffer.at(16) * pow(10.0, sunssf);
 
-    model._values[sunspec::timestamp] = timestamp;
     model._values[sunspec::totalActiveAcPower] = totalActivePower;
     model._values[sunspec::totalExportedActiveEnergy] = (int32_t)round((buffer.at(36) + (buffer.at(37) << 16)) / 100.0) * 100.0;
     model._values[sunspec::totalImportedActiveEnergy] = (int32_t)round((buffer.at(44) + (buffer.at(45) << 16)) / 100.0) * 100.0;

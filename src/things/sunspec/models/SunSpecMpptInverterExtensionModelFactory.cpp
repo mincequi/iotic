@@ -7,8 +7,7 @@
 namespace sunspec {
 
 bool MpptInverterExtensionModelFactory::updateFromBuffer(Model& model,
-                                                         const std::vector<uint16_t>& buffer,
-                                                         uint32_t timestamp) {
+                                                         const std::vector<uint16_t>& buffer) {
     if (buffer.size() < 8) {
         return false;
     }/* else if (buffer.size() != (10 + buffer.at(8) * 20)) {
@@ -44,7 +43,7 @@ bool MpptInverterExtensionModelFactory::updateFromBuffer(Model& model,
         dcs[i][sunspec::power] = (double)(dcPower * sfPower);
     }
 
-    model._values[sunspec::timestamp] = timestamp;
+    //model._values[sunspec::timestamp] = timestamp;
     model._values[sunspec::dc] = dcs;
 
     return true;

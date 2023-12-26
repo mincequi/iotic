@@ -1,10 +1,10 @@
 include(FetchContent)
 
 FetchContent_Declare(toml11
-    URL https://github.com/ToruNiina/toml11/archive/refs/tags/v3.7.1.tar.gz
+  URL https://github.com/ToruNiina/toml11/archive/refs/tags/v3.7.1.tar.gz
 )
 if(NOT toml11_POPULATED)
-    FetchContent_Populate(toml11)
+  FetchContent_Populate(toml11)
 endif()
 
 add_library(config

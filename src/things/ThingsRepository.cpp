@@ -38,6 +38,7 @@ void ThingsRepository::addThing(ThingPtr&& thing) {
             // We must not directly delete this thing because thing itself might still process something.
             _thingRemoved.get_subscriber().on_next(id);
             _removableThings.insert(id);
+            update();
         }
     });
 }

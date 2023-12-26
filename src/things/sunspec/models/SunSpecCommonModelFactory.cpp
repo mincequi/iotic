@@ -2,11 +2,7 @@
 
 #include <things/sunspec/SunSpecModel.h>
 
-namespace sunspec {
-
-bool SunSpecCommonModelFactory::updateFromBuffer(Model& model,
-                                                 const std::vector<uint16_t>& buffer,
-                                                 uint32_t /*timestamp*/) {
+bool SunSpecCommonModelFactory::updateFromBuffer(sunspec::Model& model, const std::vector<uint16_t>& buffer) {
     if (buffer.size() != 66 && buffer.size() != 65) return false;
 
     model._values[sunspec::Manufacturer] = readString(buffer.data(), 16);
@@ -38,5 +34,3 @@ std::string SunSpecCommonModelFactory::readString(const uint16_t* begin, uint8_t
 
     return out;
 }
-
-} // namespace sunspec

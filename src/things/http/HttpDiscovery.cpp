@@ -11,7 +11,7 @@ HttpDiscovery::HttpDiscovery(QObject *parent)
 
 void HttpDiscovery::start(int /*msec*/) {
     stop();
-    LOG_S(INFO) << "find things>";
+    LOG_S(1) << "find things>";
     _mdnsBrowser = new QMdnsEngine::Browser(&_mdnsServer, "_http._tcp.local.", &_mdnsCache);
     QObject::connect(_mdnsBrowser, &QMdnsEngine::Browser::serviceAdded,
                      this, &HttpDiscovery::onServiceAdded);
@@ -31,7 +31,7 @@ void HttpDiscovery::stop() {
 
 void HttpDiscovery::onServiceAdded(const QMdnsEngine::Service& service) {
     const std::string name = service.name().toStdString();
-    LOG_S(INFO) << "thing found> host: " << service.hostname().toStdString() << ", name: " << name;
+    LOG_S(1) << "thing found> host: " << service.hostname().toStdString() << ", name: " << name;
     auto thing = HttpThingFactory::from({ ThingInfo::DiscoveryType::Http, name, name });
     // TODO: shall we get a subscriber each time, we want to emit (or keep it as class member)?
     if (thing) thingDiscoveredSubscriber().on_next(thing);

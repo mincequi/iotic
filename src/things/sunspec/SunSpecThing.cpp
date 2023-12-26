@@ -1,46 +1,66 @@
 #include "SunSpecThing.h"
 
 #include <regex>
-#include <QDateTime>
-#include <QVariant>
 
 #include <rpp/operators/filter.hpp>
 
 #include <things/sunspec/SunSpecLogger.h>
 #include <things/sunspec/SunSpecModelFactory.h>
-#include <things/sunspec/models/SunSpecWyeConnectMeterModelFactory.h>
+#include <things/sunspec/models/SunSpecCommonModelFactory.h>
 #include <things/sunspec/models/SunSpecInverterModelFactory.h>
 #include <things/sunspec/models/SunSpecMpptInverterExtensionModelFactory.h>
+#include <things/sunspec/models/SunSpecWyeConnectMeterModelFactory.h>
 
 using namespace std::placeholders;
 
 namespace sunspec {
 
-SunSpecThing::SunSpecThing(ModbusThingPtr modbusThing)
+SunSpecThing::SunSpecThing(ModbusThingPtr_asio modbusThing)
     : Thing(*modbusThing),
     _modbusThing(modbusThing) {
-    _modbusThing->stateObservable().subscribe([this](State state) {
-        if (state == State::Ready && _sunSpecId.empty()) {
-            pollNextUnitId();
-        }
-        // Note: we must not re-emit on subscription. Use .filter and .subscribe instead.
-        /*else if (state == State::Failed) {
-            stateSubscriber().on_next(State::Failed);
-        }*/
-    });
+
+    // TODO: move polling for unitId out of this class into SunSpecDiscovery
+    // We receive a ready/connected modbusThing. Start checking for SunSpec header.
+    pollNextUnitId();
+
+    /*
     _modbusThing->stateObservable().filter([](State state) {
         return state == State::Failed;
+    }).subscribe(stateSubscriber());
+    */
+
+    _modbusThing->exceptionObservable().subscribe([this](int /*exception*/) {
+        if (_sunSpecId.empty()) {
+            pollNextUnitId();
+        }
+    });
+
+    //
+    _modbusThing->holdingRegistersObservable().map([this](ModbusResponse response) {
+        if (response.userData == ReadHeader) {
+            return onReadHeader(response);
+        } else if (response.values.size() == 2) {
+            return onReadModelEntry(response);
+        } else {
+            onReadBlock(response);
+        }
+        return std::optional<State>();
+    }).filter([](const std::optional<State>& state) {
+        return state.has_value();
+    }).map([](const std::optional<State>& state) {
+        return state.value();
     }).subscribe(stateSubscriber());
 }
 
 SunSpecThing::~SunSpecThing() {
+    LOG_S(2) << id() << "> destroyed";
 }
 
-QString SunSpecThing::host() const {
+std::string SunSpecThing::host() const {
     return _modbusThing->host();
 }
 
-uint8_t SunSpecThing::modbusUnitId() const {
+uint8_t SunSpecThing::unitId() const {
     return _unitId;
 }
 
@@ -61,32 +81,26 @@ std::string SunSpecThing::serial() const {
 }
 
 const std::map<uint16_t, std::pair<uint16_t, uint16_t>>& SunSpecThing::models() const {
-    return _modelAddresses;
+    return _blockAddresses;
 }
 
-bool SunSpecThing::readModel(uint16_t modelId, uint32_t timestamp) {
+bool SunSpecThing::readModel(uint16_t modelId) {
     LOG_S(2) << this->sunSpecId() << "> reading model: " << modelId;
-    if (_modelAddresses.count(modelId)) {
-        return readBlock(modelId, _modelAddresses[modelId].first, _modelAddresses[modelId].second, timestamp);
+    if (_blockAddresses.count(modelId)) {
+        readBlock(modelId, _blockAddresses[modelId].first, _blockAddresses[modelId].second);
+        return true;
     }
     return false;
 }
 
-void SunSpecThing::reset() {
-    _models.clear();
-}
-
 void SunSpecThing::doRead() {
-    for (const auto& kv : _modelAddresses) {
+    for (const auto& kv : _blockAddresses) {
         switch (kv.first) {
         case Model::Id::InverterSinglePhase:
         case Model::Id::InverterThreePhase:
         case Model::Id::InverterSplitPhase:
         case Model::Id::MeterWyeConnectThreePhase:
-            if (!readModel(kv.first, QDateTime::currentSecsSinceEpoch())) {
-                stateSubscriber().on_next(State::Failed);
-                return;
-            }
+            readModel(kv.first);
             break;
         default:
             break;
@@ -169,6 +183,7 @@ uint8_t SunSpecThing::nextUnitId() {
 void SunSpecThing::pollNextUnitId() {
     const uint8_t id = nextUnitId();
     if (id == 0) {
+        LOG_S(INFO) << host() << "> all ids checked. No SunSpec device found";
         stateSubscriber().on_next(State::Failed);
         return;
     }
@@ -177,93 +192,48 @@ void SunSpecThing::pollNextUnitId() {
 }
 
 void SunSpecThing::readHeader(uint8_t id) {
-    const QModbusDataUnit dataUnit(QModbusDataUnit::HoldingRegisters, 40000, 4);
-    auto* reply = _modbusThing->sendReadRequest(dataUnit, id);
-    if  (!reply) {
-        stateSubscriber().on_next(State::Failed);
-    } else if (reply->isFinished()) {   // broadcast replies return immediately
-        delete reply;
-        stateSubscriber().on_next(State::Failed);
-    } else {
-        reply->connect(reply, &QModbusReply::finished, std::bind(&SunSpecThing::onReadHeader, this, reply));
-    }
+    // Read entry point of sunspec.
+    // First 2 registers form the well-known value 'SunS'(0x53756E53).
+    // Next 2 registers if the common model (1) followed by its size (65 or 66).
+    _modbusThing->readHoldingRegisters(id, 40000, 4, ReadHeader);
 }
 
-void SunSpecThing::onReadHeader(QModbusReply* reply) {
-    //auto reply = qobject_cast<QModbusReply*>(sender());
-    if (!reply) {
-        //emit stateChanged(State::Failed);
-        stateSubscriber().on_next(State::Failed);
-        return;
-    }
+std::optional<Thing::State> SunSpecThing::onReadHeader(const ModbusResponse& response) {
+    _headerLength = response.values[3];
+    if (response.values[0] == 0x5375 && response.values[1] == 0x6E53 &&
+            response.values[2] == 1 && (_headerLength == 65 || _headerLength == 66)) {
+        LOG_S(INFO) << host() << "> sunspec device at unitId: " << (int)response.unitId;
 
-    if (reply->error() == QModbusDevice::ProtocolError) {
-        pollNextUnitId();
-    } else if (reply->error() == QModbusDevice::NoError) {
-        //qInfo() << "Host:" << _modbusClient.connectionParameter(QModbusDevice::NetworkAddressParameter).toString();
-        const QModbusDataUnit unit = reply->result();
-        if (unit.value(0) == 0x5375 &&
-                unit.value(1) == 0x6E53 &&
-                unit.value(2) == 1 &&
-                (unit.value(3) == 65 || unit.value(3) == 66)) {
-            readBlock(1, 40004, unit.value(3), 0);
-            readModelTable(40004 + unit.value(3));
-        } else {
-            LOG_S(INFO) << "no SunSpec header found at host: " << _modbusThing->host();
-            //emit stateChanged(State::Failed);
-            stateSubscriber().on_next(State::Failed);
-        }
+        // Read (rest of) common model
+        readBlock(1, 40004, _headerLength);
     } else {
-        // TODO: we have a crash here. This call arrives, although _modbusClient is already deleted.
-        LOG_S(WARNING) << host().toStdString() << "> reply error: " << reply->error();
-        //emit stateChanged(State::Failed);
-        stateSubscriber().on_next(State::Failed);
+        return State::Failed;
     }
-
-    reply->disconnect();
-    reply->deleteLater();
+    return {};
 }
 
-void SunSpecThing::readModelTable(uint16_t address) {
-    const QModbusDataUnit dataUnit(QModbusDataUnit::HoldingRegisters, address, 2);
-    auto* reply = _modbusThing->sendReadRequest(dataUnit, _unitId);
-    if  (!reply) {
-        //emit stateChanged(State::Failed);
-        stateSubscriber().on_next(State::Failed);
-    } else if (reply->isFinished()) {   // broadcast replies return immediately
-        delete reply;
-        //emit stateChanged(State::Failed);
-        stateSubscriber().on_next(State::Failed);
-    } else {
-        reply->connect(reply, &QModbusReply::finished, std::bind(&SunSpecThing::onReadModelTable, this, reply));
-    }
+void SunSpecThing::readModelEntry(uint16_t address) {
+    _modbusThing->readHoldingRegisters(_unitId, address, 2, address);
 }
 
-void SunSpecThing::onReadModelTable(QModbusReply* reply) {
-    //auto reply = qobject_cast<QModbusReply*>(sender());
-    if (reply->error() != QModbusDevice::NoError) {
-        stateSubscriber().on_next(State::Failed);
+std::optional<Thing::State> SunSpecThing::onReadModelEntry(const ModbusResponse& response) {
+    // Check if we finished reading model table
+    if (response.values[0] != 0xFFFF) {
+        addModelAddress(response.values[0], response.userData + 2, response.values[1]);
+        readModelEntry(response.userData + 2 + response.values[1]);
     } else {
-        const QModbusDataUnit unit = reply->result();
-        addModelAddress(unit.value(0), unit.startAddress() + 2, unit.value(1));
-        // Check if we finished reading model table
-        if (unit.value(0) == 0xFFFF) {
-            for (const auto& kv : _modelAddresses) {
-                if (kv.first >= Model::Id::InverterSinglePhase && kv.first < Model::Id::InverterMpptExtension) {
-                    _type = Type::SolarInverter;
-                    break;
-                } else if (kv.first >= Model::Id::MeterSinglePhase && kv.first <= Model::Id::MeterWyeConnectThreePhase) {
-                    _type = Type::SmartMeter;
-                    break;
-                }
+        for (const auto& kv : _blockAddresses) {
+            if (kv.first >= Model::Id::InverterSinglePhase && kv.first < Model::Id::InverterMpptExtension) {
+                _type = Type::SolarInverter;
+                break;
+            } else if (kv.first >= Model::Id::MeterSinglePhase && kv.first <= Model::Id::MeterWyeConnectThreePhase) {
+                _type = Type::SmartMeter;
+                break;
             }
-            stateSubscriber().on_next(State::Ready);
-        } else {
-            readModelTable(unit.startAddress() + 2 + unit.value(1));
         }
+        return State::Ready;
     }
-
-    reply->deleteLater();
+    return {};
 }
 
 void SunSpecThing::addModelAddress(uint16_t modelId, uint16_t startAddress, uint16_t length) {
@@ -272,71 +242,44 @@ void SunSpecThing::addModelAddress(uint16_t modelId, uint16_t startAddress, uint
     //    length = 110;
     //}
 
+    LOG_S(1) << "model: " << modelId << ", address: " << startAddress << ", length: " << length;
     // Special handling for SMA solar inverters: we only request first two MPPs
     if (modelId == Model::Id::InverterMpptExtension) {
         length = std::min(length, (uint16_t)48);
     }
-    _modelAddresses[modelId] = { startAddress, length };
+    _blockAddresses[modelId] = { startAddress, length };
 }
 
-bool SunSpecThing::readBlock(uint16_t modelId, uint16_t address, uint16_t length, uint32_t timestamp) {
-    const QModbusDataUnit dataUnit(QModbusDataUnit::HoldingRegisters, address, length);
-    auto* reply = _modbusThing->sendReadRequest(dataUnit, _unitId);
-    if  (!reply) {
-        return false;
-    } else if (reply->isFinished()) {   // broadcast replies return immediately
-        delete reply;
-        return false;
+void SunSpecThing::readBlock(uint16_t modelId, uint16_t address, uint16_t length) {
+    // Length == 2 means we are reading the model table.
+    if (length == 2) {
+        LOG_S(WARNING) << "> not reading block with size 2";
+        return;
     }
-
+    _modbusThing->readHoldingRegisters(_unitId, address, length, modelId);
     LOG_S(2) << sunSpecId() << "> reading block at: " << address;
-    reply->connect(reply, &QModbusReply::finished, std::bind(&SunSpecThing::onReadBlock, this, modelId, timestamp, reply));
-    return true;
 }
 
-void SunSpecThing::onReadBlock(uint16_t modelId, uint32_t timestamp, QModbusReply* reply) {
-    //auto reply = qobject_cast<QModbusReply*>(sender());
-    if (reply->error() != QModbusDevice::NoError) {
-        onReadBlockError(modelId, reply);
-    } else {
-        // Note: you have to instantiate the values locally. Qt containers do weird things.
-        const auto values = reply->result().values();
-        const std::vector<uint16_t> buffer(values.begin(), values.end());
-        parseModel(modelId, buffer, timestamp);
-        _timeoutCount = 0;
-    }
+void SunSpecThing::onReadBlock(const ModbusResponse& response) {
+    parseBlock(response.userData, response.values);
+    _timeoutCount = 0;
 
-    reply->deleteLater();
+    // Read next model entry
+    if (response.userData == 1)
+        readModelEntry(40004 + _headerLength);
 }
 
-void SunSpecThing::onReadBlockError(uint16_t modelId, QModbusReply* reply) {
-    switch (reply->error()) {
-    case QModbusDevice::TimeoutError:
-        LOG_S(WARNING) << sunSpecId() << "> timeout reading block: " << modelId;
-        ++_timeoutCount;
-        // Set device as failed if sunSpecId is empty or it timed out 5 times in a row.
-        if (_timeoutCount > 4 || sunSpecId().empty()) {
-            stateSubscriber().on_next(State::Failed);
-        }
-        break;
-    default:
-        LOG_S(WARNING) << sunSpecId() << "> error: " << reply->errorString().toStdString();
-        stateSubscriber().on_next(State::Failed);
-        break;
-    }
-}
-
-void SunSpecThing::parseModel(uint16_t modelId, const std::vector<uint16_t>& buffer, uint32_t timestamp) {
+void SunSpecThing::parseBlock(uint16_t modelId, const std::vector<uint16_t>& buffer) {
     if (modelId == 1) {
         auto& commonModel = _models[modelId];
-        if (SunSpecCommonModelFactory::updateFromBuffer(commonModel, buffer, timestamp)) {
+        if (SunSpecCommonModelFactory::updateFromBuffer(commonModel, buffer)) {
             _manufacturer = toString(commonModel.values().at(Manufacturer));
             _product = toString(commonModel.values().at(Product));
             _serial = toString(commonModel.values().at(Serial));
             _sunSpecId = _manufacturer + "_" + _product + "_" + _serial;
             _discoveryType = Thing::DiscoveryType::SunSpec;
         }
-    } else if (sunspec::ModelFactory::updateFromBuffer(_models, modelId, buffer, timestamp)) {
+    } else if (sunspec::ModelFactory::updateFromBuffer(_models, modelId, buffer)) {
         const auto& model = _models[modelId];
         std::map<Property, Value> props;
         for (const auto& v : model.values()) {

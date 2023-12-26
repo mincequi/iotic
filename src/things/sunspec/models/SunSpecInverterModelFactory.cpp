@@ -8,8 +8,7 @@
 namespace sunspec {
 
 bool InverterModelFactory::updateFromBuffer(Model& model,
-                                            const std::vector<uint16_t>& buffer,
-                                            uint32_t timestamp) {
+                                            const std::vector<uint16_t>& buffer) {
     if (buffer.size() != 50) {
         return false;
     }
@@ -23,7 +22,7 @@ bool InverterModelFactory::updateFromBuffer(Model& model,
     int32_t totalYield = (buffer.at(22) << 16) + buffer.at(23);
     totalYield *= pow(10.0, sfYield);
 
-    model._values[sunspec::timestamp] = timestamp;
+    //model._values[sunspec::timestamp] = timestamp;
     model._values[sunspec::totalActiveAcPower] = totalActiveAcPower;
     model._values[sunspec::totalExportedActiveEnergy] = (int32_t)(round(totalYield/100.0)*100.0);
     model._values[sunspec::operatingStatus] = static_cast<InverterOperatingStatus>(buffer.at(36));

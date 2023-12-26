@@ -9,9 +9,7 @@ class Model;
 
 class ElgrisSmartMeterModelFactory {
 public:
-    static bool updateFromBuffer(Model& model,
-                                 const std::vector<uint16_t>& buffer,
-                                 uint32_t timestamp);
+    static bool updateFromBuffer(Model& model, const std::vector<uint16_t>& buffer);
 };
 
 } // namespace sunspec

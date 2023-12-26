@@ -83,9 +83,11 @@ void Thing::doRead() {
 void Thing::doSetProperty(MutableProperty, const Value&) {
 }
 
+/*
 Thing::State Thing::state() const {
     return _stateSubject.get_value();
 }
+*/
 
 dynamic_subscriber<Thing::State> Thing::stateSubscriber() const {
     return _stateSubject.get_subscriber().as_dynamic();

@@ -2,8 +2,11 @@
 
 #include <map>
 
+#include <magic_enum.hpp>
+
 #include "SunSpecDataPoint.h"
 #include "SunSpecStatsValue.h"
+#include "models/SunSpecCommonModelFactory.h"
 
 namespace sunspec {
 
@@ -62,7 +65,7 @@ protected:
     std::map<DataPoint, LiveValue> _values;
 
     friend class ModelFactory;
-    friend class SunSpecCommonModelFactory;
+    friend class ::SunSpecCommonModelFactory;
     friend class ElgrisSmartMeterModelFactory;
     friend class InverterModelFactory;
     friend class MpptInverterExtensionModelFactory;
@@ -71,3 +74,10 @@ protected:
 
 } // namespace sunspec
 
+// We have to inject a custom range for this enum, since magic_enum only allows -128 to 128 per default.
+template<>
+struct magic_enum::customize::enum_range<sunspec::Model::Id> {
+    static constexpr int min = (int)sunspec::Model::Id::InverterSinglePhase;
+    static constexpr int max = (int)sunspec::Model::Id::MeterWyeConnectThreePhase;
+    // (max - min) must be less than UINT16_MAX.
+};

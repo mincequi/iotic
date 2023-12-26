@@ -19,7 +19,6 @@ public:
     };
 
     enum class State {
-        Uninitialized,
         Ready,
         Failed
     };
@@ -41,7 +40,7 @@ public:
     dynamic_observable<std::map<Property, Value>> properties() const;
 
 protected:
-    State state() const;
+    //State state() const;
     dynamic_subscriber<State> stateSubscriber() const;
     dynamic_subscriber<std::map<Property, Value>> propertiesSubscriber() const;
 
@@ -60,7 +59,7 @@ private:
     publish_subject<std::map<Property, Value>> _propertiesSubject;
     dynamic_observable<std::map<Property, Value>> _propertiesObservable;
 
-    behavior_subject<State> _stateSubject = State::Uninitialized;
+    publish_subject<State> _stateSubject;
 
     friend class ThingsRepository;
 };

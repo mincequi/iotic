@@ -1,7 +1,8 @@
 add_library(modbus STATIC
   ModbusDiscovery.cpp
+  ModbusRequest.cpp
+  ModbusResponse.cpp
   ModbusThing.cpp
-  ModbusThingDecorator.cpp
 )
 
 target_link_libraries(modbus
