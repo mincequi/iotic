@@ -3,9 +3,10 @@ email: mincequi@web.de
 description: Iotic streamlines the management of extra solar energy, making it easy to direct and optimize.
 github_username: mincequi
 theme: just-the-docs
-
 url: https://mincequi.github.io/iotic
 
-# aux_links:
-#  Template Repository: https://github.com/just-the-docs/just-the-docs-template
+color_scheme: iotic
 
+aux_links:
+  "Iotic on GitHub":
+    - "//github.com/mincequi/iotic"

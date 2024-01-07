@@ -1,5 +1,5 @@
 ---
 layout: page
 title: Installation
-id: installation
+nav_order: 30
 ---

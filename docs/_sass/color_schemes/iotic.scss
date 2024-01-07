@@ -1,0 +1,9 @@
+@import "./color_schemes/dark";
+
+$link-color: #000000;
+$feedback-color: #f5ba44;
+$sidebar-color: darken($feedback-color, 17%);
+//$btn-primary-color: #f5ba44;
+$body-heading-color: #ddd6cb; // This changes the title color
+//$body-background-color: #f5ba44;
+//$background-color: #000000;
