@@ -9,7 +9,7 @@ enum class Property {
     // custom properties - site
     pv_power = 3212,
     grid_power = 3213,
-    site_power = 3214,
+    //site_power = 3214,
     // custom properties - things
     //on = 3218,
     //off = 3219,

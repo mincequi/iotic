@@ -26,7 +26,7 @@ class Repository /*extends FullLifeCycleController with FullLifeCycleMixin*/ {
 
   final _host = html.window.location.hostname;
   final _port = int.parse(html.window.location.port);
-  //final _host = "raspberrypi";
+  //final _host = "localhost";
   //final _port = 8030;
 
   late WebSocketChannel _channel;
@@ -70,7 +70,8 @@ class Repository /*extends FullLifeCycleController with FullLifeCycleMixin*/ {
           siteHistoricData.value.ts.last,
           siteHistoricData.value.pvPower.last,
           siteHistoricData.value.gridPower.last,
-          siteHistoricData.value.sitePower.last);
+          -siteHistoricData.value.pvPower.last -
+              siteHistoricData.value.gridPower.last);
       return true;
     }
 

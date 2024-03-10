@@ -29,7 +29,6 @@ class SiteReadoutsController extends GetxController {
   @override
   void onReady() {
     repo.siteLiveData.listen((p0) {
-      //int r = Random().nextInt(200) + 900;
       pvPower.value = p0.pvPower;
       sitePower.value = p0.sitePower;
       gridPower.value = p0.gridPower;

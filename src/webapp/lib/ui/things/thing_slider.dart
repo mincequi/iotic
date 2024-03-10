@@ -19,58 +19,31 @@ class ThingSlider extends StatelessWidget {
   final _offsets = [
     "Off",
     "500 W",
-    "300 W",
+    //"300 W",
     "200 W",
     "0 W",
     "200 W",
-    "300 W",
+    //"300 W",
     "500 W",
-    "700 W",
+    //"700 W",
     "1 kW",
-    "1.5 kW",
-    "2.0 kW",
-    "3 kW",
-    "5 kW",
-    "7 kW",
-    "10 kW"
-  ];
-
-  /*
-  final _offsets = [
-    "Off",
-    "500 W",
-    "300 W",
-    "200 W",
-    "100 W",
-    "0 W",
-    "100 W",
-    "200 W",
-    "300 W",
-    "500 W",
-    "750 W",
-    //"800 W",
-    "1 kW",
-    //"1.2 kW",
-    "1.5 kW",
-    //"2.0 kW",
-    "2.5 kW",
+    //"1.5 kW",
+    "2 kW",
     //"3 kW",
-    "4 kW",
-    //"5 kW",
-    "6 kW",
-    //"8 kW",
-    "10 kW"
+    "5 kW",
+    //"7 kW",
+    "10 kW",
+    "Max"
   ];
-  */
 
   Color _color(BuildContext context) {
     if (_control.offset.value == 0) {
       return Theme.of(context).colorScheme.outline;
     }
-    if (_control.offset.value! < 4) {
+    if (_control.offset.value! < 3) {
       return Theme.of(context).colorScheme.secondary;
     }
-    if (_control.offset.value == 4) {
+    if (_control.offset.value == 3) {
       return Theme.of(context).colorScheme.primary;
     }
     //if (_control.offset.value! < 5) {
@@ -103,9 +76,9 @@ class ThingSlider extends StatelessWidget {
                 stops: [
                   0.5 / (_offsets.length - 1),
                   (1.5) / (_offsets.length - 1),
-                  (3) / (_offsets.length - 1),
-                  (4.0) / (_offsets.length - 1),
-                  (4.5) / (_offsets.length - 1),
+                  (2.0) / (_offsets.length - 1),
+                  (3.0) / (_offsets.length - 1),
+                  (3.5) / (_offsets.length - 1),
                   //(6) / (_offsets.length - 1),
                   (_offsets.length / 2) / (_offsets.length - 1),
                 ],
@@ -126,7 +99,7 @@ class ThingSlider extends StatelessWidget {
             ),
             SliderTheme(
                 data: SliderTheme.of(context).copyWith(
-                    trackHeight: 1.0,
+                    trackHeight: 0.0,
                     trackShape: ThingSliderTrack(),
                     //activeTickMarkColor: Colors.transparent,
                     //inactiveTickMarkColor: Colors.transparent,

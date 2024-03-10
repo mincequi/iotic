@@ -20,7 +20,6 @@ public:
         int ts = 0;
         int pvPower = 0;
         int gridPower = 0;
-        int sitePower = 0;
     };
 
     static Site* instance();

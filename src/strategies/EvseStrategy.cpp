@@ -18,7 +18,7 @@
 
 std::unique_ptr<Strategy> EvseStrategy::from(const ThingPtr& thing) {
     if (thing->type() == Thing::Type::EvStation) {
-        thing->setProperty(MutableProperty::offset, cfg->valueOr<int>(thing->id(), Config::Key::offset, 4));
+        thing->setProperty(MutableProperty::offset, cfg->valueOr<int>(thing->id(), Config::Key::offset, defaultOffset));
         return std::unique_ptr<EvseStrategy>(new EvseStrategy(thing));
     }
     return {};

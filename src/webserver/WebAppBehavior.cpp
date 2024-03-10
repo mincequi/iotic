@@ -73,19 +73,16 @@ std::string WebAppBehavior::serializeSiteHistory(const std::list<Site::SiteData>
     // Send historic site data to new client
     QJsonArray timestamps;
     QJsonArray pvPower;
-    QJsonArray sitePower;
     QJsonArray gridPower;
-    for (const auto& p : siteHistory) {
-        timestamps.append(p.ts);
-        pvPower.append(p.pvPower);
-        sitePower.append(p.sitePower);
-        gridPower.append(p.gridPower);
+    for (auto it = siteHistory.rbegin(); it != siteHistory.rend() && timestamps.size() <= 120; ++it) {
+        timestamps.prepend(it->ts);
+        pvPower.prepend(it->pvPower);
+        gridPower.prepend(it->gridPower);
     }
 
     QJsonObject siteProperties;
     siteProperties.insert(QString::fromStdString(util::toString(Property::timestamp)), timestamps);
     siteProperties.insert(QString::fromStdString(util::toString(Property::pv_power)), pvPower);
-    siteProperties.insert(QString::fromStdString(util::toString(Property::site_power)), sitePower);
     siteProperties.insert(QString::fromStdString(util::toString(Property::grid_power)), gridPower);
     QJsonObject json;
     json["site"] = siteProperties;

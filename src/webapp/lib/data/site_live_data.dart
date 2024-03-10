@@ -9,10 +9,9 @@ class SiteLiveData {
   static SiteLiveData? fromMap(Map<String, dynamic> json) {
     if (json.containsKey('timestamp') &&
         json.containsKey('pv_power') &&
-        json.containsKey('grid_power') &&
-        json.containsKey('site_power')) {
+        json.containsKey('grid_power')) {
       return SiteLiveData(json['timestamp'], json['pv_power'],
-          json['grid_power'], json['site_power']);
+          json['grid_power'], -json['pv_power'] - json['grid_power']);
     }
     return null;
   }
