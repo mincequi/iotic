@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 
-import 'ui/home_page.dart';
-import 'ui/themes/iotic_theme.dart';
+import 'home_page.dart';
+import 'common/data/web_socket_data_source.dart';
+import 'site/application/site_service.dart';
+import 'themes/iotic_theme.dart';
 
 void main() async {
+  Get.put(WebSocketDataSource());
+  Get.put<SiteService>(SiteService());
   runApp(const IoticApp());
 }
 

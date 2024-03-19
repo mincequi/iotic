@@ -31,6 +31,8 @@ PRIVATE
 )
 
 target_include_directories(webserver
+PUBLIC
+  ../
 PRIVATE
   ${us_SOURCE_DIR}/src
   ${uws_SOURCE_DIR}/src

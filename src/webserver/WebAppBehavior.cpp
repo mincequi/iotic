@@ -24,8 +24,14 @@ uWS::App::WebSocketBehavior<WebAppRouter> WebAppBehavior::create() {
         ws->send(serializeEvChargingStrategyProperties(*cfg), uWS::OpCode::TEXT);
         ws->send(serializeSiteHistory(_site->history()), uWS::OpCode::TEXT);
     };
-    behavior.message = [](auto* ws, std::string_view message, uWS::OpCode) {
-        //ws->send(message, opCode);
+    behavior.message = [](uWS::WebSocket<false, true, WebAppRouter>* ws, std::string_view message, uWS::OpCode opCode) {
+        switch (opCode) {
+        case uWS::BINARY:
+            return ws->getUserData()->onBinaryMessage(ws, message);
+        default:
+            break;
+        }
+
         const auto obj = QJsonDocument::fromJson({message.data(), (int)message.size()}).object();
         if (obj.isEmpty()) return;
 
@@ -34,6 +40,8 @@ uWS::App::WebSocketBehavior<WebAppRouter> WebAppBehavior::create() {
         const QJsonValue value = obj.begin().value().toObject().begin().value();
 
         if (property) {
+            // Check if our router can route this (site and ev_charging_strategy)
+            // Otherwise, set property to generic repo.
             if (!ws->getUserData()->route(thingId, property.value(), fromQJsonValue(value))) {
                 repo->setThingProperty(thingId, property.value(), fromQJsonValue(value));
             }

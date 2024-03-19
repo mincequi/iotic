@@ -36,6 +36,10 @@ if(NOT uvw_POPULATED)
   add_subdirectory(${uvw_SOURCE_DIR} ${uvw_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
+FetchContent_Declare(json
+  URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+FetchContent_MakeAvailable(json)
+
 add_library(common STATIC
   Logger.cpp
   Util.cpp
@@ -59,4 +63,5 @@ PUBLIC
   rpp
   rppqt
   uvw::uvw-static
+  nlohmann_json::nlohmann_json
 )

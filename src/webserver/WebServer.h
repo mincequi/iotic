@@ -2,7 +2,6 @@
 
 #include <things/Site.h>
 #include <things/Thing.h>
-#include <webserver/WebAppRouter.h>
 
 class Config;
 class ThingsRepository;
@@ -26,6 +25,4 @@ private:
     const ThingsRepository& _thingsRepository;
     std::unique_ptr<cmrc::embedded_filesystem> _fs;
     std::unique_ptr<uWS::App> _uwsApp;
-
-    WebAppRouter _router;
 };

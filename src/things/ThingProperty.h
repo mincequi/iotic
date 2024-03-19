@@ -4,6 +4,8 @@
 
 // Values taken from https://technical.openmobilealliance.org/OMNA/LwM2M/LwM2MRegistry.html
 enum class Property {
+    min_value = 3200,
+
     // custom properties - generic
     timestamp = 3211,
     // custom properties - site
@@ -41,7 +43,7 @@ enum class Property {
 // We have to inject a custom range for this enum, since magic_enum only allows -128 to 128 per default.
 template<>
 struct magic_enum::customize::enum_range<Property> {
-    static constexpr int min = (int)Property::timestamp;
+    static constexpr int min = (int)Property::min_value;
     static constexpr int max = (int)Property::max_value;
     // (max - min) must be less than UINT16_MAX.
 };
