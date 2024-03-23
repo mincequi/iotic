@@ -39,6 +39,8 @@ private:
     ThingsRepository();
 
     void onRead(const std::string& id, const std::string& response, int error);
+    void onRead(const std::string& id, const std::string& response);
+    void onError(const std::string& id, int error);
     void onWrite(const std::string& id, int error);
 
     static inline ThingsRepository* _instance;

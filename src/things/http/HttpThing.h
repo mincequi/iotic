@@ -11,8 +11,8 @@ protected:
     struct Impl;
     std::unique_ptr<Impl> _p;
 
-    void read(const std::string& url);
-    void write(const std::string& url);
+    void read(const std::string& host, const std::string& path);
+    void write(const std::string& host, const std::string& path);
 
 private:
     // TODO: this does not work, because thing might be destroyed when answer returns.

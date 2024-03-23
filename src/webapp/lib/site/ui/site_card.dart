@@ -45,7 +45,7 @@ class SiteCard extends StatelessWidget {
                                 ),
                                 borderData: FlBorderData(show: false),
                                 minY: 15.0,
-                                maxY: maxY(),
+                                maxY: control2.maxY(),
                                 minX: control2.minX,
                                 maxX: control2.maxX,
                                 lineBarsData: [
@@ -89,8 +89,8 @@ class SiteCard extends StatelessWidget {
             colors: [
               //color.withOpacity(0.38),
               //color.withOpacity(0.19),
-              color.withOpacity(0.2),
-              color.withOpacity(0.02),
+              color.withOpacity(0.25),
+              color.withOpacity(0.1),
             ],
             stops: const [0.0, 0.95],
           )),

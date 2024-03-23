@@ -13,29 +13,22 @@ if(NOT qmdns_POPULATED)
   add_subdirectory(${qmdns_SOURCE_DIR} ${qmdns_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
-FetchContent_Declare(lhttp
-  GIT_REPOSITORY  https://github.com/neithern/libhttp.git
-  GIT_TAG         2a19dabe1337c03e9499b95dafc81105e63dc197
+FetchContent_Declare(llhttp
+  URL https://github.com/nodejs/llhttp/archive/refs/tags/release/v9.2.0.tar.gz
   GIT_PROGRESS    TRUE
 )
-if(NOT lhttp_POPULATED)
-  FetchContent_Populate(lhttp)
-endif()
-#FetchContent_MakeAvailable(lhttp)
+set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
+set(BUILD_STATIC_LIBS ON CACHE INTERNAL "")
+FetchContent_MakeAvailable(llhttp)
 
 add_library(httpthing STATIC
+  HttpClient.cpp
   HttpDiscovery.cpp
+  HttpRequest.cpp
+  HttpResponse.cpp
+  HttpSession.cpp
   HttpThing.cpp
   HttpThingFactory.cpp
-  ${lhttp_SOURCE_DIR}/src/buffer-pool.cpp
-  ${lhttp_SOURCE_DIR}/src/chunked-decoder.cpp
-  ${lhttp_SOURCE_DIR}/src/client.cpp
-  ${lhttp_SOURCE_DIR}/src/content-writer.cpp
-  ${lhttp_SOURCE_DIR}/src/loop.cpp
-  ${lhttp_SOURCE_DIR}/src/parser.cpp
-  ${lhttp_SOURCE_DIR}/src/uri.cpp
-  ${lhttp_SOURCE_DIR}/src/utils.cpp
-  ${lhttp_SOURCE_DIR}/src/pico/picohttpparser.c
 )
 
 target_include_directories(httpthing
@@ -49,4 +42,5 @@ PUBLIC
   goe
   qmdnsengine
   shelly
+  llhttp_static
 )

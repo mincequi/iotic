@@ -34,7 +34,7 @@ void ThingsRepository::addThing(ThingPtr&& thing) {
 
     _things.back()->stateObservable().subscribe([this, id](auto state) {
         if (state == Thing::State::Failed) {
-            LOG_S(WARNING) << "thing completed> " << id;
+            LOG_S(WARNING) << id << "> completed";
             // We must not directly delete this thing because thing itself might still process something.
             _thingRemoved.get_subscriber().on_next(id);
             _removableThings.insert(id);
@@ -91,10 +91,25 @@ void ThingsRepository::onRead(const std::string& id, const std::string& response
         return;
     }
 
+    onRead(id, response);
+}
+
+void ThingsRepository::onRead(const std::string& id, const std::string& response) {
     _errorCounts[id] = 0;
     const auto& thing = thingById(id);
     if (thing) {
         thing->onRead(response);
+    }
+}
+
+void ThingsRepository::onError(const std::string& id, int error) {
+    LOG_S(WARNING) << id << "> read error: " << error;
+    _errorCounts[id]++;
+    // We must not directly delete this thing because thing itself might still process something.
+    if (_errorCounts[id] > 9) {
+        LOG_S(WARNING) << id << "> completed";
+        _thingRemoved.get_subscriber().on_next(id);
+        _removableThings.insert(id);
     }
 }
 

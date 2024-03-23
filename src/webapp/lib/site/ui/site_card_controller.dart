@@ -1,3 +1,7 @@
+import 'dart:math' as math;
+
+import 'package:collection/collection.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:get/get_core/get_core.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
@@ -9,6 +13,39 @@ class SiteCardController extends GetxController {
   var minX = 0.0;
   var maxX = 0.0;
   var isFollowing = true;
+
+  double maxY() {
+    final i = lowerBound(service.pvPoints.map((e) => e.x).toList(), minX,
+        compare: (double s, double t) {
+      if (s < t)
+        return -1;
+      else if (s > t)
+        return 1;
+      else
+        return 0;
+    });
+    final j = lowerBound(service.pvPoints.map((e) => e.x).toList(), maxX,
+        compare: (double s, double t) {
+      if (s <= t)
+        return -1;
+      else if (s > t)
+        return 1;
+      else
+        return 0;
+    });
+    return (i < j
+            ? math.max(
+                service.pvPoints
+                    .getRange(i, j)
+                    .reduce((curr, next) => (curr.y > next.y) ? curr : next)
+                    .y,
+                service.sitePoints
+                    .getRange(i, j)
+                    .reduce((curr, next) => (curr.y > next.y) ? curr : next)
+                    .y)
+            : math.max(service.pvPoints[i].x, service.sitePoints[i].x)) *
+        1.05;
+  }
 
   void drag(double dx) {
     minX += dx;
@@ -37,7 +74,7 @@ class SiteCardController extends GetxController {
 
   @override
   void update([List<Object>? ids, bool condition = true]) {
-    if (isFollowing) {
+    if (isFollowing && service.pvPoints.isNotEmpty) {
       minX = service.pvPoints.last.x - 120;
       maxX = service.pvPoints.last.x;
     }

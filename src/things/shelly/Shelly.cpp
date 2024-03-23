@@ -29,7 +29,7 @@ void Shelly::doSetProperty(MutableProperty property, const Value& value) {
     switch (property) {
     case MutableProperty::power_control: {
         const std::string strValue = std::get<bool>(value) ? "on" : "off";
-        write(host() + "/relay/0?turn=" + strValue);
+        write(host(), "/relay/0?turn=" + strValue);
         break;
     }
     default:
@@ -39,8 +39,7 @@ void Shelly::doSetProperty(MutableProperty property, const Value& value) {
 
 void Shelly::doRead() {
     // alw,car,eto,nrg,wh,trx,cards"
-    HttpThing::read(host() + "/status");
-    //setProperty(WriteableThingProperty::powerControl, 1.0);
+    HttpThing::read(host(), "/status");
 }
 
 void Shelly::onRead(const std::string& response) {

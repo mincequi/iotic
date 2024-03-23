@@ -49,7 +49,6 @@ void ModbusThing::connect() {
             tcpClient.read();
         });
 
-
         _tcpClient->on<uvw::data_event>([](const uvw::data_event& event, uvw::tcp_handle& tcpClient) {
             auto self = tcpClient.data<ModbusThing>();
             auto response = ModbusResponse::deserialize((uint8_t*)event.data.get(), event.length);

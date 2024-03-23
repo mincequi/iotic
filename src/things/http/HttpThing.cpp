@@ -3,34 +3,50 @@
 #include <common/Logger.h>
 #include <things/ThingsRepository.h>
 
-#include "client.h"
-#include "common.h"
+#include "HttpClient.h"
+#include "HttpRequest.h"
+#include "HttpResponse.h"
 
 using namespace std::placeholders;
 
 struct HttpThing::Impl {
-    http::client client;
+    Impl(HttpThing* q) : _q(q) {
+        client->onErrorCallback = [this](const uvw::error_event& error) {
+            LOG_S(WARNING) << _q->id() << "> " << error.what();
+            repo->onError(_q->id(), error.code());
+        };
+        client->onResponseCallback = [this](const uvw_net::HttpResponse& response) {
+            for (const auto& h : response.headers) {
+                LOG_S(2) << h.first << ": " << h.second;
+            }
+            repo->onRead(_q->id(), response.body);
+        };
+    }
+
+    HttpThing* _q;
+    uvw_net::HttpClientPtr client = uvw_net::HttpClient::create();
 };
 
 HttpThing::HttpThing(const ThingInfo& info)
     : Thing{info},
-      _p(std::make_unique<Impl>()) {
+      _p(std::make_unique<Impl>(this)) {
 }
 
 HttpThing::~HttpThing() {
 }
 
-void HttpThing::read(const std::string& url) {
-    http::request req;
-    req.url = "http://" + url;
-    //_p->client.fetch(req, std::bind(&HttpThing::onHttpRead, this, _1, _2));
-    _p->client.fetch(req, std::bind(&ThingsRepository::onRead, repo, id(), _1, _2));
+void HttpThing::read(const std::string& host, const std::string& path) {
+    uvw_net::HttpRequest request;
+    request.host = host;
+    request.path = path;
+    _p->client->get(request);
 }
 
-void HttpThing::write(const std::string& url) {
-    http::request req;
-    req.url = "http://" + url;
-    _p->client.fetch(req, std::bind(&ThingsRepository::onWrite, repo, id(), _2));
+void HttpThing::write(const std::string& host, const std::string& path) {
+    uvw_net::HttpRequest request;
+    request.host = host;
+    request.path = path;
+    _p->client->get(request, true);
 }
 
 void HttpThing::onHttpRead(const std::string& response, int error) {
