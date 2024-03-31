@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.14)
 
 project(iotic VERSION 0.3.2 LANGUAGES C CXX)
 
+include(cmake/CPM.cmake)
+
 include(FetchContent)
 set(FETCHCONTENT_QUIET FALSE)
 
@@ -27,10 +29,10 @@ add_subdirectory(src/config)
 add_subdirectory(src/fronius)
 #add_subdirectory(src/influx)
 add_subdirectory(src/modbus)
-add_subdirectory(src/mqtt)
 add_subdirectory(src/strategies)
 add_subdirectory(src/rules)
 add_subdirectory(src/things)
+add_subdirectory(src/uvw_net)
 add_subdirectory(src/webapp)
 add_subdirectory(src/webserver)
 if(BUILD_TESTS)
@@ -52,7 +54,7 @@ target_link_libraries(iotic
   config
   #influx
   modbus
-  mqtt
+  #mqtt
   rules
   things
   webserver

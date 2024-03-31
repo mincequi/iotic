@@ -6,7 +6,7 @@
 AppBackend::AppBackend()
     : _thingsRepository(ThingsRepository::instance()),
       _thingsManager(_candidatesRepository, *_thingsRepository),
-      _mqttExporter("broker.hivemq.com"),
+      //_mqttExporter("broker.hivemq.com"),
       _webServer(*_thingsRepository) {
     // We define order of singleton instantiations here.
     rules;

@@ -1,7 +1,6 @@
 #include "ModbusDiscovery.h"
 
-#include <QHostAddress>
-#include <QNetworkInterface>
+#include <uvw/util.h>
 
 #include <common/Logger.h>
 #include <config/Config.h>
@@ -19,25 +18,30 @@ void ModbusDiscovery::start(int msec) {
     }
     _candidates.clear();
 
-    // Find network interfaces
-    QString subnet;
-    const QHostAddress localhost = QHostAddress(QHostAddress::LocalHost);
-    foreach (const auto& address, QNetworkInterface::allAddresses()) {
-        if (address.protocol() == QAbstractSocket::IPv4Protocol && address != localhost) {
-             subnet = address.toString().left(address.toString().lastIndexOf(".")+1);
-        }
+    std::string subnet;
+    const auto interfaces = uvw::utilities::interface_addresses();
+    for (const auto& interface : interfaces) {
+        if (interface.netmask.ip != "255.255.255.0") continue;
+
+        const auto ip = interface.address.ip;
+        subnet = ip.substr(0, ip.find_last_of(".")+1);
+        break;
+    }
+
+    if (subnet.empty()) {
+        LOG_S(WARNING) << "No interface with subnet mask 255.255.255.0 found.";
+        return;
     }
 
     // Scan subnets
     LOG_S(1) << "find things> subnet: " << subnet << "0/24";
     for (uint8_t i = 1; i < 255; ++i) {
-        const QString host = subnet + QString::number(i);
-        if (repo->thingByHost(host.toStdString())) {
+        const std::string host = subnet + std::to_string(i);
+        if (repo->thingByHost(host)) {
             continue;
         }
 
-        //auto candidate = std::make_shared<ModbusThing>(ThingInfo{ThingInfo::SunSpec, host.toStdString(), host.toStdString()});
-        auto candidate = std::make_shared<ModbusThing>(ThingInfo{ThingInfo::SunSpec, host.toStdString(), host.toStdString()});
+        auto candidate = std::make_shared<ModbusThing>(ThingInfo{ThingInfo::SunSpec, host, host});
         auto sub = candidate->stateObservable().subscribe(std::bind(&ModbusDiscovery::onCandidateStateChanged, this, candidate, _1));
         candidate->connect();
         _candidates.push_back({std::move(candidate), sub});

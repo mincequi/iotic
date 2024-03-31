@@ -1,5 +1,6 @@
 #include "HttpRequest.h"
 
+#include <algorithm>
 #include <sstream>
 
 namespace uvw_net {

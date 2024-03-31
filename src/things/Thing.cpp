@@ -3,6 +3,7 @@
 #include <rpp/operators.hpp>
 
 #include <common/Logger.h>
+#include <common/Util.h>
 #include <config/Config.h>
 #include <things/ThingValue.h>
 #include <things/sunspec/SunSpecDataPoint.h>

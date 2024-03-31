@@ -33,7 +33,3 @@ void Logger::init(int& argc, char* argv[]) {
 
 Logger::Logger() {
 }
-
-std::ostream& operator<<(std::ostream& os, const QString& qstr) {
-    return os << qstr.toStdString();
-}

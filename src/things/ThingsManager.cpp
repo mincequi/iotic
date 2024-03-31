@@ -1,5 +1,6 @@
 #include "ThingsManager.h"
 
+#include <cmath>
 #include <QDateTime>
 #include <config/Config.h>
 #include <common/Logger.h>

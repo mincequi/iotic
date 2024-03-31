@@ -1,12 +1,8 @@
 #pragma once
 
-#include <QString>
-
 #include <magic_enum.hpp>
 
 namespace util {
-
-QString getMacAddress();
 
 template <typename E>
 std::string toString(E value) {

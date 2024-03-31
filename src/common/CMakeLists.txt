@@ -42,7 +42,6 @@ FetchContent_MakeAvailable(json)
 
 add_library(common STATIC
   Logger.cpp
-  Util.cpp
   ${loguru_SOURCE_DIR}/loguru.cpp
 )
 
@@ -58,7 +57,6 @@ target_link_libraries(common
 PUBLIC
   ${CMAKE_DL_LIBS}
   Qt${QT_VERSION_MAJOR}::Core
-  Qt${QT_VERSION_MAJOR}::Network
   magic_enum
   rpp
   rppqt

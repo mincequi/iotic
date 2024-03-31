@@ -30,11 +30,6 @@ public:
 
 private:
     HttpClient();
-    void fetch(const sockaddr& addr,
-               const OnResponseCallback& onResponseCallback,
-               const OnErrorCallback& onErrorCallback);
-
-    void writeRequest(uvw::tcp_handle& client);
 
     bool _isRequestPending = false;
 

@@ -9,6 +9,7 @@
 #include <rppqt/schedulers/main_thread_scheduler.hpp>
 
 #include <common/Logger.h>
+#include <common/Util.h>
 #include <config/Config.h>
 #include <things/ThingsRepository.h>
 
