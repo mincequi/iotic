@@ -3,7 +3,7 @@
 #include <things/sunspec/SunSpecBlock.h>
 #include <things/sunspec/SunSpecThing.h>
 
-Statistics::Statistics(QObject* parent) : QObject(parent) {
+Statistics::Statistics() {
 }
 
 void Statistics::reset() {
@@ -14,7 +14,7 @@ void Statistics::feedModel(const sunspec::SunSpecThing& thing, const sunspec::Mo
     auto& model_ = _models[{thing.sunSpecId(), model.modelId()}];
     model_ = model;
     if (model_.isDirty()) {
-        emit statsChanged(thing, model_);
+        //emit statsChanged(thing, model_);
     }
 }
 

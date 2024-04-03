@@ -6,7 +6,8 @@
 #include <uvw/loop.h>
 #include <uvw/tcp.h>
 
-#include <HttpRequest.h>
+#include <things/http/HttpRequest.h>
+#include <things/http/HttpResponseParser.h>
 
 namespace uvw_net {
 
@@ -23,6 +24,7 @@ private:
 
     HttpClient* _q;
     HttpRequest request;
+    HttpResponseParser _parser;
 
     friend class HttpClient;
 };

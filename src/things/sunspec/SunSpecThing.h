@@ -26,7 +26,7 @@ public:
         ReadModelEntry = 63001
     };
 
-    SunSpecThing(ModbusThingPtr_asio modbusThing);
+    SunSpecThing(ModbusThingPtr modbusThing);
     ~SunSpecThing();
 
     std::string host() const;
@@ -60,7 +60,7 @@ private:
 
     static std::string toString(const sunspec::LiveValue& v);
 
-    ModbusThingPtr_asio _modbusThing;
+    ModbusThingPtr _modbusThing;
     uint8_t _unitId = 0;
     uint8_t _unitIdx = 0;
 

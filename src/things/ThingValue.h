@@ -4,18 +4,8 @@
 #include <ostream>
 #include <string>
 #include <variant>
-#include <QJsonValue>
 
-/*
-class Value : public std::variant<bool, double, std::string> {
-public:
-    static Value fromQJsonValue(const QJsonValue& value);
-    QJsonValue toJsonValue() const;
-    using std::variant<bool, double, std::string>::variant;
-
-    double toDouble() const;
-};
-*/
+#include <nlohmann/json.hpp>
 
 // TODO: remove int
 using Value = std::variant<bool, int, double, std::string, std::array<double, 3>>;
@@ -32,6 +22,7 @@ std::ostream& operator<<(std::ostream& s, std::variant<T0, Ts...> const& v){
     }, v); return s;
 }
 
-Value fromQJsonValue(const QJsonValue& value);
-QJsonValue toJsonValue(const Value& value);
+Value fromJsonValue(const nlohmann::json& value);
+nlohmann::json toJsonValue(const Value& value);
+
 double toDouble(const Value& value);

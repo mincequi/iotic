@@ -1,12 +1,11 @@
 #include "Shelly.h"
 
 #include <regex>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
 #include <common/Logger.h>
 
 #include <iostream>
+
+using json = nlohmann::json;
 
 ThingPtr Shelly::from(const ThingInfo& info) {
     std::string str = info.host();
@@ -43,20 +42,19 @@ void Shelly::doRead() {
 }
 
 void Shelly::onRead(const std::string& response) {
-    const auto doc = QJsonDocument::fromJson(QByteArray::fromStdString(response));
+    const auto doc = json::parse(response);
     std::map<Property, Value> properties;
-    {
-        const auto val = doc["relays"][0]["ison"];
-        if (!val.isUndefined())
-            properties[Property::power_control] = val.toBool();
-    } if (_isPm) {
-        const auto val = doc["meters"][0]["power"];
-        if (!val.isUndefined())
-            properties[Property::power] = val.toDouble();
-    } {
-        const auto val = doc["ext_temperature"]["0"]["tC"];
-        if (!val.isUndefined())
-            properties[Property::temperature] = val.toDouble();
+    if (doc.contains("relays")) {
+        properties[Property::power_control] = doc.at("relays").at(0).at("ison").get<bool>();
+    } else if (doc.contains("ison")) {
+        properties[Property::power_control] = doc.at("ison").get<bool>();
+    }
+
+    if (_isPm && doc.contains("meters")) {
+        properties[Property::power] = doc["meters"][0]["power"].get<double>();
+    }
+    if (doc.contains("ext_temperature") && !doc.at("ext_temperature").empty()) {
+        properties[Property::temperature] = doc.at("ext_temperature").at("0").at("tC").get<double>();
     }
 
     if (!properties.empty()) {

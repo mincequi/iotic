@@ -13,8 +13,6 @@ struct HttpResponse {
     std::string body;
 
     bool messageComplete = false;
-
-    static const HttpResponse& fromBuffer(const std::unique_ptr<char[]>&, size_t);
 };
 
 } // namespace uvw_net

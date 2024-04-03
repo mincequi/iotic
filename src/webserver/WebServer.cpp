@@ -1,9 +1,6 @@
 #include "WebServer.h"
 
 #include <App.h>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
 #include <cmrc/cmrc.hpp>
 #include <uvw/loop.h>
 
@@ -16,6 +13,8 @@
 #include "WebAppBehavior.h"
 
 CMRC_DECLARE(webapp);
+
+using json = nlohmann::json;
 
 WebServer::WebServer(const ThingsRepository& thingsRepository) :
     _thingsRepository(thingsRepository) {
@@ -48,29 +47,23 @@ WebServer::WebServer(const ThingsRepository& thingsRepository) :
     });
 
     _site->properties().subscribe([this](const auto& props) {
-        QJsonObject siteProperties;
+        json siteProperties;
         for (const auto& p : props) {
-            siteProperties[QString::fromStdString(util::toString(p.first))] = toJsonValue(p.second);
+            siteProperties[util::toString(p.first)] = toJsonValue(p.second);
         }
 
-        QJsonObject json;
+        json json;
         json["site"] = siteProperties;
-
-        _uwsApp->publish("broadcast",
-                         QJsonDocument(json).toJson(QJsonDocument::JsonFormat::Compact).toStdString(),
-                         uWS::OpCode::TEXT);
+        _uwsApp->publish("broadcast", json.dump(), uWS::OpCode::TEXT);
     });
 
     cfg->timeConstant().get_observable().subscribe([this](int value) {
-        QJsonObject properties;
-        properties[QString::fromStdString(util::toString(MutableProperty::time_constant))] = QJsonValue(value);
+        json properties;
+        properties[util::toString(MutableProperty::time_constant)] = value;
 
-        QJsonObject json;
+        json json;
         json["ev_charging_strategy"] = properties;
-
-        _uwsApp->publish("broadcast",
-                         QJsonDocument(json).toJson(QJsonDocument::JsonFormat::Compact).toStdString(),
-                         uWS::OpCode::TEXT);
+        _uwsApp->publish("broadcast", json.dump(), uWS::OpCode::TEXT);
     });
 
     _thingsRepository.thingAdded().subscribe([this](const ThingPtr& thing) {
@@ -80,17 +73,16 @@ WebServer::WebServer(const ThingsRepository& thingsRepository) :
                          uWS::OpCode::TEXT);
 
         thing->properties().subscribe([this, &thing](const std::map<Property, Value>& prop) {
-            QJsonObject thing_;
+            json thing_;
             for (const auto& kv : prop) {
                 if (kv.first <= Property::power_control)
-                    thing_[QString::fromStdString(util::toString(kv.first))] = toJsonValue(kv.second);
+                    thing_[util::toString(kv.first)] = toJsonValue(kv.second);
             }
-            QJsonObject json;
-            json[QString::fromStdString(thing->id())] = thing_;
+            if (thing_.empty()) return;
 
-            _uwsApp->publish("broadcast",
-                             QJsonDocument(json).toJson(QJsonDocument::JsonFormat::Compact).toStdString(),
-                             uWS::OpCode::TEXT);
+            json json;
+            json[thing->id()] = thing_;
+            _uwsApp->publish("broadcast", json.dump(), uWS::OpCode::TEXT);
         });
     });
 }

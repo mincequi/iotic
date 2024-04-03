@@ -2,11 +2,13 @@
 
 #include <cmath>
 #include <regex>
-#include <QJsonArray>
-#include <QJsonDocument>
+#include <nlohmann/json.hpp>
+
 #include <common/Logger.h>
 
 #include "GoeUtil.h"
+
+using json = nlohmann::json;
 
 ThingPtr GoeCharger::from(const ThingInfo& info) {
     if (std::regex_match(info.host(), std::regex("go-echarger_\\d{6}"))) {
@@ -56,20 +58,28 @@ void GoeCharger::doRead() {
 }
 
 void GoeCharger::onRead(const std::string& response) {
-    const auto doc = QJsonDocument::fromJson(QByteArray::fromStdString(response));
-    const auto nrg = doc["nrg"].toArray();
-    if (nrg.isEmpty()) return;
+    if (response.empty()) {
+        LOG_S(WARNING) << id() << "> response is empty";
+        return;
+    }
+
+    DLOG_S(1) << id() << "> response: " << response;
+    const auto doc = json::parse(response);
+    if (!doc.contains("nrg")) return;
+
+    const auto nrg = doc["nrg"].get<std::vector<double>>();
+    if (nrg.empty()) return;
 
     std::array<double, 3> voltage;
-    voltage.at(0) = nrg.at(0).toDouble();
-    voltage.at(1) = nrg.at(1).toDouble();
-    voltage.at(2) = nrg.at(2).toDouble();
+    voltage.at(0) = nrg[0];
+    voltage.at(1) = nrg[1];
+    voltage.at(2) = nrg[2];
 
-    _status = goe::toStatus(doc["car"].toInt());
+    _status = goe::toStatus(doc["car"].get<int>());
 
     propertiesSubscriber().on_next({
         { Property::status, static_cast<int>(_status) },
-        { Property::power, nrg.at(11).toDouble() },
+        { Property::power, nrg[11] },
         { Property::voltage, voltage }
     });
 }

@@ -2,8 +2,6 @@
 
 #include <map>
 
-#include <QString>
-
 #include <common/Logger.h>
 #include <common/Util.h>
 

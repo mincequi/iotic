@@ -6,6 +6,7 @@
 #include <magic_enum.hpp>
 
 #include "DnsParser.h"
+#include "DnsRecordClass.h"
 #include "DnsRecordDataSrv.h"
 
 namespace uvw_net {

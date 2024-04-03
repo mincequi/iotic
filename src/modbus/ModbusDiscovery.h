@@ -1,5 +1,7 @@
 #pragma once
 
+#include <list>
+
 #include <modbus/ModbusThing.h>
 #include <things/ThingsDiscovery.h>
 
@@ -13,9 +15,9 @@ public:
     void stop() override;
 
 private:
-    void onCandidateStateChanged(const ModbusThingPtr_asio& thing, Thing::State state);
+    void onCandidateStateChanged(const ModbusThingPtr& thing, Thing::State state);
 
-    std::list<std::pair<ModbusThingPtr_asio, rpp::composite_subscription>> _candidates;
+    std::list<std::pair<ModbusThingPtr, rpp::composite_subscription>> _candidates;
 };
 
 using ModbusDiscoveryPtr = std::shared_ptr<ModbusDiscovery>;

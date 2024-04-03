@@ -13,6 +13,7 @@ add_library(httpthing STATIC
   HttpDiscovery.cpp
   HttpRequest.cpp
   HttpResponse.cpp
+  HttpResponseParser.cpp
   HttpSession.cpp
   HttpThing.cpp
   HttpThingFactory.cpp

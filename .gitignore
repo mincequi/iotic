@@ -33,4 +33,5 @@
 
 # Other
 *.user
+*.token
 build/

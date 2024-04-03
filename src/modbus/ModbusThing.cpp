@@ -10,7 +10,7 @@ ModbusThing::ModbusThing(const ThingInfo& info) :
 }
 
 ModbusThing::~ModbusThing() {
-    LOG_S(2) << host() << "> destroyed";
+    DLOG_S(1) << host() << "> destroyed";
 }
 
 void ModbusThing::connect() {
@@ -24,10 +24,10 @@ void ModbusThing::connect() {
             switch (-error.code()) {
             case ECONNREFUSED:
             case ETIMEDOUT:
-                LOG_S(1) << self->host() << "> error: " << error.what();
+                DLOG_S(1) << self->host() << "> error: " << error.what();
                 break;
             default:
-                LOG_S(1) << self->host() << "> error: " << error.what();
+                DLOG_S(1) << self->host() << "> error: " << error.what();
                 break;
             }
 
@@ -56,7 +56,7 @@ void ModbusThing::connect() {
                 LOG_S(1) << self->host() << "> exception: " << (int)response.exceptionCode;
                 self->_exceptionSubject.get_subscriber().on_next(response.exceptionCode);
             } else if (self->_transactionsUserData.contains(response.transactionId)) {
-                LOG_S(1) << self->host() << "> received: " << response.transactionId;
+                DLOG_S(1) << self->host() << "> received: " << response.transactionId;
                 response.userData = self->_transactionsUserData[response.transactionId];
                 self->_holdingRegistersSubject.get_subscriber().on_next(response);
             }

@@ -26,7 +26,7 @@ Thing::Thing(const ThingInfo& info) :
         }
         std::string str = ss.str();
         std::string substr = str.substr(0, str.size()-2);
-        LOG_S(1) << id() << "> { " << substr << " }";
+        DLOG_S(1) << id() << "> { " << substr << " }";
     });
 
     // Note: no need to emit properties, since there are no subscibers at construction time.

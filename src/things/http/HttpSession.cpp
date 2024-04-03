@@ -3,6 +3,8 @@
 #include "HttpClient.h"
 #include "HttpResponse.h"
 
+#include <common/Logger.h>
+
 namespace uvw_net {
 
 HttpSession::HttpSession(HttpClient* q) :
@@ -31,17 +33,17 @@ HttpSession::HttpSession(HttpClient* q) :
     tcp->on<uvw::data_event>([this](const uvw::data_event& event, uvw::tcp_handle& tcp) {
         _q->_isRequestPending = false;
         if (_q->onResponseCallback) {
-            auto response = HttpResponse::fromBuffer(event.data, event.length);
-            _q->onResponseCallback(response);
+            auto response = _parser.parse(event.data.get(), event.length);
+            if (response) _q->onResponseCallback(*response);
         }
     });
-    }
+}
 
-    HttpSession::~HttpSession() {
-        resolver->reset();
-        resolver->cancel();
-        tcp->reset();
-        tcp->close();
-    }
+HttpSession::~HttpSession() {
+    resolver->reset();
+    resolver->cancel();
+    tcp->reset();
+    tcp->close();
+}
 
 } // namespace uvw_net

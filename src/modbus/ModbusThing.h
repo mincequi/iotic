@@ -31,4 +31,4 @@ private:
     std::map<uint16_t, uint16_t> _transactionsUserData;
 };
 
-using ModbusThingPtr_asio = std::shared_ptr<ModbusThing>;
+using ModbusThingPtr = std::shared_ptr<ModbusThing>;

@@ -15,9 +15,9 @@ using namespace std::placeholders;
 
 namespace sunspec {
 
-SunSpecThing::SunSpecThing(ModbusThingPtr_asio modbusThing)
+SunSpecThing::SunSpecThing(ModbusThingPtr modbusThing)
     : Thing(*modbusThing),
-    _modbusThing(modbusThing) {
+    _modbusThing(modbusThing->shared_from_this()) {
 
     // TODO: move polling for unitId out of this class into SunSpecDiscovery
     // We receive a ready/connected modbusThing. Start checking for SunSpec header.
@@ -199,6 +199,14 @@ void SunSpecThing::readHeader(uint8_t id) {
 }
 
 std::optional<Thing::State> SunSpecThing::onReadHeader(const ModbusResponse& response) {
+    DLOG_S(INFO) << host() << "> header received for unitId: " << (int)response.unitId;
+
+    if (response.values.size() < 4) {
+        LOG_S(WARNING) << host() << "> header response too small: " << response.values.size();
+        //pollNextUnitId();
+        return {};
+    }
+
     _headerLength = response.values[3];
     if (response.values[0] == 0x5375 && response.values[1] == 0x6E53 &&
             response.values[2] == 1 && (_headerLength == 65 || _headerLength == 66)) {
@@ -301,7 +309,7 @@ std::string SunSpecThing::toString(const LiveValue& v) {
     std::stringstream ss;
     ss << v;
     auto str = ss.str();
-    std::transform(str.begin(), str.end(), str.begin(), [](uchar c) { return std::tolower(c); });
+    std::transform(str.begin(), str.end(), str.begin(), [](char c) { return std::tolower(c); });
     str = std::regex_replace(str, std::regex("[^a-z0-9]"), "_");
     return str;
 }
