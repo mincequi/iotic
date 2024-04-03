@@ -6,10 +6,10 @@
 #include <rpp/operators.hpp>
 #include <rpp/observables.hpp>
 #include <rpp/rpp.hpp>
-#include <rppqt/schedulers/main_thread_scheduler.hpp>
 
 #include <common/Logger.h>
 #include <common/Util.h>
+#include <common/RppUvw.h>
 #include <config/Config.h>
 #include <things/ThingsRepository.h>
 
@@ -22,7 +22,7 @@ Site* Site::instance() {
 
 Site::Site() {
     _siteDataSubject.get_observable().subscribe([this](const Site::SiteData& data){
-        LOG_S(1) << "{ pv_power: " << data.pvPower
+        DLOG_S(INFO) << "{ pv_power: " << data.pvPower
                     << ", grid_power: " << data.gridPower << " }";
 
         std::map<Property, Value> properties;
@@ -73,7 +73,7 @@ Site::Site() {
         return Site::SiteData { (int)seconds, pvPower, gridPower };
     }, _gridPower.get_observable())
     .debounce(std::chrono::milliseconds(cfg->valueOr<int>("site", Config::Key::debounce, 400)), rpp::schedulers::new_thread{})
-    .observe_on(rppqt::schedulers::main_thread_scheduler{})
+    .observe_on(rpp_uvw::schedulers::main_thread_scheduler{})
     .subscribe(_siteDataSubject.get_subscriber());
 
     // Init Inverter

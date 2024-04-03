@@ -1,6 +1,7 @@
 #pragma once
 
-#include <QTimer>
+#include <list>
+
 #include <things/ThingsDiscovery.h>
 
 class AppDiscover {
@@ -9,6 +10,4 @@ public:
 
 private:
     std::list<ThingsDiscoveryPtr> _discoveries;
-
-    QTimer _timer;
 };

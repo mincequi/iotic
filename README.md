@@ -37,7 +37,6 @@ iotic implements several strategies to realize PC surplus charging of electric v
 
 # Requirements
 - C++17
-- Qt5 or Qt6: Core Network SerialBus
 - Flutter
 
 # Installation (Debian/Ubuntu)
@@ -61,9 +60,7 @@ sudo apt install \
   build-essential \
   cmake \
   git \
-  snapd \
-  libboost-dev \
-  qt6-base-dev
+  snapd
 
 sudo snap install flutter --classic
 flutter   # init flutter first

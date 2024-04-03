@@ -13,15 +13,9 @@ set(CMAKE_CXX_EXTENSIONS ON)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-#set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-#set(CMAKE_AUTORCC ON)
-
 option(BUILD_TESTS "Build test programs" OFF)
 
 find_package(Threads)
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Network REQUIRED)
 
 add_subdirectory(src/cli)
 add_subdirectory(src/common)

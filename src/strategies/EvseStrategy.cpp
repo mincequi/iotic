@@ -8,10 +8,10 @@
 #include <rpp/operators/distinct_until_changed.hpp>
 #include <rpp/operators/observe_on.hpp>
 #include <rpp/schedulers/new_thread_scheduler.hpp>
-#include <rppqt/schedulers/main_thread_scheduler.hpp>
 
 #include <common/Logger.h>
 #include <common/OffsetTable.h>
+#include <common/RppUvw.h>
 #include <config/Config.h>
 #include <things/Site.h>
 #include <things/ThingsRepository.h>
@@ -29,7 +29,7 @@ EvseStrategy::EvseStrategy(const ThingPtr& thing) :
     _wantsToSwitch.get_observable()
             .distinct_until_changed()
             .debounce(std::chrono::seconds(cfg->valueOr<int>(thing->id(), Config::Key::debounce, 300)), rpp::schedulers::new_thread())
-            .observe_on(rppqt::schedulers::main_thread_scheduler{})
+            .observe_on(rpp_uvw::schedulers::main_thread_scheduler{})
             .subscribe([this](bool wantsToSwitch) {
         if (wantsToSwitch)
             _phases = computePhases();

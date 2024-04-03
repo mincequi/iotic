@@ -21,6 +21,7 @@ endif()
 
 FetchContent_Declare(rpp
   URL https://github.com/victimsnino/ReactivePlusPlus/archive/refs/tags/v0.2.3.tar.gz
+  #URL https://github.com/victimsnino/ReactivePlusPlus/archive/refs/tags/v2.1.1.tar.gz
 )
 if(NOT rpp_POPULATED)
   FetchContent_Populate(rpp)
@@ -56,10 +57,8 @@ PRIVATE
 target_link_libraries(common
 PUBLIC
   ${CMAKE_DL_LIBS}
-  Qt${QT_VERSION_MAJOR}::Core
   magic_enum
   rpp
-  rppqt
   uvw::uvw-static
   nlohmann_json::nlohmann_json
 )

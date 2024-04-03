@@ -15,11 +15,14 @@ struct HttpThing::Impl {
             LOG_S(WARNING) << _q->id() << "> " << error.what();
             repo->onError(_q->id(), error.code());
         };
-        client->onResponseCallback = [this](const uvw_net::HttpResponse& response) {
+        client->onResponseCallback = [this](uvw_net::HttpResponse response) {
             for (const auto& h : response.headers) {
-                LOG_S(2) << h.first << ": " << h.second;
+                DLOG_S(1) << h.first << ": " << h.second;
             }
-            repo->onRead(_q->id(), response.body);
+            if (!response.body.empty()) {
+                DLOG_S(1) << _q->id() << "> body: " << response.body;
+                repo->onRead(_q->id(), response.body);
+            }
         };
     }
 

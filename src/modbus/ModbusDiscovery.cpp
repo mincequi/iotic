@@ -29,15 +29,17 @@ void ModbusDiscovery::start(int msec) {
     }
 
     if (subnet.empty()) {
-        LOG_S(WARNING) << "No interface with subnet mask 255.255.255.0 found.";
+        LOG_S(WARNING) << "no interface with subnet mask 255.255.255.0 found";
         return;
     }
 
     // Scan subnets
-    LOG_S(1) << "find things> subnet: " << subnet << "0/24";
+    DLOG_S(1) << "find things> subnet: " << subnet << "0/24";
     for (uint8_t i = 1; i < 255; ++i) {
         const std::string host = subnet + std::to_string(i);
-        if (repo->thingByHost(host)) {
+        const auto thing = repo->thingByHost(host);
+        if (thing) {
+            DLOG_S(INFO) << "already known thing ignored> " << thing->id();
             continue;
         }
 
@@ -51,7 +53,7 @@ void ModbusDiscovery::start(int msec) {
 void ModbusDiscovery::stop() {
 }
 
-void ModbusDiscovery::onCandidateStateChanged(const ModbusThingPtr_asio& candidate_, Thing::State state) {
+void ModbusDiscovery::onCandidateStateChanged(const ModbusThingPtr& candidate_, Thing::State state) {
     assert(!_candidates.empty());
     auto it = std::find_if(_candidates.begin(), _candidates.end(), [&](const auto& c) {
         return c.first == candidate_;
@@ -70,9 +72,7 @@ void ModbusDiscovery::onCandidateStateChanged(const ModbusThingPtr_asio& candida
         break;
     case Thing::State::Ready: {
         LOG_S(INFO) << "thing found> host: " << candidate_->host();
-        // Prepare thing
-        auto thing = std::move(candidate.first);
-        thingDiscoveredSubscriber().on_next(thing);
+        thingDiscoveredSubscriber().on_next(std::move(candidate.first));
         break;
     }
     default:

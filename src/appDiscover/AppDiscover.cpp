@@ -3,7 +3,8 @@
 #include <modbus/ModbusDiscovery.h>
 #include <things/http/HttpDiscovery.h>
 
-#include <QCoreApplication>
+#include <uvw/loop.h>
+#include <uvw/timer.h>
 
 using namespace std::chrono_literals;
 
@@ -15,9 +16,10 @@ AppDiscover::AppDiscover() {
         d->start(70000);
     }
 
-    QObject::connect(&_timer, &QTimer::timeout, []() {
-        qApp->exit();
+    auto timer = uvw::loop::get_default()->resource<uvw::timer_handle>();
+    timer->on<uvw::timer_event>([this](const auto&, auto&) {
+        uvw::loop::get_default()->stop();
     });
-    _timer.start(60s);
+    timer->start(uvw::timer_handle::time{60000}, uvw::timer_handle::time{0});
 }
 

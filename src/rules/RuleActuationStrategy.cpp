@@ -4,12 +4,12 @@
 #include <rpp/operators/distinct_until_changed.hpp>
 #include <rpp/operators/observe_on.hpp>
 #include <rpp/schedulers/new_thread_scheduler.hpp>
-#include <rppqt/schedulers/main_thread_scheduler.hpp>
 
 #include <tinyexpr.h>
 
 #include <common/Logger.h>
 #include <common/OffsetTable.h>
+#include <common/RppUvw.h>
 #include <config/Config.h>
 #include <rules/RulesEngine.h>
 #include <things/ThingsRepository.h>
@@ -58,7 +58,7 @@ RuleActuationStrategy<TScheduler>::RuleActuationStrategy(const std::string& thin
     _expressionSubject.get_observable()
             .distinct_until_changed()
             .debounce(std::chrono::seconds(cfg->valueOr<int>(thingId, Config::Key::debounce, 60)), _scheduler)
-            .observe_on(rppqt::schedulers::main_thread_scheduler{})
+            .observe_on(rpp_uvw::schedulers::main_thread_scheduler{})
             .subscribe([this](bool value) {
         LOG_S(INFO) << this->thingId() << "> " << value;
         _actionState = value;
