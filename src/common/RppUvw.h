@@ -7,44 +7,50 @@
 
 namespace rpp_uvw::schedulers {
 
-class main_thread_scheduler final : public rpp::schedulers::details::scheduler_tag {
+class main_thread_scheduler final {
 private:
-    class worker_strategy;
-    using main_thread_schedulable = rpp::schedulers::schedulable_wrapper<worker_strategy>;
-
     class worker_strategy {
     public:
-        worker_strategy(const rpp::subscription_base& sub)
-            : m_sub{sub} {}
-
-        bool is_subscribed() const { return m_sub.is_subscribed(); }
-
-        void defer_at(rpp::schedulers::time_point time_point, rpp::schedulers::constraint::schedulable_fn auto&& fn) const {
-            defer_at(time_point, main_thread_schedulable{*this, time_point, std::forward<decltype(fn)>(fn)});
-        }
-
-        void defer_at(rpp::schedulers::time_point time_point, main_thread_schedulable&& fn) const {
-            if (!m_sub.is_subscribed())
-                return;
-
+        template<rpp::schedulers::constraint::schedulable_handler Handler, typename... Args, rpp::schedulers::constraint::schedulable_fn<Handler, Args...> Fn>
+        static void defer_for(rpp::schedulers::duration duration, Fn&& fn, Handler&& handler, Args&&... args) {
             auto timer = uvw::loop::get_default()->resource<uvw::timer_handle>();
-            timer->on<uvw::timer_event>([fn = std::move(fn)](const auto&, auto &handle) {
-                    const_cast<main_thread_schedulable&&>(fn)();
-                    handle.stop();
-                    handle.close();
-                });
-            const auto duration = std::max(std::chrono::milliseconds{0}, std::chrono::duration_cast<std::chrono::milliseconds>(time_point - now()));
-            timer->start(duration, uvw::timer_handle::time{0});
+            timer->on<uvw::timer_event>([fn = std::forward<Fn>(fn), handler = std::forward<Handler>(handler), ... args = std::forward<Args>(args)] (const auto&, auto &handle) {
+                if (!handler.is_disposed())
+                    invoke(std::move(fn), std::move(handler), std::move(args)...);
+                handle.stop();
+                handle.close();
+            });
+            timer->start(std::chrono::duration_cast<std::chrono::milliseconds>(duration), uvw::timer_handle::time{0});
         }
+
+        static constexpr rpp::schedulers::details::none_disposable get_disposable() { return {}; }
 
         static rpp::schedulers::time_point now() { return rpp::schedulers::clock_type::now(); }
+
     private:
-        rpp::subscription_base m_sub;
+        template<rpp::schedulers::constraint::schedulable_handler Handler, typename... Args, rpp::schedulers::constraint::schedulable_delay_from_now_fn<Handler, Args...> Fn>
+        static void invoke(Fn&& fn, Handler&& handler, Args&&... args) {
+            if (const auto new_duration = fn(handler, args...))
+                defer_for(new_duration->value, std::forward<Fn>(fn), std::forward<Handler>(handler), std::forward<Args>(args)...);
+        }
+
+        template<rpp::schedulers::constraint::schedulable_handler Handler, typename... Args, rpp::schedulers::constraint::schedulable_delay_from_this_timepoint_fn<Handler, Args...> Fn>
+        static void invoke(Fn&& fn, Handler&& handler, Args&&... args) {
+            const auto now = rpp::schedulers::clock_type::now();
+            if (const auto new_duration = fn(handler, args...))
+                defer_for(now + new_duration->value - rpp::schedulers::clock_type::now(), std::forward<Fn>(fn), std::forward<Handler>(handler), std::forward<Args>(args)...);
+        }
+
+        template<rpp::schedulers::constraint::schedulable_handler Handler, typename... Args, rpp::schedulers::constraint::schedulable_delay_to_fn<Handler, Args...> Fn>
+        static void invoke(Fn&& fn, Handler&& handler, Args&&... args) {
+            if (const auto new_tp = fn(handler, args...))
+                defer_for(new_tp->value - rpp::schedulers::clock_type::now(), std::forward<Fn>(fn), std::forward<Handler>(handler), std::forward<Args>(args)...);
+        }
     };
 
 public:
-    static auto create_worker(const rpp::subscription_base& sub = {}) {
-        return rpp::schedulers::worker<worker_strategy>{sub};
+    static auto create_worker() {
+        return rpp::schedulers::worker<worker_strategy>{};
     }
 };
 

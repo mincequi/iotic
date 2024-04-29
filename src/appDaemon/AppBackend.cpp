@@ -3,13 +3,20 @@
 #include <config/Config.h>
 #include <rules/RulesEngine.h>
 
-AppBackend::AppBackend()
-    : _thingsRepository(ThingsRepository::instance()),
-      _thingsManager(_candidatesRepository, *_thingsRepository),
-      //_mqttExporter("broker.hivemq.com"),
-      _webServer(*_thingsRepository) {
-    // We define order of singleton instantiations here.
-    rules;
+AppBackend::AppBackend() :
+    _cfg(_thingRepository),
+    _thingsManager(_thingRepository, _cfg),
+    _site(_thingRepository, _cfg),
+    //_mqttExporter("broker.hivemq.com"),
+    _webServer(_thingRepository, _site, _cfg),
+    _rulesEngine(_thingRepository, _site, _cfg) {
+
+    _thingRepository.thingAdded().subscribe([this](ThingPtr thing) {
+        LOG_S(INFO) << "thing added> " << thing->id() << ", type: " << thing->type();
+    });
+    _thingRepository.thingRemoved().subscribe([this](const auto& id) {
+        LOG_S(INFO) << "thing removed> " << id;
+    });
 
 #ifdef USE_INFLUXDB
     // Setup InfluxExporter
@@ -24,5 +31,8 @@ AppBackend::AppBackend()
 
     // Start discovery
     _thingsManager.startDiscovery(60 * 1000);
+}
+
+AppBackend::~AppBackend() {
 }
 

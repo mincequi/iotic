@@ -7,45 +7,58 @@
 #include <rpp/operators/debounce.hpp>
 #include <rpp/operators/distinct_until_changed.hpp>
 #include <rpp/operators/observe_on.hpp>
-#include <rpp/schedulers/new_thread_scheduler.hpp>
+#include <rpp/schedulers/new_thread.hpp>
+
+#include <uvw_iot/common/ThingType.h>
 
 #include <common/Logger.h>
 #include <common/OffsetTable.h>
+#include <common/Rpp.h>
 #include <common/RppUvw.h>
 #include <config/Config.h>
 #include <things/Site.h>
-#include <things/ThingsRepository.h>
 
-std::unique_ptr<Strategy> EvseStrategy::from(const ThingPtr& thing) {
-    if (thing->type() == Thing::Type::EvStation) {
-        thing->setProperty(MutableProperty::offset, cfg->valueOr<int>(thing->id(), Config::Key::offset, defaultOffset));
-        return std::unique_ptr<EvseStrategy>(new EvseStrategy(thing));
+using namespace uvw_iot::common;
+
+std::unique_ptr<Strategy> EvseStrategy::from(const ThingPtr& thing,
+                                             const ThingRepository& repo,
+                                             const Site& site,
+                                             const Config& cfg) {
+    if (thing->type() == ThingType::EvStation) {
+        thing->setProperty(ThingPropertyKey::offset, cfg.valueOr<int>(thing->id(), Config::Key::offset, defaultOffset));
+        return std::unique_ptr<EvseStrategy>(new EvseStrategy(thing, repo, site, cfg));
     }
     return {};
 }
 
-EvseStrategy::EvseStrategy(const ThingPtr& thing) :
-    Strategy(thing->id()) {
+EvseStrategy::EvseStrategy(const ThingPtr& thing,
+                           const ThingRepository& repo,
+                           const Site& site,
+                           const Config& cfg) :
+    Strategy(thing->id()),
+    _repo(repo),
+    _site(site),
+    _cfg(cfg) {
     _wantsToSwitch.get_observable()
-            .distinct_until_changed()
-            .debounce(std::chrono::seconds(cfg->valueOr<int>(thing->id(), Config::Key::debounce, 300)), rpp::schedulers::new_thread())
-            .observe_on(rpp_uvw::schedulers::main_thread_scheduler{})
-            .subscribe([this](bool wantsToSwitch) {
+            | distinct_until_changed()
+            | debounce(std::chrono::seconds(cfg.valueOr<int>(thing->id(), Config::Key::debounce, 300)), rpp::schedulers::new_thread())
+            | observe_on(rpp_uvw::schedulers::main_thread_scheduler{})
+            | subscribe([this](bool wantsToSwitch) {
         if (wantsToSwitch)
             _phases = computePhases();
     });
 
-    thing->properties().subscribe([this](const std::map<Property, Value>& map) {
+    thing->propertiesObservable().subscribe([this](const ThingPropertyMap& map) {
         for (const auto& kv : map) {
             switch (kv.first) {
-            case Property::power:
-                _power = std::get<double>(kv.second);
+            case ThingPropertyKey::power:
+                _power = std::get<int>(kv.second);
                 break;
-            case Property::voltage:
-                _voltages = std::get<std::array<double, 3>>(kv.second);
+            case ThingPropertyKey::voltage:
+                _voltages = std::get<std::array<int, 3>>(kv.second);
                 break;
-            case Property::offset:
-                _offsetPower = offsetTable[std::get<double>(kv.second)];
+            case ThingPropertyKey::offset:
+                _offsetPower = offsetTable[std::get<int>(kv.second)];
                 break;
             default:
                 break;
@@ -62,22 +75,22 @@ void EvseStrategy::evaluate(double gridPower) {
     const double availablePower = _power - gridPower + _offsetPower;
     if (_shortTermAvailablePower == 0.0) _shortTermAvailablePower = availablePower;
     if (_longTermAvailablePower == 0.0) _longTermAvailablePower = availablePower;
-    _shortTermAvailablePower += cfg->evseAlpha() * (availablePower - _shortTermAvailablePower);
-    _longTermAvailablePower += cfg->evseBeta() * (availablePower - _longTermAvailablePower);
+    _shortTermAvailablePower += _cfg.evseAlpha() * (availablePower - _shortTermAvailablePower);
+    _longTermAvailablePower += _cfg.evseBeta() * (availablePower - _longTermAvailablePower);
 
     // Compute possible phases
     const Phases phases = computePhases();
     if (!_phases.has_value()) _phases = phases;
 
     // If current phases differ, trigger switch subject
-    _wantsToSwitch.get_subscriber().on_next(_phases.value() != phases);
+    _wantsToSwitch.get_observer().on_next(_phases.value() != phases);
 
     LOG_S(1) << thingId() <<
                 "> longTermAvailablePower: " << _longTermAvailablePower <<
                 ", shortTermAvailablePower: " << _shortTermAvailablePower;
 
     // Set current
-    repo->setThingProperty(thingId(), MutableProperty::current, computeCurrent());
+    _repo.setThingProperty(thingId(), ThingPropertyKey::current, computeCurrent());
 }
 
 EvseStrategy::Phases EvseStrategy::computePhases() const {
@@ -89,15 +102,15 @@ EvseStrategy::Phases EvseStrategy::computePhases() const {
     return Phases::off;
 }
 
-Value EvseStrategy::computeCurrent() const {
+ThingPropertyValue EvseStrategy::computeCurrent() const {
     switch (_phases.value()) {
     case Phases::single_phase:
-        return _shortTermAvailablePower / _voltages.front();
+        return (int)(_shortTermAvailablePower / _voltages.front());
     case Phases::three_phase: {
-        const double amps = _shortTermAvailablePower / std::reduce(_voltages.begin(), _voltages.end());
+        const int amps = _shortTermAvailablePower / std::reduce(_voltages.begin(), _voltages.end());
         return std::array{ amps, amps, amps };
     }
     default:
-        return 0.0;
+        return 0;
     }
 }

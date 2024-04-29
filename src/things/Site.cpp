@@ -3,89 +3,80 @@
 #include <chrono>
 #include <numeric>
 
-#include <rpp/operators.hpp>
-#include <rpp/observables.hpp>
-#include <rpp/rpp.hpp>
-
-#include <common/Logger.h>
 #include <common/Util.h>
+#include <common/Rpp.h>
 #include <common/RppUvw.h>
 #include <config/Config.h>
-#include <things/ThingsRepository.h>
+
+#include <uvw_iot/common/ThingRepository.h>
 
 using namespace std::chrono_literals;
+using namespace uvw_iot::common;
 
-Site* Site::instance() {
-    if (!_instance) _instance = new Site();
-    return _instance;
-}
-
-Site::Site() {
+Site::Site(const ThingRepository& repo, const Config& cfg)
+    : _repo(repo),
+      _cfg(cfg) {
     _siteDataSubject.get_observable().subscribe([this](const Site::SiteData& data){
-        DLOG_S(INFO) << "{ pv_power: " << data.pvPower
+        DLOG_S(1) << "{ pv_power: " << data.pvPower
                     << ", grid_power: " << data.gridPower << " }";
 
-        std::map<Property, Value> properties;
-        properties[Property::timestamp] = data.ts;
-        properties[Property::pv_power] = (double)data.pvPower;
-        properties[Property::grid_power] = (double)data.gridPower;
-        _propertiesSubject.get_subscriber().on_next(properties);
+        ThingPropertyMap properties;
+        properties[ThingPropertyKey::timestamp] = data.ts;
+        properties[ThingPropertyKey::pv_power] = data.pvPower;
+        properties[ThingPropertyKey::grid_power] = data.gridPower;
+        _propertiesSubject.get_observer().on_next(properties);
 
         while (_history.size() > 3600) {
             _history.pop_front();
         }
         _history.push_back(data);
-
-        repo->update();
     });
 
-    repo->thingAdded().subscribe([this](const ThingPtr& thing) {
+    _repo.thingAdded().subscribe([this](ThingPtr thing) {
         // If we configured this meter for site (or there is no explicit config)
-        if (thing->type() == Thing::Type::SmartMeter &&
-                (cfg->gridMeter() == thing->id() || cfg->gridMeter().empty())) {
+        if (thing->type() == ThingType::SmartMeter && (_cfg.gridMeter() == thing->id() || _cfg.gridMeter().empty())) {
             LOG_S(INFO) << "thing added> " << thing->id();
-            thing->properties().filter([&](const auto& p) {
-                return p.count(Property::power);
-            }).map([&](const auto& p) {
-                return (int)std::get<double>(p.at(Property::power));
-            }).subscribe(_gridPower.get_subscriber());
-        } else if (thing->type() == Thing::Type::SolarInverter &&
-                   (cfg->pvMeters().contains(thing->id()) || cfg->pvMeters().empty())) {
+            thing->propertiesObservable()
+                | filter([&](const auto& p) { return p.count(ThingPropertyKey::power); })
+                | map([&](const auto& p) { return std::get<int>(p.at(ThingPropertyKey::power)); })
+                | subscribe(_gridPower.get_observer());
+        } else if (thing->type() == ThingType::SolarInverter && (_cfg.pvMeters().contains(thing->id()) || _cfg.pvMeters().empty())) {
             LOG_S(INFO) << "thing added> " << thing->id();
-            thing->properties().filter([&](const auto& p) {
-                return p.count(Property::power);
-            }).map([&](const auto& p) {
-                return std::make_pair(thing->id(), (int)std::get<double>(p.at(Property::power)));
-            }).subscribe(_pvPowers.get_subscriber());
+            thing->propertiesObservable()
+                | filter([thing](const auto& p) { return p.count(ThingPropertyKey::power); })
+                | map([thing](const auto& p) { return std::make_pair(thing->id(), std::get<int>(p.at(ThingPropertyKey::power))); })
+                | subscribe(_pvPowers.get_observer());
         }
     });
 
-    _pvPowers.get_observable().scan(std::map<std::string, int>{}, [](auto&& result, const auto& value) {
-        result[value.first] = value.second;
-        return std::move(result);
-    }).map([](const auto& kv) {
-        return std::accumulate(kv.cbegin(), kv.cend(), 0, [](int result, const auto& value) { return result + value.second; });
-    }).subscribe(_pvPower.get_subscriber());
+    _pvPowers.get_observable()
+        | scan(std::map<std::string, int>{}, [](auto&& result, const auto& value) {
+              result[value.first] = value.second;
+              return std::move(result);
+          })
+        | map([](const auto& kv) { return std::accumulate(kv.cbegin(), kv.cend(), 0, [](int result, const auto& value) { return result + value.second; }); })
+        | subscribe(_pvPower.get_observer());
 
-    _pvPower.get_observable().combine_latest([](int pvPower, int gridPower) {
+    _pvPower.get_observable()
+        | combine_latest([](int pvPower, int gridPower) {
         const auto now = std::chrono::system_clock::now();
         const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
         return Site::SiteData { (int)seconds, pvPower, gridPower };
     }, _gridPower.get_observable())
-    .debounce(std::chrono::milliseconds(cfg->valueOr<int>("site", Config::Key::debounce, 400)), rpp::schedulers::new_thread{})
-    .observe_on(rpp_uvw::schedulers::main_thread_scheduler{})
-    .subscribe(_siteDataSubject.get_subscriber());
+    | debounce(std::chrono::milliseconds(_cfg.valueOr<int>("site", Config::Key::debounce, 400)), rpp::schedulers::new_thread{})
+    | observe_on(rpp_uvw::schedulers::main_thread_scheduler{})
+    | subscribe(_siteDataSubject.get_observer());
 
     // Init Inverter
-    _pvPower.get_subscriber().on_next(0);
+    _pvPower.get_observer().on_next(0);
 
-    _mutableProperties[MutableProperty::thing_interval] = cfg->thingInterval();
+    _mutableProperties[ThingPropertyKey::thing_interval] = _cfg.thingInterval();
 
-    properties().subscribe([](const std::map<Property, Value>& props) {
+    properties().subscribe([this](const ThingPropertyMap& props) {
         for (const auto& kv : props) {
             switch (kv.first) {
-            case Property::thing_interval:
-                cfg->setThingInterval(std::get<double>(kv.second));
+            case ThingPropertyKey::thing_interval:
+                _cfg.setThingInterval(std::get<int>(kv.second));
                 break;
             default:
                 break;
@@ -94,39 +85,25 @@ Site::Site() {
     });
 }
 
-void Site::setProperty(MutableProperty property, const Value& value) const {
+void Site::setProperty(uvw_iot::common::ThingPropertyKey property, const uvw_iot::common::ThingPropertyValue& value) const {
     // Add property value to local storage for late subscribers
     _mutableProperties[property] = value;
 
     // Reflect changes back (to other clients as well).
-    const auto property_ = magic_enum::enum_cast<Property>(magic_enum::enum_integer(property));
-    LOG_IF_S(FATAL, !property_.has_value()) << util::toString(property) << " has no readable correspondent";
-    LOG_S(INFO) << "site.setProperty> " << util::toString(property_.value()) << ": " << value;
-    _propertiesSubject.get_subscriber().on_next({{ property_.value(), value }});
+    LOG_S(INFO) << "site.setProperty> " << property << ": " << value;
+    _propertiesSubject.get_observer().on_next({{ property, value }});
 }
 
-const std::map<MutableProperty, Value>& Site::mutableProperties() const {
+const ThingPropertyMap& Site::mutableProperties() const {
     return _mutableProperties;
 }
 
-dynamic_observable<std::map<Property, Value>> Site::properties() const {
+dynamic_observable<ThingPropertyMap> Site::properties() const {
     return _propertiesSubject.get_observable();
 }
 
 dynamic_observable<int> Site::gridPower() const {
-    return _gridPower.get_observable()
-            .scan(std::deque<int>{}, [](std::deque<int>&& seed, int value) {
-                seed.push_back(value);
-                while (seed.size() < 3) seed.push_back(value);
-                while (seed.size() > 3) seed.pop_front();
-                return std::move(seed);
-            })
-            .map([](std::deque<int> v) {
-                //LOG_S(INFO) << "gridPower> { " << v.at(0) << ", " << v.at(1) << ", " << v.at(2) << " }";
-                std::sort(v.begin(), v.end());
-                //LOG_S(INFO) << "gridPower> " << v.at(1);
-                return v.at(1);
-            });
+    return _gridPower.get_observable();
 }
 
 const std::list<Site::SiteData>& Site::history() const {

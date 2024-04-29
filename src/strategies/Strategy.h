@@ -1,10 +1,6 @@
 #pragma once
 
-#include <map>
 #include <string>
-
-#include <things/ThingProperty.h>
-#include <things/ThingValue.h>
 
 class Strategy {
 public:

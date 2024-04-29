@@ -2,27 +2,42 @@
 
 #include <memory>
 #include <optional>
-#include <rpp/schedulers/new_thread_scheduler.hpp>
+
+#include <uvw_iot/common/ThingRepository.h>
+
+#include <common/Rpp.h>
 #include <strategies/Strategy.h>
-#include <things/Thing.h>
+
+using uvw_iot::common::ThingPtr;
+using uvw_iot::common::ThingRepository;
 
 class te_parser;
+class Config;
+class RulesEngine;
 
 template<rpp::schedulers::constraint::scheduler TScheduler>
 class RuleActuationStrategy : public Strategy {
 public:
-    static std::unique_ptr<Strategy> from(const ThingPtr& thing);
+    static std::unique_ptr<Strategy> from(const ThingPtr& thing,
+                                          const ThingRepository& repo,
+                                          const RulesEngine& rules,
+                                          const Config& cfg);
 
     RuleActuationStrategy(const std::string& thingId,
                           std::unique_ptr<te_parser> onExpression,
-                          std::unique_ptr<te_parser> offExpression);
+                          std::unique_ptr<te_parser> offExpression,
+                          const ThingRepository& repo,
+                          const Config& cfg);
 
     void evaluate(double gridPower) override;
 
 private:
+    const ThingRepository& _repo;
+    const Config& _cfg;
+
     std::unique_ptr<te_parser> _onExpression;
     std::unique_ptr<te_parser> _offExpression;
     TScheduler _scheduler;
-    rpp::subjects::publish_subject<bool> _expressionSubject;
+    publish_subject<bool> _expressionSubject;
     std::optional<bool> _actionState;
 };

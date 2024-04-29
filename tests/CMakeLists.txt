@@ -1,4 +1,4 @@
-find_package(Catch2 REQUIRED)
+CPMAddPackage(gh:catchorg/Catch2@3.5.4)
 
 add_executable(common_tests
   common/NLohmannTest.cpp
@@ -21,5 +21,5 @@ PRIVATE
 )
 
 include(CTest)
-include(Catch)
+#include(Catch)
 #catch_discover_tests(tests)

@@ -6,36 +6,41 @@
 #include <set>
 #include <string>
 
+#include <uvw_iot/common/Thing.h>
+
+#include <strategies/Strategy.h>
 #include <rules/StrategyFactory.h>
-#include <things/Thing.h>
 
-class Strategy;
-class ThingsRepository;
+class Site;
 class te_parser;
+namespace uvw_iot::common {
+    class ThingRepository;
+}
 
-#define rules RulesEngine::instance()
+using uvw_iot::common::ThingRepository;
 
 class RulesEngine {
 public:
-    static RulesEngine* instance();
+    RulesEngine(const ThingRepository& thingRepository,
+                const Site& site,
+                const Config& cfg);
+    ~RulesEngine() = default;
 
-    bool containsSymbol(const std::string& symbol);
-    double resolveSymbol(const std::string& symbol);
+    bool containsSymbol(const std::string& symbol) const;
+    double resolveSymbol(const std::string& symbol) const;
 
-    std::unique_ptr<te_parser> createParser(const std::string& expr);
+    std::unique_ptr<te_parser> createParser(const std::string& expr) const;
 
 private:
-    RulesEngine(const ThingsRepository& thingsRepository);
-
     void subscribeDependencies();
-    void subscribe(const ThingPtr& thing);
+    void subscribe(ThingPtr thing);
     void addDependency(const std::string& id);
 
-    static inline RulesEngine* _instance = nullptr;
+    const ThingRepository& _thingRepository;
+    const Site& _site;
+    const Config& _cfg;
 
-    const ThingsRepository& _thingsRepository;
-
-    std::map<std::string, double> _symbolTable;
+    mutable std::map<std::string, double> _symbolTable;
 
     std::list<std::unique_ptr<Strategy>> _strategies;
     std::set<std::string> _dependentThings;

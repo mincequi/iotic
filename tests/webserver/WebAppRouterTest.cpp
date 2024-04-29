@@ -1,22 +1,30 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include <webserver/WebAppRouter.h>
-
 #include <nlohmann/json.hpp>
+#include <uvw_iot/common/ThingRepository.h>
+
+#include <config/Config.h>
+#include <webserver/WebAppRouter.h>
 
 using json = nlohmann::json;
 
 class WebAppRouterTest {
 public:
-    WebAppRouterTest() {
+    WebAppRouterTest() :
+        cfg(thingRepository),
+        site(thingRepository, cfg),
+        router(thingRepository, site, cfg) {
     }
 
 protected:
     std::vector<uint8_t> serializeSiteHistory(const std::list<Site::SiteData>& history, uint from, uint to) {
         return router.serializeSiteHistory(history, from, to);
-    };
+    }
 
 private:
+    ThingRepository thingRepository;
+    Config cfg;
+    Site site;
     WebAppRouter router;
 };
 

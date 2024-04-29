@@ -2,12 +2,14 @@
 
 #include <App.h>
 #include <cmrc/cmrc.hpp>
+#include <nlohmann/json.hpp>
 #include <uvw/loop.h>
+#include <uvw_iot/common/ThingRepository.h>
 
 #include <common/Logger.h>
 #include <common/Util.h>
 #include <config/Config.h>
-#include <things/ThingsRepository.h>
+#include <things/ThingValue.h>
 
 #include "OcppBehavior.h"
 #include "WebAppBehavior.h"
@@ -15,12 +17,14 @@
 CMRC_DECLARE(webapp);
 
 using json = nlohmann::json;
+using namespace uvw_iot::common;
 
-WebServer::WebServer(const ThingsRepository& thingsRepository) :
-    _thingsRepository(thingsRepository) {
+WebServer::WebServer(const ThingRepository& repo, const Site& site, const Config& cfg) :
+    _repo(repo), _site(site), _cfg(cfg) {
     _fs = std::make_unique<cmrc::embedded_filesystem>(cmrc::webapp::get_filesystem());
     uWS::Loop::get(uvw::loop::get_default()->raw());
     _uwsApp = std::make_unique<uWS::App>();
+    _webAppRouter = std::make_shared<WebAppRouter>(repo, site, cfg);
     _uwsApp->get("/", [this](uWS::HttpResponse<false>* res, auto* req) {
         auto f = _fs->open("index.html");
         res->end(std::string_view(f.begin(), f.end()-f.begin()));
@@ -37,7 +41,7 @@ WebServer::WebServer(const ThingsRepository& thingsRepository) :
         auto f = _fs->open(fileName);
         res->end(std::string_view(f.begin(), f.end()-f.begin()));
     });
-    _uwsApp->ws<WebAppRouter>("/ws", WebAppBehavior::create());
+    _uwsApp->ws<WebAppRouterPtr>("/ws", WebAppBehavior::create(_webAppRouter));
     //_uwsApp->ws<UserData>("/ocpp", OcppBehavior::create());
     _uwsApp->ws<UserData>("/ocpp/*", OcppBehavior::create());
     _uwsApp->listen(8030, [](auto* listenSocket) {
@@ -46,7 +50,7 @@ WebServer::WebServer(const ThingsRepository& thingsRepository) :
         }
     });
 
-    _site->properties().subscribe([this](const auto& props) {
+    _site.properties().subscribe([this](const auto& props) {
         json siteProperties;
         for (const auto& p : props) {
             siteProperties[util::toString(p.first)] = toJsonValue(p.second);
@@ -57,25 +61,25 @@ WebServer::WebServer(const ThingsRepository& thingsRepository) :
         _uwsApp->publish("broadcast", json.dump(), uWS::OpCode::TEXT);
     });
 
-    cfg->timeConstant().get_observable().subscribe([this](int value) {
+    _cfg.timeConstantObservable().subscribe([this](int value) {
         json properties;
-        properties[util::toString(MutableProperty::time_constant)] = value;
+        properties[util::toString(ThingPropertyKey::time_constant)] = value;
 
         json json;
         json["ev_charging_strategy"] = properties;
         _uwsApp->publish("broadcast", json.dump(), uWS::OpCode::TEXT);
     });
 
-    _thingsRepository.thingAdded().subscribe([this](const ThingPtr& thing) {
+    _repo.thingAdded().subscribe([this](ThingPtr thing) {
         // When new thing is added, send persistent properties to each client
         _uwsApp->publish("broadcast",
                          WebAppBehavior::serializeUserProperties(thing),
                          uWS::OpCode::TEXT);
 
-        thing->properties().subscribe([this, &thing](const std::map<Property, Value>& prop) {
+        thing->propertiesObservable().subscribe([this, thing](const ThingPropertyMap& prop) {
             json thing_;
             for (const auto& kv : prop) {
-                if (kv.first <= Property::power_control)
+                if (kv.first <= ThingPropertyKey::power_control)
                     thing_[util::toString(kv.first)] = toJsonValue(kv.second);
             }
             if (thing_.empty()) return;

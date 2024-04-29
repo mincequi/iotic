@@ -26,18 +26,19 @@
 #include <vector>
 
 #include <common/Rpp.h>
-#include <things/ThingProperty.h>
-#include <things/ThingValue.h>
 
-using namespace std::chrono_literals;
-
-#define cfg Config::instance()
+#include <uvw_iot/common/ThingProperty.h>
+#include <uvw_iot/common/ThingRepository.h>
 
 namespace toml {
 class Table;
 }
 
-class ThingsRepository;
+using namespace std::chrono_literals;
+using uvw_iot::common::ThingPtr;
+using uvw_iot::common::ThingPropertyKey;
+using uvw_iot::common::ThingPropertyValue;
+using uvw_iot::common::ThingRepository;
 
 class Config {
 public:
@@ -57,11 +58,14 @@ public:
         debounce
     };
 
-    static Config* instance();
+    Config(const ThingRepository& repo);
+    ~Config();
 
     template<class T>
     T valueOr(const std::string& table, Key key, T fallback = {}) const;
-    void setValue(const std::string& table, Property key, const Value& value);
+    void persistProperty(const std::string& table,
+                  ThingPropertyKey key,
+                  const ThingPropertyValue& value) const;
 
     inline const std::set<std::string>& pvMeters() const {
         return _pvMeters;
@@ -72,11 +76,12 @@ public:
     inline int discoveryInterval() const {
         return _discoveryInterval;
     }
-    void setThingInterval(int seconds);
+    void setThingInterval(int seconds) const;
     int thingInterval() const;
 
-    void setTimeConstant(const Value& tau);
-    const behavior_subject<int>& timeConstant() const;
+    void setTimeConstant(const ThingPropertyValue& tau) const;
+    dynamic_observable<int> timeConstantObservable() const;
+    int timeConstant() const;
 
     double evseAlpha() const;
     double evseBeta() const;
@@ -85,17 +90,18 @@ public:
     bool _testing = false;
 
 private:
-    Config();
+    void parseConfigFile();
 
-    void parse();
+    void setPropertiesTo(const ThingPtr& thing);
+
+    std::optional<ThingPropertyValue> value(const std::string& id, ThingPropertyKey key) const;
 
 private:
-    static inline Config* _instance = nullptr;
+    const ThingRepository& _repo;
+    const std::string _configFile = "/var/lib/iotic/iotic.conf";
 
-    std::string _configFile = "/var/lib/iotic/iotic.conf";
-
-    struct Impl;
-    std::unique_ptr<Impl> _p;
+    class Impl;
+    mutable std::unique_ptr<Impl> _p;
 
     std::set<std::string> _pvMeters;
     std::string _gridMeter;

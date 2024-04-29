@@ -1,10 +1,9 @@
 #pragma once
 
-#include <things/Site.h>
-#include <things/Thing.h>
+#include <memory>
 
 class Config;
-class ThingsRepository;
+class WebAppRouter;
 
 namespace cmrc {
 class embedded_filesystem;
@@ -16,13 +15,25 @@ struct TemplatedApp;
 typedef TemplatedApp<false> App;
 }
 
+namespace uvw_iot::common {
+class ThingRepository;
+}
+
+class Site;
+
+using uvw_iot::common::ThingRepository;
+
 class WebServer {
 public:
-    explicit WebServer(const ThingsRepository& thingsRepository);
+    explicit WebServer(const ThingRepository& repo, const Site& site, const Config& cfg);
     ~WebServer();
 
 private:
-    const ThingsRepository& _thingsRepository;
+    const ThingRepository& _repo;
+    const Site& _site;
+    const Config& _cfg;
+
     std::unique_ptr<cmrc::embedded_filesystem> _fs;
     std::unique_ptr<uWS::App> _uwsApp;
+    std::shared_ptr<WebAppRouter> _webAppRouter;
 };

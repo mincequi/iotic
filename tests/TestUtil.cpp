@@ -14,7 +14,7 @@ public:
     virtual void doSetProperty(MutableProperty property, const Value& value) override {};
 
     void setProperty(Property property, const Value& value) {
-        _propertiesSubject.get_subscriber().on_next({{ property, value }});
+        _propertiesSubject.get_observer().on_next({{ property, value }});
     }
 };
 

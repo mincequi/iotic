@@ -1,6 +1,10 @@
 #pragma once
 
-#include <things/sunspec/SunSpecDiscovery.h>
+#include <uvw_net/sunspec/SunSpecDiscovery.h>
+#include <uvw_iot/sunspec/SunSpecThing.h>
+
+using uvw_net::sunspec::SunSpecDiscoveryPtr;
+using SunSpecThingPtr = std::shared_ptr<uvw_iot::sunspec::SunSpecThing>;
 
 /**
  * This will discover further Fronius SunSpec things based on a previously
@@ -13,7 +17,7 @@
  * This class will check for further SunSpec things on a previously discovered
  * SunSpec host.
  */
-class FroniusDiscovery : public ThingsDiscovery {
+class FroniusDiscovery {
 public:
     FroniusDiscovery(SunSpecDiscoveryPtr sunSpecDiscovery);
 

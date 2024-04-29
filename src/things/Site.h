@@ -4,15 +4,19 @@
 #include <map>
 
 #include <rpp/subjects/publish_subject.hpp>
-#include <things/ThingProperty.h>
-#include <things/ThingValue.h>
+#include <common/Logger.h>
 
-class ThingsRepository;
+namespace uvw_iot {
+namespace common {
+class ThingRepository;
+} // namespace common
+} // namespace uvw_iot
 
 using rpp::dynamic_observable;
 using rpp::subjects::publish_subject;
+using uvw_iot::common::ThingRepository;
 
-#define _site Site::instance()
+class Config;
 
 class Site {
 public:
@@ -22,28 +26,26 @@ public:
         int gridPower = 0;
     };
 
-    static Site* instance();
+    Site(const ThingRepository& repo, const Config& cfg);
 
-    void setProperty(MutableProperty property, const Value& value) const;
-    const std::map<MutableProperty, Value>& mutableProperties() const;
+    void setProperty(uvw_iot::common::ThingPropertyKey property, const uvw_iot::common::ThingPropertyValue& value) const;
+    const uvw_iot::common::ThingPropertyMap& mutableProperties() const;
 
-    dynamic_observable<std::map<Property, Value>> properties() const;
+    dynamic_observable<uvw_iot::common::ThingPropertyMap> properties() const;
     dynamic_observable<int> gridPower() const;
 
     const std::list<SiteData>& history() const;
 
 private:
-    Site();
-
-    static inline Site* _instance;
-
+    const ThingRepository& _repo;
+    const Config& _cfg;
     publish_subject<std::pair<std::string, int>> _pvPowers;
     publish_subject<int> _pvPower;
     publish_subject<int> _gridPower;
     publish_subject<SiteData> _siteDataSubject;
 
-    mutable std::map<MutableProperty, Value> _mutableProperties;
-    publish_subject<std::map<Property, Value>> _propertiesSubject;
+    mutable uvw_iot::common::ThingPropertyMap _mutableProperties;
+    publish_subject<uvw_iot::common::ThingPropertyMap> _propertiesSubject;
 
     std::list<SiteData> _history;
 };

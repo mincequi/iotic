@@ -1,25 +1,28 @@
 #include "Config.h"
 
 #include <fstream>
-#include <iostream>
 
 #include <toml.hpp>
 
 #include <common/Logger.h>
 #include <common/Rpp.h>
 #include <common/Util.h>
-#include <things/ThingsRepository.h>
 
-struct Config::Impl {
+using namespace uvw_iot::common;
+
+class Config::Impl {
+public:
     toml::table configTable;
 
     // Sane values for interval is > 2s
     // Sane values for tau is > 3s (mayber better 4s)
-    behavior_subject<int> thingInterval = 10;
-    behavior_subject<int> tau = 3;
+    publish_subject<int> thingIntervalSubject;
+    int thingInterval = 10;
+    publish_subject<int> tauSubject;
+    int tau = 3;
 
-    double evseAlpha = computeFactor(thingInterval.get_value(), tau.get_value());
-    double evseBeta = computeFactor(thingInterval.get_value(), 60.0);
+    double evseAlpha = computeFactor(thingInterval, tau);
+    double evseBeta = computeFactor(thingInterval, 60.0);
     double evsePhi = 0.95;
 
     static double computeFactor(double dT, double tau) {
@@ -27,36 +30,41 @@ struct Config::Impl {
     }
 
     Impl() {
-        thingInterval.get_observable().combine_latest([](double dT, double tau) {
-            const auto alpha = computeFactor(dT, tau);
-            LOG_S(INFO) << "EV charging strategy alpha> " << alpha;
-            return alpha;
-        }, tau.get_observable()).subscribe([this](const auto& v) { evseAlpha = v; });
+        thingIntervalSubject.get_observable()
+            | combine_latest(tauSubject.get_observable())
+            | subscribe([this](const auto& v) {
+                  evseAlpha = computeFactor(std::get<0>(v), std::get<1>(v));
+                  LOG_S(INFO) << "EV charging strategy alpha> " << evseAlpha;
+              });
 
-        thingInterval.get_observable().map([](double dT) {
-            const auto beta = computeFactor(dT, 60.0);
-            LOG_S(INFO) << "EV charging strategy beta> " << beta;
-            return beta;
-        }).subscribe([this](const auto& v) { evseBeta = v; });
+        thingIntervalSubject.get_observable()
+            | map([](int dT) {
+                  const auto beta = computeFactor(dT, 60.0);
+                  LOG_S(INFO) << "EV charging strategy beta> " << beta;
+                  return beta;
+              })
+            | subscribe([this](const auto& v) { evseBeta = v; });
     }
 };
 
-Config* Config::instance() {
-    if (!_instance) _instance = new Config();
-    return _instance;
-}
-
-Config::Config() :
+Config::Config(const ThingRepository& repo) :
+    _repo(repo),
     _p(new Config::Impl) {
-    parse();
-    repo->thingAdded().subscribe([this](const auto& thing) {
-        thing->properties().subscribe([this, &thing](const std::map<Property, Value>& props) {
+
+    parseConfigFile();
+
+    _repo.thingAdded().subscribe([this](ThingPtr thing) {
+        // Apply properties to thing that got persisted before
+        setPropertiesTo(thing);
+
+        thing->propertiesObservable().subscribe([this, thing](const auto& props) {
+            // Persist properties that got applied from thing
             for (const auto& kv : props) {
                 switch (kv.first) {
-                case Property::name:
-                case Property::pinned:
-                case Property::offset:
-                    setValue(thing->id(), kv.first, kv.second);
+                case ThingPropertyKey::name:
+                case ThingPropertyKey::pinned:
+                case ThingPropertyKey::offset:
+                    persistProperty(thing->id(), kv.first, kv.second);
                     break;
                 default:
                     break;
@@ -65,6 +73,8 @@ Config::Config() :
         });
     });
 }
+
+Config::~Config() = default;
 
 template<class T>
 T Config::valueOr(const std::string& table_, Key key, T fallback) const {
@@ -76,19 +86,17 @@ T Config::valueOr(const std::string& table_, Key key, T fallback) const {
     return toml::get_or(_p->configTable[table_][util::toString(key)], fallback);
 }
 
-void Config::setValue(const std::string& table, Property key, const Value& value) {
+void Config::persistProperty(const std::string& table, ThingPropertyKey key, const ThingPropertyValue& value) const {
     if (!_p->configTable.contains(table))
         _p->configTable[table] = toml::table();
     auto& section = _p->configTable[table].as_table();
 
     std::visit([&](auto& arg) {
         using T = std::decay_t<decltype(arg)>;
-        if constexpr (std::is_same_v<T, std::array<double, 3>>) {}
-        else if constexpr (std::is_same_v<T, double>) {
-            section.insert_or_assign(util::toString(key), (int)std::round(arg));
-        } else {
+        if constexpr (std::is_same_v<T, std::array<int, 3>>)
+            {}
+        else
             section.insert_or_assign(util::toString(key), arg);
-        }
     }, value);
 
     if (_testing) return;
@@ -102,21 +110,27 @@ void Config::setValue(const std::string& table, Property key, const Value& value
     configFile << toml::value(_p->configTable);
 }
 
-void Config::setThingInterval(int seconds) {
-    _p->thingInterval.get_subscriber().on_next(seconds);
-    setValue("site", Property::thing_interval, seconds);
+void Config::setThingInterval(int seconds) const {
+    _p->thingInterval = seconds;
+    _p->thingIntervalSubject.get_observer().on_next(seconds);
+    persistProperty("site", ThingPropertyKey::thing_interval, seconds);
 }
 
 int Config::thingInterval() const {
-    return _p->thingInterval.get_value();
+    return _p->thingInterval;
 }
 
-void Config::setTimeConstant(const Value& tau) {
-    _p->tau.get_subscriber().on_next(std::get<double>(tau));
-    setValue("ev_charging_strategy", Property::time_constant, (int)(std::get<double>(tau)));
+void Config::setTimeConstant(const ThingPropertyValue& tau) const {
+    _p->tau = std::get<int>(tau);
+    _p->tauSubject.get_observer().on_next(_p->tau);
+    persistProperty("ev_charging_strategy", ThingPropertyKey::time_constant, _p->tau);
 }
 
-const behavior_subject<int>& Config::timeConstant() const {
+dynamic_observable<int> Config::timeConstantObservable() const {
+    return _p->tauSubject.get_observable();
+}
+
+int Config::timeConstant() const {
     return _p->tau;
 }
 
@@ -132,7 +146,7 @@ double Config::evsePhi() const {
     return _p->evsePhi; //restrict phi to a minimum of 0.8 and a maximum of 0.98.
 }
 
-void Config::parse() {
+void Config::parseConfigFile() {
     std::ifstream configFile(_configFile);
     if (configFile.good()) {
         _p->configTable = toml::parse(_configFile).as_table();
@@ -143,15 +157,48 @@ void Config::parse() {
 
     _discoveryInterval = valueOr("site", Key::discovery_interval, 60);
     LOG_S(INFO) << "discovery_interval: " << _discoveryInterval << "s";
-    _p->thingInterval.get_subscriber().on_next(valueOr("site", Key::thing_interval, 10));
+
+    setThingInterval(valueOr("site", Key::thing_interval, 10));
     LOG_S(INFO) << "thing_interval: " << thingInterval() << "s";
-    _p->tau.get_subscriber().on_next(valueOr("ev_charging_strategy", Key::time_constant, 10));
+
+    setTimeConstant(valueOr("ev_charging_strategy", Key::time_constant, (int)10));
 
     for (const auto& el : valueOr("site", Key::pv, toml::array())) {
         if (el.is_string())
             _pvMeters.insert(el.as_string());
     }
     _gridMeter = valueOr("site", Key::grid, std::string());
+}
+
+void Config::setPropertiesTo(const ThingPtr& thing) {
+    ThingPropertyMap properties;
+    auto val = value(thing->id(), ThingPropertyKey::name);
+    if (val) properties[ThingPropertyKey::name] = *val;
+    val = value(thing->id(), ThingPropertyKey::pinned);
+    if (val) properties[ThingPropertyKey::pinned] = *val;
+    val = value(thing->id(), ThingPropertyKey::offset);
+    if (val) properties[ThingPropertyKey::offset] = *val;
+
+    thing->setProperties(properties);
+}
+
+std::optional<ThingPropertyValue> Config::value(const std::string& id, ThingPropertyKey key) const {
+    if (!_p->configTable.contains(id) || !_p->configTable.at(id).contains(util::toString(key))) {
+        return {};
+    }
+
+    auto t = _p->configTable[id];
+    const toml::value v = t[util::toString(key)];
+    switch (v.type()) {
+        case toml::value_t::boolean:
+            return v.as_boolean();
+        case toml::value_t::integer:
+            return (int)v.as_integer();
+        case toml::value_t::string:
+            return v.as_string();
+        default:
+            return {};
+    }
 }
 
 // Explicit template instantiation

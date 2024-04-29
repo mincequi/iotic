@@ -4,6 +4,26 @@
 
 #include "Util.h"
 
+std::ostream& operator<<(std::ostream& s, const uvw_iot::common::ThingPropertyValue& value) {
+    std::visit([&](auto& arg) {
+        using T = std::decay_t<decltype(arg)>;
+        if constexpr (std::is_same_v<T, std::array<int, 3>>) {
+            s << "[" << arg[0] << ", " << arg[1] << ", " << arg[2] << "]";
+        } else {
+            s << arg;
+        }
+    }, value);
+
+    return s;
+}
+std::ostream& operator<<(std::ostream& s, const uvw_iot::common::ThingPropertyMap& map) {
+    for (const auto& [k, v] : map) {
+        s << k << ": " << v << ", ";
+    }
+
+    return s;
+}
+
 void Logger::init(int& argc, char* argv[]) {
     /* Everything with a verbosity equal or greater than g_stderr_verbosity will be
         written to stderr. You can set this in code or via the -v argument.

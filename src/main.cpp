@@ -6,10 +6,7 @@
 #include <cli/Cli.h>
 #include <common/Logger.h>
 
-using namespace std::chrono_literals;
-
 int main(int argc, char *argv[]) {
-
     std::unique_ptr<AppBackend> backend;
     std::unique_ptr<AppDiscover> discover;
 

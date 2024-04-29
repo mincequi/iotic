@@ -1,18 +1,23 @@
 #pragma once
 
 #include <App.h>
+#include <uvw_iot/common/Thing.h>
 
 #include <things/Site.h>
-#include <things/Thing.h>
 
 #include "WebAppRouter.h"
 
 class Config;
+namespace uvw_iot::common {
+class ThingRepository;
+}
+
+using uvw_iot::common::ThingPtr;
 
 class WebAppBehavior {
 public:
     WebAppBehavior() = delete;
-    static uWS::App::WebSocketBehavior<WebAppRouter> create();
+    static uWS::App::WebSocketBehavior<WebAppRouterPtr> create(WebAppRouterPtr router);
 
     static std::string serializeUserProperties(const ThingPtr& thing);
     static std::string serializeSiteProperties(const Site& site);
