@@ -1,16 +1,16 @@
 #pragma once
 
-#include <uvw_iot/common/ThingRepository.h>
+#include <uvw_iot/Site.h>
+#include <uvw_iot/ThingRepository.h>
 //#include <influx/InfluxExporter.h>
 //#include <mqtt/MqttExporter.h>
 #include <config/Config.h>
 #include <rules/RulesEngine.h>
-#include <things/Site.h>
 #include <things/ThingsManager.h>
 #include <webserver/WebServer.h>
 
 using namespace std::placeholders;
-using uvw_iot::common::ThingRepository;
+using uvw_iot::ThingRepository;
 
 class AppBackend {
 public:

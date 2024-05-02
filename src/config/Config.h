@@ -27,18 +27,18 @@
 
 #include <common/Rpp.h>
 
-#include <uvw_iot/common/ThingProperty.h>
-#include <uvw_iot/common/ThingRepository.h>
+#include <uvw_iot/ThingProperty.h>
+#include <uvw_iot/ThingRepository.h>
 
 namespace toml {
 class Table;
 }
 
 using namespace std::chrono_literals;
-using uvw_iot::common::ThingPtr;
-using uvw_iot::common::ThingPropertyKey;
-using uvw_iot::common::ThingPropertyValue;
-using uvw_iot::common::ThingRepository;
+using uvw_iot::ThingPtr;
+using uvw_iot::ThingPropertyKey;
+using uvw_iot::ThingPropertyValue;
+using uvw_iot::ThingRepository;
 
 class Config {
 public:
@@ -76,7 +76,9 @@ public:
     inline int discoveryInterval() const {
         return _discoveryInterval;
     }
-    void setThingInterval(int seconds) const;
+
+    void setThingInterval(const ThingPropertyValue& value) const;
+    dynamic_observable<int> thingIntervalObservable() const;
     int thingInterval() const;
 
     void setTimeConstant(const ThingPropertyValue& tau) const;

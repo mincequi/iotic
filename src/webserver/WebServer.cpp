@@ -4,7 +4,7 @@
 #include <cmrc/cmrc.hpp>
 #include <nlohmann/json.hpp>
 #include <uvw/loop.h>
-#include <uvw_iot/common/ThingRepository.h>
+#include <uvw_iot/ThingRepository.h>
 
 #include <common/Logger.h>
 #include <common/Util.h>
@@ -17,7 +17,7 @@
 CMRC_DECLARE(webapp);
 
 using json = nlohmann::json;
-using namespace uvw_iot::common;
+using namespace uvw_iot;
 
 WebServer::WebServer(const ThingRepository& repo, const Site& site, const Config& cfg) :
     _repo(repo), _site(site), _cfg(cfg) {
@@ -50,11 +50,11 @@ WebServer::WebServer(const ThingRepository& repo, const Site& site, const Config
         }
     });
 
-    _site.properties().subscribe([this](const auto& props) {
+    _site.properties().subscribe([this](const Site::Properties& props) {
         json siteProperties;
-        for (const auto& p : props) {
-            siteProperties[util::toString(p.first)] = toJsonValue(p.second);
-        }
+        siteProperties[util::toString(ThingPropertyKey::timestamp)] = props.ts;
+        siteProperties[util::toString(ThingPropertyKey::grid_power)] = props.gridPower;
+        siteProperties[util::toString(ThingPropertyKey::pv_power)] = props.pvPower;
 
         json json;
         json["site"] = siteProperties;
@@ -67,6 +67,15 @@ WebServer::WebServer(const ThingRepository& repo, const Site& site, const Config
 
         json json;
         json["ev_charging_strategy"] = properties;
+        _uwsApp->publish("broadcast", json.dump(), uWS::OpCode::TEXT);
+    });
+
+    _cfg.thingIntervalObservable().subscribe([this](int value) {
+        json properties;
+        properties[util::toString(ThingPropertyKey::thing_interval)] = value;
+
+        json json;
+        json["site"] = properties;
         _uwsApp->publish("broadcast", json.dump(), uWS::OpCode::TEXT);
     });
 

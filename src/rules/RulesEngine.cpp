@@ -2,17 +2,17 @@
 
 #include <map>
 #include <tinyexpr.h>
-#include <uvw_iot/common/ThingRepository.h>
+#include <uvw_iot/Site.h>
+#include <uvw_iot/ThingRepository.h>
 
 #include <common/Logger.h>
 #include <common/OffsetTable.h>
 #include <common/Util.h>
 #include <strategies/Strategy.h>
-#include <things/Site.h>
 #include <things/ThingValue.h>
 
 using namespace std::placeholders;
-using namespace uvw_iot::common;
+using namespace uvw_iot;
 
 double toDouble(const ThingPropertyValue& value) {
     if (std::holds_alternative<int>(value)) {

@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include <uvw_iot/common/ThingFactory.h>
+#include <uvw_iot/ThingFactory.h>
 #include <uvw_net/dns_sd/DnsRecordDataSrv.h>
 #include <uvw_net/dns_sd/DnsServiceDiscovery.h>
 #include <uvw_net/modbus/ModbusDiscovery.h>

@@ -7,7 +7,7 @@
 
 #include <tinyexpr.h>
 
-#include <uvw_iot/common/ThingRepository.h>
+#include <uvw_iot/ThingRepository.h>
 
 #include <common/Logger.h>
 #include <common/OffsetTable.h>
@@ -16,7 +16,7 @@
 #include <rules/RulesEngine.h>
 
 using namespace std::chrono_literals;
-using namespace uvw_iot::common;
+using namespace uvw_iot;
 
 template<rpp::schedulers::constraint::scheduler TScheduler>
 std::unique_ptr<Strategy> RuleActuationStrategy<TScheduler>::from(const ThingPtr& thing,

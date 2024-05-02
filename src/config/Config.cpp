@@ -8,7 +8,7 @@
 #include <common/Rpp.h>
 #include <common/Util.h>
 
-using namespace uvw_iot::common;
+using namespace uvw_iot;
 
 class Config::Impl {
 public:
@@ -110,10 +110,14 @@ void Config::persistProperty(const std::string& table, ThingPropertyKey key, con
     configFile << toml::value(_p->configTable);
 }
 
-void Config::setThingInterval(int seconds) const {
-    _p->thingInterval = seconds;
-    _p->thingIntervalSubject.get_observer().on_next(seconds);
+void Config::setThingInterval(const ThingPropertyValue& seconds) const {
+    _p->thingInterval = std::get<int>(seconds);
+    _p->thingIntervalSubject.get_observer().on_next(_p->thingInterval);
     persistProperty("site", ThingPropertyKey::thing_interval, seconds);
+}
+
+dynamic_observable<int> Config::thingIntervalObservable() const {
+    return _p->thingIntervalSubject.get_observable();
 }
 
 int Config::thingInterval() const {
@@ -123,7 +127,7 @@ int Config::thingInterval() const {
 void Config::setTimeConstant(const ThingPropertyValue& tau) const {
     _p->tau = std::get<int>(tau);
     _p->tauSubject.get_observer().on_next(_p->tau);
-    persistProperty("ev_charging_strategy", ThingPropertyKey::time_constant, _p->tau);
+    persistProperty("ev_charging_strategy", ThingPropertyKey::time_constant, tau);
 }
 
 dynamic_observable<int> Config::timeConstantObservable() const {

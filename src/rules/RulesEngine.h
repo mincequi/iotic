@@ -6,18 +6,17 @@
 #include <set>
 #include <string>
 
-#include <uvw_iot/common/Thing.h>
+#include <uvw_iot/Thing.h>
 
 #include <strategies/Strategy.h>
 #include <rules/StrategyFactory.h>
 
-class Site;
 class te_parser;
-namespace uvw_iot::common {
+namespace uvw_iot {
     class ThingRepository;
 }
 
-using uvw_iot::common::ThingRepository;
+using uvw_iot::ThingRepository;
 
 class RulesEngine {
 public:

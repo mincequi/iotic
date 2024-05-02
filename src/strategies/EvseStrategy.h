@@ -1,15 +1,19 @@
 #pragma once
 
-#include <uvw_iot/common/ThingRepository.h>
+#include <uvw_iot/ThingRepository.h>
 
 #include "Strategy.h"
 
-using uvw_iot::common::ThingPtr;
-using uvw_iot::common::ThingPropertyValue;
-using uvw_iot::common::ThingRepository;
+namespace uvw_iot {
+class Site;
+}
+
+using uvw_iot::Site;
+using uvw_iot::ThingPtr;
+using uvw_iot::ThingPropertyValue;
+using uvw_iot::ThingRepository;
 
 class Config;
-class Site;
 
 class EvseStrategy : public Strategy {
 public:

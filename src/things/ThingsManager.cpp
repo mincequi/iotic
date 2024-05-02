@@ -3,8 +3,8 @@
 #include <cmath>
 
 #include <uvw/timer.h>
-#include <uvw_iot/common/ThingFactory.h>
-#include <uvw_iot/common/ThingRepository.h>
+#include <uvw_iot/ThingFactory.h>
+#include <uvw_iot/ThingRepository.h>
 #include <uvw_iot/sunspec/SunSpecThing.h>
 #include <uvw_net/dns_sd/DnsRecordDataSrv.h>
 
@@ -12,7 +12,7 @@
 #include <config/Config.h>
 #include <fronius/FroniusDiscovery.h>
 
-using namespace uvw_iot::common;
+using namespace uvw_iot;
 using namespace uvw_iot::sunspec;
 using namespace uvw_net::dns_sd;
 using namespace uvw_net::modbus;

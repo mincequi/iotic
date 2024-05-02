@@ -82,7 +82,7 @@ class ThingCardController extends GetxController {
     }
     if ((p = p0[ThingProperty.temperature]) != null) {
       propertyWidgets[ThingProperty.temperature] =
-          ThingUiProperty(Icons.thermostat, p, '°C');
+          ThingUiProperty(Icons.thermostat, p / 10.0, '°C');
     }
   }
 

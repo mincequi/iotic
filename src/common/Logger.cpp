@@ -4,7 +4,7 @@
 
 #include "Util.h"
 
-std::ostream& operator<<(std::ostream& s, const uvw_iot::common::ThingPropertyValue& value) {
+std::ostream& operator<<(std::ostream& s, const uvw_iot::ThingPropertyValue& value) {
     std::visit([&](auto& arg) {
         using T = std::decay_t<decltype(arg)>;
         if constexpr (std::is_same_v<T, std::array<int, 3>>) {
@@ -16,7 +16,7 @@ std::ostream& operator<<(std::ostream& s, const uvw_iot::common::ThingPropertyVa
 
     return s;
 }
-std::ostream& operator<<(std::ostream& s, const uvw_iot::common::ThingPropertyMap& map) {
+std::ostream& operator<<(std::ostream& s, const uvw_iot::ThingPropertyMap& map) {
     for (const auto& [k, v] : map) {
         s << k << ": " << v << ", ";
     }

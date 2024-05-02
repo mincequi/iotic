@@ -15,13 +15,13 @@ struct TemplatedApp;
 typedef TemplatedApp<false> App;
 }
 
-namespace uvw_iot::common {
+namespace uvw_iot {
+class Site;
 class ThingRepository;
 }
 
-class Site;
-
-using uvw_iot::common::ThingRepository;
+using uvw_iot::Site;
+using uvw_iot::ThingRepository;
 
 class WebServer {
 public:

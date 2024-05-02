@@ -2,12 +2,12 @@
 
 #include <iostream>
 
-#include <uvw_iot/common/ThingProperty.h>
+#include <uvw_iot/ThingProperty.h>
 
 #include <magic_enum_iostream.hpp>
 using magic_enum::iostream_operators::operator<<; // Define this before including loguru
-std::ostream& operator<<(std::ostream& s, const uvw_iot::common::ThingPropertyValue& value);
-std::ostream& operator<<(std::ostream& s, const uvw_iot::common::ThingPropertyMap& map);
+std::ostream& operator<<(std::ostream& s, const uvw_iot::ThingPropertyValue& value);
+std::ostream& operator<<(std::ostream& s, const uvw_iot::ThingPropertyMap& map);
 
 #include <loguru.hpp>
 

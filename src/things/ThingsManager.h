@@ -7,12 +7,10 @@
 #include <uvw_net/sunspec/SunSpecDiscovery.h>
 
 namespace uvw_iot {
-namespace common {
 class ThingRepository;
-} // namespace common
 } // namespace uvw_iot
 
-using uvw_iot::common::ThingRepository;
+using uvw_iot::ThingRepository;
 using uvw_net::dns_sd::DnsServiceDiscovery;
 using uvw_net::modbus::ModbusDiscovery;
 using uvw_net::sunspec::SunSpecDiscovery;

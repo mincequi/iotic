@@ -1,12 +1,13 @@
 #include "AppBackend.h"
 
+#include <common/Logger.h>
 #include <config/Config.h>
 #include <rules/RulesEngine.h>
 
 AppBackend::AppBackend() :
     _cfg(_thingRepository),
     _thingsManager(_thingRepository, _cfg),
-    _site(_thingRepository, _cfg),
+    _site(_thingRepository),
     //_mqttExporter("broker.hivemq.com"),
     _webServer(_thingRepository, _site, _cfg),
     _rulesEngine(_thingRepository, _site, _cfg) {

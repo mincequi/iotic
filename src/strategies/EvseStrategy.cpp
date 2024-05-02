@@ -9,16 +9,16 @@
 #include <rpp/operators/observe_on.hpp>
 #include <rpp/schedulers/new_thread.hpp>
 
-#include <uvw_iot/common/ThingType.h>
+#include <uvw_iot/Site.h>
+#include <uvw_iot/ThingType.h>
 
 #include <common/Logger.h>
 #include <common/OffsetTable.h>
 #include <common/Rpp.h>
 #include <common/RppUvw.h>
 #include <config/Config.h>
-#include <things/Site.h>
 
-using namespace uvw_iot::common;
+using namespace uvw_iot;
 
 std::unique_ptr<Strategy> EvseStrategy::from(const ThingPtr& thing,
                                              const ThingRepository& repo,

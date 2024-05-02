@@ -3,13 +3,13 @@
 #include <memory>
 #include <optional>
 
-#include <uvw_iot/common/ThingRepository.h>
+#include <uvw_iot/ThingRepository.h>
 
 #include <common/Rpp.h>
 #include <strategies/Strategy.h>
 
-using uvw_iot::common::ThingPtr;
-using uvw_iot::common::ThingRepository;
+using uvw_iot::ThingPtr;
+using uvw_iot::ThingRepository;
 
 class te_parser;
 class Config;

@@ -1,7 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <nlohmann/json.hpp>
-#include <uvw_iot/common/ThingRepository.h>
+#include <uvw_iot/ThingRepository.h>
 
 #include <config/Config.h>
 #include <webserver/WebAppRouter.h>
@@ -12,12 +12,12 @@ class WebAppRouterTest {
 public:
     WebAppRouterTest() :
         cfg(thingRepository),
-        site(thingRepository, cfg),
+        site(thingRepository),
         router(thingRepository, site, cfg) {
     }
 
 protected:
-    std::vector<uint8_t> serializeSiteHistory(const std::list<Site::SiteData>& history, uint from, uint to) {
+    std::vector<uint8_t> serializeSiteHistory(const std::list<Site::Properties>& history, uint from, uint to) {
         return router.serializeSiteHistory(history, from, to);
     }
 
@@ -29,11 +29,11 @@ private:
 };
 
 TEST_CASE_METHOD(WebAppRouterTest, "Serialize Site History", "[serialize]") {
-    std::list<Site::SiteData> history;
+    std::list<Site::Properties> history;
 
-    history.push_back(Site::SiteData {20, 10, 10} );
-    history.push_back(Site::SiteData {30, 10, 10} );
-    history.push_back(Site::SiteData {40, 10, 10} );
+    history.push_back(Site::Properties {20, 10, 10} );
+    history.push_back(Site::Properties {30, 10, 10} );
+    history.push_back(Site::Properties {40, 10, 10} );
 
     // We shall leave out anything greater or equal than upper limit
     REQUIRE(serializeSiteHistory(history, 0, 19).empty());
