@@ -56,15 +56,15 @@ class ThingSlider extends StatelessWidget {
   Widget build(BuildContext context) => Obx(() => _control.offset.value != null
       ? Container(
           margin: const EdgeInsets.only(left: 12, right: 12, bottom: 12.0),
-          padding: const EdgeInsets.only(left: 4.0, right: 4.0),
-          height: 32,
+          padding: const EdgeInsets.only(left: 3.0, right: 3.0),
+          height: 22,
           decoration: BoxDecoration(
             borderRadius: const BorderRadius.all(
-              Radius.circular(8.0),
+              Radius.circular(4.0),
             ),
             gradient: LinearGradient(
                 colors: [
-                  Theme.of(context).colorScheme.outline.withOpacity(_opacity),
+                  IoticTheme.other.withOpacity(_opacity),
                   Theme.of(context).colorScheme.secondary.withOpacity(_opacity),
                   Theme.of(context).colorScheme.secondary.withOpacity(_opacity),
                   Theme.of(context).colorScheme.primary.withOpacity(_opacity),
@@ -88,14 +88,14 @@ class ThingSlider extends StatelessWidget {
             Align(
               alignment: Alignment.centerRight,
               child: Container(
-                  padding: EdgeInsets.only(right: 4, top: 15),
-                  child: Text("PV OFFSET",
+                  padding: const EdgeInsets.only(right: 0, top: 5),
+                  child: const Text("PV OFFSET",
                       textAlign: TextAlign.right,
                       style: TextStyle(
                           letterSpacing: -2.0,
                           fontSize: 16,
                           fontWeight: FontWeight.w900,
-                          color: IoticTheme.other))),
+                          color: Colors.black))),
             ),
             SliderTheme(
                 data: SliderTheme.of(context).copyWith(
@@ -106,7 +106,7 @@ class ThingSlider extends StatelessWidget {
                     inactiveTrackColor: Colors.transparent,
                     activeTrackColor: Colors.transparent,
                     thumbShape: ThingSliderThumb(
-                      thumbRadius: 12.0,
+                      thumbRadius: 8.0,
                       offsets: _offsets,
                       color: Theme.of(context).colorScheme.onPrimary,
                     )),
@@ -126,5 +126,5 @@ class ThingSlider extends StatelessWidget {
           ]))
       : Container());
 
-  final double _opacity = 0.5;
+  final double _opacity = 0.4;
 }

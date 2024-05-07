@@ -41,7 +41,6 @@ class ThingSliderThumb extends SliderComponentShape {
       style: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.bold,
-        //color: sliderTheme.thumbColor,
         color: color,
       ),
       text: getValue(value),
@@ -55,19 +54,16 @@ class ThingSliderThumb extends SliderComponentShape {
     Offset textCenter =
         Offset(center.dx - (tp.width / 2), center.dy - (tp.height / 2));
 
-    //canvas.drawCircle(center, thumbRadius, paint);
-
     final _rect = RRect.fromRectAndRadius(
-      Rect.fromCenter(
-          center: center, width: thumbRadius * 4.0, height: thumbRadius * 2.0),
-      Radius.circular(thumbRadius - 4.0),
+      Rect.fromCenter(center: center, width: 48, height: thumbRadius * 2.0),
+      Radius.circular(4.0),
     );
     final _shadow = RRect.fromRectAndRadius(
       Rect.fromCenter(
-          center: Offset(center.dx + 1.5, center.dy + 1.5),
-          width: thumbRadius * 4.0,
+          center: Offset(center.dx + 2.0, center.dy + 2.0),
+          width: 48,
           height: thumbRadius * 2.0),
-      Radius.circular(thumbRadius - 4.0),
+      Radius.circular(4.0),
     );
     canvas.drawRRect(_shadow, Paint());
     canvas.drawRRect(_rect, paint);

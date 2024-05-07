@@ -89,8 +89,8 @@ class SiteCard extends StatelessWidget {
             colors: [
               //color.withOpacity(0.38),
               //color.withOpacity(0.19),
-              color.withOpacity(0.25),
-              color.withOpacity(0.1),
+              color.withOpacity(0.4),
+              color.withOpacity(0.2),
             ],
             stops: const [0.0, 0.95],
           )),

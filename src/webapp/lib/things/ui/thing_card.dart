@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:icon_decoration/icon_decoration.dart';
+import 'package:iotic/themes/iotic_theme.dart';
 import '../../common/data/web_socket_data_source.dart';
 import '../domain/thing_property.dart';
 import 'thing_card_controller.dart';
@@ -26,12 +28,17 @@ class ThingCard extends StatelessWidget {
         () => Column(children: [
           ListTile(
             dense: true,
-            //visualDensity: const VisualDensity(horizontal: 0, vertical: -2),
-            /*minVerticalPadding:
-                _control.propertyWidgets.isNotEmpty ? 0.0 : 18.0,*/
-            leading: Icon(
-              _control.icon.value,
-              size: 30,
+            leading: DecoratedIcon(
+              icon: Icon(
+                _control.icon.value,
+                size: 40,
+                color: Colors.transparent,
+              ),
+              decoration: const IconDecoration(
+                  border: IconBorder(
+                width: 1.5,
+                color: IoticTheme.other,
+              )),
             ),
             title: titleWidget(),
             //Text(_control.name.value),
