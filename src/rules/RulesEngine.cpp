@@ -2,8 +2,8 @@
 
 #include <map>
 #include <tinyexpr.h>
-#include <uvw_iot/Site.h>
 #include <uvw_iot/ThingRepository.h>
+#include <uvw_iot/util/Site.h>
 
 #include <common/Logger.h>
 #include <common/OffsetTable.h>
@@ -13,6 +13,7 @@
 
 using namespace std::placeholders;
 using namespace uvw_iot;
+using namespace uvw_iot::util;
 
 double toDouble(const ThingPropertyValue& value) {
     if (std::holds_alternative<int>(value)) {
@@ -29,12 +30,16 @@ RulesEngine::RulesEngine(const ThingRepository& thingRepository,
     _thingRepository(thingRepository),
     _site(site),
     _cfg(cfg) {
-    _site.gridPower().subscribe([this](int power) {
-        _symbolTable["grid_power"] = power;
+    _site.properties().subscribe([this](const Site::Properties& props) {
+        _symbolTable["short_term_grid_power"] = props.shortTermGridPower;
+        _symbolTable["long_term_grid_power"] = props.longTermGridPower;
+        _symbolTable["grid_power"] = props.gridPower;
+        _symbolTable["pv_power"] = props.pvPower;
+
         // TODO: move strategy collection out of rules engine.
         // After update of site, evaluate strategies
         for (const auto& s : _strategies) {
-            s->evaluate(power);
+            s->evaluate(props);
         }
     });
 
@@ -113,7 +118,7 @@ void RulesEngine::subscribe(ThingPtr thing) {
     LOG_S(INFO) << "subscribe to dependent thing: " << thing->id();
     thing->propertiesObservable().subscribe([this, thing](const ThingPropertyMap& prop) {
         for (const auto& kv : prop) {
-            const std::string var = thing->id() + "." + util::toString(kv.first);
+            const std::string var = thing->id() + "." + ::util::toString(kv.first);
             if (_symbolTable.contains(var)) {
                 switch (kv.first) {
                 case ThingPropertyKey::offset:

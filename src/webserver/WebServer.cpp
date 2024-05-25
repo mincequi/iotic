@@ -18,6 +18,7 @@ CMRC_DECLARE(webapp);
 
 using json = nlohmann::json;
 using namespace uvw_iot;
+using namespace uvw_iot::util;
 
 WebServer::WebServer(const ThingRepository& repo, const Site& site, const Config& cfg) :
     _repo(repo), _site(site), _cfg(cfg) {
@@ -52,9 +53,11 @@ WebServer::WebServer(const ThingRepository& repo, const Site& site, const Config
 
     _site.properties().subscribe([this](const Site::Properties& props) {
         json siteProperties;
-        siteProperties[util::toString(ThingPropertyKey::timestamp)] = props.ts;
-        siteProperties[util::toString(ThingPropertyKey::grid_power)] = props.gridPower;
-        siteProperties[util::toString(ThingPropertyKey::pv_power)] = props.pvPower;
+        siteProperties[::util::toString(ThingPropertyKey::timestamp)] = props.ts;
+        siteProperties[::util::toString(ThingPropertyKey::grid_power)] = props.gridPower;
+        siteProperties[::util::toString(ThingPropertyKey::pv_power)] = props.pvPower;
+        siteProperties[::util::toString(ThingPropertyKey::short_term_grid_power)] = props.shortTermGridPower;
+        siteProperties[::util::toString(ThingPropertyKey::long_term_grid_power)] = props.longTermGridPower;
 
         json json;
         json["site"] = siteProperties;
@@ -63,7 +66,7 @@ WebServer::WebServer(const ThingRepository& repo, const Site& site, const Config
 
     _cfg.timeConstantObservable().subscribe([this](int value) {
         json properties;
-        properties[util::toString(ThingPropertyKey::time_constant)] = value;
+        properties[::util::toString(ThingPropertyKey::time_constant)] = value;
 
         json json;
         json["ev_charging_strategy"] = properties;
@@ -72,7 +75,7 @@ WebServer::WebServer(const ThingRepository& repo, const Site& site, const Config
 
     _cfg.thingIntervalObservable().subscribe([this](int value) {
         json properties;
-        properties[util::toString(ThingPropertyKey::thing_interval)] = value;
+        properties[::util::toString(ThingPropertyKey::thing_interval)] = value;
 
         json json;
         json["site"] = properties;
@@ -88,8 +91,8 @@ WebServer::WebServer(const ThingRepository& repo, const Site& site, const Config
         thing->propertiesObservable().subscribe([this, thing](const ThingPropertyMap& prop) {
             json thing_;
             for (const auto& kv : prop) {
-                if (kv.first <= ThingPropertyKey::power_control)
-                    thing_[util::toString(kv.first)] = toJsonValue(kv.second);
+                if (kv.first <= ThingPropertyKey::next_phases)
+                    thing_[::util::toString(kv.first)] = toJsonValue(kv.second);
             }
             if (thing_.empty()) return;
 

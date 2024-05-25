@@ -1,13 +1,22 @@
 #include "AppBackend.h"
 
+#include <uvw_iot/util/Filter.h>
+
 #include <common/Logger.h>
 #include <config/Config.h>
 #include <rules/RulesEngine.h>
 
+using namespace uvw_iot::util;
+
+static SiteConfig siteConfig = {
+    .shortTermTau = 15000ms,
+    .longTermTau = 40000ms,
+};
+
 AppBackend::AppBackend() :
     _cfg(_thingRepository),
     _thingsManager(_thingRepository, _cfg),
-    _site(_thingRepository),
+    _site(_thingRepository, {.shortTermTau = 15000ms, .longTermTau = 40000ms}),
     //_mqttExporter("broker.hivemq.com"),
     _webServer(_thingRepository, _site, _cfg),
     _rulesEngine(_thingRepository, _site, _cfg) {

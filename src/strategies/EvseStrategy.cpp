@@ -7,10 +7,10 @@
 #include <rpp/operators/debounce.hpp>
 #include <rpp/operators/distinct_until_changed.hpp>
 #include <rpp/operators/observe_on.hpp>
-#include <rpp/schedulers/new_thread.hpp>
 
-#include <uvw_iot/Site.h>
 #include <uvw_iot/ThingType.h>
+#include <uvw_iot/util/Filter.h>
+#include <uvw_iot/util/Site.h>
 
 #include <common/Logger.h>
 #include <common/OffsetTable.h>
@@ -19,6 +19,7 @@
 #include <config/Config.h>
 
 using namespace uvw_iot;
+using namespace uvw_iot::util;
 
 std::unique_ptr<Strategy> EvseStrategy::from(const ThingPtr& thing,
                                              const ThingRepository& repo,
@@ -39,15 +40,23 @@ EvseStrategy::EvseStrategy(const ThingPtr& thing,
     _repo(repo),
     _site(site),
     _cfg(cfg) {
-    _wantsToSwitch.get_observable()
-            | distinct_until_changed()
-            | debounce(std::chrono::seconds(cfg.valueOr<int>(thing->id(), Config::Key::debounce, 300)), rpp::schedulers::new_thread())
-            | observe_on(rpp_uvw::schedulers::main_thread_scheduler{})
-            | subscribe([this](bool wantsToSwitch) {
-        if (wantsToSwitch)
-            _phases = computePhases();
-    });
+    _doPhaseSwitch.get_observable()
+        | distinct_until_changed()
+        | map([this](bool doSwitch) {
+              _nextSwitch = std::chrono::system_clock::now() + std::chrono::seconds(_cfg.valueOr<int>(thingId(), Config::Key::debounce, 180));
 
+              return doSwitch;
+          })
+        | debounce(std::chrono::seconds(cfg.valueOr<int>(thing->id(), Config::Key::debounce, 180)), rpp_uvw::schedulers::main_thread_scheduler{})
+        | subscribe([this](bool doSwitch) {
+              if (doSwitch) {
+                  _phases = _nextPhases;
+              }
+          });
+
+    if (thing->properties().contains(ThingPropertyKey::offset)) {
+        _offsetPower = offsetTable[std::get<int>(thing->properties().at(ThingPropertyKey::offset))];
+    }
     thing->propertiesObservable().subscribe([this](const ThingPropertyMap& map) {
         for (const auto& kv : map) {
             switch (kv.first) {
@@ -70,44 +79,58 @@ EvseStrategy::EvseStrategy(const ThingPtr& thing,
 EvseStrategy::~EvseStrategy() {
 }
 
-void EvseStrategy::evaluate(double gridPower) {
+void EvseStrategy::evaluate(const Site::Properties& siteProperties) {
     // Compute available power
-    const double availablePower = _power - gridPower + _offsetPower;
-    if (_shortTermAvailablePower == 0.0) _shortTermAvailablePower = availablePower;
-    if (_longTermAvailablePower == 0.0) _longTermAvailablePower = availablePower;
-    _shortTermAvailablePower += _cfg.evseAlpha() * (availablePower - _shortTermAvailablePower);
-    _longTermAvailablePower += _cfg.evseBeta() * (availablePower - _longTermAvailablePower);
+    const double availablePower = _offsetPower + _power - siteProperties.gridPower;
+    if (_shortTermAvailablePower <= 0) _shortTermAvailablePower = availablePower;
+    if (_longTermAvailablePower <= 0) _longTermAvailablePower = availablePower;
+    ema(_shortTermAvailablePower, availablePower, std::chrono::milliseconds((siteProperties.ts - _prevTs) * 1000), 10000ms);
+    ema(_longTermAvailablePower, availablePower, std::chrono::milliseconds((siteProperties.ts - _prevTs) * 1000),  40000ms);
+    _prevTs = siteProperties.ts;
 
     // Compute possible phases
-    const Phases phases = computePhases();
-    if (!_phases.has_value()) _phases = phases;
+    const auto phases = computePhases(_longTermAvailablePower);
 
     // If current phases differ, trigger switch subject
-    _wantsToSwitch.get_observer().on_next(_phases.value() != phases);
+    _doPhaseSwitch.get_observer().on_next(_phases != phases);
 
-    LOG_S(1) << thingId() <<
-                "> longTermAvailablePower: " << _longTermAvailablePower <<
-                ", shortTermAvailablePower: " << _shortTermAvailablePower;
+    const std::chrono::duration remainingBeforeSwitch = _nextSwitch - std::chrono::system_clock::now();
+    if (_nextPhases != _phases && remainingBeforeSwitch > 0s) {
+        _repo.setThingProperties(thingId(), {
+            { ThingPropertyKey::phases, _phases },
+            { ThingPropertyKey::next_phases, _nextPhases },
+            { ThingPropertyKey::countdown, (int)std::chrono::duration_cast<std::chrono::seconds>(remainingBeforeSwitch).count() }
+        });
+    } else {
+        _repo.setThingProperties(thingId(), {
+            { ThingPropertyKey::phases, _phases },
+            { ThingPropertyKey::next_phases, _nextPhases },
+            { ThingPropertyKey::countdown, 0 }
+        });
+    }
 
     // Set current
-    _repo.setThingProperty(thingId(), ThingPropertyKey::current, computeCurrent());
+    _repo.setThingProperty(thingId(), ThingPropertyKey::current, computeCurrent(_shortTermAvailablePower));
 }
 
-EvseStrategy::Phases EvseStrategy::computePhases() const {
-    if (_longTermAvailablePower > (6 * std::reduce(_voltages.begin(), _voltages.end()))) {
-        return Phases::three_phase;
-    } else if (_longTermAvailablePower > (6 * _voltages.front())) {
-        return Phases::single_phase;
+int EvseStrategy::computePhases(double availablePower) {
+    if (availablePower > (6 * std::reduce(_voltages.begin(), _voltages.end()))) {
+        _nextPhases = 3;
+    } else if (availablePower > (6 * _voltages.front())) {
+        _nextPhases = 1;
+    } else {
+        _nextPhases = 0;
     }
-    return Phases::off;
+
+    return _nextPhases;
 }
 
-ThingPropertyValue EvseStrategy::computeCurrent() const {
-    switch (_phases.value()) {
-    case Phases::single_phase:
-        return (int)(_shortTermAvailablePower / _voltages.front());
-    case Phases::three_phase: {
-        const int amps = _shortTermAvailablePower / std::reduce(_voltages.begin(), _voltages.end());
+ThingPropertyValue EvseStrategy::computeCurrent(double availablePower) const {
+    switch (_phases) {
+    case 1:
+        return (int)(availablePower / _voltages.front());
+    case 3: {
+        const int amps = availablePower / std::reduce(_voltages.begin(), _voltages.end());
         return std::array{ amps, amps, amps };
     }
     default:

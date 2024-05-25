@@ -3,8 +3,9 @@
 #include <functional>
 #include <map>
 #include <memory>
-#include <uvw_iot/Site.h>
+
 #include <uvw_iot/ThingProperty.h>
+#include <uvw_iot/util/Site.h>
 
 #include <config/Config.h>
 
@@ -14,14 +15,16 @@ struct WebSocket;
 }
 
 namespace uvw_iot {
-class Site;
 class ThingRepository;
+namespace util {
+class Site;
+}
 }
 
-using uvw_iot::Site;
 using uvw_iot::ThingPropertyKey;
 using uvw_iot::ThingPropertyValue;
 using uvw_iot::ThingRepository;
+using uvw_iot::util::Site;
 
 class WebAppRouter : public std::enable_shared_from_this<WebAppRouter> {
 public:

@@ -9,10 +9,10 @@ class Config;
 class RulesEngine;
 class Strategy;
 
-namespace uvw_iot {
+namespace uvw_iot::util {
 class Site;
 }
-using uvw_iot::Site;
+using uvw_iot::util::Site;
 
 class StrategyFactory {
 public:

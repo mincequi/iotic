@@ -16,12 +16,14 @@ typedef TemplatedApp<false> App;
 }
 
 namespace uvw_iot {
-class Site;
 class ThingRepository;
+namespace util {
+class Site;
+}
 }
 
-using uvw_iot::Site;
 using uvw_iot::ThingRepository;
+using uvw_iot::util::Site;
 
 class WebServer {
 public:

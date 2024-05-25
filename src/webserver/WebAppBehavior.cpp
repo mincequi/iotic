@@ -1,8 +1,8 @@
 #include "WebAppBehavior.h"
 
 #include <nlohmann/json.hpp>
-#include <uvw_iot/Site.h>
 #include <uvw_iot/ThingRepository.h>
+#include <uvw_iot/util/Site.h>
 
 #include <common/Logger.h>  // Note: this has to be included for magic enum
 #include <common/Util.h>
@@ -64,10 +64,10 @@ std::string WebAppBehavior::serializeUserProperties(const ThingPtr& t) {
     json properties;
     for (const auto& kv : t->properties()) {
         if (kv.first <= ThingPropertyKey::power_control)
-            properties[util::toString(kv.first)] = toJsonValue(kv.second);
+            properties[::util::toString(kv.first)] = toJsonValue(kv.second);
     }
     if (t->type() != ThingType::Unknown)
-        properties["type"] = util::toString(t->type());
+        properties["type"] = ::util::toString(t->type());
 
     json thing;
     thing[t->id()] = properties;
@@ -86,9 +86,9 @@ std::string WebAppBehavior::serializeSiteHistory(const std::list<Site::Propertie
     }
 
     json siteProperties;
-    siteProperties[util::toString(ThingPropertyKey::timestamp)] = timestamps;
-    siteProperties[util::toString(ThingPropertyKey::pv_power)] = pvPower;
-    siteProperties[util::toString(ThingPropertyKey::grid_power)] = gridPower;
+    siteProperties[::util::toString(ThingPropertyKey::timestamp)] = timestamps;
+    siteProperties[::util::toString(ThingPropertyKey::pv_power)] = pvPower;
+    siteProperties[::util::toString(ThingPropertyKey::grid_power)] = gridPower;
     json json;
     json["site"] = siteProperties;
     return json.dump();
@@ -96,7 +96,7 @@ std::string WebAppBehavior::serializeSiteHistory(const std::list<Site::Propertie
 
 std::string WebAppBehavior::serializeSiteProperties(const Config& config) {
     json properties;
-    properties[util::toString(ThingPropertyKey::thing_interval)] = config.thingInterval();
+    properties[::util::toString(ThingPropertyKey::thing_interval)] = config.thingInterval();
 
     json thing;
     thing["site"] = properties;
@@ -105,7 +105,7 @@ std::string WebAppBehavior::serializeSiteProperties(const Config& config) {
 
 std::string WebAppBehavior::serializeEvChargingStrategyProperties(const Config& config) {
     json properties;
-    properties[util::toString(ThingPropertyKey::time_constant)] = config.timeConstant();
+    properties[::util::toString(ThingPropertyKey::time_constant)] = config.timeConstant();
 
     json thing;
     thing["ev_charging_strategy"] = properties;

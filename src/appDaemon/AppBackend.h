@@ -1,7 +1,7 @@
 #pragma once
 
-#include <uvw_iot/Site.h>
 #include <uvw_iot/ThingRepository.h>
+#include <uvw_iot/util/Site.h>
 //#include <influx/InfluxExporter.h>
 //#include <mqtt/MqttExporter.h>
 #include <config/Config.h>

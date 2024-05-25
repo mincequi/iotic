@@ -39,7 +39,7 @@ void TestUtil::setProperty(const std::string& id, Property property, const Value
     }
     const auto testThing = (TestThing*)(repo->thingById(id).get());
     testThing->setProperty(property, value);
-    const std::string var = id + "." + util::toString(property);
+    const std::string var = id + "." + ::util::toString(property);
     rules->_symbolTable[var] = toDouble(value);
 }
 

@@ -29,7 +29,7 @@ public:
                           const ThingRepository& repo,
                           const Config& cfg);
 
-    void evaluate(double gridPower) override;
+    void evaluate(const Site::Properties& siteProperties) override;
 
 private:
     const ThingRepository& _repo;
