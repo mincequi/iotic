@@ -24,6 +24,8 @@ public:
 
     void startDiscovery(int msec);
 
+    void discover();
+
     // TOOD: probably not the right class to emit this. However, this is a simple solution for now.
     //void endOfDayReached();
 

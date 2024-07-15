@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include <MoveOnlyFunction.h>
+
 class Config;
 class WebAppRouter;
 
@@ -10,6 +12,11 @@ class embedded_filesystem;
 }
 
 namespace uWS {
+
+struct HttpRequest;
+template <bool SSL>
+struct HttpResponse;
+
 template <bool SSL>
 struct TemplatedApp;
 typedef TemplatedApp<false> App;
@@ -29,6 +36,8 @@ class WebServer {
 public:
     explicit WebServer(const ThingRepository& repo, const Site& site, const Config& cfg);
     ~WebServer();
+
+    void registerGetRoute(const std::string& path, uWS::MoveOnlyFunction<void(uWS::HttpResponse<false> *, uWS::HttpRequest *)> &&handler);
 
 private:
     const ThingRepository& _repo;

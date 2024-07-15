@@ -30,7 +30,9 @@ enum ThingPropertyKey {
   countdown,
 
   status,
-  events
+  events,
+  on_condition,
+  off_condition,
 }
 
 extension ThingIdFormatting on ThingPropertyKey {

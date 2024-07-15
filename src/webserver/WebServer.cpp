@@ -105,3 +105,7 @@ WebServer::WebServer(const ThingRepository& repo, const Site& site, const Config
 
 WebServer::~WebServer() {
 }
+
+void WebServer::registerGetRoute(const std::string &path, uWS::MoveOnlyFunction<void (uWS::HttpResponse<false> *, uWS::HttpRequest *)> &&handler) {
+    _uwsApp->get(path, std::move(handler));
+}

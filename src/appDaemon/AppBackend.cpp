@@ -2,6 +2,7 @@
 
 #include <uvw_iot/util/Filter.h>
 
+#include <HttpResponse.h>
 #include <common/Logger.h>
 #include <config/Config.h>
 #include <rules/RulesEngine.h>
@@ -41,6 +42,12 @@ AppBackend::AppBackend() :
 
     // Start discovery
     _thingsManager.startDiscovery(60 * 1000);
+
+    _webServer.registerGetRoute("/discover", std::move([this](uWS::HttpResponse<false>* res, uWS::HttpRequest*) {
+        _thingsManager.discover();
+        res->writeHeader("Access-Control-Allow-Origin", "*");
+        res->end("discovery started");
+    }));
 }
 
 AppBackend::~AppBackend() {

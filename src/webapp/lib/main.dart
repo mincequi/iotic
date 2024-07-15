@@ -32,7 +32,7 @@ class IoticApp extends StatelessWidget {
       darkTheme: IoticTheme.dark(context),
       themeMode: ThemeMode.dark,
       color: Colors.black,
-      home: const Home(),
+      home: Home(),
     );
   }
 }

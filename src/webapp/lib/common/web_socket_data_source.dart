@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get_core/get_core.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_rx/get_rx.dart';
+import 'package:http/http.dart';
 import 'package:iotic/logs/log_service.dart';
 import 'package:iotic/things/data/rx_properties.dart';
 import 'package:iotic/things/data/thing_key.dart';
@@ -48,6 +49,10 @@ class WebSocketDataSource {
         ThingPropertyKey.timestamp.name: [from, to]
       }
     })));
+  }
+
+  void discover() async {
+    get(Uri.parse('http://$_host:$_port/discover'));
   }
 
   final _host = html.window.location.hostname;

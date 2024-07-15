@@ -20,4 +20,8 @@ class LogService extends GetxService {
   void warn(String message) {
     logs.insert(0, Log(LogLevel.warning, message));
   }
+
+  void err(String message) {
+    logs.insert(0, Log(LogLevel.error, message));
+  }
 }

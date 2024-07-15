@@ -48,9 +48,14 @@ void ThingsManager::startDiscovery(int msec) {
     auto timer = uvw::loop::get_default()->resource<uvw::timer_handle>();
     timer->on<uvw::timer_event>([this](const auto&, auto&) {
         _dnsDiscovery.discover("_http._tcp.local");
-        _modbusDiscovery.discover();
+        //_modbusDiscovery.discover();
     });
     timer->start(uvw::timer_handle::time{0}, uvw::timer_handle::time{msec});
+}
+
+void ThingsManager::discover() {
+    //_dnsDiscovery.discover("_http._tcp.local");
+    _modbusDiscovery.discover();
 }
 
 void ThingsManager::onTimer() const {
