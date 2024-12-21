@@ -1,59 +1,47 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(iotic VERSION 0.3.2 LANGUAGES C CXX)
+project(iotic VERSION 0.4.0 LANGUAGES C CXX)
 
 include(cmake/CPM.cmake)
 
-include(FetchContent)
-set(FETCHCONTENT_QUIET FALSE)
+CPMAddPackage("gh:mincequi/uvw_iot#3116d99")
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS ON)
+set(CMAKE_CXX_STANDARD 11)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-#set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-#set(CMAKE_AUTORCC ON)
-
-option(BUILD_TESTS "Build test programs" OFF)
+option(BUILD_TESTING "Build test programs" OFF)
 
 find_package(Threads)
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Network REQUIRED)
 
 add_subdirectory(src/cli)
 add_subdirectory(src/common)
 add_subdirectory(src/config)
-add_subdirectory(src/fronius)
+#add_subdirectory(src/fronius)
 #add_subdirectory(src/influx)
-add_subdirectory(src/modbus)
 add_subdirectory(src/strategies)
 add_subdirectory(src/rules)
 add_subdirectory(src/things)
-add_subdirectory(src/uvw_net)
 add_subdirectory(src/webapp)
 add_subdirectory(src/webserver)
-if(BUILD_TESTS)
+if(BUILD_TESTING)
   add_subdirectory(tests)
 endif()
 
 add_executable(iotic
   src/main.cpp
-  src/Statistics.cpp
   src/appDaemon/AppBackend.cpp
   src/appDiscover/AppDiscover.cpp
 )
 
 target_link_libraries(iotic
   Threads::Threads
+  uvw_iot
+  uvw_net::dns_sd
   ${CMAKE_DL_LIBS}
   cli
   common
   config
   #influx
-  modbus
+  #modbus
   #mqtt
   rules
   things

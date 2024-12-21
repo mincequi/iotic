@@ -1,12 +1,24 @@
 #pragma once
 
-#include <memory>
+#include <uvw_iot/ThingRepository.h>
 
-#include <things/Thing.h>
+using uvw_iot::ThingPtr;
+using uvw_iot::ThingRepository;
 
+class Config;
+class RulesEngine;
 class Strategy;
+
+namespace uvw_iot::util {
+class Site;
+}
+using uvw_iot::util::Site;
 
 class StrategyFactory {
 public:
-    static std::unique_ptr<Strategy> from(const ThingPtr& thing);
+    static std::unique_ptr<Strategy> from(const ThingPtr& thing,
+                                          const ThingRepository& repo,
+                                          const Site& site,
+                                          const RulesEngine& rules,
+                                          const Config& cfg);
 };

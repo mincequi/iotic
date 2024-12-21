@@ -2,39 +2,54 @@
 
 #include <map>
 #include <tinyexpr.h>
+#include <uvw_iot/ThingRepository.h>
+#include <uvw_iot/util/Site.h>
 
 #include <common/Logger.h>
 #include <common/OffsetTable.h>
 #include <common/Util.h>
 #include <strategies/Strategy.h>
-#include <things/Site.h>
-#include <things/ThingsRepository.h>
+#include <things/ThingValue.h>
 
 using namespace std::placeholders;
+using namespace uvw_iot;
+using namespace uvw_iot::util;
 
-RulesEngine* RulesEngine::instance() {
-    if (!_instance) _instance = new RulesEngine(*repo);
-    return _instance;
+double toDouble(const ThingPropertyValue& value) {
+    if (std::holds_alternative<int>(value)) {
+        return std::get<int>(value);
+    } else if (std::holds_alternative<bool>(value)) {
+        return std::get<bool>(value) ? 1.0 : 0.0;
+    }
+    return 0.0;
 }
 
-RulesEngine::RulesEngine(const ThingsRepository& thingsRepository) :
-    _thingsRepository(thingsRepository) {
-    _site->gridPower().subscribe([this](int power) {
-        _symbolTable["grid_power"] = power;
+RulesEngine::RulesEngine(const ThingRepository& thingRepository,
+                         const Site& site,
+                         const Config& cfg) :
+    _thingRepository(thingRepository),
+    _site(site),
+    _cfg(cfg) {
+    _site.properties().subscribe([this](const Site::Properties& props) {
+        _symbolTable["short_term_grid_power"] = props.shortTermGridPower;
+        _symbolTable["long_term_grid_power"] = props.longTermGridPower;
+        _symbolTable["grid_power"] = props.gridPower;
+        _symbolTable["pv_power"] = props.pvPower;
+
         // TODO: move strategy collection out of rules engine.
         // After update of site, evaluate strategies
         for (const auto& s : _strategies) {
-            s->evaluate(power);
+            s->evaluate(props);
         }
     });
 
     // For each new thing, we potentially subscribe
-    _thingsRepository.thingAdded().subscribe([this](const ThingPtr& thing) {
+    _thingRepository.thingAdded().subscribe([this](ThingPtr thing) {
         // Each new thing might be a dependency for previous rules
         subscribeDependencies();
 
         // Check if thing has strategies
-        auto strategy = StrategyFactory::from(thing);
+        auto strategy = StrategyFactory::from(thing, _thingRepository, _site, *this, _cfg);
         if (!strategy) return;
         _strategies.push_back(std::move(strategy));
 
@@ -48,23 +63,23 @@ RulesEngine::RulesEngine(const ThingsRepository& thingsRepository) :
         subscribeDependencies();
     });
 
-    _thingsRepository.thingRemoved().subscribe([this](const auto& id) {
+    _thingRepository.thingRemoved().subscribe([this](const auto& id) {
         std::erase_if(_strategies, [&](const auto& t) {
             return t->thingId() == id;
         });
     });
 }
 
-bool RulesEngine::containsSymbol(const std::string& symbol) {
+bool RulesEngine::containsSymbol(const std::string& symbol) const {
     return _symbolTable.contains(symbol);
 }
 
-double RulesEngine::resolveSymbol(const std::string& symbol) {
+double RulesEngine::resolveSymbol(const std::string& symbol) const {
     LOG_S(INFO) << "resolveSymbol: " << symbol;
     return _symbolTable[symbol];
 }
 
-std::unique_ptr<te_parser> RulesEngine::createParser(const std::string& expr) {
+std::unique_ptr<te_parser> RulesEngine::createParser(const std::string& expr) const {
     auto parser = std::make_unique<te_parser>();
     parser->set_unknown_symbol_resolver([this](std::string_view symbol) {
         return resolveSymbol(std::string(symbol));
@@ -88,27 +103,26 @@ std::unique_ptr<te_parser> RulesEngine::createParser(const std::string& expr) {
 
 void RulesEngine::subscribeDependencies() {
     for (auto it = _dependentThings.begin(); it != _dependentThings.end();) {
-        const auto& thing = _thingsRepository.thingById(std::string(*it));
-        if (thing) {
-            subscribe(thing);
+        if (_thingRepository.things().contains(*it)) {
+            subscribe(_thingRepository.things().at(*it));
             it = _dependentThings.erase(it);
             continue;
-        };
+        }
         ++it;
     }
 }
 
-void RulesEngine::subscribe(const ThingPtr& thing) {
+void RulesEngine::subscribe(ThingPtr thing) {
     if (_subscribedThings.contains(thing->id())) return;
 
     LOG_S(INFO) << "subscribe to dependent thing: " << thing->id();
-    thing->properties().subscribe([this, &thing](const std::map<Property, Value>& prop) {
+    thing->propertiesObservable().subscribe([this, thing](const ThingPropertyMap& prop) {
         for (const auto& kv : prop) {
-            const std::string var = thing->id() + "." + util::toString(kv.first);
+            const std::string var = thing->id() + "." + ::util::toString(kv.first);
             if (_symbolTable.contains(var)) {
                 switch (kv.first) {
-                case Property::offset:
-                    _symbolTable[var] = offsetTable[std::get<double>(kv.second)];
+                case ThingPropertyKey::offset:
+                    _symbolTable[var] = offsetTable[std::get<int>(kv.second)];
                     break;
                 default:
                     _symbolTable[var] = toDouble(kv.second);

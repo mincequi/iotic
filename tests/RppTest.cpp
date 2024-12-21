@@ -11,12 +11,14 @@
 
 #include "things/TestThing.h"
 
+using uvw_iot::common::ThingPtr;
+
 //TEST_CASE("Thing can be deleted", "[rpp]") {
 int main() {
     int i = 0;
     QCoreApplication a(i, nullptr);
 
-    repo->thingAdded().subscribe([](const auto& thing) {
+    repo->thingAdded().subscribe([](ThingPtr thing) {
         thing->properties().subscribe([](const auto& prop) {
         });
     });

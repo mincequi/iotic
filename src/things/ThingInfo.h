@@ -2,8 +2,6 @@
 
 #include <string>
 
-class ModbusDiscovery;
-
 class ThingInfo {
 public:
     enum DiscoveryType {

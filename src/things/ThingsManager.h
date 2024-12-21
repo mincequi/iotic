@@ -1,40 +1,42 @@
 #pragma once
 
-#include <QObject>
-#include <QTimer>
-#include <modbus/ModbusDiscovery.h>
-#include <things/Thing.h>
-#include <things/ThingsDiscovery.h>
+#include <cstdint>
 
-class CandidatesRepository;
-class ThingsRepository;
+#include <uvw_net/dns_sd//DnsServiceDiscovery.h>
+#include <uvw_net/modbus/ModbusDiscovery.h>
+#include <uvw_net/sunspec/SunSpecDiscovery.h>
+
+namespace uvw_iot {
+class ThingRepository;
+} // namespace uvw_iot
+
+using uvw_iot::ThingRepository;
+using uvw_net::dns_sd::DnsServiceDiscovery;
+using uvw_net::modbus::ModbusDiscovery;
+using uvw_net::sunspec::SunSpecDiscovery;
+
+class Config;
 
 // TODO: ThingsManager should probably not belong to things (due to cyclic dependencies).
-class ThingsManager : public QObject {
-    Q_OBJECT
+class ThingsManager {
 public:
-    explicit ThingsManager(CandidatesRepository& candidatesRepository,
-                           ThingsRepository& thingsRepository,
-                           QObject *parent = nullptr);
+    explicit ThingsManager(const ThingRepository& thingsRepository, const Config& cfg);
 
     void startDiscovery(int msec);
-    void stopDiscovery();
 
-signals:
+    void discover();
+
     // TOOD: probably not the right class to emit this. However, this is a simple solution for now.
-    void endOfDayReached();
+    //void endOfDayReached();
 
 private:
-    void onTimer();
-    void onDiscoveryTimer();
+    void onTimer() const;
 
-    CandidatesRepository& _candidatesRepository;
-    ThingsRepository& _thingsRepository;
+    const ThingRepository& _thingRepository;
+    const Config& _cfg;
+    DnsServiceDiscovery _dnsDiscovery;
+    SunSpecDiscovery _sunspecDiscovery;
+    ModbusDiscovery _modbusDiscovery;
 
-    QTimer _timer;
-    QTimer _discoveryTimer;
     uint64_t _currentTimestamp = 0;
-
-    std::list<ThingsDiscoveryPtr> _discoveries;
-    ModbusDiscoveryPtr _modbusDiscovery;
 };

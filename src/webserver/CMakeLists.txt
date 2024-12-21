@@ -33,13 +33,14 @@ PRIVATE
 target_include_directories(webserver
 PUBLIC
   ../
-PRIVATE
-  ${us_SOURCE_DIR}/src
   ${uws_SOURCE_DIR}/src
+  ${us_SOURCE_DIR}/src
+PRIVATE
 )
 
 target_link_libraries(webserver
 PRIVATE
+  common
   things
   webapp
 )

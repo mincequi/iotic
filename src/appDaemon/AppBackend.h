@@ -1,25 +1,28 @@
 #pragma once
 
+#include <uvw_iot/ThingRepository.h>
+#include <uvw_iot/util/Site.h>
 //#include <influx/InfluxExporter.h>
 //#include <mqtt/MqttExporter.h>
-#include <things/CandidatesRepository.h>
+#include <config/Config.h>
+#include <rules/RulesEngine.h>
 #include <things/ThingsManager.h>
-#include <things/ThingsRepository.h>
 #include <webserver/WebServer.h>
 
-#include "Statistics.h"
-
 using namespace std::placeholders;
-using namespace sunspec;
+using uvw_iot::ThingRepository;
 
 class AppBackend {
 public:
     AppBackend();
+    ~AppBackend();
 
 private:
-    CandidatesRepository _candidatesRepository;
-    ThingsRepository* _thingsRepository;
+    ThingRepository _thingRepository;
+    Config _cfg;
     ThingsManager _thingsManager;
+    Site _site;
+    RulesEngine _rulesEngine;
     //MqttExporter _mqttExporter;
     //std::optional<InfluxExporter> _influxExporter;
     WebServer _webServer;

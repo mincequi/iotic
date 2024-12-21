@@ -1,15 +1,15 @@
 #pragma once
 
-#include <map>
+#include <iostream>
 
-#include <magic_enum.hpp>
-using namespace magic_enum::ostream_operators; // Define this before including loguru
+#include <uvw_iot/ThingProperty.h>
+
+#include <magic_enum_iostream.hpp>
+using magic_enum::iostream_operators::operator<<; // Define this before including loguru
+std::ostream& operator<<(std::ostream& s, const uvw_iot::ThingPropertyValue& value);
+std::ostream& operator<<(std::ostream& s, const uvw_iot::ThingPropertyMap& map);
 
 #include <loguru.hpp>
-
-namespace sunspec {
-class StatsModel;
-}
 
 class Logger {
 public:

@@ -1,15 +1,33 @@
 #include "AppBackend.h"
 
+#include <uvw_iot/util/Filter.h>
+
+#include <HttpResponse.h>
+#include <common/Logger.h>
 #include <config/Config.h>
 #include <rules/RulesEngine.h>
 
-AppBackend::AppBackend()
-    : _thingsRepository(ThingsRepository::instance()),
-      _thingsManager(_candidatesRepository, *_thingsRepository),
-      //_mqttExporter("broker.hivemq.com"),
-      _webServer(*_thingsRepository) {
-    // We define order of singleton instantiations here.
-    rules;
+using namespace uvw_iot::util;
+
+static SiteConfig siteConfig = {
+    .shortTermTau = 15000ms,
+    .longTermTau = 40000ms,
+};
+
+AppBackend::AppBackend() :
+    _cfg(_thingRepository),
+    _thingsManager(_thingRepository, _cfg),
+    _site(_thingRepository, {.shortTermTau = 15000ms, .longTermTau = 40000ms}),
+    //_mqttExporter("broker.hivemq.com"),
+    _webServer(_thingRepository, _site, _cfg),
+    _rulesEngine(_thingRepository, _site, _cfg) {
+
+    _thingRepository.thingAdded().subscribe([this](ThingPtr thing) {
+        LOG_S(INFO) << "thing added> " << thing->id() << ", type: " << thing->type();
+    });
+    _thingRepository.thingRemoved().subscribe([this](const auto& id) {
+        LOG_S(INFO) << "thing removed> " << id;
+    });
 
 #ifdef USE_INFLUXDB
     // Setup InfluxExporter
@@ -24,5 +42,14 @@ AppBackend::AppBackend()
 
     // Start discovery
     _thingsManager.startDiscovery(60 * 1000);
+
+    _webServer.registerGetRoute("/discover", std::move([this](uWS::HttpResponse<false>* res, uWS::HttpRequest*) {
+        _thingsManager.discover();
+        res->writeHeader("Access-Control-Allow-Origin", "*");
+        res->end("discovery started");
+    }));
+}
+
+AppBackend::~AppBackend() {
 }
 

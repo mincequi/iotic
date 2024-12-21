@@ -4,5 +4,5 @@ add_library(fronius STATIC
 
 target_link_libraries(fronius
 PUBLIC
-  things
+  uvw_iot::sunspec
 )
