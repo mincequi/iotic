@@ -1,6 +1,6 @@
 # iotic
 
-<img height="480" src="https://github.com/mincequi/iotic/assets/1805183/cba31985-6c84-4bd5-ac69-3322199a25e0"> <img height="480" src="https://github.com/mincequi/iotic/assets/1805183/72d89e72-f6ea-4acf-84db-8b53d311a39a">
+<img height="480" src="https://github.com/user-attachments/assets/6e1ef58f-de13-4d5d-8364-11b47eff6b21"> <img height="480" src="https://github.com/user-attachments/assets/64c027fa-153f-4385-98d2-88be7586a71c">
 
 Iotic is a multi-purpose IoT device manager which focuses on electric and thermal energy management.
 Its main feature is pv surplus charging of your electric vehicle.
