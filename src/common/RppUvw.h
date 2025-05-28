@@ -23,8 +23,6 @@ private:
             timer->start(std::chrono::duration_cast<std::chrono::milliseconds>(duration), uvw::timer_handle::time{0});
         }
 
-        static constexpr rpp::schedulers::details::none_disposable get_disposable() { return {}; }
-
         static rpp::schedulers::time_point now() { return rpp::schedulers::clock_type::now(); }
 
     private:

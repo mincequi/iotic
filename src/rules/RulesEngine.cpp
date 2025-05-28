@@ -9,6 +9,7 @@
 #include <common/OffsetTable.h>
 #include <common/Util.h>
 #include <strategies/Strategy.h>
+#include <strategies/StrategyRepository.h>
 #include <things/ThingValue.h>
 
 using namespace std::placeholders;
@@ -25,9 +26,11 @@ double toDouble(const ThingPropertyValue& value) {
 }
 
 RulesEngine::RulesEngine(const ThingRepository& thingRepository,
+                         StrategyRepository& strategyRepository,
                          const Site& site,
                          const Config& cfg) :
     _thingRepository(thingRepository),
+    _strategyRepository(strategyRepository),
     _site(site),
     _cfg(cfg) {
     _site.properties().subscribe([this](const Site::Properties& props) {
@@ -36,9 +39,8 @@ RulesEngine::RulesEngine(const ThingRepository& thingRepository,
         _symbolTable["grid_power"] = props.gridPower;
         _symbolTable["pv_power"] = props.pvPower;
 
-        // TODO: move strategy collection out of rules engine.
         // After update of site, evaluate strategies
-        for (const auto& s : _strategies) {
+        for (const auto& s : _strategyRepository.strategies()) {
             s->evaluate(props);
         }
     });
@@ -51,7 +53,7 @@ RulesEngine::RulesEngine(const ThingRepository& thingRepository,
         // Check if thing has strategies
         auto strategy = StrategyFactory::from(thing, _thingRepository, _site, *this, _cfg);
         if (!strategy) return;
-        _strategies.push_back(std::move(strategy));
+        _strategyRepository.addStrategy(std::move(strategy));
 
         // Creating rule might have updated the symbol table
         for (const auto& kv : _symbolTable) {
@@ -61,12 +63,6 @@ RulesEngine::RulesEngine(const ThingRepository& thingRepository,
 
         // Subscribe new thing and dependencies
         subscribeDependencies();
-    });
-
-    _thingRepository.thingRemoved().subscribe([this](const auto& id) {
-        std::erase_if(_strategies, [&](const auto& t) {
-            return t->thingId() == id;
-        });
     });
 }
 

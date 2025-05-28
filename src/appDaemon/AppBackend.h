@@ -6,6 +6,7 @@
 //#include <mqtt/MqttExporter.h>
 #include <config/Config.h>
 #include <rules/RulesEngine.h>
+#include <strategies/StrategyRepository.h>
 #include <things/ThingsManager.h>
 #include <webserver/WebServer.h>
 
@@ -19,6 +20,7 @@ public:
 
 private:
     ThingRepository _thingRepository;
+    StrategyRepository _strategyRepository;
     Config _cfg;
     ThingsManager _thingsManager;
     Site _site;

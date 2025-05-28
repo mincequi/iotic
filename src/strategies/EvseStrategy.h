@@ -35,9 +35,9 @@ private:
                  const Site& site,
                  const Config& cfg);
 
-    void evaluate(const Site::Properties& siteProperties) override;
+    void evaluate(const Site::Properties& siteProperties) const override;
 
-    int computePhases(double availablePower);
+    int computePhases(double availablePower) const;
     ThingPropertyValue computeCurrent(double availablePower) const;
 
     const ThingRepository& _repo;
@@ -48,13 +48,13 @@ private:
     std::array<int, 3> _voltages;
     int _offsetPower = 0;
     // Short term is used for amperage
-    int _shortTermAvailablePower = 0;
+    mutable int _shortTermAvailablePower = 0;
     // Long term is used for phases
-    int _longTermAvailablePower = 0;
-    int _prevTs = 0;
+    mutable int _longTermAvailablePower = 0;
+    mutable int _prevTs = 0;
 
     rpp::subjects::publish_subject<bool> _doPhaseSwitch;
     int _phases = 0;
-    int _nextPhases = 0;
+    mutable int _nextPhases = 0;
     std::chrono::time_point<std::chrono::system_clock> _nextSwitch;
 };

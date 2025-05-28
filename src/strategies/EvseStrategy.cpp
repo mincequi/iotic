@@ -79,7 +79,7 @@ EvseStrategy::EvseStrategy(const ThingPtr& thing,
 EvseStrategy::~EvseStrategy() {
 }
 
-void EvseStrategy::evaluate(const Site::Properties& siteProperties) {
+void EvseStrategy::evaluate(const Site::Properties& siteProperties) const {
     // Compute available power
     const double availablePower = _offsetPower + _power - siteProperties.gridPower;
     if (_shortTermAvailablePower <= 0) _shortTermAvailablePower = availablePower;
@@ -113,7 +113,7 @@ void EvseStrategy::evaluate(const Site::Properties& siteProperties) {
     _repo.setThingProperty(thingId(), ThingPropertyKey::current, computeCurrent(_shortTermAvailablePower));
 }
 
-int EvseStrategy::computePhases(double availablePower) {
+int EvseStrategy::computePhases(double availablePower) const {
     if (availablePower > (6 * std::reduce(_voltages.begin(), _voltages.end()))) {
         _nextPhases = 3;
     } else if (availablePower > (6 * _voltages.front())) {

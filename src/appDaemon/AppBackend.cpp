@@ -17,10 +17,11 @@ static SiteConfig siteConfig = {
 AppBackend::AppBackend() :
     _cfg(_thingRepository),
     _thingsManager(_thingRepository, _cfg),
+    _strategyRepository(_thingRepository),
     _site(_thingRepository, {.shortTermTau = 15000ms, .longTermTau = 40000ms}),
     //_mqttExporter("broker.hivemq.com"),
     _webServer(_thingRepository, _site, _cfg),
-    _rulesEngine(_thingRepository, _site, _cfg) {
+    _rulesEngine(_thingRepository, _strategyRepository, _site, _cfg) {
 
     _thingRepository.thingAdded().subscribe([this](ThingPtr thing) {
         LOG_S(INFO) << "thing added> " << thing->id() << ", type: " << thing->type();

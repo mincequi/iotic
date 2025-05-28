@@ -29,7 +29,7 @@ public:
                           const ThingRepository& repo,
                           const Config& cfg);
 
-    void evaluate(const Site::Properties& siteProperties) override;
+    void evaluate(const Site::Properties& siteProperties) const override;
 
 private:
     const ThingRepository& _repo;
@@ -39,5 +39,5 @@ private:
     std::unique_ptr<te_parser> _offExpression;
     TScheduler _scheduler;
     publish_subject<bool> _expressionSubject;
-    std::optional<bool> _actionState;
+    mutable std::optional<bool> _actionState;
 };

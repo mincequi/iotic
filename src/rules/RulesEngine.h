@@ -17,10 +17,12 @@ namespace uvw_iot {
 }
 
 using uvw_iot::ThingRepository;
+class StrategyRepository;
 
 class RulesEngine {
 public:
     RulesEngine(const ThingRepository& thingRepository,
+                StrategyRepository& strategyRepository,
                 const Site& site,
                 const Config& cfg);
     ~RulesEngine() = default;
@@ -36,12 +38,12 @@ private:
     void addDependency(const std::string& id);
 
     const ThingRepository& _thingRepository;
+    StrategyRepository& _strategyRepository;
     const Site& _site;
     const Config& _cfg;
 
     mutable std::map<std::string, double> _symbolTable;
 
-    std::list<std::unique_ptr<Strategy>> _strategies;
     std::set<std::string> _dependentThings;
     std::set<std::string> _subscribedThings;
 
