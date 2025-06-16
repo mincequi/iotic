@@ -9,6 +9,9 @@
 #include <common/Logger.h>
 #include <common/Util.h>
 #include <config/Config.h>
+#include <rules/RulesEngine.h>
+#include <strategies/Strategy.h>
+#include <strategies/StrategyRepository.h>
 #include <things/ThingValue.h>
 
 #include "OcppBehavior.h"
@@ -20,8 +23,16 @@ using json = nlohmann::json;
 using namespace uvw_iot;
 using namespace uvw_iot::util;
 
-WebServer::WebServer(const ThingRepository& repo, const Site& site, const Config& cfg) :
-    _repo(repo), _site(site), _cfg(cfg) {
+WebServer::WebServer(const ThingRepository& repo,
+                     const Site& site,
+                     const Config& cfg,
+                     const StrategyRepository& strategyRepo,
+                     const RulesEngine& rulesEngine) :
+    _repo(repo),
+    _site(site),
+    _cfg(cfg),
+    _strategyRepo(strategyRepo),
+    _rulesEngine(rulesEngine) {
     _fs = std::make_unique<cmrc::embedded_filesystem>(cmrc::webapp::get_filesystem());
     uWS::Loop::get(uvw::loop::get_default()->raw());
     _uwsApp = std::make_unique<uWS::App>();
@@ -41,6 +52,13 @@ WebServer::WebServer(const ThingRepository& repo, const Site& site, const Config
         }
         auto f = _fs->open(fileName);
         res->end(std::string_view(f.begin(), f.end()-f.begin()));
+    });
+    _uwsApp->get("/symbols", [this](uWS::HttpResponse<false>* res, uWS::HttpRequest* req) {
+        json symbols;
+        for (const auto& kv : _rulesEngine.symbolTable()) {
+            symbols[kv.first] = kv.second;
+        }
+        res->end(symbols.dump());
     });
     _uwsApp->ws<WebAppRouterPtr>("/ws", WebAppBehavior::create(_webAppRouter));
     //_uwsApp->ws<UserData>("/ocpp", OcppBehavior::create());
@@ -101,6 +119,14 @@ WebServer::WebServer(const ThingRepository& repo, const Site& site, const Config
             _uwsApp->publish("broadcast", json.dump(), uWS::OpCode::TEXT);
         });
     });
+
+    // _strategyRepo.strategiesObservable().subscribe([this](const std::list<std::shared_ptr<Strategy>>& strategies) {
+    //     json json;
+    //     for (const auto& strategy : strategies) {
+    //         json["strategies"][strategy->thingId()] = strategy->toJson();
+    //     }
+    //     _uwsApp->publish("broadcast", json.dump(), uWS::OpCode::TEXT);
+    // });
 }
 
 WebServer::~WebServer() {

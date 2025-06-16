@@ -10,3 +10,7 @@ Strategy::~Strategy() {
 const std::string& Strategy::thingId() const {
     return _thingId;
 }
+
+json Strategy::toJson() const {
+    return json();
+}

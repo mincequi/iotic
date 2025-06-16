@@ -29,6 +29,9 @@ public:
 
     bool containsSymbol(const std::string& symbol) const;
     double resolveSymbol(const std::string& symbol) const;
+    inline const std::map<std::string, double>& symbolTable() const {
+        return _symbolTable;
+    }
 
     std::unique_ptr<te_parser> createParser(const std::string& expr) const;
 

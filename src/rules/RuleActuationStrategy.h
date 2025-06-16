@@ -31,6 +31,8 @@ public:
 
     void evaluate(const Site::Properties& siteProperties) const override;
 
+    json toJson() const override;
+
 private:
     const ThingRepository& _repo;
     const Config& _cfg;

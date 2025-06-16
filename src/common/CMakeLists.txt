@@ -14,6 +14,7 @@ CPMAddPackage("gh:gabime/spdlog@1.13.0")
 add_library(common STATIC
   Logger.cpp
   ${loguru_SOURCE_DIR}/loguru.cpp
+  Types.h
 )
 
 target_include_directories(common

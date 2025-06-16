@@ -20,7 +20,7 @@ AppBackend::AppBackend() :
     _strategyRepository(_thingRepository),
     _site(_thingRepository, {.shortTermTau = 15000ms, .longTermTau = 40000ms}),
     //_mqttExporter("broker.hivemq.com"),
-    _webServer(_thingRepository, _site, _cfg),
+    _webServer(_thingRepository, _site, _cfg, _strategyRepository, _rulesEngine),
     _rulesEngine(_thingRepository, _strategyRepository, _site, _cfg) {
 
     _thingRepository.thingAdded().subscribe([this](ThingPtr thing) {

@@ -11,6 +11,7 @@ add_library(rules STATIC
   RulesEngine.cpp
   StrategyFactory.cpp
   ${tinyexpr_SOURCE_DIR}/tinyexpr.cpp
+  RuleUtil.h RuleUtil.cpp
 )
 
 target_include_directories(rules

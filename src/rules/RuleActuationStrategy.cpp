@@ -14,6 +14,7 @@
 #include <common/RppUvw.h>
 #include <config/Config.h>
 #include <rules/RulesEngine.h>
+#include <rules/RuleUtil.h>
 
 using namespace std::chrono_literals;
 using namespace uvw_iot;
@@ -96,6 +97,15 @@ void RuleActuationStrategy<TScheduler>::evaluate(const Site::Properties& /*siteP
     if (_actionState.has_value()) {
         _repo.setThingProperty(thingId(), ThingPropertyKey::power_control, _actionState.value());
     }
+}
+
+template<rpp::schedulers::constraint::scheduler TScheduler>
+json RuleActuationStrategy<TScheduler>::toJson() const {
+    json j;
+    j["type"] = "RuleActuationStrategy";
+    j["on"] = rule::toJson(*_onExpression);
+    j["off"] = rule::toJson(*_offExpression);
+    return j;
 }
 
 // Explicit template instantiation

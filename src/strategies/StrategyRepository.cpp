@@ -5,7 +5,7 @@
 
 StrategyRepository::StrategyRepository(const uvw_iot::ThingRepository& thingRepository)
     : _thingRepository(thingRepository),
-    _strategiesSubject(std::list<std::unique_ptr<Strategy>>()) {
+    _strategiesSubject(std::list<std::shared_ptr<Strategy>>()) {
 
     _thingRepository.thingRemoved().subscribe([this](const auto& id) {
         std::erase_if(_strategies, [&](const auto& t) {

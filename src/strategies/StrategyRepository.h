@@ -14,22 +14,21 @@ public:
     StrategyRepository(const uvw_iot::ThingRepository& thingRepository);
     ~StrategyRepository() = default;
 
-    inline void addStrategy(std::unique_ptr<Strategy> strategy) {
+    inline void addStrategy(std::shared_ptr<Strategy> strategy) {
         _strategies.push_back(std::move(strategy));
     }
 
-    inline const std::list<std::unique_ptr<Strategy>>& strategies() const {
+    inline const std::list<std::shared_ptr<Strategy>>& strategies() const {
         return _strategies;
     }
 
-    // TODO: this is not possible due to missing copy constructor of unique_ptr.
-    //inline rpp::dynamic_observable<std::list<std::unique_ptr<Strategy>>> strategiesObservable() const {
-    //    return _strategiesSubject.get_observable();
-    //}
+    inline rpp::dynamic_observable<std::list<std::shared_ptr<Strategy>>> strategiesObservable() const {
+        return _strategiesSubject.get_observable();
+    }
 
 private:
     const uvw_iot::ThingRepository& _thingRepository;
 
-    rpp::subjects::behavior_subject<std::list<std::unique_ptr<Strategy>>> _strategiesSubject;
-    std::list<std::unique_ptr<Strategy>> _strategies;
+    rpp::subjects::behavior_subject<std::list<std::shared_ptr<Strategy>>> _strategiesSubject;
+    std::list<std::shared_ptr<Strategy>> _strategies;
 };

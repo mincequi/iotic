@@ -27,6 +27,8 @@ uWS::App::WebSocketBehavior<WebAppRouterPtr> WebAppBehavior::create(WebAppRouter
         ws->send(serializeSiteProperties(router->cfg()), uWS::OpCode::TEXT);
         ws->send(serializeEvChargingStrategyProperties(router->cfg()), uWS::OpCode::TEXT);
         ws->send(serializeSiteHistory(router->site().history()), uWS::OpCode::TEXT);
+
+
     };
     behavior.close = [](uWS::WebSocket<false, true, WebAppRouterPtr>* ws, int, std::string_view) {
         ws->unsubscribe("broadcast");
