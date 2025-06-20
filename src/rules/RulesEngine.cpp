@@ -64,6 +64,12 @@ RulesEngine::RulesEngine(const ThingRepository& thingRepository,
         // Subscribe new thing and dependencies
         subscribeDependencies();
     });
+
+    // For each removed thing, we unsubscribe
+    _thingRepository.thingRemoved().subscribe([this](const std::string& id) {
+        LOG_S(INFO) << "thing removed: " << id;
+        _subscribedThings.erase(id);
+    });
 }
 
 bool RulesEngine::containsSymbol(const std::string& symbol) const {
