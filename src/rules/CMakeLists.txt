@@ -8,10 +8,11 @@ FetchContent_MakeAvailable(tinyexpr)
 
 add_library(rules STATIC
   RuleActuationStrategy.cpp
-  RulesEngine.cpp
+  RuleEngine.cpp
   StrategyFactory.cpp
   ${tinyexpr_SOURCE_DIR}/tinyexpr.cpp
   RuleUtil.h RuleUtil.cpp
+  SymbolRepository.h SymbolRepository.cpp
 )
 
 target_include_directories(rules

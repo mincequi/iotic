@@ -15,12 +15,12 @@ using uvw_net::dns_sd::DnsServiceDiscovery;
 using uvw_net::modbus::ModbusDiscovery;
 using uvw_net::sunspec::SunSpecDiscovery;
 
-class Config;
+class ConfigRepository;
 
 // TODO: ThingsManager should probably not belong to things (due to cyclic dependencies).
 class ThingsManager {
 public:
-    explicit ThingsManager(const ThingRepository& thingsRepository, const Config& cfg);
+    explicit ThingsManager(const ThingRepository& thingsRepository, const ConfigRepository& cfg);
 
     void startDiscovery(int msec);
 
@@ -33,7 +33,7 @@ private:
     void onTimer() const;
 
     const ThingRepository& _thingRepository;
-    const Config& _cfg;
+    const ConfigRepository& _cfg;
     DnsServiceDiscovery _dnsDiscovery;
     SunSpecDiscovery _sunspecDiscovery;
     ModbusDiscovery _modbusDiscovery;

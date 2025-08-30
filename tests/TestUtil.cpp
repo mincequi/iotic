@@ -1,7 +1,7 @@
 #include "TestUtil.h"
 
 #include <common/Util.h>
-#include <config/Config.h>
+#include <config/ConfigRepository.h>
 #include <rules/RuleActuationStrategy.h>
 #include <rules/RulesEngine.h>
 #include <rules/test_scheduler.hpp>

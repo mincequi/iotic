@@ -16,7 +16,7 @@
 #include <common/OffsetTable.h>
 #include <common/Rpp.h>
 #include <common/RppUvw.h>
-#include <config/Config.h>
+#include <config/ConfigRepository.h>
 
 using namespace uvw_iot;
 using namespace uvw_iot::util;
@@ -24,9 +24,9 @@ using namespace uvw_iot::util;
 std::unique_ptr<Strategy> EvseStrategy::from(const ThingPtr& thing,
                                              const ThingRepository& repo,
                                              const Site& site,
-                                             const Config& cfg) {
+                                             const ConfigRepository& cfg) {
     if (thing->type() == ThingType::EvStation) {
-        thing->setProperty(ThingPropertyKey::offset, cfg.valueOr<int>(thing->id(), Config::Key::offset, defaultOffset));
+        thing->setProperty(ThingPropertyKey::offset, cfg.valueOr<int>(thing->id(), ConfigRepository::Key::offset, defaultOffset));
         return std::unique_ptr<EvseStrategy>(new EvseStrategy(thing, repo, site, cfg));
     }
     return {};
@@ -35,7 +35,7 @@ std::unique_ptr<Strategy> EvseStrategy::from(const ThingPtr& thing,
 EvseStrategy::EvseStrategy(const ThingPtr& thing,
                            const ThingRepository& repo,
                            const Site& site,
-                           const Config& cfg) :
+                           const ConfigRepository& cfg) :
     Strategy(thing->id()),
     _repo(repo),
     _site(site),
@@ -43,11 +43,11 @@ EvseStrategy::EvseStrategy(const ThingPtr& thing,
     _doPhaseSwitch.get_observable()
         | distinct_until_changed()
         | map([this](bool doSwitch) {
-              _nextSwitch = std::chrono::system_clock::now() + std::chrono::seconds(_cfg.valueOr<int>(thingId(), Config::Key::debounce, 180));
+              _nextSwitch = std::chrono::system_clock::now() + std::chrono::seconds(_cfg.valueOr<int>(thingId(), ConfigRepository::Key::debounce, 180));
 
               return doSwitch;
           })
-        | debounce(std::chrono::seconds(cfg.valueOr<int>(thing->id(), Config::Key::debounce, 180)), rpp_uvw::schedulers::main_thread_scheduler{})
+        | debounce(std::chrono::seconds(cfg.valueOr<int>(thing->id(), ConfigRepository::Key::debounce, 180)), rpp_uvw::schedulers::main_thread_scheduler{})
         | subscribe([this](bool doSwitch) {
               if (doSwitch) {
                   _phases = _nextPhases;

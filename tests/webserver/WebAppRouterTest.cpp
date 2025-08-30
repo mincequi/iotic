@@ -3,7 +3,7 @@
 #include <nlohmann/json.hpp>
 #include <uvw_iot/ThingRepository.h>
 
-#include <config/Config.h>
+#include <config/ConfigRepository.h>
 #include <webserver/WebAppRouter.h>
 
 using json = nlohmann::json;
@@ -23,7 +23,7 @@ protected:
 
 private:
     ThingRepository thingRepository;
-    Config cfg;
+    ConfigRepository cfg;
     Site site;
     WebAppRouter router;
 };

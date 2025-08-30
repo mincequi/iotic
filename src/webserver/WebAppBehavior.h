@@ -6,7 +6,7 @@
 
 #include "WebAppRouter.h"
 
-class Config;
+class ConfigRepository;
 namespace uvw_iot {
 class ThingRepository;
 }
@@ -19,7 +19,7 @@ public:
     static uWS::App::WebSocketBehavior<WebAppRouterPtr> create(WebAppRouterPtr router);
 
     static std::string serializeUserProperties(const ThingPtr& thing);
-    static std::string serializeSiteProperties(const Config& config);
+    static std::string serializeSiteProperties(const ConfigRepository& config);
     static std::string serializeSiteHistory(const std::list<Site::Properties>& siteHistory);
-    static std::string serializeEvChargingStrategyProperties(const Config& config);
+    static std::string serializeEvChargingStrategyProperties(const ConfigRepository& config);
 };

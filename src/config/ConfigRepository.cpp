@@ -1,4 +1,4 @@
-#include "Config.h"
+#include "ConfigRepository.h"
 
 #include <fstream>
 
@@ -10,7 +10,7 @@
 
 using namespace uvw_iot;
 
-class Config::Impl {
+class ConfigRepository::Impl {
 public:
     toml::table configTable;
 
@@ -47,9 +47,9 @@ public:
     }
 };
 
-Config::Config(const ThingRepository& repo) :
+ConfigRepository::ConfigRepository(const ThingRepository& repo) :
     _repo(repo),
-    _p(new Config::Impl) {
+    _p(new ConfigRepository::Impl) {
 
     parseConfigFile();
 
@@ -74,10 +74,10 @@ Config::Config(const ThingRepository& repo) :
     });
 }
 
-Config::~Config() = default;
+ConfigRepository::~ConfigRepository() = default;
 
 template<class T>
-T Config::valueOr(const std::string& table_, Key key, T fallback) const {
+T ConfigRepository::valueOr(const std::string& table_, Key key, T fallback) const {
     if (!_p->configTable.contains(table_) ||
             !_p->configTable.at(table_).contains(util::toString(key))) {
         return fallback;
@@ -86,7 +86,7 @@ T Config::valueOr(const std::string& table_, Key key, T fallback) const {
     return toml::get_or(_p->configTable[table_][util::toString(key)], fallback);
 }
 
-void Config::persistProperty(const std::string& table, ThingPropertyKey key, const ThingPropertyValue& value) const {
+void ConfigRepository::persistProperty(const std::string& table, ThingPropertyKey key, const ThingPropertyValue& value) const {
     if (!_p->configTable.contains(table))
         _p->configTable[table] = toml::table();
     auto& section = _p->configTable[table].as_table();
@@ -110,47 +110,47 @@ void Config::persistProperty(const std::string& table, ThingPropertyKey key, con
     configFile << toml::value(_p->configTable);
 }
 
-void Config::setThingInterval(const ThingPropertyValue& seconds) const {
+void ConfigRepository::setThingInterval(const ThingPropertyValue& seconds) const {
     _p->thingInterval = std::get<int>(seconds);
     _p->thingIntervalSubject.get_observer().on_next(_p->thingInterval);
     persistProperty("site", ThingPropertyKey::thing_interval, seconds);
 }
 
-dynamic_observable<int> Config::thingIntervalObservable() const {
+dynamic_observable<int> ConfigRepository::thingIntervalObservable() const {
     return _p->thingIntervalSubject.get_observable();
 }
 
-int Config::thingInterval() const {
+int ConfigRepository::thingInterval() const {
     return _p->thingInterval;
 }
 
-void Config::setTimeConstant(const ThingPropertyValue& tau) const {
+void ConfigRepository::setTimeConstant(const ThingPropertyValue& tau) const {
     _p->tau = std::get<int>(tau);
     _p->tauSubject.get_observer().on_next(_p->tau);
     persistProperty("ev_charging_strategy", ThingPropertyKey::time_constant, tau);
 }
 
-dynamic_observable<int> Config::timeConstantObservable() const {
+dynamic_observable<int> ConfigRepository::timeConstantObservable() const {
     return _p->tauSubject.get_observable();
 }
 
-int Config::timeConstant() const {
+int ConfigRepository::timeConstant() const {
     return _p->tau;
 }
 
-double Config::evseAlpha() const {
+double ConfigRepository::evseAlpha() const {
     return _p->evseAlpha;
 }
 
-double Config::evseBeta() const {
+double ConfigRepository::evseBeta() const {
     return _p->evseBeta;
 }
 
-double Config::evsePhi() const {
+double ConfigRepository::evsePhi() const {
     return _p->evsePhi; //restrict phi to a minimum of 0.8 and a maximum of 0.98.
 }
 
-void Config::parseConfigFile() {
+void ConfigRepository::parseConfigFile() {
     std::ifstream configFile(_configFile);
     if (configFile.good()) {
         _p->configTable = toml::parse(_configFile).as_table();
@@ -174,7 +174,7 @@ void Config::parseConfigFile() {
     _gridMeter = valueOr("site", Key::grid, std::string());
 }
 
-void Config::setPropertiesTo(const ThingPtr& thing) {
+void ConfigRepository::setPropertiesTo(const ThingPtr& thing) {
     ThingPropertyMap properties;
     auto val = value(thing->id(), ThingPropertyKey::name);
     if (val) properties[ThingPropertyKey::name] = *val;
@@ -186,7 +186,7 @@ void Config::setPropertiesTo(const ThingPtr& thing) {
     thing->setProperties(properties);
 }
 
-std::optional<ThingPropertyValue> Config::value(const std::string& id, ThingPropertyKey key) const {
+std::optional<ThingPropertyValue> ConfigRepository::value(const std::string& id, ThingPropertyKey key) const {
     if (!_p->configTable.contains(id) || !_p->configTable.at(id).contains(util::toString(key))) {
         return {};
     }
@@ -206,6 +206,6 @@ std::optional<ThingPropertyValue> Config::value(const std::string& id, ThingProp
 }
 
 // Explicit template instantiation
-template std::string Config::valueOr(const std::string& table, Key key, std::string) const;
-template int Config::valueOr(const std::string& table, Key key, int) const;
-template bool Config::valueOr(const std::string& table, Key key, bool) const;
+template std::string ConfigRepository::valueOr(const std::string& table, Key key, std::string) const;
+template int ConfigRepository::valueOr(const std::string& table, Key key, int) const;
+template bool ConfigRepository::valueOr(const std::string& table, Key key, bool) const;

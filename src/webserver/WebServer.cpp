@@ -8,8 +8,9 @@
 
 #include <common/Logger.h>
 #include <common/Util.h>
-#include <config/Config.h>
+#include <config/ConfigRepository.h>
 #include <rules/RulesEngine.h>
+#include <rules/SymbolRepository.h>
 #include <strategies/Strategy.h>
 #include <strategies/StrategyRepository.h>
 #include <things/ThingValue.h>
@@ -25,14 +26,14 @@ using namespace uvw_iot::util;
 
 WebServer::WebServer(const ThingRepository& repo,
                      const Site& site,
-                     const Config& cfg,
-                     const StrategyRepository& strategyRepo,
-                     const RulesEngine& rulesEngine) :
+                     const ConfigRepository& cfg,
+                     const StrategyRepository& strategyRepository,
+                     const SymbolRepository& symbolRepository) :
     _repo(repo),
     _site(site),
     _cfg(cfg),
-    _strategyRepo(strategyRepo),
-    _rulesEngine(rulesEngine) {
+    _strategyRepository(strategyRepository),
+    _symbolRepository(symbolRepository) {
     _fs = std::make_unique<cmrc::embedded_filesystem>(cmrc::webapp::get_filesystem());
     uWS::Loop::get(uvw::loop::get_default()->raw());
     _uwsApp = std::make_unique<uWS::App>();
@@ -55,7 +56,7 @@ WebServer::WebServer(const ThingRepository& repo,
     });
     _uwsApp->get("/symbols", [this](uWS::HttpResponse<false>* res, uWS::HttpRequest* req) {
         json symbols;
-        for (const auto& kv : _rulesEngine.symbolTable()) {
+        for (const auto& kv : _symbolRepository.symbolTable()) {
             symbols[kv.first] = kv.second;
         }
         res->end(symbols.dump());
@@ -132,6 +133,6 @@ WebServer::WebServer(const ThingRepository& repo,
 WebServer::~WebServer() {
 }
 
-void WebServer::registerGetRoute(const std::string &path, uWS::MoveOnlyFunction<void (uWS::HttpResponse<false> *, uWS::HttpRequest *)> &&handler) {
+void WebServer::registerGetRoute(const std::string& path, uWS::MoveOnlyFunction<void(uWS::HttpResponse<false>*, uWS::HttpRequest*)>&& handler) const {
     _uwsApp->get(path, std::move(handler));
 }

@@ -4,7 +4,7 @@
 #include <rpp/schedulers/immediate_scheduler.hpp>
 
 #include <common/Logger.h>
-#include <config/Config.h>
+#include <config/ConfigRepository.h>
 #include <rules/RuleActuationStrategy.h>
 #include <rules/RulesEngine.h>
 #include <rules/test_scheduler.hpp>

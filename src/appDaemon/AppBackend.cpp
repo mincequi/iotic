@@ -4,7 +4,7 @@
 
 #include <HttpResponse.h>
 #include <common/Logger.h>
-#include <config/Config.h>
+#include <config/ConfigRepository.h>
 #include <rules/RulesEngine.h>
 
 using namespace uvw_iot::util;
@@ -20,8 +20,8 @@ AppBackend::AppBackend() :
     _strategyRepository(_thingRepository),
     _site(_thingRepository, {.shortTermTau = 15000ms, .longTermTau = 40000ms}),
     //_mqttExporter("broker.hivemq.com"),
-    _webServer(_thingRepository, _site, _cfg, _strategyRepository, _rulesEngine),
-    _rulesEngine(_thingRepository, _strategyRepository, _site, _cfg) {
+    _webServer(_thingRepository, _site, _cfg, _strategyRepository, _symbolRepository),
+    _rulesEngine(_thingRepository, _strategyRepository, _symbolRepository, _site, _cfg) {
 
     _thingRepository.thingAdded().subscribe([this](ThingPtr thing) {
         LOG_S(INFO) << "thing added> " << thing->id() << ", type: " << thing->type();

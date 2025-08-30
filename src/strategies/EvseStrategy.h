@@ -13,14 +13,14 @@ using uvw_iot::ThingPropertyValue;
 using uvw_iot::ThingRepository;
 using uvw_iot::util::Site;
 
-class Config;
+class ConfigRepository;
 
 class EvseStrategy : public Strategy {
 public:
     static std::unique_ptr<Strategy> from(const ThingPtr& thing,
                                           const ThingRepository& repo,
                                           const Site& site,
-                                          const Config& cfg);
+                                          const ConfigRepository& cfg);
     ~EvseStrategy();
 
 private:
@@ -33,7 +33,7 @@ private:
     EvseStrategy(const ThingPtr& thing,
                  const ThingRepository& repo,
                  const Site& site,
-                 const Config& cfg);
+                 const ConfigRepository& cfg);
 
     void evaluate(const Site::Properties& siteProperties) const override;
 
@@ -42,7 +42,7 @@ private:
 
     const ThingRepository& _repo;
     const Site& _site;
-    const Config& _cfg;
+    const ConfigRepository& _cfg;
 
     int _power = 0;
     std::array<int, 3> _voltages;

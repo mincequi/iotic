@@ -9,7 +9,7 @@
 #include <uvw_net/dns_sd/DnsRecordDataSrv.h>
 
 #include <common/Logger.h>
-#include <config/Config.h>
+#include <config/ConfigRepository.h>
 #include <fronius/FroniusDiscovery.h>
 
 using namespace uvw_iot;
@@ -17,7 +17,7 @@ using namespace uvw_iot::sunspec;
 using namespace uvw_net::dns_sd;
 using namespace uvw_net::modbus;
 
-ThingsManager::ThingsManager(const ThingRepository& thingRepository, const Config& cfg) :
+ThingsManager::ThingsManager(const ThingRepository& thingRepository, const ConfigRepository& cfg) :
     _thingRepository(thingRepository),
     _cfg(cfg) {
 

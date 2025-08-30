@@ -7,7 +7,7 @@
 #include <uvw_iot/ThingProperty.h>
 #include <uvw_iot/util/Site.h>
 
-#include <config/Config.h>
+#include <config/ConfigRepository.h>
 
 namespace uWS {
 template <bool SSL, bool isServer, typename WebAppRouter>
@@ -30,11 +30,11 @@ class WebAppRouter : public std::enable_shared_from_this<WebAppRouter> {
 public:
     WebAppRouter(const ThingRepository& thingRepository,
                  const Site& site,
-                 const Config& cfg);
+                 const ConfigRepository& cfg);
 
     inline const ThingRepository& thingRepository() const { return _thingRepository; }
     inline const Site& site() const { return _site; }
-    inline const Config& cfg() const { return _cfg; }
+    inline const ConfigRepository& cfg() const { return _cfg; }
 
     bool route(const std::string& thing, ThingPropertyKey property, const ThingPropertyValue& value);
 
@@ -46,7 +46,7 @@ private:
 
     const ThingRepository& _thingRepository;
     const Site& _site;
-    const Config& _cfg;
+    const ConfigRepository& _cfg;
 
     friend class WebAppBehavior;
     friend class WebAppRouterTest;

@@ -9,7 +9,8 @@ endif()
 
 add_library(config
 STATIC
-  Config.cpp
+  ConfigRepository.cpp
+  ConfigRoute.h ConfigRoute.cpp
 )
 
 target_include_directories(config
@@ -20,4 +21,5 @@ PRIVATE
 target_link_libraries(config
 PRIVATE
   common
+  webserver
 )

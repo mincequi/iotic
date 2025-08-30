@@ -12,22 +12,24 @@ using uvw_iot::ThingPtr;
 using uvw_iot::ThingRepository;
 
 class te_parser;
-class Config;
-class RulesEngine;
+class ConfigRepository;
+class RuleEngine;
+class SymbolRepository;
 
 template<rpp::schedulers::constraint::scheduler TScheduler>
 class RuleActuationStrategy : public Strategy {
 public:
     static std::unique_ptr<Strategy> from(const ThingPtr& thing,
                                           const ThingRepository& repo,
-                                          const RulesEngine& rules,
-                                          const Config& cfg);
+                                          const SymbolRepository& symbolRepository,
+                                          const RuleEngine& rules,
+                                          const ConfigRepository& cfg);
 
     RuleActuationStrategy(const std::string& thingId,
                           std::unique_ptr<te_parser> onExpression,
                           std::unique_ptr<te_parser> offExpression,
                           const ThingRepository& repo,
-                          const Config& cfg);
+                          const ConfigRepository& cfg);
 
     void evaluate(const Site::Properties& siteProperties) const override;
 
@@ -35,7 +37,7 @@ public:
 
 private:
     const ThingRepository& _repo;
-    const Config& _cfg;
+    const ConfigRepository& _cfg;
 
     std::unique_ptr<te_parser> _onExpression;
     std::unique_ptr<te_parser> _offExpression;

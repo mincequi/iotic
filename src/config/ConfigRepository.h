@@ -40,7 +40,7 @@ using uvw_iot::ThingPropertyKey;
 using uvw_iot::ThingPropertyValue;
 using uvw_iot::ThingRepository;
 
-class Config {
+class ConfigRepository {
 public:
     enum class Key {
         discovery_interval,
@@ -58,11 +58,15 @@ public:
         debounce
     };
 
-    Config(const ThingRepository& repo);
-    ~Config();
+    ConfigRepository(const ThingRepository& repo);
+    ~ConfigRepository();
 
     template<class T>
     T valueOr(const std::string& table, Key key, T fallback = {}) const;
+
+    template<class T>
+    T valueOr(Key key, T fallback = {}) const;
+
     void persistProperty(const std::string& table,
                   ThingPropertyKey key,
                   const ThingPropertyValue& value) const;

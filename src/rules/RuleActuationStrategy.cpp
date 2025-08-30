@@ -12,9 +12,10 @@
 #include <common/Logger.h>
 #include <common/OffsetTable.h>
 #include <common/RppUvw.h>
-#include <config/Config.h>
+#include <config/ConfigRepository.h>
 #include <rules/RulesEngine.h>
 #include <rules/RuleUtil.h>
+#include <rules/SymbolRepository.h>
 
 using namespace std::chrono_literals;
 using namespace uvw_iot;
@@ -22,26 +23,27 @@ using namespace uvw_iot;
 template<rpp::schedulers::constraint::scheduler TScheduler>
 std::unique_ptr<Strategy> RuleActuationStrategy<TScheduler>::from(const ThingPtr& thing,
                                                                   const ThingRepository& repo,
-                                                                  const RulesEngine& rules,
-                                                                  const Config& cfg) {
+                                                                  const SymbolRepository& symbolRepository,
+                                                                  const RuleEngine& ruleEngine,
+                                                                  const ConfigRepository& cfg) {
     // Check if thing has "on" and "off" expression
-    const auto onExpressionStr = cfg.valueOr<std::string>(thing->id(), Config::Key::on);
+    const auto onExpressionStr = cfg.valueOr<std::string>(thing->id(), ConfigRepository::Key::on);
     if (onExpressionStr.empty()) return {};
-    const auto offExpressionStr = cfg.valueOr<std::string>(thing->id(), Config::Key::off);
+    const auto offExpressionStr = cfg.valueOr<std::string>(thing->id(), ConfigRepository::Key::off);
     if (offExpressionStr.empty()) return {};
 
-    auto onExpression = rules.createParser(onExpressionStr);
+    auto onExpression = ruleEngine.createParser(onExpressionStr);
     if (!onExpression) {
         LOG_S(ERROR) << thing->id() << "> error creating RuleActuationStrategy";
         return {};
     }
-    auto offExpression = rules.createParser(offExpressionStr);
+    auto offExpression = ruleEngine.createParser(offExpressionStr);
     if (!offExpression) {
         LOG_S(ERROR) << thing->id() << "> error creating RuleActuationStrategy";
         return {};
     }
 
-    if (rules.containsSymbol(thing->id() + ".offset")) {
+    if (symbolRepository.containsSymbol(thing->id() + ".offset")) {
         thing->setProperty(ThingPropertyKey::offset, defaultOffset);
     }
 
@@ -61,7 +63,7 @@ RuleActuationStrategy<TScheduler>::RuleActuationStrategy(const std::string& thin
                                                          std::unique_ptr<te_parser> onExpression,
                                                          std::unique_ptr<te_parser> offExpression,
                                                          const ThingRepository& repo,
-                                                         const Config& cfg) :
+                                                         const ConfigRepository& cfg) :
     Strategy(thingId),
     _onExpression(std::move(onExpression)),
     _offExpression(std::move(offExpression)),
@@ -69,7 +71,7 @@ RuleActuationStrategy<TScheduler>::RuleActuationStrategy(const std::string& thin
     _cfg(cfg) {
     _expressionSubject.get_observable()
             | distinct_until_changed()
-            | debounce(std::chrono::seconds(_cfg.valueOr<int>(thingId, Config::Key::debounce, 60)), _scheduler)
+            | debounce(std::chrono::seconds(_cfg.valueOr<int>(thingId, ConfigRepository::Key::debounce, 60)), _scheduler)
             | observe_on(rpp_uvw::schedulers::main_thread_scheduler{})
             | subscribe([this](bool value) {
         LOG_S(INFO) << this->thingId() << "> " << value;

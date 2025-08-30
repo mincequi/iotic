@@ -7,22 +7,22 @@
 
 #include <common/Logger.h>
 #include <common/Util.h>
-#include <config/Config.h>
+#include <config/ConfigRepository.h>
 #include <things/ThingId.h>
 
 using namespace std::placeholders;
 using namespace uvw_iot;
 using json = nlohmann::json;
 
-WebAppRouter::WebAppRouter(const ThingRepository& repo, const Site& site, const Config& cfg)
+WebAppRouter::WebAppRouter(const ThingRepository& repo, const Site& site, const ConfigRepository& cfg)
     : _thingRepository(repo),
     _site(site),
     _cfg(cfg) {
     // TODO: fix thing interval setting
     _routes[{"site", ThingPropertyKey::thing_interval}] =
-        std::bind(&Config::setThingInterval, &_cfg, _1);
+        std::bind(&ConfigRepository::setThingInterval, &_cfg, _1);
     _routes[{"ev_charging_strategy", ThingPropertyKey::time_constant}] =
-        std::bind(&Config::setTimeConstant, &_cfg, _1);
+        std::bind(&ConfigRepository::setTimeConstant, &_cfg, _1);
 }
 
 bool WebAppRouter::route(const std::string& thing, ThingPropertyKey property, const ThingPropertyValue& value) {

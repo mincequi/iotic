@@ -17,21 +17,17 @@ namespace uvw_iot {
 }
 
 using uvw_iot::ThingRepository;
+class SymbolRepository;
 class StrategyRepository;
 
-class RulesEngine {
+class RuleEngine {
 public:
-    RulesEngine(const ThingRepository& thingRepository,
+    RuleEngine(const ThingRepository& thingRepository,
                 StrategyRepository& strategyRepository,
+                const SymbolRepository& symbolRepository,
                 const Site& site,
-                const Config& cfg);
-    ~RulesEngine() = default;
-
-    bool containsSymbol(const std::string& symbol) const;
-    double resolveSymbol(const std::string& symbol) const;
-    inline const std::map<std::string, double>& symbolTable() const {
-        return _symbolTable;
-    }
+                const ConfigRepository& cfg);
+    ~RuleEngine() = default;
 
     std::unique_ptr<te_parser> createParser(const std::string& expr) const;
 
@@ -42,10 +38,9 @@ private:
 
     const ThingRepository& _thingRepository;
     StrategyRepository& _strategyRepository;
+    const SymbolRepository& _symbolRepository;
     const Site& _site;
-    const Config& _cfg;
-
-    mutable std::map<std::string, double> _symbolTable;
+    const ConfigRepository& _cfg;
 
     std::set<std::string> _dependentThings;
     std::set<std::string> _subscribedThings;

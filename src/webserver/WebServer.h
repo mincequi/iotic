@@ -4,9 +4,9 @@
 
 #include <MoveOnlyFunction.h>
 
-class Config;
-class RulesEngine;
+class ConfigRepository;
 class StrategyRepository;
+class SymbolRepository;
 class WebAppRouter;
 
 namespace cmrc {
@@ -38,19 +38,19 @@ class WebServer {
 public:
     explicit WebServer(const ThingRepository& repo,
                        const Site& site,
-                       const Config& cfg,
-                       const StrategyRepository& strategyRepo,
-                       const RulesEngine& rulesEngine);
+                       const ConfigRepository& cfg,
+                       const StrategyRepository& strategyRepository,
+                       const SymbolRepository& symbolRepository);
     ~WebServer();
 
-    void registerGetRoute(const std::string& path, uWS::MoveOnlyFunction<void(uWS::HttpResponse<false> *, uWS::HttpRequest *)> &&handler);
+    void registerGetRoute(const std::string& path, uWS::MoveOnlyFunction<void(uWS::HttpResponse<false>*, uWS::HttpRequest*)>&& handler) const;
 
 private:
     const ThingRepository& _repo;
     const Site& _site;
-    const Config& _cfg;
-    const StrategyRepository& _strategyRepo;
-    const RulesEngine& _rulesEngine;
+    const ConfigRepository& _cfg;
+    const StrategyRepository& _strategyRepository;
+    const SymbolRepository& _symbolRepository;
 
     std::unique_ptr<cmrc::embedded_filesystem> _fs;
     std::unique_ptr<uWS::App> _uwsApp;

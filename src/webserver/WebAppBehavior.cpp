@@ -6,7 +6,7 @@
 
 #include <common/Logger.h>  // Note: this has to be included for magic enum
 #include <common/Util.h>
-#include <config/Config.h>
+#include <config/ConfigRepository.h>
 #include <things/ThingValue.h>
 
 using namespace uvw_iot;
@@ -96,7 +96,7 @@ std::string WebAppBehavior::serializeSiteHistory(const std::list<Site::Propertie
     return json.dump();
 }
 
-std::string WebAppBehavior::serializeSiteProperties(const Config& config) {
+std::string WebAppBehavior::serializeSiteProperties(const ConfigRepository& config) {
     json properties;
     properties[::util::toString(ThingPropertyKey::thing_interval)] = config.thingInterval();
 
@@ -105,7 +105,7 @@ std::string WebAppBehavior::serializeSiteProperties(const Config& config) {
     return thing.dump();
 }
 
-std::string WebAppBehavior::serializeEvChargingStrategyProperties(const Config& config) {
+std::string WebAppBehavior::serializeEvChargingStrategyProperties(const ConfigRepository& config) {
     json properties;
     properties[::util::toString(ThingPropertyKey::time_constant)] = config.timeConstant();
 

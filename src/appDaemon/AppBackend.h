@@ -4,8 +4,9 @@
 #include <uvw_iot/util/Site.h>
 //#include <influx/InfluxExporter.h>
 //#include <mqtt/MqttExporter.h>
-#include <config/Config.h>
+#include <config/ConfigRepository.h>
 #include <rules/RulesEngine.h>
+#include <rules/SymbolRepository.h>
 #include <strategies/StrategyRepository.h>
 #include <things/ThingsManager.h>
 #include <webserver/WebServer.h>
@@ -21,10 +22,11 @@ public:
 private:
     ThingRepository _thingRepository;
     StrategyRepository _strategyRepository;
-    Config _cfg;
+    SymbolRepository _symbolRepository;
+    ConfigRepository _cfg;
     ThingsManager _thingsManager;
     Site _site;
-    RulesEngine _rulesEngine;
+    RuleEngine _rulesEngine;
     //MqttExporter _mqttExporter;
     //std::optional<InfluxExporter> _influxExporter;
     WebServer _webServer;
