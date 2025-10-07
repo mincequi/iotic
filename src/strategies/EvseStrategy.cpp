@@ -23,22 +23,19 @@ using namespace uvw_iot::util;
 
 std::unique_ptr<Strategy> EvseStrategy::from(const ThingPtr& thing,
                                              const ThingRepository& repo,
-                                             const Site& site,
                                              const ConfigRepository& cfg) {
     if (thing->type() == ThingType::EvStation) {
         thing->setProperty(ThingPropertyKey::offset, cfg.valueOr<int>(thing->id(), ConfigRepository::Key::offset, defaultOffset));
-        return std::unique_ptr<EvseStrategy>(new EvseStrategy(thing, repo, site, cfg));
+        return std::unique_ptr<EvseStrategy>(new EvseStrategy(thing, repo, cfg));
     }
     return {};
 }
 
 EvseStrategy::EvseStrategy(const ThingPtr& thing,
                            const ThingRepository& repo,
-                           const Site& site,
                            const ConfigRepository& cfg) :
     Strategy(thing->id()),
     _repo(repo),
-    _site(site),
     _cfg(cfg) {
     _doPhaseSwitch.get_observable()
         | distinct_until_changed()

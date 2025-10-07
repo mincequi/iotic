@@ -31,7 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  get: ^4.6.6
+  get: ^4.7.2
   http: ^1.2.1
   fl_chart: ^0.63.0   #0.63 is confirmed to be the minimum
   web_socket_channel: ^2.4.0

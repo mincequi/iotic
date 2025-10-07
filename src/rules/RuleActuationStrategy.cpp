@@ -62,12 +62,12 @@ template<rpp::schedulers::constraint::scheduler TScheduler>
 RuleActuationStrategy<TScheduler>::RuleActuationStrategy(const std::string& thingId,
                                                          std::unique_ptr<te_parser> onExpression,
                                                          std::unique_ptr<te_parser> offExpression,
-                                                         const ThingRepository& repo,
+                                                         const ThingRepository& thingRepository,
                                                          const ConfigRepository& cfg) :
     Strategy(thingId),
     _onExpression(std::move(onExpression)),
     _offExpression(std::move(offExpression)),
-    _repo(repo),
+    _thingRepository(thingRepository),
     _cfg(cfg) {
     _expressionSubject.get_observable()
             | distinct_until_changed()
@@ -80,7 +80,7 @@ RuleActuationStrategy<TScheduler>::RuleActuationStrategy(const std::string& thin
 }
 
 template<rpp::schedulers::constraint::scheduler TScheduler>
-void RuleActuationStrategy<TScheduler>::evaluate(const Site::Properties& /*siteProperties*/) const {
+void RuleActuationStrategy<TScheduler>::evaluate(const Site::Properties& siteProperties) const {
     // 1. Check for off condition
     if (_offExpression->evaluate()) {
         _expressionSubject.get_observer().on_next(false);
@@ -96,8 +96,9 @@ void RuleActuationStrategy<TScheduler>::evaluate(const Site::Properties& /*siteP
         _expressionSubject.get_observer().on_next(_actionState.value());
     }
 
+    // We actually have to feed the state to the thing, which is responsible to actually set it on the device
     if (_actionState.has_value()) {
-        _repo.setThingProperty(thingId(), ThingPropertyKey::power_control, _actionState.value());
+        _thingRepository.setThingProperty(thingId(), ThingPropertyKey::power_control, _actionState.value());
     }
 }
 

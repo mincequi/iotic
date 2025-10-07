@@ -31,7 +31,7 @@ class IoticTheme {
           brightness: Brightness.dark,
           secondary: green,
           tertiary: orange),
-      cardTheme: const CardTheme(
+      cardTheme: const CardThemeData(
           elevation: 0.0,
           color: Colors.black,
           shape: RoundedRectangleBorder(

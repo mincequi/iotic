@@ -4,14 +4,9 @@
 
 #include "Strategy.h"
 
-namespace uvw_iot::util {
-class Site;
-}
-
 using uvw_iot::ThingPtr;
 using uvw_iot::ThingPropertyValue;
 using uvw_iot::ThingRepository;
-using uvw_iot::util::Site;
 
 class ConfigRepository;
 
@@ -19,7 +14,6 @@ class EvseStrategy : public Strategy {
 public:
     static std::unique_ptr<Strategy> from(const ThingPtr& thing,
                                           const ThingRepository& repo,
-                                          const Site& site,
                                           const ConfigRepository& cfg);
     ~EvseStrategy();
 
@@ -32,7 +26,6 @@ private:
 
     EvseStrategy(const ThingPtr& thing,
                  const ThingRepository& repo,
-                 const Site& site,
                  const ConfigRepository& cfg);
 
     void evaluate(const Site::Properties& siteProperties) const override;
@@ -41,7 +34,6 @@ private:
     ThingPropertyValue computeCurrent(double availablePower) const;
 
     const ThingRepository& _repo;
-    const Site& _site;
     const ConfigRepository& _cfg;
 
     int _power = 0;

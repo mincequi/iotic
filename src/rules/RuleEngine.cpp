@@ -54,7 +54,7 @@ RuleEngine::RuleEngine(const ThingRepository& thingRepository,
         subscribeDependencies();
 
         // Check if thing has strategies
-        auto strategy = StrategyFactory::from(thing, _thingRepository, _symbolRepository, _site, *this, _cfg);
+        auto strategy = StrategyFactory::from(thing, _thingRepository, _symbolRepository, *this, _cfg);
         if (!strategy) return;
         _strategyRepository.addStrategy(std::move(strategy));
 

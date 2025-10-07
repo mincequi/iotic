@@ -209,3 +209,4 @@ std::optional<ThingPropertyValue> ConfigRepository::value(const std::string& id,
 template std::string ConfigRepository::valueOr(const std::string& table, Key key, std::string) const;
 template int ConfigRepository::valueOr(const std::string& table, Key key, int) const;
 template bool ConfigRepository::valueOr(const std::string& table, Key key, bool) const;
+template double ConfigRepository::valueOr(const std::string& table, Key key, double) const;

@@ -55,7 +55,8 @@ public:
 
         on,
         off,
-        debounce
+        debounce,
+        priority,
     };
 
     ConfigRepository(const ThingRepository& repo);

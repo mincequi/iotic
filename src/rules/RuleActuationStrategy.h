@@ -36,7 +36,7 @@ public:
     json toJson() const override;
 
 private:
-    const ThingRepository& _repo;
+    const ThingRepository& _thingRepository;
     const ConfigRepository& _cfg;
 
     std::unique_ptr<te_parser> _onExpression;

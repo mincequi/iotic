@@ -27,7 +27,8 @@ private:
     ThingsManager _thingsManager;
     Site _site;
     RuleEngine _rulesEngine;
+    WebServer _webServer;
+
     //MqttExporter _mqttExporter;
     //std::optional<InfluxExporter> _influxExporter;
-    WebServer _webServer;
 };
