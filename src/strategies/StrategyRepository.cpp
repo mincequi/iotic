@@ -17,8 +17,8 @@ StrategyRepository::StrategyRepository(const uvw_iot::ThingRepository& thingRepo
 void StrategyRepository::addStrategy(std::shared_ptr<Strategy> strategy) {
     _strategies.push_back(std::move(strategy));
 
-    // Sort strategies by priority (highest priority first)
+    // Sort strategies by priority (lowest priority first)
     _strategies.sort([](const auto& a, const auto& b) {
-        return a->priority() > b->priority();
+        return a->priority() < b->priority();
     });
 }

@@ -20,10 +20,11 @@ public:
 
     inline const std::string& thingId() const { return _thingId; }
     inline double priority() const { return _priority; }
-    inline State state() const { return _state; }
 
     //virtual const std::string& name() const = 0;
     virtual void evaluate(const Site::Properties& siteProperties) const = 0;
+    virtual bool wantsToTurnOff(const Site::Properties& siteProperties) = 0;
+    virtual bool wantsToTurnOn(const Site::Properties& siteProperties) = 0;
 
     virtual json toJson() const;
 
@@ -35,6 +36,4 @@ private:
 
     const std::string _thingId;
     double _priority = 0.0;
-    State _state = State::Off;
-    int _lastActuationTs = 0;
 };

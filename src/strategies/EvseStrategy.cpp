@@ -110,6 +110,14 @@ void EvseStrategy::evaluate(const Site::Properties& siteProperties) const {
     _repo.setThingProperty(thingId(), ThingPropertyKey::current, computeCurrent(_shortTermAvailablePower));
 }
 
+bool EvseStrategy::wantsToTurnOff(const Site::Properties& siteProperties) {
+    return false;
+}
+
+bool EvseStrategy::wantsToTurnOn(const Site::Properties& siteProperties) {
+    return false;
+}
+
 int EvseStrategy::computePhases(double availablePower) const {
     if (availablePower > (6 * std::reduce(_voltages.begin(), _voltages.end()))) {
         _nextPhases = 3;

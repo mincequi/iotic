@@ -32,16 +32,23 @@ public:
                           const ConfigRepository& cfg);
 
     void evaluate(const Site::Properties& siteProperties) const override;
+    bool wantsToTurnOff(const Site::Properties& siteProperties) override;
+    bool wantsToTurnOn(const Site::Properties& siteProperties) override;
 
     json toJson() const override;
 
 private:
+    bool actuate();
+
     const ThingRepository& _thingRepository;
     const ConfigRepository& _cfg;
 
     std::unique_ptr<te_parser> _onExpression;
     std::unique_ptr<te_parser> _offExpression;
     TScheduler _scheduler;
-    publish_subject<bool> _expressionSubject;
-    mutable std::optional<bool> _actionState;
+    publish_subject<bool> _actuationSubject;
+    mutable std::optional<bool> _actuationState;
+    mutable std::optional<bool> _nextActuationState;
+    std::chrono::time_point<std::chrono::system_clock> _lastActuationTs;
+    mutable bool _isAlreadySet = false;
 };

@@ -36,15 +36,31 @@ RuleEngine::RuleEngine(const ThingRepository& thingRepository,
     _symbolRepository(symbolRepository),
     _site(site),
     _cfg(cfg) {
-    _site.properties().subscribe([this](const Site::Properties& props) {
-        _symbolRepository.setSymbol("short_term_grid_power", props.shortTermGridPower);
-        _symbolRepository.setSymbol("long_term_grid_power", props.longTermGridPower);
-        _symbolRepository.setSymbol("grid_power", props.gridPower);
-        _symbolRepository.setSymbol("pv_power", props.pvPower);
+    _site.properties().subscribe([this](const Site::Properties& siteProperties) {
+        _symbolRepository.setSymbol("short_term_grid_power", siteProperties.shortTermGridPower);
+        _symbolRepository.setSymbol("long_term_grid_power", siteProperties.longTermGridPower);
+        _symbolRepository.setSymbol("grid_power", siteProperties.gridPower);
+        _symbolRepository.setSymbol("pv_power", siteProperties.pvPower);
 
         // After update of site, evaluate strategies
+        std::set<std::string> actuatedStrategies;
+        for (auto it = _strategyRepository.strategies().begin(); it != _strategyRepository.strategies().end(); ++it) {
+            if ((*it)->wantsToTurnOff(siteProperties)) {
+                actuatedStrategies.insert((*it)->thingId());
+                break;
+            }
+        }
+        for (auto it = _strategyRepository.strategies().rbegin(); it != _strategyRepository.strategies().rend(); ++it) {
+            if (actuatedStrategies.contains((*it)->thingId())) continue;
+            if ((*it)->wantsToTurnOn(siteProperties)) {
+                actuatedStrategies.insert((*it)->thingId());
+                break;
+            }
+        }
+
         for (const auto& s : _strategyRepository.strategies()) {
-            s->evaluate(props);
+            if (actuatedStrategies.contains(s->thingId())) continue;
+            s->evaluate(siteProperties);
         }
     });
 

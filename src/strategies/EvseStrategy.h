@@ -29,6 +29,8 @@ private:
                  const ConfigRepository& cfg);
 
     void evaluate(const Site::Properties& siteProperties) const override;
+    bool wantsToTurnOff(const Site::Properties& siteProperties) override;
+    bool wantsToTurnOn(const Site::Properties& siteProperties) override;
 
     int computePhases(double availablePower) const;
     ThingPropertyValue computeCurrent(double availablePower) const;
