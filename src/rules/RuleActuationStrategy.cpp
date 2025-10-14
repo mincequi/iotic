@@ -137,7 +137,7 @@ bool RuleActuationStrategy<TScheduler>::actuate() {
 
     const bool wantsToActuate = _actuationState != _nextActuationState;
     const auto now = std::chrono::system_clock::now();
-    if ((_nextActuationState != _actuationState) && (_lastActuationTs + std::chrono::seconds(180) > now)) {
+    if ((_nextActuationState != _actuationState) && (_lastActuationTs + std::chrono::seconds(180) < now)) {
         _lastActuationTs = now;
         _actuationState = _nextActuationState;
     }
