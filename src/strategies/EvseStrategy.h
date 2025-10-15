@@ -35,8 +35,8 @@ private:
     int computePhases(double availablePower) const;
     ThingPropertyValue computeCurrent(double availablePower) const;
 
-    const ThingRepository& _repo;
-    const ConfigRepository& _cfg;
+    const ThingRepository& _thingRepository;
+    const ConfigRepository& _configRepository;
 
     int _power = 0;
     std::array<int, 3> _voltages;

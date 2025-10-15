@@ -35,12 +35,12 @@ EvseStrategy::EvseStrategy(const ThingPtr& thing,
                            const ThingRepository& repo,
                            const ConfigRepository& cfg) :
     Strategy(thing->id()),
-    _repo(repo),
-    _cfg(cfg) {
+    _thingRepository(repo),
+    _configRepository(cfg) {
     _doPhaseSwitch.get_observable()
         | distinct_until_changed()
         | map([this](bool doSwitch) {
-              _nextSwitch = std::chrono::system_clock::now() + std::chrono::seconds(_cfg.valueOr<int>(thingId(), ConfigRepository::Key::debounce, 180));
+              _nextSwitch = std::chrono::system_clock::now() + std::chrono::seconds(_configRepository.valueOr<int>(thingId(), ConfigRepository::Key::debounce, 180));
 
               return doSwitch;
           })
@@ -78,11 +78,17 @@ EvseStrategy::~EvseStrategy() {
 
 void EvseStrategy::evaluate(const Site::Properties& siteProperties) const {
     // Compute available power
-    const double availablePower = _offsetPower + _power - siteProperties.gridPower;
-    if (_shortTermAvailablePower <= 0) _shortTermAvailablePower = availablePower;
-    if (_longTermAvailablePower <= 0) _longTermAvailablePower = availablePower;
-    ema(_shortTermAvailablePower, availablePower, std::chrono::milliseconds((siteProperties.ts - _prevTs) * 1000), 10000ms);
-    ema(_longTermAvailablePower, availablePower, std::chrono::milliseconds((siteProperties.ts - _prevTs) * 1000),  40000ms);
+
+    // old impl
+    //const double availablePower = _offsetPower + _power - siteProperties.gridPower;
+    //if (_shortTermAvailablePower <= 0) _shortTermAvailablePower = availablePower;
+    //if (_longTermAvailablePower <= 0) _longTermAvailablePower = availablePower;
+    //ema(_shortTermAvailablePower, availablePower, std::chrono::milliseconds((siteProperties.ts - _prevTs) * 1000), 10000ms);
+    //ema(_longTermAvailablePower, availablePower, std::chrono::milliseconds((siteProperties.ts - _prevTs) * 1000),  40000ms);
+
+    // new impl
+    _shortTermAvailablePower = _offsetPower + _power - siteProperties.shortTermGridPower;
+    _longTermAvailablePower = _offsetPower + _power - siteProperties.longTermGridPower;
     _prevTs = siteProperties.ts;
 
     // Compute possible phases
@@ -93,13 +99,13 @@ void EvseStrategy::evaluate(const Site::Properties& siteProperties) const {
 
     const std::chrono::duration remainingBeforeSwitch = _nextSwitch - std::chrono::system_clock::now();
     if (_nextPhases != _phases && remainingBeforeSwitch > 0s) {
-        _repo.setThingProperties(thingId(), {
+        _thingRepository.setThingProperties(thingId(), {
             { ThingPropertyKey::phases, _phases },
             { ThingPropertyKey::next_phases, _nextPhases },
             { ThingPropertyKey::countdown, (int)std::chrono::duration_cast<std::chrono::seconds>(remainingBeforeSwitch).count() }
         });
     } else {
-        _repo.setThingProperties(thingId(), {
+        _thingRepository.setThingProperties(thingId(), {
             { ThingPropertyKey::phases, _phases },
             { ThingPropertyKey::next_phases, _nextPhases },
             { ThingPropertyKey::countdown, 0 }
@@ -107,7 +113,7 @@ void EvseStrategy::evaluate(const Site::Properties& siteProperties) const {
     }
 
     // Set current
-    _repo.setThingProperty(thingId(), ThingPropertyKey::current, computeCurrent(_shortTermAvailablePower));
+    _thingRepository.setThingProperty(thingId(), ThingPropertyKey::current, computeCurrent(_shortTermAvailablePower));
 }
 
 bool EvseStrategy::wantsToTurnOff(const Site::Properties& siteProperties) {
