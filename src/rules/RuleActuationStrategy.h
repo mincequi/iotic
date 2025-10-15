@@ -16,7 +16,6 @@ class ConfigRepository;
 class RuleEngine;
 class SymbolRepository;
 
-template<rpp::schedulers::constraint::scheduler TScheduler>
 class RuleActuationStrategy : public Strategy {
 public:
     static std::unique_ptr<Strategy> from(const ThingPtr& thing,
@@ -45,8 +44,6 @@ private:
 
     std::unique_ptr<te_parser> _onExpression;
     std::unique_ptr<te_parser> _offExpression;
-    TScheduler _scheduler;
-    publish_subject<bool> _actuationSubject;
     mutable std::optional<bool> _actuationState;
     mutable std::optional<bool> _nextActuationState;
     std::chrono::time_point<std::chrono::system_clock> _lastActuationTs;

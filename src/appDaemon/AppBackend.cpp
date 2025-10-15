@@ -9,16 +9,11 @@
 
 using namespace uvw_iot::util;
 
-static SiteConfig siteConfig = {
-    .shortTermTau = 15000ms,
-    .longTermTau = 40000ms,
-};
-
 AppBackend::AppBackend() :
     _cfg(_thingRepository),
     _thingsManager(_thingRepository, _cfg),
     _strategyRepository(_thingRepository),
-    _site(_thingRepository, {.shortTermTau = 15000ms, .longTermTau = 40000ms}),
+    _site(_thingRepository, {.shortTermTau = 15000ms, .longTermTau = 180000ms}),
     //_mqttExporter("broker.hivemq.com"),
     _webServer(_thingRepository, _site, _cfg, _strategyRepository, _symbolRepository),
     _rulesEngine(_thingRepository, _strategyRepository, _symbolRepository, _site, _cfg) {
