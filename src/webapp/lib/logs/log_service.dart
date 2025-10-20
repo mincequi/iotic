@@ -3,7 +3,8 @@ import 'package:iotic/logs/log.dart';
 import 'package:iotic/logs/log_level.dart';
 
 class LogService extends GetxService {
-  final RxList<Log> logs = <Log>[].obs; // Observable list of logs
+  final siteProperties = <String, dynamic>{}.obs;
+  final logs = <Log>[].obs; // Observable list of logs
 
   final logLevel = LogLevel.warning.obs;
 
@@ -23,5 +24,9 @@ class LogService extends GetxService {
 
   void err(String message) {
     logs.insert(0, Log(LogLevel.error, message));
+  }
+
+  void setSiteProperties(Map<String, dynamic> props) {
+    siteProperties.value = props;
   }
 }

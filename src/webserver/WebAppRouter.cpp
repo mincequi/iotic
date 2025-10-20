@@ -21,8 +21,6 @@ WebAppRouter::WebAppRouter(const ThingRepository& repo, const Site& site, const 
     // TODO: fix thing interval setting
     _routes[{"site", ThingPropertyKey::thing_interval}] =
         std::bind(&ConfigRepository::setThingInterval, &_cfg, _1);
-    _routes[{"ev_charging_strategy", ThingPropertyKey::time_constant}] =
-        std::bind(&ConfigRepository::setTimeConstant, &_cfg, _1);
 }
 
 bool WebAppRouter::route(const std::string& thing, ThingPropertyKey property, const ThingPropertyValue& value) {

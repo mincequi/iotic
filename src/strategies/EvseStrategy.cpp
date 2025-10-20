@@ -78,15 +78,6 @@ EvseStrategy::~EvseStrategy() {
 
 void EvseStrategy::evaluate(const Site::Properties& siteProperties) const {
     // Compute available power
-
-    // old impl
-    //const double availablePower = _offsetPower + _power - siteProperties.gridPower;
-    //if (_shortTermAvailablePower <= 0) _shortTermAvailablePower = availablePower;
-    //if (_longTermAvailablePower <= 0) _longTermAvailablePower = availablePower;
-    //ema(_shortTermAvailablePower, availablePower, std::chrono::milliseconds((siteProperties.ts - _prevTs) * 1000), 10000ms);
-    //ema(_longTermAvailablePower, availablePower, std::chrono::milliseconds((siteProperties.ts - _prevTs) * 1000),  40000ms);
-
-    // new impl
     _shortTermAvailablePower = _offsetPower + _power - siteProperties.shortTermGridPower;
     _longTermAvailablePower = _offsetPower + _power - siteProperties.longTermGridPower;
     _prevTs = siteProperties.ts;
@@ -122,6 +113,14 @@ bool EvseStrategy::wantsToTurnOff(const Site::Properties& siteProperties) {
 
 bool EvseStrategy::wantsToTurnOn(const Site::Properties& siteProperties) {
     return false;
+}
+
+json EvseStrategy::toJson() const {
+    json j;
+    j["thingId"] = thingId();
+    j["type"] = "EvseStrategy";
+    j["priority"] = priority();
+    return j;
 }
 
 int EvseStrategy::computePhases(double availablePower) const {

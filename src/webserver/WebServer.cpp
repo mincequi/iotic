@@ -90,15 +90,6 @@ WebServer::WebServer(const ThingRepository& repo,
         _uwsApp->publish("broadcast", json.dump(), uWS::OpCode::TEXT);
     });
 
-    _cfg.timeConstantObservable().subscribe([this](int value) {
-        json properties;
-        properties[::util::toString(ThingPropertyKey::time_constant)] = value;
-
-        json json;
-        json["ev_charging_strategy"] = properties;
-        _uwsApp->publish("broadcast", json.dump(), uWS::OpCode::TEXT);
-    });
-
     _cfg.thingIntervalObservable().subscribe([this](int value) {
         json properties;
         properties[::util::toString(ThingPropertyKey::thing_interval)] = value;

@@ -68,10 +68,6 @@ public:
     template<class T>
     T valueOr(Key key, T fallback = {}) const;
 
-    void persistProperty(const std::string& table,
-                  ThingPropertyKey key,
-                  const ThingPropertyValue& value) const;
-
     inline const std::set<std::string>& pvMeters() const {
         return _pvMeters;
     }
@@ -86,22 +82,14 @@ public:
     dynamic_observable<int> thingIntervalObservable() const;
     int thingInterval() const;
 
-    void setTimeConstant(const ThingPropertyValue& tau) const;
-    dynamic_observable<int> timeConstantObservable() const;
-    int timeConstant() const;
-
-    double evseAlpha() const;
-    double evseBeta() const;
-    double evsePhi() const;
-
-    bool _testing = false;
-
 private:
     void parseConfigFile();
 
     void setPropertiesTo(const ThingPtr& thing);
 
     std::optional<ThingPropertyValue> value(const std::string& id, ThingPropertyKey key) const;
+
+    void persistProperty(const std::string& table, ThingPropertyKey key, const ThingPropertyValue& value) const;
 
 private:
     const ThingRepository& _repo;

@@ -25,10 +25,7 @@ uWS::App::WebSocketBehavior<WebAppRouterPtr> WebAppBehavior::create(WebAppRouter
         }
 
         ws->send(serializeSiteProperties(router->cfg()), uWS::OpCode::TEXT);
-        ws->send(serializeEvChargingStrategyProperties(router->cfg()), uWS::OpCode::TEXT);
         ws->send(serializeSiteHistory(router->site().history()), uWS::OpCode::TEXT);
-
-
     };
     behavior.close = [](uWS::WebSocket<false, true, WebAppRouterPtr>* ws, int, std::string_view) {
         ws->unsubscribe("broadcast");
@@ -102,14 +99,5 @@ std::string WebAppBehavior::serializeSiteProperties(const ConfigRepository& conf
 
     json thing;
     thing["site"] = properties;
-    return thing.dump();
-}
-
-std::string WebAppBehavior::serializeEvChargingStrategyProperties(const ConfigRepository& config) {
-    json properties;
-    properties[::util::toString(ThingPropertyKey::time_constant)] = config.timeConstant();
-
-    json thing;
-    thing["ev_charging_strategy"] = properties;
     return thing.dump();
 }

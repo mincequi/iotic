@@ -33,8 +33,8 @@ class MainNavigationBar extends StatelessWidget {
           label: 'settings',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.list_sharp),
-          label: 'logs',
+          icon: Icon(Icons.monitor_sharp),
+          label: 'insights',
         ),
       ],
       currentIndex: _currentIndex,

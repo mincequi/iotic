@@ -29,8 +29,8 @@ class HomeNavigationBar extends StatelessWidget {
           label: 'settings',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.list),
-          label: 'logs',
+          icon: Icon(Icons.monitor_sharp),
+          label: 'insights',
         ),
       ],
       currentIndex: _currentIndex,

@@ -11,7 +11,7 @@ class SiteRepository implements WebSocketHandler {
   }
 
   final WebSocketDataSource _wsDataSource;
-  final LogService _log = Get.find();
+  final LogService _logService = Get.find();
 
   final siteDataLive = SiteDataLive(0, 0, 0, 0).obs;
   final siteDataHistoric = SiteDataHistoric.empty().obs;
@@ -28,13 +28,14 @@ class SiteRepository implements WebSocketHandler {
           siteDataHistoric.value.gridPower.last,
           -siteDataHistoric.value.pvPower.last -
               siteDataHistoric.value.gridPower.last);
-      _log.warn(
+      _logService.info(
           "SiteRepository.onMessage: history from ${siteDataHistoric.value.ts.first} to ${siteDataHistoric.value.ts.last}");
       // TODO: return false for now, because it should be further handled
       return false;
     }
 
-    _log.info("SiteRepository.onMessage: $props");
+    _logService.setSiteProperties(props);
+    //_logService.info("SiteRepository.onMessage: $props");
     // TODO: return false for now, because it should be further handled
     return false;
   }

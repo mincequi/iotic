@@ -91,9 +91,11 @@ bool RuleActuationStrategy::wantsToTurnOn(const Site::Properties& siteProperties
 
 json RuleActuationStrategy::toJson() const {
     json j;
+    j["thingId"] = thingId();
     j["type"] = "RuleActuationStrategy";
-    j["on"] = rule::toJson(*_onExpression);
-    j["off"] = rule::toJson(*_offExpression);
+    j["priority"] = priority();
+    //j["on"] = rule::toJson(*_onExpression);
+    //j["off"] = rule::toJson(*_offExpression);
     return j;
 }
 

@@ -5,6 +5,7 @@ add_library(strategies STATIC
   StrategyRepository.cpp
   PowerManager.h
   PowerManager.cpp
+  ThreePhaseStrategy.h ThreePhaseStrategy.cpp
 )
 
 target_link_libraries(strategies

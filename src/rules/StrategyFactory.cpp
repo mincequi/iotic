@@ -16,7 +16,7 @@ std::unique_ptr<Strategy> StrategyFactory::from(const ThingPtr& thing,
 
 
     if (strategy) {
-        const auto priority = cfg.valueOr<double>(thing->id(), ConfigRepository::Key::priority);
+        const auto priority = cfg.valueOr<int>(thing->id(), ConfigRepository::Key::priority);
         strategy->_priority = priority;
         return strategy;
     }

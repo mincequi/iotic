@@ -18,33 +18,6 @@ public:
     // Sane values for tau is > 3s (mayber better 4s)
     publish_subject<int> thingIntervalSubject;
     int thingInterval = 10;
-    publish_subject<int> tauSubject;
-    int tau = 3;
-
-    double evseAlpha = computeFactor(thingInterval, tau);
-    double evseBeta = computeFactor(thingInterval, 60.0);
-    double evsePhi = 0.95;
-
-    static double computeFactor(double dT, double tau) {
-        return 1 - exp(-dT/tau);
-    }
-
-    Impl() {
-        thingIntervalSubject.get_observable()
-            | combine_latest(tauSubject.get_observable())
-            | subscribe([this](const auto& v) {
-                  evseAlpha = computeFactor(std::get<0>(v), std::get<1>(v));
-                  LOG_S(INFO) << "EV charging strategy alpha> " << evseAlpha;
-              });
-
-        thingIntervalSubject.get_observable()
-            | map([](int dT) {
-                  const auto beta = computeFactor(dT, 60.0);
-                  LOG_S(INFO) << "EV charging strategy beta> " << beta;
-                  return beta;
-              })
-            | subscribe([this](const auto& v) { evseBeta = v; });
-    }
 };
 
 ConfigRepository::ConfigRepository(const ThingRepository& repo) :
@@ -86,30 +59,6 @@ T ConfigRepository::valueOr(const std::string& table_, Key key, T fallback) cons
     return toml::get_or(_p->configTable[table_][util::toString(key)], fallback);
 }
 
-void ConfigRepository::persistProperty(const std::string& table, ThingPropertyKey key, const ThingPropertyValue& value) const {
-    if (!_p->configTable.contains(table))
-        _p->configTable[table] = toml::table();
-    auto& section = _p->configTable[table].as_table();
-
-    std::visit([&](auto& arg) {
-        using T = std::decay_t<decltype(arg)>;
-        if constexpr (std::is_same_v<T, std::array<int, 3>>)
-            {}
-        else
-            section.insert_or_assign(util::toString(key), arg);
-    }, value);
-
-    if (_testing) return;
-
-    //for (const auto& e : _p->configTable) {
-    //    LOG_S(INFO) << "key: " << e.first << ", value: " << e.second;
-    //}
-
-    std::ofstream configFile;
-    configFile.open(_configFile);
-    configFile << toml::value(_p->configTable);
-}
-
 void ConfigRepository::setThingInterval(const ThingPropertyValue& seconds) const {
     _p->thingInterval = std::get<int>(seconds);
     _p->thingIntervalSubject.get_observer().on_next(_p->thingInterval);
@@ -122,32 +71,6 @@ dynamic_observable<int> ConfigRepository::thingIntervalObservable() const {
 
 int ConfigRepository::thingInterval() const {
     return _p->thingInterval;
-}
-
-void ConfigRepository::setTimeConstant(const ThingPropertyValue& tau) const {
-    _p->tau = std::get<int>(tau);
-    _p->tauSubject.get_observer().on_next(_p->tau);
-    persistProperty("ev_charging_strategy", ThingPropertyKey::time_constant, tau);
-}
-
-dynamic_observable<int> ConfigRepository::timeConstantObservable() const {
-    return _p->tauSubject.get_observable();
-}
-
-int ConfigRepository::timeConstant() const {
-    return _p->tau;
-}
-
-double ConfigRepository::evseAlpha() const {
-    return _p->evseAlpha;
-}
-
-double ConfigRepository::evseBeta() const {
-    return _p->evseBeta;
-}
-
-double ConfigRepository::evsePhi() const {
-    return _p->evsePhi; //restrict phi to a minimum of 0.8 and a maximum of 0.98.
 }
 
 void ConfigRepository::parseConfigFile() {
@@ -164,8 +87,6 @@ void ConfigRepository::parseConfigFile() {
 
     setThingInterval(valueOr("site", Key::thing_interval, 10));
     LOG_S(INFO) << "thing_interval: " << thingInterval() << "s";
-
-    setTimeConstant(valueOr("ev_charging_strategy", Key::time_constant, (int)10));
 
     for (const auto& el : valueOr("site", Key::pv, toml::array())) {
         if (el.is_string())
@@ -203,6 +124,24 @@ std::optional<ThingPropertyValue> ConfigRepository::value(const std::string& id,
         default:
             return {};
     }
+}
+
+void ConfigRepository::persistProperty(const std::string& table, ThingPropertyKey key, const ThingPropertyValue& value) const {
+    if (!_p->configTable.contains(table))
+        _p->configTable[table] = toml::table();
+    auto& section = _p->configTable[table].as_table();
+
+    std::visit([&](auto& arg) {
+        using T = std::decay_t<decltype(arg)>;
+        if constexpr (std::is_same_v<T, std::array<int, 3>>)
+        {}
+        else
+            section.insert_or_assign(util::toString(key), arg);
+    }, value);
+
+    std::ofstream configFile;
+    configFile.open(_configFile);
+    configFile << toml::value(_p->configTable);
 }
 
 // Explicit template instantiation

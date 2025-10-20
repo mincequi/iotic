@@ -21,5 +21,4 @@ public:
     static std::string serializeUserProperties(const ThingPtr& thing);
     static std::string serializeSiteProperties(const ConfigRepository& config);
     static std::string serializeSiteHistory(const std::list<Site::Properties>& siteHistory);
-    static std::string serializeEvChargingStrategyProperties(const ConfigRepository& config);
 };

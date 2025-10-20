@@ -19,7 +19,7 @@ public:
     virtual ~Strategy();
 
     inline const std::string& thingId() const { return _thingId; }
-    inline double priority() const { return _priority; }
+    inline int priority() const { return _priority; }
 
     //virtual const std::string& name() const = 0;
     virtual void evaluate(const Site::Properties& siteProperties) const = 0;
@@ -35,5 +35,5 @@ private:
     friend class StrategyFactory;
 
     const std::string _thingId;
-    double _priority = 0.0;
+    int _priority = 0;
 };
