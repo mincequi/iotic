@@ -22,7 +22,6 @@ public:
     inline int priority() const { return _priority; }
 
     //virtual const std::string& name() const = 0;
-    virtual void evaluate(const Site::Properties& siteProperties) const = 0;
     virtual bool wantsToTurnOff(const Site::Properties& siteProperties) = 0;
     virtual bool wantsToTurnOn(const Site::Properties& siteProperties) = 0;
 

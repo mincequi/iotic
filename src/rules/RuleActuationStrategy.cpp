@@ -69,11 +69,6 @@ RuleActuationStrategy::RuleActuationStrategy(const std::string& thingId,
     _cfg(cfg) {
 }
 
-void RuleActuationStrategy::evaluate(const Site::Properties& siteProperties) const {
-    // disabled for RuleActuationStrategy
-    return;
-}
-
 bool RuleActuationStrategy::wantsToTurnOff(const Site::Properties& siteProperties) {
     if (_offExpression->evaluate()) {
         _nextActuationState = false;

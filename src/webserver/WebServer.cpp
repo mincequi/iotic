@@ -59,14 +59,14 @@ WebServer::WebServer(const ThingRepository& repo,
         for (const auto& kv : _symbolRepository.symbolTable()) {
             symbols[kv.first] = kv.second;
         }
-        res->end(symbols.dump());
+        res->end(symbols.dump(0));
     });
     _uwsApp->get("/strategies", [this](uWS::HttpResponse<false>* res, uWS::HttpRequest* req) {
         json strategies = json::array();
         for (const auto& s : _strategyRepository.strategies()) {
             strategies.push_back(s->toJson());
         }
-        res->end(strategies.dump());
+        res->end(strategies.dump(2));
     });
     _uwsApp->ws<WebAppRouterPtr>("/ws", WebAppBehavior::create(_webAppRouter));
     //_uwsApp->ws<UserData>("/ocpp", OcppBehavior::create());

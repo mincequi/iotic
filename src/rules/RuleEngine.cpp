@@ -53,14 +53,8 @@ RuleEngine::RuleEngine(const ThingRepository& thingRepository,
         for (auto it = _strategyRepository.strategies().rbegin(); it != _strategyRepository.strategies().rend(); ++it) {
             if (actuatedStrategies.contains((*it)->thingId())) continue;
             if ((*it)->wantsToTurnOn(siteProperties)) {
-                actuatedStrategies.insert((*it)->thingId());
                 break;
             }
-        }
-
-        for (const auto& s : _strategyRepository.strategies()) {
-            if (actuatedStrategies.contains(s->thingId())) continue;
-            s->evaluate(siteProperties);
         }
     });
 
