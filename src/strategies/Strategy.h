@@ -9,11 +9,10 @@ using uvw_iot::util::Site;
 
 class Strategy {
 public:
-    enum class State {
-        Off,
-        SwitchingOn,
-        On,
-        SwitchingOff,
+    enum class Step {
+        Keep,
+        Down,
+        Up
     };
 
     virtual ~Strategy();
@@ -21,14 +20,23 @@ public:
     inline const std::string& thingId() const { return _thingId; }
     inline int priority() const { return _priority; }
 
-    //virtual const std::string& name() const = 0;
-    virtual bool wantsToTurnOff(const Site::Properties& siteProperties) = 0;
-    virtual bool wantsToTurnOn(const Site::Properties& siteProperties) = 0;
-
     virtual json toJson() const;
+
+    // We separate wantsToStepDown and wantsToSwitchOn to allow priority-based
+    // decision making in the PowerManager.
+    virtual bool wantsToStepDown(const Site::Properties& siteProperties) const = 0;
+    virtual bool wantsToStepUp(const Site::Properties& siteProperties) const = 0;
+    virtual void adjust(Step step, const Site::Properties& siteProperties) = 0;
+
+    inline std::chrono::time_point<std::chrono::system_clock> lastActuationTs() const {
+        return _lastActuationTs;
+    }
 
 protected:
     Strategy(const std::string& thingId);
+
+    // TODO: make this private
+    std::chrono::time_point<std::chrono::system_clock> _lastActuationTs;
 
 private:
     friend class StrategyFactory;

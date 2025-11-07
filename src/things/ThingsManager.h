@@ -33,7 +33,7 @@ private:
     void onTimer() const;
 
     const ThingRepository& _thingRepository;
-    const ConfigRepository& _cfg;
+    const ConfigRepository& _configRepository;
     DnsServiceDiscovery _dnsDiscovery;
     SunSpecDiscovery _sunspecDiscovery;
     ModbusDiscovery _modbusDiscovery;

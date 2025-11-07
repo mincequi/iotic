@@ -64,49 +64,29 @@ EvseStrategy::EvseStrategy(const ThingPtr& thing,
 EvseStrategy::~EvseStrategy() {
 }
 
-bool EvseStrategy::wantsToTurnOff(const Site::Properties& siteProperties) {
+bool EvseStrategy::wantsToStepDown(const Site::Properties& siteProperties) const {
     auto longTermAvailablePower = _offsetPower + _measuredPower - siteProperties.longTermGridPower;
     _nextPhases = computePhases(longTermAvailablePower);
-    const bool wantsToSwitchPhases = _nextPhases < _phases;
-    LOG_IF_S(INFO, wantsToSwitchPhases) << this->thingId() << "> offsetPower: " << _offsetPower << ", power: " << _measuredPower << ", longTermGridPower: " << siteProperties.longTermGridPower;
-    actuate(siteProperties);
-
-    return wantsToSwitchPhases;
+    return _nextPhases < _phases;
 }
 
-bool EvseStrategy::wantsToTurnOn(const Site::Properties& siteProperties) {
+bool EvseStrategy::wantsToStepUp(const Site::Properties& siteProperties) const {
     auto longTermAvailablePower = _offsetPower + _measuredPower - siteProperties.longTermGridPower;
     _nextPhases = computePhases(longTermAvailablePower);
-    const bool wantsToSwitchPhases = _nextPhases > _phases;
-    LOG_IF_S(INFO, wantsToSwitchPhases) << this->thingId() << "> offsetPower: " << _offsetPower << ", power: " << _measuredPower << ", longTermGridPower: " << siteProperties.longTermGridPower;
-    actuate(siteProperties);
-
-    return wantsToSwitchPhases;
+    return _nextPhases > _phases;
 }
 
-void EvseStrategy::actuate(const Site::Properties& siteProperties) {
-    const bool wantsToSwitchPhases = _phases != _nextPhases;
-    const auto now = std::chrono::system_clock::now();
-    if (wantsToSwitchPhases && (_lastActuationTs + std::chrono::seconds(180) < now)) {
-        _lastActuationTs = now;
-        LOG_S(INFO) << this->thingId() << "> phases: " << _phases << " to " << _nextPhases;
+void EvseStrategy::adjust(Step step, const Site::Properties& siteProperties) {
+    if (step != Step::Keep) {
+        LOG_S(INFO) << this->thingId() << "> switch phases from: " << _phases << " to " << _nextPhases;
         _phases = _nextPhases;
     }
 
-    const std::chrono::duration remainingBeforeSwitch = _lastActuationTs + std::chrono::seconds(180) - std::chrono::system_clock::now();
-    if (wantsToSwitchPhases && remainingBeforeSwitch > 0s) {
-        _thingRepository.setThingProperties(thingId(), {
-            { ThingPropertyKey::phases, _phases },
-            { ThingPropertyKey::next_phases, _nextPhases },
-            { ThingPropertyKey::countdown, (int)std::chrono::duration_cast<std::chrono::seconds>(remainingBeforeSwitch).count() }
-        });
-    } else {
-        _thingRepository.setThingProperties(thingId(), {
-            { ThingPropertyKey::phases, _phases },
-            { ThingPropertyKey::next_phases, _nextPhases },
-            { ThingPropertyKey::countdown, 0 }
-        });
-    }
+    _thingRepository.setThingProperties(thingId(), {
+        { ThingPropertyKey::phases, _phases },
+        { ThingPropertyKey::next_phases, _nextPhases },
+        { ThingPropertyKey::countdown, 0 }
+    });
 
     // Set current
     const auto shortTermAvailablePower = _offsetPower + _measuredPower - siteProperties.shortTermGridPower;

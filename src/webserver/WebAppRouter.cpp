@@ -17,10 +17,10 @@ using json = nlohmann::json;
 WebAppRouter::WebAppRouter(const ThingRepository& repo, const Site& site, const ConfigRepository& cfg)
     : _thingRepository(repo),
     _site(site),
-    _cfg(cfg) {
+    _configRepository(cfg) {
     // TODO: fix thing interval setting
     _routes[{"site", ThingPropertyKey::thing_interval}] =
-        std::bind(&ConfigRepository::setThingInterval, &_cfg, _1);
+        std::bind(&ConfigRepository::setThingInterval, &_configRepository, _1);
 }
 
 bool WebAppRouter::route(const std::string& thing, ThingPropertyKey property, const ThingPropertyValue& value) {

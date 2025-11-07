@@ -29,34 +29,11 @@ double toDouble(const ThingPropertyValue& value) {
 RuleEngine::RuleEngine(const ThingRepository& thingRepository,
                          StrategyRepository& strategyRepository,
                          const SymbolRepository& symbolRepository,
-                         const Site& site,
                          const ConfigRepository& cfg) :
     _thingRepository(thingRepository),
     _strategyRepository(strategyRepository),
     _symbolRepository(symbolRepository),
-    _site(site),
-    _cfg(cfg) {
-    _site.properties().subscribe([this](const Site::Properties& siteProperties) {
-        _symbolRepository.setSymbol("short_term_grid_power", siteProperties.shortTermGridPower);
-        _symbolRepository.setSymbol("long_term_grid_power", siteProperties.longTermGridPower);
-        _symbolRepository.setSymbol("grid_power", siteProperties.gridPower);
-        _symbolRepository.setSymbol("pv_power", siteProperties.pvPower);
-
-        // After update of site, evaluate strategies
-        std::set<std::string> actuatedStrategies;
-        for (auto it = _strategyRepository.strategies().begin(); it != _strategyRepository.strategies().end(); ++it) {
-            if ((*it)->wantsToTurnOff(siteProperties)) {
-                actuatedStrategies.insert((*it)->thingId());
-                break;
-            }
-        }
-        for (auto it = _strategyRepository.strategies().rbegin(); it != _strategyRepository.strategies().rend(); ++it) {
-            if (actuatedStrategies.contains((*it)->thingId())) continue;
-            if ((*it)->wantsToTurnOn(siteProperties)) {
-                break;
-            }
-        }
-    });
+    _configRepository(cfg) {
 
     // For each new thing, we potentially subscribe
     _thingRepository.thingAdded().subscribe([this](ThingPtr thing) {
@@ -64,7 +41,7 @@ RuleEngine::RuleEngine(const ThingRepository& thingRepository,
         subscribeDependencies();
 
         // Check if thing has strategies
-        auto strategy = StrategyFactory::from(thing, _thingRepository, _symbolRepository, *this, _cfg);
+        auto strategy = StrategyFactory::from(thing, _thingRepository, _symbolRepository, *this, _configRepository);
         if (!strategy) return;
         _strategyRepository.addStrategy(std::move(strategy));
 
@@ -80,7 +57,6 @@ RuleEngine::RuleEngine(const ThingRepository& thingRepository,
 
     // For each removed thing, we unsubscribe
     _thingRepository.thingRemoved().subscribe([this](const std::string& id) {
-        LOG_S(INFO) << "thing removed: " << id;
         _subscribedThings.erase(id);
     });
 }

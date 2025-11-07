@@ -19,7 +19,7 @@ using namespace uvw_net::modbus;
 
 ThingsManager::ThingsManager(const ThingRepository& thingRepository, const ConfigRepository& cfg) :
     _thingRepository(thingRepository),
-    _cfg(cfg) {
+    _configRepository(cfg) {
 
     auto timer = uvw::loop::get_default()->resource<uvw::timer_handle>();
     timer->on<uvw::timer_event>([this](const auto&, auto&) {
@@ -72,7 +72,7 @@ void ThingsManager::onTimer() const {
     //}
 
     // Read things
-    if ((now_ms % (_cfg.thingInterval() * 1000)) == 0) {
+    if ((now_ms % (_configRepository.thingInterval() * 1000)) == 0) {
         _thingRepository.getProperties();
     }
 

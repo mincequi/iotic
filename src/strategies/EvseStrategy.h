@@ -28,14 +28,15 @@ private:
                  const ThingRepository& repo,
                  const ConfigRepository& cfg);
 
-    bool wantsToTurnOff(const Site::Properties& siteProperties) override;
-    bool wantsToTurnOn(const Site::Properties& siteProperties) override;
     json toJson() const override;
+
+    bool wantsToStepDown(const Site::Properties& siteProperties) const override;
+    bool wantsToStepUp(const Site::Properties& siteProperties) const override;
+    void adjust(Step step, const Site::Properties& siteProperties) override;
 
     int computePhases(double availablePower) const;
     ThingPropertyValue computeCurrent(double availablePower);
 
-    void actuate(const Site::Properties& siteProperties);
     int powerError() const;
 
     const ThingRepository& _thingRepository;
@@ -44,11 +45,9 @@ private:
     int _measuredPower = 0;
     std::array<int, 3> _voltages;
     int _offsetPower = 0;
-    std::chrono::time_point<std::chrono::system_clock> _lastActuationTs;
 
     int _phases = 0;
     int _current = 0;
 
     mutable int _nextPhases = 0;
-    std::chrono::time_point<std::chrono::system_clock> _nextSwitch;
 };

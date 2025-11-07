@@ -30,21 +30,18 @@ public:
                           const ThingRepository& repo,
                           const ConfigRepository& cfg);
 
-    bool wantsToTurnOff(const Site::Properties& siteProperties) override;
-    bool wantsToTurnOn(const Site::Properties& siteProperties) override;
-
+private:
     json toJson() const override;
 
-private:
-    bool actuate();
+    bool wantsToStepDown(const Site::Properties& siteProperties) const override;
+    bool wantsToStepUp(const Site::Properties& siteProperties) const override;
+    void adjust(Step step, const Site::Properties& siteProperties) override;
 
     const ThingRepository& _thingRepository;
-    const ConfigRepository& _cfg;
+    const ConfigRepository& _configRepository;
 
     std::unique_ptr<te_parser> _onExpression;
     std::unique_ptr<te_parser> _offExpression;
-    mutable std::optional<bool> _actuationState;
-    mutable std::optional<bool> _nextActuationState;
-    std::chrono::time_point<std::chrono::system_clock> _lastActuationTs;
-    mutable bool _isAlreadySet = false;
+    mutable std::optional<bool> _state;
+    mutable std::optional<bool> _nextState;
 };

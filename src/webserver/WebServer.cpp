@@ -31,7 +31,7 @@ WebServer::WebServer(const ThingRepository& repo,
                      const SymbolRepository& symbolRepository) :
     _repo(repo),
     _site(site),
-    _cfg(cfg),
+    _configRepository(cfg),
     _strategyRepository(strategyRepository),
     _symbolRepository(symbolRepository) {
     _fs = std::make_unique<cmrc::embedded_filesystem>(cmrc::webapp::get_filesystem());
@@ -90,7 +90,7 @@ WebServer::WebServer(const ThingRepository& repo,
         _uwsApp->publish("broadcast", json.dump(), uWS::OpCode::TEXT);
     });
 
-    _cfg.thingIntervalObservable().subscribe([this](int value) {
+    _configRepository.thingIntervalObservable().subscribe([this](int value) {
         json properties;
         properties[::util::toString(ThingPropertyKey::thing_interval)] = value;
 

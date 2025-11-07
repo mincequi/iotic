@@ -21,10 +21,10 @@ using namespace std::chrono_literals;
 using namespace uvw_iot;
 
 std::unique_ptr<Strategy> RuleActuationStrategy::from(const ThingPtr& thing,
-                                                                  const ThingRepository& thingRepository,
-                                                                  const SymbolRepository& symbolRepository,
-                                                                  const RuleEngine& ruleEngine,
-                                                                  const ConfigRepository& cfg) {
+                                                      const ThingRepository& thingRepository,
+                                                      const SymbolRepository& symbolRepository,
+                                                      const RuleEngine& ruleEngine,
+                                                      const ConfigRepository& cfg) {
     // Check if thing has "on" and "off" expression
     const auto onExpressionStr = cfg.valueOr<std::string>(thing->id(), ConfigRepository::Key::on);
     if (onExpressionStr.empty()) return {};
@@ -66,22 +66,7 @@ RuleActuationStrategy::RuleActuationStrategy(const std::string& thingId,
     _onExpression(std::move(onExpression)),
     _offExpression(std::move(offExpression)),
     _thingRepository(thingRepository),
-    _cfg(cfg) {
-}
-
-bool RuleActuationStrategy::wantsToTurnOff(const Site::Properties& siteProperties) {
-    if (_offExpression->evaluate()) {
-        _nextActuationState = false;
-    }
-    _isAlreadySet = false;
-    return actuate();
-}
-
-bool RuleActuationStrategy::wantsToTurnOn(const Site::Properties& siteProperties) {
-    if (_onExpression->evaluate()) {
-        _nextActuationState = true;
-    }
-    return actuate();
+    _configRepository(cfg) {
 }
 
 json RuleActuationStrategy::toJson() const {
@@ -94,21 +79,37 @@ json RuleActuationStrategy::toJson() const {
     return j;
 }
 
-bool RuleActuationStrategy::actuate() {
-    if (!_nextActuationState.has_value()) return false;
-
-    const bool wantsToActuate = _actuationState != _nextActuationState;
-    const auto now = std::chrono::system_clock::now();
-    if (wantsToActuate && (_lastActuationTs + std::chrono::seconds(180) < now)) {
-        _lastActuationTs = now;
-        _actuationState = _nextActuationState;
-        LOG_S(INFO) << this->thingId() << "> " << _actuationState.value();
+bool RuleActuationStrategy::wantsToStepDown(const Site::Properties& siteProperties) const {
+    if (_offExpression->evaluate()) {
+        _nextState = false;
     }
 
-    if (_actuationState == _nextActuationState && !_isAlreadySet) {
-        _thingRepository.setThingProperty(thingId(), ThingPropertyKey::power_control, _actuationState.value());
-        _isAlreadySet = true;
+    return _nextState.has_value() && (_state != _nextState);
+}
+
+bool RuleActuationStrategy::wantsToStepUp(const Site::Properties& siteProperties) const {
+    if (_onExpression->evaluate()) {
+        _nextState = true;
     }
 
-    return wantsToActuate;
+    return _nextState.has_value() && (_state != _nextState);
+}
+
+void RuleActuationStrategy::adjust(Step step, const Site::Properties& siteProperties) {
+    switch (step) {
+    case Step::Keep:
+        break;
+    case Step::Down:
+        _state = false;
+        LOG_S(INFO) << this->thingId() << "> " << _state.value();
+        break;
+    case Step::Up:
+        _state = true;
+        LOG_S(INFO) << this->thingId() << "> " << _state.value();
+        break;
+    }
+
+    if (_state.has_value()) {
+        _thingRepository.setThingProperty(thingId(), ThingPropertyKey::power_control, _state.value());
+    }
 }

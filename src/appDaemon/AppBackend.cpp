@@ -10,13 +10,14 @@
 using namespace uvw_iot::util;
 
 AppBackend::AppBackend() :
-    _cfg(_thingRepository),
-    _thingsManager(_thingRepository, _cfg),
+    _configRepository(_thingRepository),
+    _thingsManager(_thingRepository, _configRepository),
     _strategyRepository(_thingRepository),
     _site(_thingRepository, {.shortTermTau = 15000ms, .longTermTau = 180000ms}),
     //_mqttExporter("broker.hivemq.com"),
-    _webServer(_thingRepository, _site, _cfg, _strategyRepository, _symbolRepository),
-    _rulesEngine(_thingRepository, _strategyRepository, _symbolRepository, _site, _cfg) {
+    _webServer(_thingRepository, _site, _configRepository, _strategyRepository, _symbolRepository),
+    _rulesEngine(_thingRepository, _strategyRepository, _symbolRepository, _configRepository),
+    _powerManager(_strategyRepository, _symbolRepository, _site, _configRepository) {
 
     _thingRepository.thingAdded().subscribe([this](ThingPtr thing) {
         LOG_S(INFO) << "thing added> " << thing->id() << ", type: " << thing->type();

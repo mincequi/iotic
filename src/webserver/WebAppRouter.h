@@ -34,7 +34,7 @@ public:
 
     inline const ThingRepository& thingRepository() const { return _thingRepository; }
     inline const Site& site() const { return _site; }
-    inline const ConfigRepository& cfg() const { return _cfg; }
+    inline const ConfigRepository& cfg() const { return _configRepository; }
 
     bool route(const std::string& thing, ThingPropertyKey property, const ThingPropertyValue& value);
 
@@ -46,7 +46,7 @@ private:
 
     const ThingRepository& _thingRepository;
     const Site& _site;
-    const ConfigRepository& _cfg;
+    const ConfigRepository& _configRepository;
 
     friend class WebAppBehavior;
     friend class WebAppRouterTest;

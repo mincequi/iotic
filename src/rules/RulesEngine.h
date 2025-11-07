@@ -25,7 +25,6 @@ public:
     RuleEngine(const ThingRepository& thingRepository,
                 StrategyRepository& strategyRepository,
                 const SymbolRepository& symbolRepository,
-                const Site& site,
                 const ConfigRepository& cfg);
     ~RuleEngine() = default;
 
@@ -39,8 +38,7 @@ private:
     const ThingRepository& _thingRepository;
     StrategyRepository& _strategyRepository;
     const SymbolRepository& _symbolRepository;
-    const Site& _site;
-    const ConfigRepository& _cfg;
+    const ConfigRepository& _configRepository;
 
     std::set<std::string> _dependentThings;
     std::set<std::string> _subscribedThings;

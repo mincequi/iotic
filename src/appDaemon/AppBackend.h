@@ -7,6 +7,7 @@
 #include <config/ConfigRepository.h>
 #include <rules/RulesEngine.h>
 #include <rules/SymbolRepository.h>
+#include <strategies/PowerManager.h>
 #include <strategies/StrategyRepository.h>
 #include <things/ThingsManager.h>
 #include <webserver/WebServer.h>
@@ -23,10 +24,11 @@ private:
     ThingRepository _thingRepository;
     StrategyRepository _strategyRepository;
     SymbolRepository _symbolRepository;
-    ConfigRepository _cfg;
+    ConfigRepository _configRepository;
     ThingsManager _thingsManager;
     Site _site;
     RuleEngine _rulesEngine;
+    PowerManager _powerManager;
     WebServer _webServer;
 
     //MqttExporter _mqttExporter;

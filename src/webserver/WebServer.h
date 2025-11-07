@@ -48,7 +48,7 @@ public:
 private:
     const ThingRepository& _repo;
     const Site& _site;
-    const ConfigRepository& _cfg;
+    const ConfigRepository& _configRepository;
     const StrategyRepository& _strategyRepository;
     const SymbolRepository& _symbolRepository;
 
