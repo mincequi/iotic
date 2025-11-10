@@ -2,7 +2,6 @@
 
 #include <rpp/operators/debounce.hpp>
 #include <rpp/operators/distinct_until_changed.hpp>
-#include <rpp/operators/observe_on.hpp>
 #include <rpp/schedulers/new_thread.hpp>
 
 #include <tinyexpr.h>
@@ -24,11 +23,11 @@ std::unique_ptr<Strategy> RuleActuationStrategy::from(const ThingPtr& thing,
                                                       const ThingRepository& thingRepository,
                                                       const SymbolRepository& symbolRepository,
                                                       const RuleEngine& ruleEngine,
-                                                      const ConfigRepository& cfg) {
+                                                      const ConfigRepository& configRepository) {
     // Check if thing has "on" and "off" expression
-    const auto onExpressionStr = cfg.valueOr<std::string>(thing->id(), ConfigRepository::Key::on);
+    const auto onExpressionStr = configRepository.valueOr<std::string>(thing->id(), ConfigRepository::Key::on);
     if (onExpressionStr.empty()) return {};
-    const auto offExpressionStr = cfg.valueOr<std::string>(thing->id(), ConfigRepository::Key::off);
+    const auto offExpressionStr = configRepository.valueOr<std::string>(thing->id(), ConfigRepository::Key::off);
     if (offExpressionStr.empty()) return {};
 
     auto onExpression = ruleEngine.createParser(onExpressionStr);
@@ -50,11 +49,11 @@ std::unique_ptr<Strategy> RuleActuationStrategy::from(const ThingPtr& thing,
                    "> onExpression: " << onExpressionStr <<
                    ", offExpression: " << offExpressionStr;
 
-    return std::make_unique<RuleActuationStrategy>(thing->id(),
-                                                   std::move(onExpression),
-                                                   std::move(offExpression),
-                                                   thingRepository,
-                                                   cfg);
+    return std::unique_ptr<RuleActuationStrategy>(new RuleActuationStrategy(thing->id(),
+                                                                            std::move(onExpression),
+                                                                            std::move(offExpression),
+                                                                            thingRepository,
+                                                                            configRepository));
 }
 
 RuleActuationStrategy::RuleActuationStrategy(const std::string& thingId,
@@ -74,6 +73,8 @@ json RuleActuationStrategy::toJson() const {
     j["thingId"] = thingId();
     j["type"] = "RuleActuationStrategy";
     j["priority"] = priority();
+    j["state"] = _state;
+    j["nextState"] = _nextState;
     //j["on"] = rule::toJson(*_onExpression);
     //j["off"] = rule::toJson(*_offExpression);
     return j;
@@ -84,7 +85,7 @@ bool RuleActuationStrategy::wantsToStepDown(const Site::Properties& siteProperti
         _nextState = false;
     }
 
-    return _nextState.has_value() && (_state != _nextState);
+    return _nextState.has_value() && !_nextState.value() && (_state != _nextState) ;
 }
 
 bool RuleActuationStrategy::wantsToStepUp(const Site::Properties& siteProperties) const {
@@ -92,7 +93,7 @@ bool RuleActuationStrategy::wantsToStepUp(const Site::Properties& siteProperties
         _nextState = true;
     }
 
-    return _nextState.has_value() && (_state != _nextState);
+    return _nextState.has_value() && _nextState.value() && (_state != _nextState) ;
 }
 
 void RuleActuationStrategy::adjust(Step step, const Site::Properties& siteProperties) {

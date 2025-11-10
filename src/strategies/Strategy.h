@@ -28,15 +28,8 @@ public:
     virtual bool wantsToStepUp(const Site::Properties& siteProperties) const = 0;
     virtual void adjust(Step step, const Site::Properties& siteProperties) = 0;
 
-    inline std::chrono::time_point<std::chrono::system_clock> lastActuationTs() const {
-        return _lastActuationTs;
-    }
-
 protected:
     Strategy(const std::string& thingId);
-
-    // TODO: make this private
-    std::chrono::time_point<std::chrono::system_clock> _lastActuationTs;
 
 private:
     friend class StrategyFactory;

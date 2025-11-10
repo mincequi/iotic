@@ -6,7 +6,6 @@
 
 #include <rpp/operators/debounce.hpp>
 #include <rpp/operators/distinct_until_changed.hpp>
-#include <rpp/operators/observe_on.hpp>
 
 #include <uvw_iot/ThingType.h>
 #include <uvw_iot/util/Filter.h>
@@ -36,17 +35,20 @@ EvseStrategy::EvseStrategy(const ThingPtr& thing,
                            const ConfigRepository& cfg) :
     Strategy(thing->id()),
     _thingRepository(repo),
-    _configRepository(cfg) {
+    _configRepository(cfg),
+    _onePhaseHysteresis(_configRepository.hysteresisFor(6 * 230)),
+    _threePhaseHysteresis(_configRepository.hysteresisFor(3 * 6 * 230)) {
 
     if (thing->properties().contains(ThingPropertyKey::offset)) {
         _offsetPower = offsetTable[std::get<int>(thing->properties().at(ThingPropertyKey::offset))];
     }
 
     thing->propertiesObservable().subscribe([this](const ThingPropertyMap& map) {
+        const auto nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
         for (const auto& kv : map) {
             switch (kv.first) {
             case ThingPropertyKey::power:
-                _measuredPower = std::get<int>(kv.second);
+                ema(_measuredPower, std::get<int>(kv.second), nowMs - _lastMeasurementTs, _configRepository.shortTermTau);
                 break;
             case ThingPropertyKey::voltage:
                 _voltages = std::get<std::array<int, 3>>(kv.second);
@@ -58,6 +60,7 @@ EvseStrategy::EvseStrategy(const ThingPtr& thing,
                 break;
             }
         }
+        _lastMeasurementTs = nowMs;
     });
 }
 
@@ -72,7 +75,7 @@ bool EvseStrategy::wantsToStepDown(const Site::Properties& siteProperties) const
 
 bool EvseStrategy::wantsToStepUp(const Site::Properties& siteProperties) const {
     auto longTermAvailablePower = _offsetPower + _measuredPower - siteProperties.longTermGridPower;
-    _nextPhases = computePhases(longTermAvailablePower);
+    _nextPhases = computePhases(longTermAvailablePower, true);
     return _nextPhases > _phases;
 }
 
@@ -117,10 +120,13 @@ json EvseStrategy::toJson() const {
     return j;
 }
 
-int EvseStrategy::computePhases(double availablePower) const {
-    if (availablePower > (6 * std::reduce(_voltages.begin(), _voltages.end()))) {
+int EvseStrategy::computePhases(double availablePower, bool applyHysteresis) const {
+    const auto onePhaseHysteresis = applyHysteresis ? _onePhaseHysteresis : 0;
+    const auto threePhaseHysteresis = applyHysteresis ? _threePhaseHysteresis : 0;
+
+    if ((availablePower - threePhaseHysteresis) > (6 * std::reduce(_voltages.begin(), _voltages.end()))) {
         return 3;
-    } else if (availablePower > (6 * _voltages.front())) {
+    } else if ((availablePower - onePhaseHysteresis) > (6 * _voltages.front())) {
         return 1;
     } else {
         return 0;

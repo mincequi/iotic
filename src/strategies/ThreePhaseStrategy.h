@@ -1,6 +1,11 @@
 #pragma once
 
-class ThreePhaseStrategy {
+#include "Strategy.h"
+
+class ThreePhaseStrategy : public Strategy {
 public:
-    ThreePhaseStrategy();
+    ThreePhaseStrategy(const std::string& thingId);
+
+private:
+    json toJson() const override;
 };

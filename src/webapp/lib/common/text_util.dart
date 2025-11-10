@@ -10,11 +10,8 @@ shadows() => [
       //Shadow(offset: Offset(0.0, ), blurRadius: _blurRadius),
     ];
 
-textStyle(Color color) => TextStyle(
-    color: color,
-    fontWeight: FontWeight.bold,
-    fontSize: 12,
-    shadows: shadows());
+textStyle(Color color, {FontWeight fontWeight = FontWeight.bold}) => TextStyle(
+    color: color, fontWeight: fontWeight, fontSize: 12, shadows: shadows());
 
 String powerUnit(int v) {
   if (v.abs() < 1000) return "W";

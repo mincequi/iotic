@@ -18,7 +18,7 @@ class ValueUnit extends StatelessWidget {
           Icon(
             size: 18,
             _icon,
-            color: _color.withAlpha(200),
+            color: _color,
             shadows: shadows(),
           ),
           Row(

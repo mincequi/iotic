@@ -24,13 +24,13 @@ public:
                                           const RuleEngine& rules,
                                           const ConfigRepository& cfg);
 
+private:
     RuleActuationStrategy(const std::string& thingId,
                           std::unique_ptr<te_parser> onExpression,
                           std::unique_ptr<te_parser> offExpression,
                           const ThingRepository& repo,
                           const ConfigRepository& cfg);
 
-private:
     json toJson() const override;
 
     bool wantsToStepDown(const Site::Properties& siteProperties) const override;

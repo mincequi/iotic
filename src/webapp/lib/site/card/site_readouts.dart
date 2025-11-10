@@ -33,7 +33,8 @@ class SiteReadouts extends StatelessWidget {
                     ValueUnit(Icons.solar_power, c.pvPower.value, c.pvColor())),
                 const SizedBox(width: 4),
                 Obx(() => Text(powerUnit(c.pvPower.value),
-                    style: textStyle(c.pvColor().withAlpha(200))))
+                    style:
+                        textStyle(c.pvColor(), fontWeight: FontWeight.normal))),
               ],
             ),
             TableRow(
@@ -42,8 +43,8 @@ class SiteReadouts extends StatelessWidget {
                     Theme.of(context).colorScheme.primary)),
                 const SizedBox(width: 4),
                 Obx(() => Text(powerUnit(c.sitePower.value),
-                    style: textStyle(
-                        Theme.of(context).colorScheme.primary.withAlpha(200))))
+                    style: textStyle(Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.normal))),
               ],
             ),
             TableRow(
@@ -51,8 +52,11 @@ class SiteReadouts extends StatelessWidget {
                 Obx(() =>
                     ValueUnit(Icons.power, c.gridPower.value, c.gridColor())),
                 const SizedBox(width: 4),
-                Obx(() => Text(powerUnit(c.gridPower.value),
-                    style: textStyle(c.gridColor().withAlpha(200))))
+                Obx(() => Text(
+                      powerUnit(c.gridPower.value),
+                      style: textStyle(c.gridColor(),
+                          fontWeight: FontWeight.normal),
+                    ))
               ],
             ),
           ],

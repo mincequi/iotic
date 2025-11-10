@@ -34,7 +34,7 @@ private:
     bool wantsToStepUp(const Site::Properties& siteProperties) const override;
     void adjust(Step step, const Site::Properties& siteProperties) override;
 
-    int computePhases(double availablePower) const;
+    int computePhases(double availablePower, bool applyHysteresis = false) const;
     ThingPropertyValue computeCurrent(double availablePower);
 
     int powerError() const;
@@ -42,7 +42,8 @@ private:
     const ThingRepository& _thingRepository;
     const ConfigRepository& _configRepository;
 
-    int _measuredPower = 0;
+    double _measuredPower = 0.0;
+    std::chrono::milliseconds _lastMeasurementTs;
     std::array<int, 3> _voltages;
     int _offsetPower = 0;
 
@@ -50,4 +51,7 @@ private:
     int _current = 0;
 
     mutable int _nextPhases = 0;
+
+    const int _onePhaseHysteresis = 0;
+    const int _threePhaseHysteresis = 0;
 };

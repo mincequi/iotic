@@ -4,7 +4,7 @@ project(iotic VERSION 0.4.0 LANGUAGES C CXX)
 
 include(cmake/CPM.cmake)
 
-CPMAddPackage("gh:mincequi/uvw_iot#0fed7c5")
+CPMAddPackage("gh:mincequi/uvw_iot#9504a32")
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -30,6 +30,10 @@ add_executable(iotic
   src/main.cpp
   src/appDaemon/AppBackend.cpp
   src/appDiscover/AppDiscover.cpp
+  src/appDiscoverCoro/AppDiscoverCoro.h
+  src/appDiscoverCoro/AppDiscoverCoro.cpp
+  src/appDiscoverCoro/Scheduler.h
+  src/appDiscoverCoro/Scheduler.cpp
 )
 
 target_link_libraries(iotic

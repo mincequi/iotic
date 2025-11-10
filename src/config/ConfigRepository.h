@@ -57,6 +57,8 @@ public:
         off,
         debounce,
         priority,
+        hysteresis_percent,
+        hysteresis_absolute,
     };
 
     ConfigRepository(const ThingRepository& repo);
@@ -81,6 +83,11 @@ public:
     void setThingInterval(const ThingPropertyValue& value) const;
     dynamic_observable<int> thingIntervalObservable() const;
     int thingInterval() const;
+
+    int hysteresisFor(int power) const;
+
+    const std::chrono::milliseconds shortTermTau = 10000ms;
+    const std::chrono::milliseconds longTermTau = 180000ms;
 
 private:
     void parseConfigFile();

@@ -59,6 +59,11 @@ T ConfigRepository::valueOr(const std::string& table_, Key key, T fallback) cons
     return toml::get_or(_p->configTable[table_][util::toString(key)], fallback);
 }
 
+template<class T>
+T ConfigRepository::valueOr(Key key, T fallback) const {
+    return valueOr("site", key, fallback);
+}
+
 void ConfigRepository::setThingInterval(const ThingPropertyValue& seconds) const {
     _p->thingInterval = std::get<int>(seconds);
     _p->thingIntervalSubject.get_observer().on_next(_p->thingInterval);
@@ -71,6 +76,13 @@ dynamic_observable<int> ConfigRepository::thingIntervalObservable() const {
 
 int ConfigRepository::thingInterval() const {
     return _p->thingInterval;
+}
+
+int ConfigRepository::hysteresisFor(int power) const {
+    const int absolute = valueOr(Key::hysteresis_absolute, 200);
+    const int relative = round(power * (100 + valueOr(Key::hysteresis_percent, 10)) / 100.0);
+
+    return std::max(absolute, relative);
 }
 
 void ConfigRepository::parseConfigFile() {
@@ -149,3 +161,8 @@ template std::string ConfigRepository::valueOr(const std::string& table, Key key
 template int ConfigRepository::valueOr(const std::string& table, Key key, int) const;
 template bool ConfigRepository::valueOr(const std::string& table, Key key, bool) const;
 template double ConfigRepository::valueOr(const std::string& table, Key key, double) const;
+
+template std::string ConfigRepository::valueOr(Key key, std::string) const;
+template int ConfigRepository::valueOr(Key key, int) const;
+template bool ConfigRepository::valueOr(Key key, bool) const;
+template double ConfigRepository::valueOr(Key key, double) const;
