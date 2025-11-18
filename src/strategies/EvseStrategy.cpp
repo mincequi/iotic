@@ -48,13 +48,17 @@ EvseStrategy::EvseStrategy(const ThingPtr& thing,
         for (const auto& kv : map) {
             switch (kv.first) {
             case ThingPropertyKey::power:
-                ema(_measuredPower, std::get<int>(kv.second), nowMs - _lastMeasurementTs, _configRepository.shortTermTau);
+                ema(_measuredPower, std::max(std::get<int>(kv.second), 0), nowMs - _lastMeasurementTs, _configRepository.shortTermTau);
                 break;
             case ThingPropertyKey::voltage:
                 _voltages = std::get<std::array<int, 3>>(kv.second);
                 break;
             case ThingPropertyKey::offset:
                 _offsetPower = offsetTable[std::get<int>(kv.second)];
+                break;
+            case ThingPropertyKey::status:
+                // make ThingStatus from int
+                onStatus(static_cast<ThingStatus>(std::get<int>(kv.second)));
                 break;
             default:
                 break;
@@ -76,7 +80,13 @@ bool EvseStrategy::wantsToStepDown(const Site::Properties& siteProperties) const
 bool EvseStrategy::wantsToStepUp(const Site::Properties& siteProperties) const {
     auto longTermAvailablePower = _offsetPower + _measuredPower - siteProperties.longTermGridPower;
     _nextPhases = computePhases(longTermAvailablePower, true);
-    return _nextPhases > _phases;
+    if (_nextPhases > _phases) {
+        LOG_S(INFO) << this->thingId() << "> offsetPower: " << _offsetPower
+                    << ", measuredPower: " << _measuredPower
+                    << ", longTermGridPower: " << siteProperties.longTermGridPower;
+        return true;
+    }
+    return false;
 }
 
 void EvseStrategy::adjust(Step step, const Site::Properties& siteProperties) {
@@ -113,10 +123,14 @@ json EvseStrategy::toJson() const {
     j["priority"] = priority();
     j["phases"] = _phases;
     j["nextPhases"] = _nextPhases;
-    j["power"] = _measuredPower;
+    j["measuredPower"] = _measuredPower;
     j["voltages"] = _voltages;
     j["offsetPower"] = _offsetPower;
     j["powerError"] = powerError();
+    j["lastMeasurementTs"] = _lastMeasurementTs.count();
+    j["onePhaseHysteresis"] = _onePhaseHysteresis;
+    j["threePhaseHysteresis"] = _threePhaseHysteresis;
+    j["status"] = magic_enum::enum_name(_status);
     return j;
 }
 
@@ -146,4 +160,8 @@ ThingPropertyValue EvseStrategy::computeCurrent(double availablePower) {
         _current = 0;
         return 0;
     }
+}
+
+void EvseStrategy::onStatus(ThingStatus status) {
+    _status = status;
 }

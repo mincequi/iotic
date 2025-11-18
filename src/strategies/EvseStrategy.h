@@ -1,12 +1,14 @@
 #pragma once
 
 #include <uvw_iot/ThingRepository.h>
+#include <uvw_iot/ThingStatus.h>
 
 #include "Strategy.h"
 
 using uvw_iot::ThingPtr;
 using uvw_iot::ThingPropertyValue;
 using uvw_iot::ThingRepository;
+using uvw_iot::ThingStatus;
 
 class ConfigRepository;
 
@@ -33,11 +35,16 @@ private:
     bool wantsToStepDown(const Site::Properties& siteProperties) const override;
     bool wantsToStepUp(const Site::Properties& siteProperties) const override;
     void adjust(Step step, const Site::Properties& siteProperties) override;
+    inline int measuredPower() const override {
+        return round(_measuredPower);
+    }
 
     int computePhases(double availablePower, bool applyHysteresis = false) const;
     ThingPropertyValue computeCurrent(double availablePower);
 
     int powerError() const;
+
+    void onStatus(ThingStatus status);
 
     const ThingRepository& _thingRepository;
     const ConfigRepository& _configRepository;
@@ -46,6 +53,7 @@ private:
     std::chrono::milliseconds _lastMeasurementTs;
     std::array<int, 3> _voltages;
     int _offsetPower = 0;
+    ThingStatus _status = ThingStatus::unknown;
 
     int _phases = 0;
     int _current = 0;

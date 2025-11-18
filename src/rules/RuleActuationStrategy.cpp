@@ -49,23 +49,36 @@ std::unique_ptr<Strategy> RuleActuationStrategy::from(const ThingPtr& thing,
                    "> onExpression: " << onExpressionStr <<
                    ", offExpression: " << offExpressionStr;
 
-    return std::unique_ptr<RuleActuationStrategy>(new RuleActuationStrategy(thing->id(),
+    return std::unique_ptr<RuleActuationStrategy>(new RuleActuationStrategy(thing,
                                                                             std::move(onExpression),
                                                                             std::move(offExpression),
                                                                             thingRepository,
                                                                             configRepository));
 }
 
-RuleActuationStrategy::RuleActuationStrategy(const std::string& thingId,
+RuleActuationStrategy::RuleActuationStrategy(const ThingPtr& thing,
                                              std::unique_ptr<te_parser> onExpression,
                                              std::unique_ptr<te_parser> offExpression,
                                              const ThingRepository& thingRepository,
                                              const ConfigRepository& cfg) :
-    Strategy(thingId),
+    Strategy(thing->id()),
     _onExpression(std::move(onExpression)),
     _offExpression(std::move(offExpression)),
     _thingRepository(thingRepository),
     _configRepository(cfg) {
+
+    // Subscribe to thing's power
+    thing->propertiesObservable().subscribe([this](const ThingPropertyMap& map) {
+        for (const auto& kv : map) {
+            switch (kv.first) {
+            case ThingPropertyKey::power:
+                _measuredPower = std::get<int>(kv.second);
+                break;
+            default:
+                break;
+            }
+        }
+    });
 }
 
 json RuleActuationStrategy::toJson() const {
@@ -80,7 +93,7 @@ json RuleActuationStrategy::toJson() const {
     return j;
 }
 
-bool RuleActuationStrategy::wantsToStepDown(const Site::Properties& siteProperties) const {
+bool RuleActuationStrategy::wantsToStepDown(const Site::Properties&) const {
     if (_offExpression->evaluate()) {
         _nextState = false;
     }
@@ -88,7 +101,7 @@ bool RuleActuationStrategy::wantsToStepDown(const Site::Properties& siteProperti
     return _nextState.has_value() && !_nextState.value() && (_state != _nextState) ;
 }
 
-bool RuleActuationStrategy::wantsToStepUp(const Site::Properties& siteProperties) const {
+bool RuleActuationStrategy::wantsToStepUp(const Site::Properties&) const {
     if (_onExpression->evaluate()) {
         _nextState = true;
     }
@@ -96,7 +109,7 @@ bool RuleActuationStrategy::wantsToStepUp(const Site::Properties& siteProperties
     return _nextState.has_value() && _nextState.value() && (_state != _nextState) ;
 }
 
-void RuleActuationStrategy::adjust(Step step, const Site::Properties& siteProperties) {
+void RuleActuationStrategy::adjust(Step step, const Site::Properties&) {
     switch (step) {
     case Step::Keep:
         break;

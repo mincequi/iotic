@@ -80,7 +80,7 @@ int ConfigRepository::thingInterval() const {
 
 int ConfigRepository::hysteresisFor(int power) const {
     const int absolute = valueOr(Key::hysteresis_absolute, 200);
-    const int relative = round(power * (100 + valueOr(Key::hysteresis_percent, 10)) / 100.0);
+    const int relative = round(power * valueOr(Key::hysteresis_percent, 10) / 100.0);
 
     return std::max(absolute, relative);
 }

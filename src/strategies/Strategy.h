@@ -27,6 +27,7 @@ public:
     virtual bool wantsToStepDown(const Site::Properties& siteProperties) const = 0;
     virtual bool wantsToStepUp(const Site::Properties& siteProperties) const = 0;
     virtual void adjust(Step step, const Site::Properties& siteProperties) = 0;
+    virtual int measuredPower() const = 0;
 
 protected:
     Strategy(const std::string& thingId);

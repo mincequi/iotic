@@ -25,7 +25,7 @@ public:
                                           const ConfigRepository& cfg);
 
 private:
-    RuleActuationStrategy(const std::string& thingId,
+    RuleActuationStrategy(const ThingPtr& thing,
                           std::unique_ptr<te_parser> onExpression,
                           std::unique_ptr<te_parser> offExpression,
                           const ThingRepository& repo,
@@ -36,6 +36,9 @@ private:
     bool wantsToStepDown(const Site::Properties& siteProperties) const override;
     bool wantsToStepUp(const Site::Properties& siteProperties) const override;
     void adjust(Step step, const Site::Properties& siteProperties) override;
+    inline int measuredPower() const override {
+        return _measuredPower;
+    }
 
     const ThingRepository& _thingRepository;
     const ConfigRepository& _configRepository;
@@ -44,4 +47,6 @@ private:
     std::unique_ptr<te_parser> _offExpression;
     mutable std::optional<bool> _state;
     mutable std::optional<bool> _nextState;
+
+    int _measuredPower = 0;
 };
