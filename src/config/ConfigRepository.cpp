@@ -12,12 +12,22 @@ using namespace uvw_iot;
 
 class ConfigRepository::Impl {
 public:
-    toml::table configTable;
+    mutable toml::table configTable;
 
     // Sane values for interval is > 2s
     // Sane values for tau is > 3s (mayber better 4s)
     publish_subject<int> thingIntervalSubject;
     int thingInterval = 10;
+
+    toml::value value(const std::string& id, ThingPropertyKey key) const {
+        if (!configTable.contains(id) || !configTable.at(id).contains(util::toString(key))) {
+            return {};
+        }
+
+        auto t = configTable[id];
+        const toml::value v = t[util::toString(key)];
+        return v;
+    }
 };
 
 ConfigRepository::ConfigRepository(const ThingRepository& repo) :
@@ -31,18 +41,13 @@ ConfigRepository::ConfigRepository(const ThingRepository& repo) :
         setPropertiesTo(thing);
 
         thing->propertiesObservable().subscribe([this, thing](const auto& props) {
-            // Persist properties that got applied from thing
-            for (const auto& kv : props) {
-                switch (kv.first) {
-                case ThingPropertyKey::name:
-                case ThingPropertyKey::pinned:
-                case ThingPropertyKey::offset:
-                    persistProperty(thing->id(), kv.first, kv.second);
-                    break;
-                default:
-                    break;
-                }
-            }
+            props.template on<ThingPropertyKey::name>([this, thing](const auto& value) {
+                persistProperty(thing->id(), ThingPropertyKey::name, value);
+            }).template on<ThingPropertyKey::pinned>([this, thing](const auto& value) {
+                persistProperty(thing->id(), ThingPropertyKey::pinned, value);
+            }).template on<ThingPropertyKey::offset>([this, thing](const auto& value) {
+                persistProperty(thing->id(), ThingPropertyKey::offset, value);
+            });
         });
     });
 }
@@ -67,7 +72,7 @@ T ConfigRepository::valueOr(Key key, T fallback) const {
 void ConfigRepository::setThingInterval(const ThingPropertyValue& seconds) const {
     _p->thingInterval = std::get<int>(seconds);
     _p->thingIntervalSubject.get_observer().on_next(_p->thingInterval);
-    persistProperty("site", ThingPropertyKey::thing_interval, seconds);
+    persistProperty("site", ThingPropertyKey::thing_interval, _p->thingInterval);
 }
 
 dynamic_observable<int> ConfigRepository::thingIntervalObservable() const {
@@ -109,47 +114,25 @@ void ConfigRepository::parseConfigFile() {
 
 void ConfigRepository::setPropertiesTo(const ThingPtr& thing) {
     ThingPropertyMap properties;
-    auto val = value(thing->id(), ThingPropertyKey::name);
-    if (val) properties[ThingPropertyKey::name] = *val;
-    val = value(thing->id(), ThingPropertyKey::pinned);
-    if (val) properties[ThingPropertyKey::pinned] = *val;
-    val = value(thing->id(), ThingPropertyKey::offset);
-    if (val) properties[ThingPropertyKey::offset] = *val;
+
+    auto val = _p->value(thing->id(), ThingPropertyKey::name);
+    if (val.is_string()) properties.set<ThingPropertyKey::name>(val.as_string());
+
+    val = _p->value(thing->id(), ThingPropertyKey::pinned);
+    if (val.is_boolean()) properties.set<ThingPropertyKey::pinned>(val.as_boolean());
+
+    val = _p->value(thing->id(), ThingPropertyKey::offset);
+    if (val.is_integer()) properties.set<ThingPropertyKey::offset>(val.as_integer());
 
     thing->setProperties(properties);
 }
 
-std::optional<ThingPropertyValue> ConfigRepository::value(const std::string& id, ThingPropertyKey key) const {
-    if (!_p->configTable.contains(id) || !_p->configTable.at(id).contains(util::toString(key))) {
-        return {};
-    }
-
-    auto t = _p->configTable[id];
-    const toml::value v = t[util::toString(key)];
-    switch (v.type()) {
-        case toml::value_t::boolean:
-            return v.as_boolean();
-        case toml::value_t::integer:
-            return (int)v.as_integer();
-        case toml::value_t::string:
-            return v.as_string();
-        default:
-            return {};
-    }
-}
-
-void ConfigRepository::persistProperty(const std::string& table, ThingPropertyKey key, const ThingPropertyValue& value) const {
+template<class T>
+void ConfigRepository::persistProperty(const std::string& table, ThingPropertyKey key, const T& value) const {
     if (!_p->configTable.contains(table))
         _p->configTable[table] = toml::table();
     auto& section = _p->configTable[table].as_table();
-
-    std::visit([&](auto& arg) {
-        using T = std::decay_t<decltype(arg)>;
-        if constexpr (std::is_same_v<T, std::array<int, 3>>)
-        {}
-        else
-            section.insert_or_assign(util::toString(key), arg);
-    }, value);
+    section.insert_or_assign(util::toString(key), value);
 
     std::ofstream configFile;
     configFile.open(_configFile);

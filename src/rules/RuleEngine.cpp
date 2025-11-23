@@ -99,19 +99,22 @@ void RuleEngine::subscribe(ThingPtr thing) {
 
     LOG_S(INFO) << "subscribe to dependent thing: " << thing->id();
     thing->propertiesObservable().subscribe([this, thing](const ThingPropertyMap& prop) {
-        for (const auto& kv : prop) {
-            const std::string var = thing->id() + "." + ::util::toString(kv.first);
-            //if (_symbolRepository.symbolTable().contains(var)) {
-                switch (kv.first) {
-                case ThingPropertyKey::offset:
-                    _symbolRepository.setSymbol(var, offsetTable[std::get<int>(kv.second)]);
-                    break;
-                default:
-                    _symbolRepository.setSymbol(var, toDouble(kv.second));
-                    break;
+        prop.forEach([this, thing](const ThingPropertyKey& key, const auto& value) {
+            using T = std::decay_t<decltype(value)>;
+            const std::string var = thing->id() + "." + ::util::toString(key);
+            switch (key) {
+            case ThingPropertyKey::offset:
+                if constexpr (std::is_same_v<T, int>) {
+                    _symbolRepository.setSymbol(var, offsetTable[value]);
                 }
-            //}
-        }
+                break;
+            default:
+                if constexpr (std::is_arithmetic_v<T>) {
+                    _symbolRepository.setSymbol(var, static_cast<double>(value));
+                }
+                break;
+            }
+        });
     });
     _subscribedThings.insert(thing->id());
 }

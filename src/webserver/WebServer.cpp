@@ -107,10 +107,10 @@ WebServer::WebServer(const ThingRepository& repo,
 
         thing->propertiesObservable().subscribe([this, thing](const ThingPropertyMap& prop) {
             json thing_;
-            for (const auto& kv : prop) {
-                if (kv.first <= ThingPropertyKey::next_phases)
-                    thing_[::util::toString(kv.first)] = toJsonValue(kv.second);
-            }
+            prop.forEach([&thing_](ThingPropertyKey key, const auto& value) {
+                if (key <= ThingPropertyKey::next_phases)
+                    thing_[::util::toString(key)] = value;
+            });
             if (thing_.empty()) return;
 
             json json;

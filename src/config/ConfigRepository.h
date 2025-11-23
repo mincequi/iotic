@@ -94,9 +94,8 @@ private:
 
     void setPropertiesTo(const ThingPtr& thing);
 
-    std::optional<ThingPropertyValue> value(const std::string& id, ThingPropertyKey key) const;
-
-    void persistProperty(const std::string& table, ThingPropertyKey key, const ThingPropertyValue& value) const;
+    template<class T>
+    void persistProperty(const std::string& table, ThingPropertyKey key, const T& value) const;
 
 private:
     const ThingRepository& _repo;

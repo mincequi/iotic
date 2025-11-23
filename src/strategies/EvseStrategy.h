@@ -40,7 +40,7 @@ private:
     }
 
     int computePhases(double availablePower, bool applyHysteresis = false) const;
-    ThingPropertyValue computeCurrent(double availablePower);
+    int computeCurrent(double availablePower);
 
     int powerError() const;
 

@@ -42,7 +42,9 @@ std::unique_ptr<Strategy> RuleActuationStrategy::from(const ThingPtr& thing,
     }
 
     if (symbolRepository.containsSymbol(thing->id() + ".offset")) {
-        thing->setProperty(ThingPropertyKey::offset, defaultOffset);
+        ThingPropertyMap properties;
+        properties.set<ThingPropertyKey::offset>(defaultOffset);
+        thing->setProperties(properties);
     }
 
     LOG_S(INFO) << thing->id() <<
@@ -69,15 +71,9 @@ RuleActuationStrategy::RuleActuationStrategy(const ThingPtr& thing,
 
     // Subscribe to thing's power
     thing->propertiesObservable().subscribe([this](const ThingPropertyMap& map) {
-        for (const auto& kv : map) {
-            switch (kv.first) {
-            case ThingPropertyKey::power:
-                _measuredPower = std::get<int>(kv.second);
-                break;
-            default:
-                break;
-            }
-        }
+        map.on<ThingPropertyKey::power>([&](const auto& value) {
+            _measuredPower = value;
+        });
     });
 }
 
@@ -124,6 +120,8 @@ void RuleActuationStrategy::adjust(Step step, const Site::Properties&) {
     }
 
     if (_state.has_value()) {
-        _thingRepository.setThingProperty(thingId(), ThingPropertyKey::power_control, _state.value());
+        ThingPropertyMap properties;
+        properties.set<ThingPropertyKey::power_control>(_state.value());
+        _thingRepository.setThingProperties(thingId(), properties);
     }
 }

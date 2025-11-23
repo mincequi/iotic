@@ -24,7 +24,9 @@ std::unique_ptr<Strategy> EvseStrategy::from(const ThingPtr& thing,
                                              const ThingRepository& repo,
                                              const ConfigRepository& cfg) {
     if (thing->type() == ThingType::EvStation) {
-        thing->setProperty(ThingPropertyKey::offset, cfg.valueOr<int>(thing->id(), ConfigRepository::Key::offset, defaultOffset));
+        ThingPropertyMap properties;
+        properties.set<ThingPropertyKey::offset>(cfg.valueOr<int>(thing->id(), ConfigRepository::Key::offset, defaultOffset));
+        thing->setProperties(properties);
         return std::unique_ptr<EvseStrategy>(new EvseStrategy(thing, repo, cfg));
     }
     return {};
@@ -39,31 +41,24 @@ EvseStrategy::EvseStrategy(const ThingPtr& thing,
     _onePhaseHysteresis(_configRepository.hysteresisFor(6 * 230)),
     _threePhaseHysteresis(_configRepository.hysteresisFor(3 * 6 * 230)) {
 
-    if (thing->properties().contains(ThingPropertyKey::offset)) {
-        _offsetPower = offsetTable[std::get<int>(thing->properties().at(ThingPropertyKey::offset))];
-    }
+    thing->properties().on<ThingPropertyKey::offset>([this](const auto& value) {
+        _offsetPower = offsetTable[value];
+    });
 
     thing->propertiesObservable().subscribe([this](const ThingPropertyMap& map) {
         const auto nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-        for (const auto& kv : map) {
-            switch (kv.first) {
-            case ThingPropertyKey::power:
-                ema(_measuredPower, std::max(std::get<int>(kv.second), 0), nowMs - _lastMeasurementTs, _configRepository.shortTermTau);
-                break;
-            case ThingPropertyKey::voltage:
-                _voltages = std::get<std::array<int, 3>>(kv.second);
-                break;
-            case ThingPropertyKey::offset:
-                _offsetPower = offsetTable[std::get<int>(kv.second)];
-                break;
-            case ThingPropertyKey::status:
-                // make ThingStatus from int
-                onStatus(static_cast<ThingStatus>(std::get<int>(kv.second)));
-                break;
-            default:
-                break;
-            }
-        }
+
+        map.on<ThingPropertyKey::power>([&](const auto& value) {
+            ema(_measuredPower, std::max(value, 0), nowMs - _lastMeasurementTs, _configRepository.shortTermTau);
+        }).on<ThingPropertyKey::voltage>([&](const auto& value) {
+            _voltages = value;
+        }).on<ThingPropertyKey::offset>([&](const auto& value) {
+            _offsetPower = offsetTable[value];
+        }).on<ThingPropertyKey::status>([this](const auto& value) {
+            // make ThingStatus from int
+            onStatus(static_cast<ThingStatus>(value));
+        });
+
         _lastMeasurementTs = nowMs;
     });
 }
@@ -95,15 +90,16 @@ void EvseStrategy::adjust(Step step, const Site::Properties& siteProperties) {
         _phases = _nextPhases;
     }
 
-    _thingRepository.setThingProperties(thingId(), {
-        { ThingPropertyKey::phases, _phases },
-        { ThingPropertyKey::next_phases, _nextPhases },
-        { ThingPropertyKey::countdown, 0 }
-    });
+    ThingPropertyMap properties;
+    properties.set<ThingPropertyKey::phases>(_phases);
+    properties.set<ThingPropertyKey::next_phases>(_nextPhases);
+    properties.set<ThingPropertyKey::countdown>(0);
 
     // Set current
     const auto shortTermAvailablePower = _offsetPower + _measuredPower - siteProperties.shortTermGridPower;
-    _thingRepository.setThingProperties(thingId(), {{ ThingPropertyKey::current, computeCurrent(shortTermAvailablePower) }});
+    properties.set<ThingPropertyKey::current>(computeCurrent(shortTermAvailablePower));
+
+    _thingRepository.setThingProperties(thingId(), properties);
 }
 
 int EvseStrategy::powerError() const {
@@ -147,14 +143,14 @@ int EvseStrategy::computePhases(double availablePower, bool applyHysteresis) con
     }
 }
 
-ThingPropertyValue EvseStrategy::computeCurrent(double availablePower) {
+int EvseStrategy::computeCurrent(double availablePower) {
     switch (_phases) {
     case 1:
         _current = (int)(availablePower / _voltages.front());
         return _current;
     case 3: {
         _current = availablePower / std::reduce(_voltages.begin(), _voltages.end());
-        return std::array{ _current, _current, _current };
+        return _current;
     }
     default:
         _current = 0;

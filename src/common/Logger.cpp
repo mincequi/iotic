@@ -16,13 +16,6 @@ std::ostream& operator<<(std::ostream& s, const uvw_iot::ThingPropertyValue& val
 
     return s;
 }
-std::ostream& operator<<(std::ostream& s, const uvw_iot::ThingPropertyMap& map) {
-    for (const auto& [k, v] : map) {
-        s << k << ": " << v << ", ";
-    }
-
-    return s;
-}
 
 void Logger::init(int& argc, char* argv[]) {
     /* Everything with a verbosity equal or greater than g_stderr_verbosity will be

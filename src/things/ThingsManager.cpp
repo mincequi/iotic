@@ -73,7 +73,7 @@ void ThingsManager::onTimer() const {
 
     // Read things
     if ((now_ms % (_configRepository.thingInterval() * 1000)) == 0) {
-        _thingRepository.getProperties();
+        _thingRepository.fetchProperties();
     }
 
     //_currentTimestamp = timestamp;

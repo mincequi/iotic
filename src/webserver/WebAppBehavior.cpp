@@ -51,7 +51,9 @@ uWS::App::WebSocketBehavior<WebAppRouterPtr> WebAppBehavior::create(WebAppRouter
             // Check if our router can route this (site and ev_charging_strategy)
             // Otherwise, set property to generic repo.
             if (!router->route(thingId, property.value(), fromJsonValue(value))) {
-                router->thingRepository().setThingProperty(thingId, property.value(), fromJsonValue(value));
+                ThingPropertyMap properties;
+                properties.set(property.value(), value);
+                router->thingRepository().setThingProperties(thingId, properties);
             }
         }
     };
@@ -61,10 +63,12 @@ uWS::App::WebSocketBehavior<WebAppRouterPtr> WebAppBehavior::create(WebAppRouter
 
 std::string WebAppBehavior::serializeUserProperties(const ThingPtr& t) {
     json properties;
-    for (const auto& kv : t->properties()) {
-        if (kv.first <= ThingPropertyKey::power_control)
-            properties[::util::toString(kv.first)] = toJsonValue(kv.second);
-    }
+
+    t->properties().forEach([&properties](ThingPropertyKey key, const auto& value) {
+        if (key <= ThingPropertyKey::power_control) {
+            properties[::util::toString(key)] = value;
+        }
+    });
     if (t->type() != ThingType::Unknown)
         properties["type"] = ::util::toString(t->type());
 
