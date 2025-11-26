@@ -67,7 +67,7 @@ EvseStrategy::~EvseStrategy() {
 }
 
 bool EvseStrategy::wantsToStepDown(const Site::Properties& siteProperties) const {
-    auto longTermAvailablePower = _offsetPower + _measuredPower - siteProperties.longTermGridPower;
+    auto longTermAvailablePower = std::max(0, _offsetPower) + _measuredPower - siteProperties.longTermGridPower;
     _nextPhases = computePhases(longTermAvailablePower);
     return _nextPhases < _phases;
 }
@@ -96,7 +96,7 @@ void EvseStrategy::adjust(Step step, const Site::Properties& siteProperties) {
     properties.set<ThingPropertyKey::countdown>(0);
 
     // Set current
-    const auto shortTermAvailablePower = _offsetPower + _measuredPower - siteProperties.shortTermGridPower;
+    const auto shortTermAvailablePower = std::max(0, _offsetPower) + _measuredPower - siteProperties.shortTermGridPower;
     properties.set<ThingPropertyKey::current>(computeCurrent(shortTermAvailablePower));
 
     _thingRepository.setThingProperties(thingId(), properties);

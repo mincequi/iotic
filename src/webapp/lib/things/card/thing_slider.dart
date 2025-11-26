@@ -18,11 +18,12 @@ class ThingSlider extends StatelessWidget {
   final String _id;
   final _offsets = [
     "Off",
+    "1 kW",
     "500 W",
     //"300 W",
-    "200 W",
+    //"200 W",
     "0 W",
-    "200 W",
+    //"200 W",
     //"300 W",
     "500 W",
     //"700 W",
@@ -35,15 +36,17 @@ class ThingSlider extends StatelessWidget {
     "10 kW",
     "Max"
   ];
+  // default offset
+  final _defaultOffset = 3;
 
   Color _color(BuildContext context) {
     if (_control.offset.value == 0) {
       return Theme.of(context).colorScheme.outline;
     }
-    if (_control.offset.value! < 3) {
+    if (_control.offset.value! < _defaultOffset) {
       return Theme.of(context).colorScheme.secondary;
     }
-    if (_control.offset.value == 3) {
+    if (_control.offset.value == _defaultOffset) {
       return Theme.of(context).colorScheme.primary;
     }
     //if (_control.offset.value! < 5) {
@@ -74,13 +77,13 @@ class ThingSlider extends StatelessWidget {
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
                 stops: [
-                  0.5 / (_offsets.length - 1),
-                  (1.5) / (_offsets.length - 1),
-                  (2.0) / (_offsets.length - 1),
-                  (3.0) / (_offsets.length - 1),
-                  (3.5) / (_offsets.length - 1),
+                  0.5 / (_offsets.length - 1), // gray
+                  (1.5) / (_offsets.length - 1), // green
+                  (2.0) / (_offsets.length - 1), // green
+                  (3.0) / (_offsets.length - 1), // yellow
+                  (3.5) / (_offsets.length - 1), // yellow
                   //(6) / (_offsets.length - 1),
-                  (_offsets.length / 2) / (_offsets.length - 1),
+                  (_offsets.length / 2) / (_offsets.length - 1), // red
                 ],
                 tileMode: TileMode.clamp),
           ),
