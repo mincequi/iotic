@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 class ThingUiProperty extends StatelessWidget {
-  const ThingUiProperty(this._icon, this._value, this._unit, {super.key});
+  const ThingUiProperty(this._icon, this._value, this._unit,
+      {this.color, super.key});
 
   final IconData _icon;
   final double _value;
   final String _unit;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -16,18 +18,25 @@ class ThingUiProperty extends StatelessWidget {
           Icon(
             size: 14,
             _icon,
+            color: color,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Text(
                 value(_value),
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: color),
               ),
               const SizedBox(width: 2),
               Text(
                 _unit,
-                style: Theme.of(context).textTheme.bodySmall,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: color),
                 //textAlign: TextAlign.left,
               )
             ],

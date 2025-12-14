@@ -4,19 +4,18 @@
 
 #include <HttpResponse.h>
 #include <common/Logger.h>
-#include <config/ConfigRepository.h>
-#include <rules/RulesEngine.h>
 
 using namespace uvw_iot::util;
 
 AppBackend::AppBackend() :
     _configRepository(_thingRepository),
+    _discoveryManager(_thingRepository),
     _thingsManager(_thingRepository, _configRepository),
     _strategyRepository(_thingRepository),
     _site(_thingRepository, {.shortTermTau = _configRepository.shortTermTau, .longTermTau = _configRepository.longTermTau}),
     //_mqttExporter("broker.hivemq.com"),
     _webServer(_thingRepository, _site, _configRepository, _strategyRepository, _symbolRepository),
-    _rulesEngine(_thingRepository, _strategyRepository, _symbolRepository, _configRepository),
+    _ruleEngine(_thingRepository, _strategyRepository, _symbolRepository, _configRepository),
     _powerManager(_strategyRepository, _symbolRepository, _site, _configRepository) {
 
     _thingRepository.thingAdded().subscribe([this](ThingPtr thing) {
@@ -37,14 +36,8 @@ AppBackend::AppBackend() :
     }
 #endif
 
-    // Start discovery
-    _thingsManager.startDiscovery(60 * 1000);
-
-    _webServer.registerGetRoute("/discover", std::move([this](uWS::HttpResponse<false>* res, uWS::HttpRequest*) {
-        _thingsManager.discover();
-        res->writeHeader("Access-Control-Allow-Origin", "*");
-        res->end("discovery started");
-    }));
+    // Start discoveries
+    _discoveryManager.startDiscovery(60 * 1000);
 }
 
 AppBackend::~AppBackend() {

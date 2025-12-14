@@ -3,6 +3,7 @@ import 'package:get/get_core/get_core.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
+import 'package:iotic/common/iotic_theme.dart';
 import 'package:iotic/common/web_socket_data_source.dart';
 
 import '../data/thing_properties.dart';
@@ -28,7 +29,7 @@ class ThingCardController extends GetxController {
   final status = Rxn<IconData>();
   final countdown = Rxn<int>();
 
-  final propertyWidgets = <ThingPropertyKey, ThingUiProperty>{}.obs;
+  final propertyWidgets = <ThingUiProperty>[].obs;
 
   @override
   void onReady() {
@@ -81,13 +82,27 @@ class ThingCardController extends GetxController {
     // TODO: this has to be dynamic. Otherwise things cards won't get updated.
     // No idea why.
     dynamic p;
+    propertyWidgets.clear();
     if ((p = p0[ThingPropertyKey.power]) != null) {
-      propertyWidgets[ThingPropertyKey.power] =
-          ThingUiProperty(Icons.electric_bolt, p, _powerUnit(p.round()));
+      propertyWidgets.add(//[ThingPropertyKey.power] =
+          ThingUiProperty(Icons.electric_bolt, p, _powerUnit(p.round())));
     }
     if ((p = p0[ThingPropertyKey.temperature]) != null) {
-      propertyWidgets[ThingPropertyKey.temperature] =
-          ThingUiProperty(Icons.thermostat, p / 10.0, '°C');
+      propertyWidgets.add(//[ThingPropertyKey.temperature] =
+          ThingUiProperty(Icons.thermostat, p / 10.0, '°C'));
+    }
+    if ((p = p0[ThingPropertyKey.voltage]) != null &&
+        p0[ThingPropertyKey.type] == "weatherStation") {
+      // Round to multiple of 5
+      p[0] = (p[0] / 5).round() * 5;
+      p[1] = (p[1] / 5).round() * 5;
+
+      Color? p0Color = p[0] > 0 ? IoticTheme.orange : null;
+      Color? p1Color = p[1] > 0 ? IoticTheme.yellow : null;
+      propertyWidgets.add(//[ThingPropertyKey.voltage] =
+          ThingUiProperty(Icons.speed, p[0], '%', color: p0Color));
+      propertyWidgets.add(//[ThingPropertyKey.voltage] =
+          ThingUiProperty(Icons.speed, p[1], '%', color: p1Color));
     }
   }
 
@@ -95,6 +110,8 @@ class ThingCardController extends GetxController {
     "smartMeter": Icons.electric_meter,
     "solarInverter": Icons.solar_power,
     "evStation": Icons.ev_station,
+    "weatherStation": Icons.local_fire_department,
+    //"heatingSystem": Icons.fireplace,
     null: Icons.device_hub
   };
 

@@ -5,7 +5,8 @@
 //#include <influx/InfluxExporter.h>
 //#include <mqtt/MqttExporter.h>
 #include <config/ConfigRepository.h>
-#include <rules/RulesEngine.h>
+#include <discovery/DiscoveryManager.h>
+#include <rules/RuleEngine.h>
 #include <rules/SymbolRepository.h>
 #include <strategies/PowerManager.h>
 #include <strategies/StrategyRepository.h>
@@ -25,9 +26,10 @@ private:
     StrategyRepository _strategyRepository;
     SymbolRepository _symbolRepository;
     ConfigRepository _configRepository;
+    DiscoveryManager _discoveryManager;
     ThingsManager _thingsManager;
     Site _site;
-    RuleEngine _rulesEngine;
+    RuleEngine _ruleEngine;
     PowerManager _powerManager;
     WebServer _webServer;
 

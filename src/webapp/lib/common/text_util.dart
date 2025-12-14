@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
 const _offset = 1.5;
-const _blurRadius = 0.1;
+const _blurRadius = 0.0;
 shadows() => [
       const Shadow(offset: Offset(-_offset, 0.0), blurRadius: _blurRadius),
       const Shadow(offset: Offset(0.0, -_offset), blurRadius: _blurRadius),
       const Shadow(offset: Offset(_offset, 0.0), blurRadius: _blurRadius),
       const Shadow(offset: Offset(0.0, _offset), blurRadius: _blurRadius),
-      //Shadow(offset: Offset(0.0, ), blurRadius: _blurRadius),
     ];
 
 textStyle(Color color, {FontWeight fontWeight = FontWeight.bold}) => TextStyle(

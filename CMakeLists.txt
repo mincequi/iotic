@@ -34,6 +34,10 @@ add_executable(iotic
   src/appDiscoverCoro/AppDiscoverCoro.cpp
   src/appDiscoverCoro/Scheduler.h
   src/appDiscoverCoro/Scheduler.cpp
+  src/coap/CoapDiscovery.h src/coap/CoapDiscovery.cpp
+  src/discovery/DiscoveryManager.h src/discovery/DiscoveryManager.cpp
+  src/coap/CoapMessage.h src/coap/CoapMessage.cpp
+  src/coap/CoapThing.h src/coap/CoapThing.cpp
 )
 
 target_link_libraries(iotic

@@ -1,5 +1,6 @@
 FetchContent_Declare(clipp
   URL https://github.com/muellan/clipp/archive/refs/tags/v1.2.3.tar.gz
+  #URL https://github.com/GerHobbelt/clipp/archive/refs/tags/v2023.10.12.tar.gz
 )
 if(NOT clipp_POPULATED)
   FetchContent_Populate(clipp)

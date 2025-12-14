@@ -58,6 +58,7 @@ class WebSocketDataSource {
   final _host = html.window.location.hostname;
   final _port = int.parse(html.window.location.port);
   //final _host = "raspberrypi.local";
+  //final _host = "localhost";
   //final _port = 8030;
 
   late WebSocketChannel _channel;

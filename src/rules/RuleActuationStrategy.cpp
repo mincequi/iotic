@@ -12,18 +12,20 @@
 #include <common/OffsetTable.h>
 #include <common/RppUvw.h>
 #include <config/ConfigRepository.h>
-#include <rules/RulesEngine.h>
+#include <rules/RuleEngine.h>
 #include <rules/RuleUtil.h>
 #include <rules/SymbolRepository.h>
 
 using namespace std::chrono_literals;
 using namespace uvw_iot;
 
-std::unique_ptr<Strategy> RuleActuationStrategy::from(const ThingPtr& thing,
-                                                      const ThingRepository& thingRepository,
-                                                      const SymbolRepository& symbolRepository,
-                                                      const RuleEngine& ruleEngine,
-                                                      const ConfigRepository& configRepository) {
+std::unique_ptr<Strategy> RuleActuationStrategy::from(
+    const ThingPtr& thing,
+    const ThingRepository& thingRepository,
+    const SymbolRepository& symbolRepository,
+    const RuleEngine& ruleEngine,
+    const ConfigRepository& configRepository) {
+
     // Check if thing has "on" and "off" expression
     const auto onExpressionStr = configRepository.valueOr<std::string>(thing->id(), ConfigRepository::Key::on);
     if (onExpressionStr.empty()) return {};
@@ -41,6 +43,7 @@ std::unique_ptr<Strategy> RuleActuationStrategy::from(const ThingPtr& thing,
         return {};
     }
 
+    // TODO: why handle offset here? It shall be defined in the expressions.
     if (symbolRepository.containsSymbol(thing->id() + ".offset")) {
         ThingPropertyMap properties;
         properties.set<ThingPropertyKey::offset>(defaultOffset);
@@ -51,23 +54,23 @@ std::unique_ptr<Strategy> RuleActuationStrategy::from(const ThingPtr& thing,
                    "> onExpression: " << onExpressionStr <<
                    ", offExpression: " << offExpressionStr;
 
-    return std::unique_ptr<RuleActuationStrategy>(new RuleActuationStrategy(thing,
-                                                                            std::move(onExpression),
-                                                                            std::move(offExpression),
-                                                                            thingRepository,
-                                                                            configRepository));
+    return std::unique_ptr<RuleActuationStrategy>(
+        new RuleActuationStrategy(
+            thing,
+            std::move(onExpression),
+            std::move(offExpression),
+            thingRepository)
+        );
 }
 
 RuleActuationStrategy::RuleActuationStrategy(const ThingPtr& thing,
                                              std::unique_ptr<te_parser> onExpression,
                                              std::unique_ptr<te_parser> offExpression,
-                                             const ThingRepository& thingRepository,
-                                             const ConfigRepository& cfg) :
+                                             const ThingRepository& thingRepository) :
     Strategy(thing->id()),
     _onExpression(std::move(onExpression)),
     _offExpression(std::move(offExpression)),
-    _thingRepository(thingRepository),
-    _configRepository(cfg) {
+    _thingRepository(thingRepository) {
 
     // Subscribe to thing's power
     thing->propertiesObservable().subscribe([this](const ThingPropertyMap& map) {

@@ -65,7 +65,7 @@ std::string WebAppBehavior::serializeUserProperties(const ThingPtr& t) {
     json properties;
 
     t->properties().forEach([&properties](ThingPropertyKey key, const auto& value) {
-        if (key <= ThingPropertyKey::power_control) {
+        if (key <= ThingPropertyKey::voltage) {
             properties[::util::toString(key)] = value;
         }
     });

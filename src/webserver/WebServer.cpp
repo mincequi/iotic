@@ -9,7 +9,7 @@
 #include <common/Logger.h>
 #include <common/Util.h>
 #include <config/ConfigRepository.h>
-#include <rules/RulesEngine.h>
+#include <rules/RuleEngine.h>
 #include <rules/SymbolRepository.h>
 #include <strategies/Strategy.h>
 #include <strategies/StrategyRepository.h>
@@ -108,7 +108,7 @@ WebServer::WebServer(const ThingRepository& repo,
         thing->propertiesObservable().subscribe([this, thing](const ThingPropertyMap& prop) {
             json thing_;
             prop.forEach([&thing_](ThingPropertyKey key, const auto& value) {
-                if (key <= ThingPropertyKey::next_phases)
+                if (key <= ThingPropertyKey::voltage)
                     thing_[::util::toString(key)] = value;
             });
             if (thing_.empty()) return;

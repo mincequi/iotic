@@ -44,7 +44,7 @@ class ThingCard extends StatelessWidget {
           title: titleWidget(),
           //Text(_control.name.value),
           subtitle: _control.propertyWidgets.isNotEmpty
-              ? Row(children: _control.propertyWidgets.values.toList())
+              ? Row(children: _control.propertyWidgets)
               : null,
           trailing: trailingWidgets(context),
         ),

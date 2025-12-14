@@ -28,20 +28,15 @@ private:
     RuleActuationStrategy(const ThingPtr& thing,
                           std::unique_ptr<te_parser> onExpression,
                           std::unique_ptr<te_parser> offExpression,
-                          const ThingRepository& repo,
-                          const ConfigRepository& cfg);
+                          const ThingRepository& repo);
 
     json toJson() const override;
 
     bool wantsToStepDown(const Site::Properties& siteProperties) const override;
     bool wantsToStepUp(const Site::Properties& siteProperties) const override;
     void adjust(Step step, const Site::Properties& siteProperties) override;
-    inline int measuredPower() const override {
-        return _measuredPower;
-    }
 
     const ThingRepository& _thingRepository;
-    const ConfigRepository& _configRepository;
 
     std::unique_ptr<te_parser> _onExpression;
     std::unique_ptr<te_parser> _offExpression;

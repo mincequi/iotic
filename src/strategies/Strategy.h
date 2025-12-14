@@ -3,8 +3,11 @@
 #include <string>
 #include <common/Types.h>
 
+#include <uvw_iot/Thing.h>
 #include <uvw_iot/util/Site.h>
 
+using uvw_iot::ThingPtr;
+using uvw_iot::ThingRepository;
 using uvw_iot::util::Site;
 
 class Strategy {
@@ -27,7 +30,6 @@ public:
     virtual bool wantsToStepDown(const Site::Properties& siteProperties) const = 0;
     virtual bool wantsToStepUp(const Site::Properties& siteProperties) const = 0;
     virtual void adjust(Step step, const Site::Properties& siteProperties) = 0;
-    virtual int measuredPower() const = 0;
 
 protected:
     Strategy(const std::string& thingId);

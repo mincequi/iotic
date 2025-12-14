@@ -23,6 +23,8 @@ enum ThingPropertyKey {
   phases,
   next_phases,
 
+  voltage,
+
   // custom properties - strategies
   offset,
   thing_interval,

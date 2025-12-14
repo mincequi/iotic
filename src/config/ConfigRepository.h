@@ -43,22 +43,28 @@ using uvw_iot::ThingRepository;
 class ConfigRepository {
 public:
     enum class Key {
+        // Site
         discovery_interval,
         thing_interval,
         time_constant,
         grid,
         pv,
 
+        // Thing
         name,
         pinned,
         offset,
 
+        // Strategy
         on,
         off,
         debounce,
         priority,
         hysteresis_percent,
         hysteresis_absolute,
+
+        // MultiPhaseStrategy
+        power_thresholds,
     };
 
     ConfigRepository(const ThingRepository& repo);
@@ -98,6 +104,7 @@ private:
     void persistProperty(const std::string& table, ThingPropertyKey key, const T& value) const;
 
 private:
+    // TODO: this can probably be removed
     const ThingRepository& _repo;
     const std::string _configFile = "/var/lib/iotic/iotic.conf";
 
