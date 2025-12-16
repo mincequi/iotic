@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:icon_decoration/icon_decoration.dart';
 import 'package:iotic/things/card/charger/charger_status.dart';
 import 'package:iotic/common/iotic_theme.dart';
+import 'package:iotic/things/card/thing_gauge.dart';
+import 'package:iotic/things/data/thing.dart';
 import '../../common/web_socket_data_source.dart';
 import '../data/thing_property.dart';
 import 'thing_card_controller.dart';
@@ -69,17 +71,31 @@ class ThingCard extends StatelessWidget {
 
   Widget? trailingWidgets(BuildContext context) {
     if (isPinnedCard) {
-      return _control.isOn.value != null
-          ? Switch(
-              value: _control.isOn.value!,
-              onChanged: (value) {
-                _repo.sendThingPropertyValue(
-                    _id, ThingPropertyKey.power_control, value);
-              },
-            )
-          : _control.icon.value == Icons.ev_station
-              ? ChargerStatus(_id)
-              : Icon(_control.status.value);
+      if (_control.isOn.value != null) {
+        return Switch(
+          value: _control.isOn.value!,
+          onChanged: (value) {
+            _repo.sendThingPropertyValue(
+                _id, ThingPropertyKey.power_control, value);
+          },
+        );
+      } else if (_control.icon.value == Icons.ev_station) {
+        return ChargerStatus(_id);
+      } else if (_control.icon.value == Icons.local_fire_department) {
+        dynamic p;
+        if ((p = _control.voltages.value) != null) {
+          // Round to multiple of 5
+          double p0 = (p[0] / 5).round() * 5;
+          double p1 = (p[1] / 5).round() * 5;
+
+          return Row(mainAxisSize: MainAxisSize.min, spacing: 6, children: [
+            ThingGauge(p0, IoticTheme.orange),
+            ThingGauge(p1, IoticTheme.yellow)
+          ]);
+        }
+      } else {
+        return Icon(_control.icon.value);
+      }
     }
 
     return Wrap(children: [

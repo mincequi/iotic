@@ -1,5 +1,7 @@
 #include "CoapMessage.h"
 
+#include <algorithm>
+
 std::optional<CoapMessage> CoapMessage::decode(std::string_view data) {
     CoapMessage msg;
 

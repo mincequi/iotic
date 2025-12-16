@@ -23,11 +23,11 @@ class ThingCardController extends GetxController {
   final isEditingMode = false.obs;
   final isPinned = false.obs;
 
-  // Mutable properties
   final isOn = RxnBool();
   final offset = Rxn<int>();
   final status = Rxn<IconData>();
   final countdown = Rxn<int>();
+  final voltages = Rxn<List<int>>();
 
   final propertyWidgets = <ThingUiProperty>[].obs;
 
@@ -69,6 +69,7 @@ class ThingCardController extends GetxController {
     offset.value = p0[ThingPropertyKey.offset];
     status.value = toIcon(p0[ThingPropertyKey.status]);
     countdown.value = p0[ThingPropertyKey.countdown];
+    voltages.value = p0[ThingPropertyKey.voltage]?.cast<int>();
 
     // Check for power control
     //hasPowerControl.value = p0.containsKey(ReadableThingProperty.power_control);
@@ -85,24 +86,13 @@ class ThingCardController extends GetxController {
     propertyWidgets.clear();
     if ((p = p0[ThingPropertyKey.power]) != null) {
       propertyWidgets.add(//[ThingPropertyKey.power] =
-          ThingUiProperty(Icons.electric_bolt, p, _powerUnit(p.round())));
+          ThingUiProperty(Icons.electric_bolt, p, _powerUnit(p.round()),
+              ThingPropertyKey.power));
     }
     if ((p = p0[ThingPropertyKey.temperature]) != null) {
       propertyWidgets.add(//[ThingPropertyKey.temperature] =
-          ThingUiProperty(Icons.thermostat, p / 10.0, '°C'));
-    }
-    if ((p = p0[ThingPropertyKey.voltage]) != null &&
-        p0[ThingPropertyKey.type] == "weatherStation") {
-      // Round to multiple of 5
-      p[0] = (p[0] / 5).round() * 5;
-      p[1] = (p[1] / 5).round() * 5;
-
-      Color? p0Color = p[0] > 0 ? IoticTheme.orange : null;
-      Color? p1Color = p[1] > 0 ? IoticTheme.yellow : null;
-      propertyWidgets.add(//[ThingPropertyKey.voltage] =
-          ThingUiProperty(Icons.speed, p[0], '%', color: p0Color));
-      propertyWidgets.add(//[ThingPropertyKey.voltage] =
-          ThingUiProperty(Icons.speed, p[1], '%', color: p1Color));
+          ThingUiProperty(
+              Icons.thermostat, p / 10.0, '°C', ThingPropertyKey.temperature));
     }
   }
 

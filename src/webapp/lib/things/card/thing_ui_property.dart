@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:iotic/things/data/thing_property.dart';
 
 class ThingUiProperty extends StatelessWidget {
-  const ThingUiProperty(this._icon, this._value, this._unit,
+  const ThingUiProperty(this._icon, this._value, this._unit, this._propertyKey,
       {this.color, super.key});
 
   final IconData _icon;
-  final double _value;
+  final num _value;
   final String _unit;
+  final ThingPropertyKey _propertyKey;
   final Color? color;
 
   @override
@@ -47,11 +49,16 @@ class ThingUiProperty extends StatelessWidget {
         ]));
   }
 
-  String value(double v) {
-    if (v.abs() == 0) return v.abs().toStringAsFixed(0);
-    if (v.abs() < 100) return v.abs().toStringAsFixed(1); // For temperature
-    if (v.abs() < 1000) return v.abs().toStringAsFixed(0);
-
-    return (v / 1000).abs().toStringAsFixed(1);
+  String value(num v) {
+    if (_propertyKey == ThingPropertyKey.temperature) {
+      if (v.abs() < 100) {
+        return v.abs().toStringAsFixed(1);
+      } else {
+        return v.abs().toStringAsFixed(0);
+      }
+    } else {
+      if (v.abs() < 1000) return v.abs().toStringAsFixed(0);
+      return (v / 1000).abs().toStringAsFixed(1);
+    }
   }
 }
