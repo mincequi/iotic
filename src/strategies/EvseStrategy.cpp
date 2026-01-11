@@ -67,8 +67,13 @@ EvseStrategy::~EvseStrategy() {
 }
 
 bool EvseStrategy::wantsToStepDown(const Site::Properties& siteProperties) const {
-    auto longTermAvailablePower = std::max(0, _offsetPower) + _measuredPower - siteProperties.longTermGridPower;
-    _nextPhases = computePhases(longTermAvailablePower);
+    if (_offsetPower == 0) {
+        _nextPhases = 0;
+    } else {
+        auto longTermAvailablePower = std::max(0, _offsetPower) + _measuredPower - siteProperties.longTermGridPower;
+        _nextPhases = computePhases(longTermAvailablePower);
+    }
+
     return _nextPhases < _phases;
 }
 

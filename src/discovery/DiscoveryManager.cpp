@@ -87,6 +87,8 @@ DiscoveryManager::DiscoveryManager(const ThingRepository& thingRepository) :
 void DiscoveryManager::startDiscovery(int msec) {
     auto timer = uvw::loop::get_default()->resource<uvw::timer_handle>();
     timer->on<uvw::timer_event>([this](const auto&, auto&) {
+        LOG_S(INFO) << "starting discovery cycle";
+        _coapDiscovery.discover();
         _dnsDiscovery.discover("_http._tcp.local");
         _modbusDiscovery.discover();
     });

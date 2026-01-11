@@ -11,3 +11,9 @@ uvw_iot::ThingPtr CoapThing::from(const CoapMessage& message) {
     }
     return nullptr;
 }
+
+void CoapThing::fetchProperties() {
+    CoapMessage msg;
+    msg.code = CoapMessage::Code::Get;
+    // No-op
+}

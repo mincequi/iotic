@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const _offset = 1.5;
+const _offset = 2.0;
 const _blurRadius = 0.0;
 shadows() => [
       const Shadow(offset: Offset(-_offset, 0.0), blurRadius: _blurRadius),

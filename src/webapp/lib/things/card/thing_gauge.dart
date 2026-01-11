@@ -1,60 +1,164 @@
 import 'package:flutter/material.dart';
-import 'package:gauge_indicator/gauge_indicator.dart';
-import 'package:iotic/common/iotic_theme.dart';
 import 'package:iotic/common/text_util.dart';
 
-class ThingGauge extends StatelessWidget {
-  const ThingGauge(this.value, this._color, {super.key});
+import 'dart:math' as Math;
 
+class RadialGaugeBar {
   final double value;
-  final Color _color;
+  final Color color;
+  final double thickness;
+
+  RadialGaugeBar({
+    required this.value,
+    required this.color,
+    this.thickness = 6,
+  });
+}
+
+class ThingGauge extends StatelessWidget {
+  final List<RadialGaugeBar> bars;
+  final double min;
+  final double max;
+  final double startAngle;
+  final double endAngle;
+  final double spaceBetweenBars;
+  final double margins;
+
+  const ThingGauge({
+    super.key,
+    required this.bars,
+    required this.min,
+    required this.max,
+    required this.startAngle,
+    required this.endAngle,
+    this.spaceBetweenBars = 1,
+    this.margins = 4,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Stack(alignment: Alignment.bottomCenter, children: [
-      SizedBox(
-          width: 64,
-          height: 64,
-          child: AnimatedRadialGauge(
-              duration: const Duration(seconds: 1),
-              value: value,
-              axis: GaugeAxis(
-                  pointer: null,
-                  min: 0,
-                  max: 100,
-                  degrees: 135,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final size = constraints.maxHeight;
 
-                  /// Set the background color and axis thickness.
-                  style: GaugeAxisStyle(
-                    thickness: 10,
-                    background: _color.withOpacity(0.4),
-                    segmentSpacing: 0,
-                    cornerRadius:
-                        const Radius.circular(IoticTheme.rectangleRadius),
-                  ),
-                  progressBar: null,
-
-                  /// Define axis segments (optional).
-                  segments: [
-                    GaugeSegment(
-                      from: 0,
-                      to: value,
-                      color: _color,
-                      cornerRadius: const Radius.circular(
-                          IoticTheme.rectangleRadius - 1.0),
-                    )
-                  ]))),
-      Padding(
-          padding: const EdgeInsets.only(bottom: 2),
-          child: Text(
-            value.toStringAsFixed(0) + '\u2009%',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: value == 0 ? _color.withOpacity(0.4) : _color,
-                shadows: shadows(),
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-                textBaseline: TextBaseline.alphabetic),
-          )),
-    ]);
+        return SizedBox(
+          height: size,
+          width: size,
+          child: Stack(
+            alignment: Alignment.centerRight,
+            children: [
+              CustomPaint(
+                size: Size.square(size),
+                painter: _MultiRadialGaugePainter(
+                  bars: bars,
+                  min: min,
+                  max: max,
+                  startAngle: startAngle,
+                  endAngle: endAngle,
+                  spaceBetweenBars: spaceBetweenBars,
+                  margins: margins,
+                ),
+              ),
+              Padding(
+                  padding: EdgeInsets.only(right: 4.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      SizedBox(height: 10),
+                      // small space character
+                      //const Text('\u2007'),
+                      Text(bars.first.value.toStringAsFixed(0) + '%',
+                          style: textStyle(bars.first.value > 0
+                              ? bars.first.color
+                              : bars.first.color.withOpacity(0.4))),
+                    ],
+                  )),
+            ],
+          ),
+        );
+      },
+    );
   }
+}
+
+class _MultiRadialGaugePainter extends CustomPainter {
+  final List<RadialGaugeBar> bars;
+  final double min;
+  final double max;
+  final double startAngle;
+  final double endAngle;
+  final double spaceBetweenBars;
+  final double margins;
+
+  _MultiRadialGaugePainter({
+    required this.bars,
+    required this.min,
+    required this.max,
+    required this.startAngle,
+    required this.endAngle,
+    required this.spaceBetweenBars,
+    required this.margins,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+    final startRad = _degToRad(startAngle);
+    final totalSweep = _degToRad(endAngle - startAngle);
+
+    double currentRadius = Math.min(size.width, size.height) / 2;
+
+    for (final bar in bars) {
+      final strokeWidth = bar.thickness;
+      currentRadius -= strokeWidth / 2;
+
+      final rect = Rect.fromCircle(
+        center: center,
+        radius: currentRadius - margins,
+      );
+
+      final progress = ((bar.value - min) / (max - min)).clamp(0.0, 1.0);
+
+      final sweep = totalSweep * progress;
+
+      final backgroundPaint = Paint()
+        ..color = bar.color.withOpacity(0.4)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth
+        ..strokeCap = StrokeCap.square;
+
+      final valuePaint = Paint()
+        ..color = bar.color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth
+        ..strokeCap = StrokeCap.square;
+
+      // Background arc
+      canvas.drawArc(
+        rect,
+        startRad,
+        totalSweep,
+        false,
+        backgroundPaint,
+      );
+
+      // Value arc
+      canvas.drawArc(
+        rect,
+        startRad,
+        sweep,
+        false,
+        valuePaint,
+      );
+
+      currentRadius -= strokeWidth / 2 + spaceBetweenBars;
+    }
+  }
+
+  double _degToRad(double deg) => deg * Math.pi / 180;
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

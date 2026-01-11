@@ -2,7 +2,9 @@
 
 #include <algorithm>
 
-std::optional<CoapMessage> CoapMessage::decode(std::string_view data) {
+#include "CoreLinkDocument.h"
+
+std::optional<CoapMessage> CoapMessage::decode(std::string_view data, const std::string& senderAddress, uint16_t senderPort) {
     CoapMessage msg;
 
     // Need at least 4 bytes for header
@@ -86,11 +88,12 @@ std::optional<CoapMessage> CoapMessage::decode(std::string_view data) {
 
         if (remaining < length) return std::nullopt;
 
-        CoapMessage::Option opt;
-        opt.key = static_cast<OptionKey>(currentOptionNumber);
-        opt.value.assign(p, p + length);
+        //CoapMessage::Option opt;
+        //opt.key = static_cast<OptionKey>(currentOptionNumber);
+        //opt.value.assign(p, p + length);
+        //msg.options.push_back(std::move(opt));
 
-        msg.options.push_back(std::move(opt));
+        msg.optionsMap.emplace(static_cast<OptionKey>(currentOptionNumber), std::vector<uint8_t>(p, p + length));
 
         p += length;
         remaining -= length;
@@ -98,6 +101,8 @@ std::optional<CoapMessage> CoapMessage::decode(std::string_view data) {
 
     // Payload (if any)
     msg.payload.assign(p, p + remaining);
+    msg.senderAddress = senderAddress;
+    msg.senderPort = senderPort;
 
     return msg;
 }
@@ -131,7 +136,7 @@ std::vector<uint8_t> CoapMessage::encode() const {
     std::sort(sorted.begin(), sorted.end(), [](auto &a, auto &b){ return (uint16_t)a.key < (uint16_t)b.key; });
 
     uint16_t optionNumber = 0;
-    for (auto& opt : sorted) {
+    for (auto& opt : options) {
         uint16_t number = (uint16_t)opt.key;
         uint16_t delta = number - optionNumber;
         optionNumber = number;
@@ -166,4 +171,30 @@ std::vector<uint8_t> CoapMessage::encode() const {
     }
 
     return out;
+}
+
+CoapMessage CoapMessage::buildDiscoveryRequest() {
+    CoapMessage msg;
+    msg.code = Code::Get;
+    // Add Uri-Path: /.well-known/core
+    msg.options.push_back({CoapMessage::OptionKey::UriPath, {'.', 'w', 'e', 'l', 'l', '-', 'k', 'n', 'o', 'w', 'n'}});
+    msg.options.push_back({CoapMessage::OptionKey::UriPath, {'c', 'o', 'r', 'e'}});
+
+    return msg;
+}
+
+bool CoapMessage::isDiscoveryResponse() const {
+    // Check for Content code
+    if (code != Code::Content) return false;
+
+    // Check if ContentFormat is application/link-format (40)
+    auto it = optionsMap.find(OptionKey::ContentFormat);
+    if (it == optionsMap.end()) return false;
+    if (it->second.size() != 1) return false;
+    if (it->second[0] != static_cast<uint8_t>(ContentFormat::ApplicationLinkFormat)) return false;
+
+    coreLinkDocument = CoreLinkDocument::decode(std::string_view((char*)payload.data(), payload.size()));
+    if (!coreLinkDocument) return false;
+
+    return true;
 }

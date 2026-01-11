@@ -4,7 +4,6 @@ import 'package:icon_decoration/icon_decoration.dart';
 import 'package:iotic/things/card/charger/charger_status.dart';
 import 'package:iotic/common/iotic_theme.dart';
 import 'package:iotic/things/card/thing_gauge.dart';
-import 'package:iotic/things/data/thing.dart';
 import '../../common/web_socket_data_source.dart';
 import '../data/thing_property.dart';
 import 'thing_card_controller.dart';
@@ -88,9 +87,26 @@ class ThingCard extends StatelessWidget {
           double p0 = (p[0] / 5).round() * 5;
           double p1 = (p[1] / 5).round() * 5;
 
-          return Row(mainAxisSize: MainAxisSize.min, spacing: 6, children: [
-            ThingGauge(p0, IoticTheme.orange),
-            ThingGauge(p1, IoticTheme.yellow)
+          RadialGaugeBar bar0 =
+              RadialGaugeBar(value: p0, color: IoticTheme.orange);
+          RadialGaugeBar bar1 =
+              RadialGaugeBar(value: p1, color: IoticTheme.yellow);
+
+          return Row(mainAxisSize: MainAxisSize.min, spacing: 0, children: [
+            ThingGauge(
+              bars: [bar0],
+              min: 0,
+              max: 100,
+              startAngle: -270,
+              endAngle: -45,
+            ),
+            ThingGauge(
+              bars: [bar1],
+              min: 0,
+              max: 100,
+              startAngle: -270,
+              endAngle: -45,
+            )
           ]);
         }
       } else {

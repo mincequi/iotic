@@ -5,6 +5,7 @@ project(iotic VERSION 0.4.0 LANGUAGES C CXX)
 include(cmake/CPM.cmake)
 
 CPMAddPackage("gh:mincequi/uvw_iot#e02d68d")
+#CPMAddPackage("gh:getml/reflect-cpp#v0.22.0")
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -38,10 +39,12 @@ add_executable(iotic
   src/discovery/DiscoveryManager.h src/discovery/DiscoveryManager.cpp
   src/coap/CoapMessage.h src/coap/CoapMessage.cpp
   src/coap/CoapThing.h src/coap/CoapThing.cpp
+  src/coap/CoreLinkDocument.h src/coap/CoreLinkDocument.cpp
 )
 
 target_link_libraries(iotic
   Threads::Threads
+  #reflectcpp
   uvw_iot
   uvw_net::dns_sd
   ${CMAKE_DL_LIBS}

@@ -1,9 +1,12 @@
 #pragma once
 
 #include <cstdint>
+#include <map>
 #include <optional>
 #include <string>
 #include <vector>
+
+#include "CoreLinkDocument.h"
 
 struct CoapMessage {
     // Types
@@ -54,6 +57,10 @@ struct CoapMessage {
         ApplicationCbor = 60
     };
 
+    // Metadata about the message
+    std::string senderAddress;
+    uint16_t senderPort = 0;
+
     // Mandatory fields in order of appearance in the message
     uint8_t version = 1;
     Type type = Type::NonConfirmable;
@@ -67,8 +74,14 @@ struct CoapMessage {
         std::vector<uint8_t> value;
     };
     std::vector<Option> options;
+    std::multimap<OptionKey, std::vector<uint8_t>> optionsMap;
     std::vector<uint8_t> payload;
+    // Parsed content (if any)
+    mutable std::optional<CoreLinkDocument> coreLinkDocument;
 
-    static std::optional<CoapMessage> decode(std::string_view data);
+    static std::optional<CoapMessage> decode(std::string_view data, const std::string& senderAddress = "", uint16_t senderPort = 0);
     std::vector<uint8_t> encode() const;
+
+    static CoapMessage buildDiscoveryRequest();
+    bool isDiscoveryResponse() const;
 };
