@@ -116,13 +116,16 @@ void ConfigRepository::setPropertiesTo(const ThingPtr& thing) {
     ThingPropertyMap properties;
 
     auto val = _p->value(thing->id(), ThingPropertyKey::name);
-    if (val.is_string()) properties.set<ThingPropertyKey::name>(val.as_string());
+    if (val.is_string())
+        properties.set<ThingPropertyKey::name>(val.as_string());
 
     val = _p->value(thing->id(), ThingPropertyKey::pinned);
-    if (val.is_boolean()) properties.set<ThingPropertyKey::pinned>(val.as_boolean());
+    if (val.is_boolean())
+        properties.set<ThingPropertyKey::pinned>(val.as_boolean());
 
     val = _p->value(thing->id(), ThingPropertyKey::offset);
-    if (val.is_integer()) properties.set<ThingPropertyKey::offset>(val.as_integer());
+    if (val.is_integer())
+        properties.set<ThingPropertyKey::offset>(val.as_integer());
 
     thing->setProperties(properties);
 }

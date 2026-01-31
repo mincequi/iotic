@@ -14,7 +14,7 @@ private:
     CoapThing(const std::string& id);
 
     inline const std::string& id() const override { return _id; }
-    inline ThingType type() const override { return ThingType::WeatherStation; }
+    inline ThingType type() const override { return ThingType::Heater; }
 
     void fetchProperties() override;
 

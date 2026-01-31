@@ -18,6 +18,7 @@ class ThingCardController extends GetxController {
   final WebSocketDataSource _repo = Get.find<WebSocketDataSource>();
 
   final name = "".obs;
+  String type = "";
   final icon = Icons.device_hub.obs;
 
   final isEditingMode = false.obs;
@@ -28,6 +29,8 @@ class ThingCardController extends GetxController {
   final status = Rxn<IconData>();
   final countdown = Rxn<int>();
   final voltages = Rxn<List<int>>();
+  final multistateSelector = Rxn<List<bool>>();
+  final digitalInput = Rxn<List<bool>>();
 
   final propertyWidgets = <ThingUiProperty>[].obs;
 
@@ -51,20 +54,30 @@ class ThingCardController extends GetxController {
     var p0 = props[_id]?.properties;
     if (p0 == null) return;
 
-    // Check for name
+    // Name
     if (p0.containsKey(ThingPropertyKey.name) &&
         p0[ThingPropertyKey.name].toString().isNotEmpty) {
       name.value = p0[ThingPropertyKey.name];
     } else {
       name.value = _id;
     }
-
-    // Check if thing isPinned
+    // isPinned
     if (p0.containsKey(ThingPropertyKey.pinned)) {
       isPinned.value = p0[ThingPropertyKey.pinned];
     }
+    // multistateSelector
+    if (p0.containsKey(ThingPropertyKey.multistateSelector)) {
+      multistateSelector.value =
+          (p0[ThingPropertyKey.multistateSelector] as List?)?.cast<bool>();
+    }
+    // digitalInout
+    if (p0.containsKey(ThingPropertyKey.digitalInput)) {
+      digitalInput.value =
+          (p0[ThingPropertyKey.digitalInput] as List?)?.cast<bool>();
+    }
 
     // Check for type
+    type = p0[ThingPropertyKey.type] ?? "relay";
     icon.value = _typeToIcon[p0[ThingPropertyKey.type]] ?? Icons.device_hub;
     offset.value = p0[ThingPropertyKey.offset];
     status.value = toIcon(p0[ThingPropertyKey.status]);
@@ -75,7 +88,7 @@ class ThingCardController extends GetxController {
     //hasPowerControl.value = p0.containsKey(ReadableThingProperty.power_control);
     //if (hasPowerControl.value) {
     isOn.value = p0[ThingPropertyKey.power_control];
-    if (icon.value == Icons.device_hub) {
+    if (isOn.value != null) {
       icon.value = Icons.electrical_services;
     }
     //}
@@ -100,8 +113,9 @@ class ThingCardController extends GetxController {
     "smartMeter": Icons.electric_meter,
     "solarInverter": Icons.solar_power,
     "evStation": Icons.ev_station,
+    "relay": Icons.electrical_services,
     "weatherStation": Icons.local_fire_department,
-    //"heatingSystem": Icons.fireplace,
+    "heater": Icons.local_fire_department,
     null: Icons.device_hub
   };
 

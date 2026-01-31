@@ -1,4 +1,4 @@
-#include "DiscoveryManager.h"
+#include "ThingDiscovery.h"
 
 #include <common/Logger.h>
 #include <nlohmann/json.hpp>
@@ -11,6 +11,7 @@
 #include <uvw_net/modbus/ModbusClient.h>
 
 #include <coap/CoapThing.h>
+#include <shelly/ShellyGen2Thing.h>
 
 using json = nlohmann::json;
 using namespace uvw_iot;
@@ -18,7 +19,7 @@ using namespace uvw_iot::sunspec;
 using namespace uvw_net::dns_sd;
 using namespace uvw_net::modbus;
 
-DiscoveryManager::DiscoveryManager(const ThingRepository& thingRepository) :
+ThingDiscovery::ThingDiscovery(const ThingRepository& thingRepository) :
     _thingRepository(thingRepository) {
 
     _coapDiscovery.on<CoapMessage>([this](const CoapMessage& msg, const CoapDiscovery&) {
@@ -65,11 +66,26 @@ DiscoveryManager::DiscoveryManager(const ThingRepository& thingRepository) :
         _thingRepository.setThingProperties(id, props);
     });
 
-    _dnsDiscovery.on<DnsRecordDataSrv>([this](const DnsRecordDataSrv& data, const DnsServiceDiscovery&) {
+    _httpDiscovery.on<MdnsResponse>([this](const MdnsResponse& response, const DnsServiceDiscovery&) {
+        if (!response.srvData) {
+            return;
+        }
+
+        const auto& data = *response.srvData;
+        LOG_S(1) << "Discovered HTTP service> " << data.target << ":" << data.port;
         const auto host = data.target.substr(0, data.target.find("."));
         auto thing = ThingFactory::from(host);
         if (thing) {
             LOG_S(1) << "add http device> " << thing->id();
+            _thingRepository.addThing(thing);
+        }
+    });
+
+    _shellyDiscovery.on<MdnsResponse>([this](const MdnsResponse& response, const DnsServiceDiscovery&) {
+        LOG_S(INFO) << "Discovered Shelly Gen2 service> "; // << response;
+        auto thing = ShellyGen2Thing::from(response);
+        if (thing) {
+            LOG_S(1) << "add shelly gen2 device> " << thing->id();
             _thingRepository.addThing(thing);
         }
     });
@@ -84,13 +100,14 @@ DiscoveryManager::DiscoveryManager(const ThingRepository& thingRepository) :
     });
 }
 
-void DiscoveryManager::startDiscovery(int msec) {
+void ThingDiscovery::startDiscovery(int msec) {
     auto timer = uvw::loop::get_default()->resource<uvw::timer_handle>();
     timer->on<uvw::timer_event>([this](const auto&, auto&) {
         LOG_S(INFO) << "starting discovery cycle";
         _coapDiscovery.discover();
-        _dnsDiscovery.discover("_http._tcp.local");
+        _httpDiscovery.discover();
+        _shellyDiscovery.discover();
         _modbusDiscovery.discover();
     });
-    timer->start(uvw::timer_handle::time{0}, uvw::timer_handle::time{msec});
+    timer->start(uvw::timer_handle::time{2000}, uvw::timer_handle::time{msec});
 }

@@ -65,9 +65,9 @@ std::string WebAppBehavior::serializeUserProperties(const ThingPtr& t) {
     json properties;
 
     t->properties().forEach([&properties](ThingPropertyKey key, const auto& value) {
-        if (key <= ThingPropertyKey::voltage) {
+        //if (key <= ThingPropertyKey::voltage) {
             properties[::util::toString(key)] = value;
-        }
+        //}
     });
     if (t->type() != ThingType::Unknown)
         properties["type"] = ::util::toString(t->type());

@@ -15,9 +15,9 @@ using uvw_net::dns_sd::DnsServiceDiscovery;
 using uvw_net::modbus::ModbusDiscovery;
 using uvw_net::sunspec::SunSpecDiscovery;
 
-class DiscoveryManager {
+class ThingDiscovery {
 public:
-    DiscoveryManager(const ThingRepository& thingRepository);
+    ThingDiscovery(const ThingRepository& thingRepository);
 
     void startDiscovery(int msec);
 
@@ -25,7 +25,8 @@ private:
     const ThingRepository& _thingRepository;
 
     CoapDiscovery _coapDiscovery;
-    DnsServiceDiscovery _dnsDiscovery;
+    DnsServiceDiscovery _httpDiscovery{"_http._tcp.local."};
+    DnsServiceDiscovery _shellyDiscovery{"_shelly._tcp.local."};
     SunSpecDiscovery _sunspecDiscovery;
     ModbusDiscovery _modbusDiscovery;
 };

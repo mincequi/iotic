@@ -9,7 +9,7 @@ using namespace uvw_iot::util;
 
 AppBackend::AppBackend() :
     _configRepository(_thingRepository),
-    _discoveryManager(_thingRepository),
+    _thingDiscovery(_thingRepository),
     _thingsManager(_thingRepository, _configRepository),
     _strategyRepository(_thingRepository),
     _site(_thingRepository, {.shortTermTau = _configRepository.shortTermTau, .longTermTau = _configRepository.longTermTau}),
@@ -37,7 +37,7 @@ AppBackend::AppBackend() :
 #endif
 
     // Start discoveries
-    _discoveryManager.startDiscovery(60 * 1000);
+    _thingDiscovery.startDiscovery(60 * 1000);
 }
 
 AppBackend::~AppBackend() {

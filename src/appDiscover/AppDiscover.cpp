@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include <nlohmann/json.hpp>
+#include <rfl/json.hpp>
 
 #include <uvw_iot/ThingFactory.h>
 #include <uvw_net/dns_sd/DnsRecordDataSrv.h>
@@ -58,9 +59,14 @@ AppDiscover::AppDiscover() {
         LOG_S(INFO) << "flap values> " << flapValues[0] << ", " << flapValues[1];
     });
 
-    _dnsDiscovery.on<DnsRecordDataSrv>([&](const DnsRecordDataSrv& data, const DnsServiceDiscovery&) {
-        const auto host = data.target.substr(0, data.target.find("."));
-        std::cout << "http service found> host: " << host << ", port: " << data.port << std::endl;
+    _httpDiscovery.on<MdnsResponse>([&](const MdnsResponse& response, const DnsServiceDiscovery&) {
+        const std::string json_string = rfl::json::write(response.ptrData);
+        std::cout << "http service found> " << json_string << std::endl;
+    });
+
+    _shellyGen2PlusDiscovery.on<MdnsResponse>([&](const MdnsResponse& response, const DnsServiceDiscovery&) {
+        const std::string json_string = rfl::json::write(response.ptrData);
+        std::cout << "shelly gen2 plus service found> " << json_string << std::endl;
     });
 
     _sunspecDiscovery.on<SunSpecClientPtr>([&](SunSpecClientPtr client, const SunSpecDiscovery&) {
@@ -83,10 +89,11 @@ AppDiscover::AppDiscover() {
     // Start a discovery timer
     auto discoveryTimer = uvw::loop::get_default()->resource<uvw::timer_handle>();
     discoveryTimer->on<uvw::timer_event>([&](const auto&, auto&) {
-        std::cout << "start discoveries>" << std::endl;
-        _dnsDiscovery.discover("_http._tcp.local");
-        _modbusDiscovery.discover();
+        std::cout << std::endl << "start discoveries>" << std::endl;
+        _httpDiscovery.discover();
+        _shellyGen2PlusDiscovery.discover();
+        //_modbusDiscovery.discover();
     });
-    discoveryTimer->start(uvw::timer_handle::time{0}, uvw::timer_handle::time{30000});
+    discoveryTimer->start(uvw::timer_handle::time{2000}, uvw::timer_handle::time{5000});
 }
 

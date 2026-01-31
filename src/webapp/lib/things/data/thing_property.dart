@@ -15,6 +15,10 @@ enum ThingPropertyKey {
   icon,
   pinned,
 
+  digitalInput,
+  digitalOutput,
+  analogInput,
+  analogOutput,
   temperature,
   power,
   actuation,
@@ -24,6 +28,9 @@ enum ThingPropertyKey {
   next_phases,
 
   voltage,
+  current,
+  percentage,
+  multistateSelector,
 
   // custom properties - strategies
   offset,

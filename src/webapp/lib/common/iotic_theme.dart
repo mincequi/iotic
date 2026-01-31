@@ -27,20 +27,23 @@ class IoticTheme {
       /*colorScheme: const ColorScheme.dark(
                 primary: _yellow, secondary: _green, tertiary: _orange),*/
       colorScheme: ColorScheme.fromSeed(
-          seedColor: yellow,
-          brightness: Brightness.dark,
-          secondary: green,
-          tertiary: orange),
+        seedColor: yellow,
+        brightness: Brightness.dark,
+        secondary: green,
+        tertiary: orange,
+      ),
       cardTheme: const CardThemeData(
-          elevation: 0.0,
-          color: Colors.black,
-          shape: RoundedRectangleBorder(
-            side: BorderSide(color: other, width: lineWidth),
-            borderRadius: BorderRadius.all(Radius.circular(rectangleRadius)),
-          )),
+        elevation: 0.0,
+        color: Colors.black,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(color: other, width: lineWidth),
+          borderRadius: BorderRadius.all(Radius.circular(rectangleRadius)),
+        ),
+      ),
       listTileTheme: const ListTileThemeData(
-          horizontalTitleGap: 8.0,
-          contentPadding: EdgeInsets.only(top: 0, left: 6.0, right: 8.0)),
+        horizontalTitleGap: 8.0,
+        contentPadding: EdgeInsets.only(top: 0, left: 6.0, right: 8.0),
+      ),
       switchTheme: SwitchThemeData(
         trackColor: MaterialStateColor.resolveWith((states) {
           if (states.contains(MaterialState.selected))

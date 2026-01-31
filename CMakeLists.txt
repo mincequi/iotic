@@ -1,13 +1,13 @@
-cmake_minimum_required(VERSION 3.14)
+# reflectcpp requires CMake 3.23 or higher
+cmake_minimum_required(VERSION 3.23)
 
 project(iotic VERSION 0.4.0 LANGUAGES C CXX)
 
 include(cmake/CPM.cmake)
 
-CPMAddPackage("gh:mincequi/uvw_iot#e02d68d")
-#CPMAddPackage("gh:getml/reflect-cpp#v0.22.0")
+CPMAddPackage("gh:mincequi/uvw_iot#c957eac")
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 20)
 
 option(BUILD_TESTING "Build test programs" OFF)
 
@@ -31,23 +31,21 @@ add_executable(iotic
   src/main.cpp
   src/appDaemon/AppBackend.cpp
   src/appDiscover/AppDiscover.cpp
-  src/appDiscoverCoro/AppDiscoverCoro.h
-  src/appDiscoverCoro/AppDiscoverCoro.cpp
-  src/appDiscoverCoro/Scheduler.h
-  src/appDiscoverCoro/Scheduler.cpp
   src/coap/CoapDiscovery.h src/coap/CoapDiscovery.cpp
-  src/discovery/DiscoveryManager.h src/discovery/DiscoveryManager.cpp
   src/coap/CoapMessage.h src/coap/CoapMessage.cpp
   src/coap/CoapThing.h src/coap/CoapThing.cpp
   src/coap/CoreLinkDocument.h src/coap/CoreLinkDocument.cpp
+  src/shelly/ShellyGen2Thing.h src/shelly/ShellyGen2Thing.cpp
+  src/http/HttpService.h src/http/HttpService.cpp
 )
 
 target_link_libraries(iotic
   Threads::Threads
-  #reflectcpp
+  reflectcpp
   uvw_iot
   uvw_net::dns_sd
   ${CMAKE_DL_LIBS}
+  llhttp_static
   cli
   common
   config

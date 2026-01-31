@@ -1,6 +1,5 @@
 #pragma once
 
-#include <list>
 #include <uvw_net/dns_sd//DnsServiceDiscovery.h>
 #include <uvw_net/modbus/ModbusDiscovery.h>
 #include <uvw_net/sunspec/SunSpecDiscovery.h>
@@ -17,7 +16,8 @@ public:
 
 private:
     CoapDiscovery _coapDiscovery;
-    DnsServiceDiscovery _dnsDiscovery;
+    DnsServiceDiscovery _httpDiscovery{"_http._tcp.local."};
+    DnsServiceDiscovery _shellyGen2PlusDiscovery{"_shelly._tcp.local."};
     SunSpecDiscovery _sunspecDiscovery;
     ModbusDiscovery _modbusDiscovery;
 };

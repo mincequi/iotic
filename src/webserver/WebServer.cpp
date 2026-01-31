@@ -44,7 +44,7 @@ WebServer::WebServer(const ThingRepository& repo,
     });
     _uwsApp->get("/*", [this](uWS::HttpResponse<false>* res, uWS::HttpRequest* req) {
         const auto fileName = std::string(req->getUrl());
-        LOG_S(INFO) << "get> " << fileName;
+        LOG_S(1) << "get> " << fileName;
 
         if (!_fs->exists(fileName)) {
             LOG_S(ERROR) << "file not found: " << fileName;
@@ -108,7 +108,7 @@ WebServer::WebServer(const ThingRepository& repo,
         thing->propertiesObservable().subscribe([this, thing](const ThingPropertyMap& prop) {
             json thing_;
             prop.forEach([&thing_](ThingPropertyKey key, const auto& value) {
-                if (key <= ThingPropertyKey::voltage)
+                //if (key <= ThingPropertyKey::voltage)
                     thing_[::util::toString(key)] = value;
             });
             if (thing_.empty()) return;
