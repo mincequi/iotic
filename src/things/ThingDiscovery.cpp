@@ -82,7 +82,7 @@ ThingDiscovery::ThingDiscovery(const ThingRepository& thingRepository) :
     });
 
     _shellyDiscovery.on<MdnsResponse>([this](const MdnsResponse& response, const DnsServiceDiscovery&) {
-        LOG_S(INFO) << "Discovered Shelly Gen2 service> "; // << response;
+        LOG_S(1) << "Discovered Shelly Gen2 service> "; // << response;
         auto thing = ShellyGen2Thing::from(response);
         if (thing) {
             LOG_S(1) << "add shelly gen2 device> " << thing->id();
@@ -103,7 +103,7 @@ ThingDiscovery::ThingDiscovery(const ThingRepository& thingRepository) :
 void ThingDiscovery::startDiscovery(int msec) {
     auto timer = uvw::loop::get_default()->resource<uvw::timer_handle>();
     timer->on<uvw::timer_event>([this](const auto&, auto&) {
-        LOG_S(INFO) << "starting discovery cycle";
+        LOG_S(1) << "starting discovery cycle";
         _coapDiscovery.discover();
         _httpDiscovery.discover();
         _shellyDiscovery.discover();

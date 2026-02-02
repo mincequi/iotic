@@ -1,6 +1,7 @@
 #include "ConfigRepository.h"
 
 #include <fstream>
+#include <vector>
 
 #include <toml.hpp>
 
@@ -147,8 +148,11 @@ template std::string ConfigRepository::valueOr(const std::string& table, Key key
 template int ConfigRepository::valueOr(const std::string& table, Key key, int) const;
 template bool ConfigRepository::valueOr(const std::string& table, Key key, bool) const;
 template double ConfigRepository::valueOr(const std::string& table, Key key, double) const;
+template std::vector<int> ConfigRepository::valueOr(const std::string& table, Key key, std::vector<int>) const;
 
 template std::string ConfigRepository::valueOr(Key key, std::string) const;
 template int ConfigRepository::valueOr(Key key, int) const;
 template bool ConfigRepository::valueOr(Key key, bool) const;
 template double ConfigRepository::valueOr(Key key, double) const;
+template std::vector<int> ConfigRepository::valueOr(Key key, std::vector<int>) const;
+

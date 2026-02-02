@@ -23,4 +23,6 @@ private:
 
     // HttpThing overrides
     void onBody(const std::string& body) override;
+
+    int _phaseToSet = 0;
 };

@@ -3,20 +3,23 @@
 #include <config/ConfigRepository.h>
 #include <rules/RuleActuationStrategy.h>
 #include <strategies/EvseStrategy.h>
+#include <strategies/ThreePhaseStrategy.h>
 
 std::unique_ptr<Strategy> StrategyFactory::from(const ThingPtr& thing,
-                                                const ThingRepository& repo,
+                                                const ThingRepository& thingRepository,
                                                 const SymbolRepository& symbolRepository,
-                                                const RuleEngine& rules,
-                                                const ConfigRepository& cfg ) {
-    auto strategy = EvseStrategy::from(thing, repo, cfg);
+                                                const RuleEngine& ruleEngine,
+                                                const ConfigRepository& configRepository) {
+    auto strategy = EvseStrategy::from(thing, thingRepository, configRepository);
     if (!strategy) {
-        strategy = RuleActuationStrategy::from(thing, repo, symbolRepository, rules, cfg);
+        strategy = RuleActuationStrategy::from(thing, thingRepository, symbolRepository, ruleEngine, configRepository);
+    }
+    if (!strategy && thing->type() == uvw_iot::ThingType::Relay) {
+        strategy = ThreePhaseStrategy::from(thing, configRepository);
     }
 
-
     if (strategy) {
-        const auto priority = cfg.valueOr<int>(thing->id(), ConfigRepository::Key::priority);
+        const auto priority = configRepository.valueOr<int>(thing->id(), ConfigRepository::Key::priority);
         strategy->_priority = priority;
         return strategy;
     }

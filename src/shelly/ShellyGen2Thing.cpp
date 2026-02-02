@@ -28,9 +28,11 @@ void ShellyGen2Thing::fetchProperties() {
 }
 
 void ShellyGen2Thing::onSetProperties(const ThingPropertyMap& properties) {
-    properties.on<ThingPropertyKey::power_control>([&](const auto& isOn) {
-        const std::string strValue = isOn ? "on" : "off";
-        set("/relay/0?turn=" + strValue);
+    properties.on<ThingPropertyKey::multistateSelector>([&](const auto& states) {
+        // note: we can only fire ONE set request at a time
+        const std::string strValue = states[_phaseToSet] ? "true" : "false";
+        set("/rpc/Switch.Set?id=" + std::to_string(_phaseToSet) + "&on=" + strValue);
+        _phaseToSet = (_phaseToSet + 1) % states.size();
     });
 }
 

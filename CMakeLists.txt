@@ -7,7 +7,7 @@ include(cmake/CPM.cmake)
 
 CPMAddPackage("gh:mincequi/uvw_iot#c957eac")
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 
 option(BUILD_TESTING "Build test programs" OFF)
 
