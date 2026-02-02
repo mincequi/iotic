@@ -45,28 +45,74 @@ class IoticTheme {
         contentPadding: EdgeInsets.only(top: 0, left: 6.0, right: 8.0),
       ),
       switchTheme: SwitchThemeData(
-        trackColor: MaterialStateColor.resolveWith((states) {
-          if (states.contains(MaterialState.selected))
-            return IoticTheme.yellow;
-          else
+        trackOutlineColor: WidgetStateColor.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return Colors.transparent;
-        }),
-        trackOutlineColor: MaterialStateColor.resolveWith((states) {
-          if (states.contains(MaterialState.selected))
-            return Colors.transparent;
-          else
+          } else {
             return IoticTheme.other;
+          }
         }),
-        trackOutlineWidth: MaterialStateProperty.resolveWith((states) {
+        trackOutlineWidth: WidgetStateProperty.resolveWith((states) {
           return lineWidth;
         }),
-        thumbColor: MaterialStateColor.resolveWith((states) {
-          if (states.contains(MaterialState.selected))
-            return Colors.black;
-          else
+        trackColor: WidgetStateColor.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return IoticTheme.yellow;
+          } else {
+            return Colors.transparent;
+          }
+        }),
+        thumbColor: WidgetStateColor.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return Colors.black;
+          } else {
+            return IoticTheme.yellow;
+          }
         }),
       ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          // Background of each segment
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return IoticTheme.yellow;
+            }
+            return Colors.transparent;
+          }),
+
+          // Border (outline)
+          side: WidgetStateProperty.resolveWith((states) {
+            return const BorderSide(
+              color: IoticTheme.other,
+              width: lineWidth,
+            );
+          }),
+
+          // Text / icon color
+          foregroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return Colors.black;
+            }
+            return IoticTheme.yellow;
+          }),
+
+          // Optional: pressed/hover overlay
+          overlayColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.pressed)) {
+              return IoticTheme.yellow.withOpacity(0.15);
+            }
+            return null;
+          }),
+
+          // Optional: shape consistency
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+      ),
+
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: Colors.black,
         elevation: 0,

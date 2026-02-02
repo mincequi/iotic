@@ -71,10 +71,11 @@ class TrailingWidgets extends StatelessWidget {
         return SegmentedButton<int>(
           multiSelectionEnabled: true,
           emptySelectionAllowed: true,
+          showSelectedIcon: false,
           segments: List.generate(length!, (index) {
             return ButtonSegment<int>(
               value: index,
-              label: Text(index.toString()),
+              //label: Text(index.toString()),
               icon: const Icon(
                 Icons.flash_on_sharp,
               ),
@@ -85,7 +86,14 @@ class TrailingWidgets extends StatelessWidget {
             for (int i = 0; i < length; i++)
               if (control.multistateSelector.value![i]) i,
           },
-          onSelectionChanged: null, // view-only
+          onSelectionChanged: (value) {
+            final List<bool> selected = List<bool>.generate(
+              length,
+              (index) => value.contains(index),
+            );
+            _repo.sendThingPropertyValue(
+                _id, ThingPropertyKey.multistateSelector, selected);
+          },
         );
       } else {
         return Icon(control.icon.value);

@@ -1,10 +1,8 @@
-// ignore_for_file: avoid_web_libraries_in_flutter
-
-import 'dart:html' as html;
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:cbor/simple.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get_core/get_core.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_rx/get_rx.dart';
@@ -19,7 +17,7 @@ import 'package:iotic/site/card/data/site_data_live.dart';
 import 'package:iotic/common/web_socket_handler.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-class WebSocketDataSource {
+class WebSocketDataSource with WidgetsBindingObserver {
   final siteDataLive = SiteDataLive(0, 0, 0, 0).obs;
   final siteDataHistoric = SiteDataHistoric.empty().obs;
   final things = <String, ThingProperties>{}.obs;
@@ -28,8 +26,20 @@ class WebSocketDataSource {
   final LogService logger = Get.find();
 
   WebSocketDataSource() {
-    html.document.addEventListener("visibilitychange", _onVisibilityChange);
+    WidgetsBinding.instance.addObserver(this);
     _connect(false);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _connect(true);
+    }
+  }
+
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _channel.sink.close();
   }
 
   void registerHandler(WebSocketHandler handler) {
@@ -55,8 +65,8 @@ class WebSocketDataSource {
     get(Uri.parse('http://$_host:$_port/discover'));
   }
 
-  final _host = html.window.location.hostname;
-  final _port = int.parse(html.window.location.port);
+  final _host = Uri.base.host;
+  final _port = Uri.base.port;
   //final _host = "raspberrypi.local";
   //final _host = "localhost";
   //final _port = 8030;
@@ -191,11 +201,5 @@ class WebSocketDataSource {
     });
     // TODO: is this needed?
     things.refresh();
-  }
-
-  void _onVisibilityChange(html.Event e) {
-    if (html.document.hidden ?? false) return;
-
-    _connect(true);
   }
 }
