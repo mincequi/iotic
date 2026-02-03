@@ -10,21 +10,15 @@ using uvw_iot::ThingStatus;
 
 class ConfigRepository;
 
-class EvseStrategy : public Strategy {
+class WallboxStrategy : public Strategy {
 public:
     static std::unique_ptr<Strategy> from(const ThingPtr& thing,
                                           const ThingRepository& repo,
                                           const ConfigRepository& cfg);
-    ~EvseStrategy();
+    ~WallboxStrategy();
 
 private:
-    enum class Phases {
-        off = 0,
-        single_phase = 1,
-        three_phase = 3
-    };
-
-    EvseStrategy(const ThingPtr& thing,
+    WallboxStrategy(const ThingPtr& thing,
                  const ThingRepository& repo,
                  const ConfigRepository& cfg);
 
@@ -37,17 +31,17 @@ private:
     int computePhases(double availablePower, bool applyHysteresis = false) const;
     int computeCurrent(double availablePower);
 
-    int powerError() const;
+    int powerControlled() const;
 
     void onStatus(ThingStatus status);
 
     const ThingRepository& _thingRepository;
     const ConfigRepository& _configRepository;
 
-    double _measuredPower = 0.0;
+    double _powerMeasured = 0.0;
     std::chrono::milliseconds _lastMeasurementTs;
     std::array<int, 3> _voltages;
-    int _offsetPower = 0;
+    int _powerOffset = 0;
     ThingStatus _status = ThingStatus::unknown;
 
     int _phases = 0;

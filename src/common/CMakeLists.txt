@@ -2,14 +2,12 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(FETCHCONTENT_QUIET FALSE)
 set(CMAKE_CXX_FLAGS "-DLOGURU_WITH_STREAMS" CACHE INTERNAL "")
 
-FetchContent_Declare(loguru
-  GIT_REPOSITORY https://github.com/emilk/loguru.git
-  GIT_TAG        v2.1.0
-  GIT_PROGRESS TRUE
-)
-FetchContent_MakeAvailable(loguru)
+# TOOD: use plog instead of loguru
 
-CPMAddPackage("gh:gabime/spdlog@1.13.0")
+CPMAddPackage(
+  NAME loguru
+  URL https://github.com/emilk/loguru/archive/refs/tags/v2.1.0.tar.gz
+)
 
 add_library(common STATIC
   Logger.cpp

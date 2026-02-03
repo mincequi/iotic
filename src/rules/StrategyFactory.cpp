@@ -2,20 +2,20 @@
 
 #include <config/ConfigRepository.h>
 #include <rules/RuleActuationStrategy.h>
-#include <strategies/EvseStrategy.h>
-#include <strategies/ThreePhaseStrategy.h>
+#include <strategies/MultiPhaseStrategy.h>
+#include <strategies/WallboxStrategy.h>
 
 std::unique_ptr<Strategy> StrategyFactory::from(const ThingPtr& thing,
                                                 const ThingRepository& thingRepository,
                                                 const SymbolRepository& symbolRepository,
                                                 const RuleEngine& ruleEngine,
                                                 const ConfigRepository& configRepository) {
-    auto strategy = EvseStrategy::from(thing, thingRepository, configRepository);
+    auto strategy = WallboxStrategy::from(thing, thingRepository, configRepository);
     if (!strategy) {
         strategy = RuleActuationStrategy::from(thing, thingRepository, symbolRepository, ruleEngine, configRepository);
     }
     if (!strategy && thing->type() == uvw_iot::ThingType::Relay) {
-        strategy = ThreePhaseStrategy::from(thing, configRepository);
+        strategy = MultiPhaseStrategy::from(thing, configRepository);
     }
 
     if (strategy) {

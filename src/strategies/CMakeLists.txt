@@ -1,14 +1,14 @@
 add_library(strategies STATIC
-  EvseStrategy.h
-  EvseStrategy.cpp
+  WallboxStrategy.h
+  WallboxStrategy.cpp
   Strategy.h
   Strategy.cpp
   StrategyRepository.h
   StrategyRepository.cpp
   PowerManager.h
   PowerManager.cpp
-  ThreePhaseStrategy.h
-  ThreePhaseStrategy.cpp
+  MultiPhaseStrategy.h
+  MultiPhaseStrategy.cpp
 )
 
 target_link_libraries(strategies

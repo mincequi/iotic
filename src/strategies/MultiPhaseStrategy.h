@@ -6,14 +6,14 @@
 
 class ConfigRepository;
 
-class ThreePhaseStrategy : public Strategy {
+class MultiPhaseStrategy : public Strategy {
 public:
     static std::unique_ptr<Strategy> from(const ThingPtr& thing,
                                           const ConfigRepository& configRepository);
-    ~ThreePhaseStrategy();
+    ~MultiPhaseStrategy();
 
 private:
-    ThreePhaseStrategy(
+    MultiPhaseStrategy(
         const ThingPtr& thing,
         const ConfigRepository& configRepository,
         const std::vector<int>& powerThresholds

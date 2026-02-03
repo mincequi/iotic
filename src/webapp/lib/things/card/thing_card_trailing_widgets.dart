@@ -94,6 +94,12 @@ class TrailingWidgets extends StatelessWidget {
             _repo.sendThingPropertyValue(
                 _id, ThingPropertyKey.multistateSelector, selected);
           },
+          style: const ButtonStyle(
+            visualDensity: VisualDensity(
+              horizontal: -4.0,
+              vertical: -2,
+            ),
+          ),
         );
       } else {
         return Icon(control.icon.value);

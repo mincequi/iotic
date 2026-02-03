@@ -1,4 +1,4 @@
-#include "ThreePhaseStrategy.h"
+#include "MultiPhaseStrategy.h"
 
 #include <uvw_iot/ThingType.h>
 
@@ -7,7 +7,7 @@
 
 using namespace uvw_iot;
 
-std::unique_ptr<Strategy> ThreePhaseStrategy::from(const ThingPtr& thing,
+std::unique_ptr<Strategy> MultiPhaseStrategy::from(const ThingPtr& thing,
                                                    const ConfigRepository& configRepository) {
     if (thing->type() != ThingType::Relay) {
         return {};
@@ -18,10 +18,10 @@ std::unique_ptr<Strategy> ThreePhaseStrategy::from(const ThingPtr& thing,
         return {};
     }
 
-    return std::unique_ptr<ThreePhaseStrategy>(new ThreePhaseStrategy(thing, configRepository, powerThresholds));
+    return std::unique_ptr<MultiPhaseStrategy>(new MultiPhaseStrategy(thing, configRepository, powerThresholds));
 }
 
-ThreePhaseStrategy::ThreePhaseStrategy(
+MultiPhaseStrategy::MultiPhaseStrategy(
     const ThingPtr& thing,
     const ConfigRepository& configRepositor,
     const std::vector<int>& powerThresholds) :
@@ -37,10 +37,10 @@ ThreePhaseStrategy::ThreePhaseStrategy(
     });
 }
 
-ThreePhaseStrategy::~ThreePhaseStrategy() {
+MultiPhaseStrategy::~MultiPhaseStrategy() {
 }
 
-json ThreePhaseStrategy::toJson() const {
+json MultiPhaseStrategy::toJson() const {
     json j;
     j["thingId"] = thingId();
     j["type"] = "ThreePhaseStrategy";
@@ -50,7 +50,7 @@ json ThreePhaseStrategy::toJson() const {
     return j;
 }
 
-bool ThreePhaseStrategy::wantsToStepDown(const Site::Properties& siteProperties) const {
+bool MultiPhaseStrategy::wantsToStepDown(const Site::Properties& siteProperties) const {
     const auto [inputs, states] = inputsAndStates();
     if (inputs.size() != _powerThresholds.size() || states.size() != _powerThresholds.size()) {
         return false;
@@ -73,7 +73,7 @@ bool ThreePhaseStrategy::wantsToStepDown(const Site::Properties& siteProperties)
     return false;
 }
 
-bool ThreePhaseStrategy::wantsToStepUp(const Site::Properties& siteProperties) const {
+bool MultiPhaseStrategy::wantsToStepUp(const Site::Properties& siteProperties) const {
     const auto [inputs, states] = inputsAndStates();
     if (inputs.size() != _powerThresholds.size() || states.size() != _powerThresholds.size()) {
         return false;
@@ -96,7 +96,7 @@ bool ThreePhaseStrategy::wantsToStepUp(const Site::Properties& siteProperties) c
     return false;
 }
 
-void ThreePhaseStrategy::adjust(Step step, const Site::Properties& siteProperties) {
+void MultiPhaseStrategy::adjust(Step step, const Site::Properties& siteProperties) {
     switch (step) {
     case Step::Keep:
         break;
@@ -126,7 +126,7 @@ void ThreePhaseStrategy::adjust(Step step, const Site::Properties& sitePropertie
     }
 }
 
-std::pair<std::vector<bool>, std::vector<bool>> ThreePhaseStrategy::inputsAndStates() const {
+std::pair<std::vector<bool>, std::vector<bool>> MultiPhaseStrategy::inputsAndStates() const {
     std::vector<bool> digitalInputs;
     std::vector<bool> multistateSelector;
 
