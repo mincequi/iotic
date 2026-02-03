@@ -30,8 +30,8 @@ MultiPhaseStrategy::MultiPhaseStrategy(
     _configRepository(configRepositor),
     _powerThresholds(powerThresholds),
     _hystereses(powerThresholds.size()),
-    _lastStates(powerThresholds.size(), false) {
-
+    _currentStates(powerThresholds.size(), false),
+    _timestamps(powerThresholds.size(), 0) {
     std::transform(_powerThresholds.begin(), _powerThresholds.end(), _hystereses.begin(), [this](int x) {
         return _configRepository.hysteresisFor(x);
     });
@@ -97,27 +97,45 @@ bool MultiPhaseStrategy::wantsToStepUp(const Site::Properties& siteProperties) c
 }
 
 void MultiPhaseStrategy::adjust(Step step, const Site::Properties& siteProperties) {
+    int day = siteProperties.ts / (24 * 3600);
+    if (day != _currentDay) {
+        _currentDay = day;
+        _energyDelivered = 0;
+    }
+
     switch (step) {
     case Step::Keep:
         break;
     case Step::Down:
-        _lastStates[_nextStepDownPhase] = false;
-        _nextStepDownPhase = (_nextStepDownPhase + 1) % _lastStates.size();
+        _energyDelivered += (siteProperties.ts - _timestamps[_nextStepDownPhase]) * _powerThresholds[_nextStepDownPhase];
+        _currentStates[_nextStepDownPhase] = false;
+        _nextStepDownPhase = (_nextStepDownPhase + 1) % _currentStates.size();
         break;
     case Step::Up:
-        _lastStates[_nextStepUpPhase] = true;
-        _nextStepUpPhase = (_nextStepUpPhase + 1) % _lastStates.size();
+        _timestamps[_nextStepUpPhase] = siteProperties.ts;
+        _currentStates[_nextStepUpPhase] = true;
+        _nextStepUpPhase = (_nextStepUpPhase + 1) % _currentStates.size();
         break;
     }
 
+    // Sum up energy delivered of current active phases
+    int energyCurrent = 0;
+    for (size_t i = 0; i < _currentStates.size(); ++i) {
+        if (_currentStates[i]) {
+            energyCurrent += (siteProperties.ts - _timestamps[i]) * _powerThresholds[i];
+        }
+    }
+
     ThingPropertyMap properties;
-    properties.set<ThingPropertyKey::multistateSelector>(_lastStates);
+    properties.set<ThingPropertyKey::multistateSelector>(_currentStates);
+    // Convert Ws into 0.1 kWh
+    properties.set<ThingPropertyKey::energy>((_energyDelivered + energyCurrent) / 360000);
     _thing->setProperties(properties);
 
     if (step != Step::Keep) {
         std::stringstream ss;
         ss << "[ ";
-        for (const auto state : _lastStates) {
+        for (const auto state : _currentStates) {
             ss << (state ? "1 " : "0 ");
         }
         ss << "]";

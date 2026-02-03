@@ -12,7 +12,7 @@ class TrailingWidgets extends StatelessWidget {
   final bool isPinnedCard;
   final ThingCardController control;
 
-  final _repo = Get.find<WebSocketDataSource>();
+  final _webSocket = Get.find<WebSocketDataSource>();
   final _focusNode = FocusNode();
   late final TextEditingController _editingController;
 
@@ -30,7 +30,7 @@ class TrailingWidgets extends StatelessWidget {
         return Switch(
           value: control.isOn.value!,
           onChanged: (value) {
-            _repo.sendThingPropertyValue(
+            _webSocket.sendThingPropertyValue(
                 _id, ThingPropertyKey.power_control, value);
           },
         );
@@ -91,7 +91,7 @@ class TrailingWidgets extends StatelessWidget {
               length,
               (index) => value.contains(index),
             );
-            _repo.sendThingPropertyValue(
+            _webSocket.sendThingPropertyValue(
                 _id, ThingPropertyKey.multistateSelector, selected);
           },
           style: const ButtonStyle(
@@ -124,14 +124,14 @@ class TrailingWidgets extends StatelessWidget {
           ? IconButton(
               icon: const Icon(Icons.bookmark_added),
               onPressed: () {
-                _repo.sendThingPropertyValue(
+                _webSocket.sendThingPropertyValue(
                     _id, ThingPropertyKey.pinned, false);
               },
             )
           : IconButton(
               icon: const Icon(Icons.bookmark_add_outlined),
               onPressed: () {
-                _repo.sendThingPropertyValue(
+                _webSocket.sendThingPropertyValue(
                     _id, ThingPropertyKey.pinned, true);
               },
             ))
@@ -139,7 +139,7 @@ class TrailingWidgets extends StatelessWidget {
   }
 
   void _saveName() {
-    _repo.sendThingPropertyValue(
+    _webSocket.sendThingPropertyValue(
         _id, ThingPropertyKey.name, _editingController.text);
     control.isEditingMode.value = false;
   }

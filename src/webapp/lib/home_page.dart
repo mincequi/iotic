@@ -47,7 +47,7 @@ class Home extends StatelessWidget {
           if (c.currentPage.value == 1) {
             return FloatingActionButton(
               onPressed: () {
-                _http.discover();
+                //_http.discover();
               },
               child: const Icon(Icons.wifi_find_sharp),
               //child: const Text("Discover"),

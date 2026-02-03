@@ -33,5 +33,8 @@ private:
     std::vector<int> _hystereses;
     int _nextStepUpPhase = 0;
     int _nextStepDownPhase = 0;
-    std::vector<bool> _lastStates;
+    std::vector<bool> _currentStates;
+    std::vector<int> _timestamps;
+    int _energyDelivered = 0; // Ws
+    int _currentDay = 0;
 };

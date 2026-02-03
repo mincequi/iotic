@@ -30,6 +30,7 @@ enum ThingPropertyKey {
   voltage,
   current,
   percentage,
+  energy,
   multistateSelector,
 
   // custom properties - strategies

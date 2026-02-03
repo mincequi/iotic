@@ -98,14 +98,18 @@ class ThingCardController extends GetxController {
     dynamic p;
     propertyWidgets.clear();
     if ((p = p0[ThingPropertyKey.power]) != null) {
-      propertyWidgets.add(//[ThingPropertyKey.power] =
-          ThingUiProperty(Icons.electric_bolt, p, _powerUnit(p.round()),
-              ThingPropertyKey.power));
+      propertyWidgets.add(ThingUiProperty(Icons.electric_bolt, p,
+          _powerUnit(p.round()), ThingPropertyKey.power));
     }
     if ((p = p0[ThingPropertyKey.temperature]) != null) {
-      propertyWidgets.add(//[ThingPropertyKey.temperature] =
+      propertyWidgets.add(ThingUiProperty(
+          Icons.thermostat, p / 10.0, '°C', ThingPropertyKey.temperature));
+    }
+    if ((p = p0[ThingPropertyKey.energy]) != null) {
+      propertyWidgets.add(
+          // Value is in 0.1 kWh, convert to kWh with one decimal
           ThingUiProperty(
-              Icons.thermostat, p / 10.0, '°C', ThingPropertyKey.temperature));
+              Icons.electric_bolt, p / 10, 'kWh', ThingPropertyKey.energy));
     }
   }
 

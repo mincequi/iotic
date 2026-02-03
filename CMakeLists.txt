@@ -5,7 +5,7 @@ project(iotic VERSION 0.4.0 LANGUAGES C CXX)
 
 include(cmake/CPM.cmake)
 
-CPMAddPackage("gh:mincequi/uvw_iot#f1544f2")
+CPMAddPackage("gh:mincequi/uvw_iot#c58444f")
 
 set(CMAKE_CXX_STANDARD 17)
 

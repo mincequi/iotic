@@ -92,8 +92,12 @@ public:
 
     int hysteresisFor(int power) const;
 
-    const std::chrono::milliseconds shortTermTau = 10000ms;
-    const std::chrono::milliseconds longTermTau = 180000ms;
+    static constexpr std::chrono::milliseconds shortTermTau = 10000ms;
+    // After a time of about 3 taus, the output signal has reached about 95% of the size of the input signal.
+    // note: we tried 3 minutes before, but that was too long for our use case. Let's try 2 minutes now.
+    static constexpr std::chrono::milliseconds longTermTau = 120000ms;
+    static constexpr int stepDebounceSeconds = 180;
+
 
 private:
     void parseConfigFile();
