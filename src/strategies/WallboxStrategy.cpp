@@ -4,7 +4,6 @@
 
 #include <magic_enum.hpp>
 
-#include <rpp/operators/debounce.hpp>
 #include <rpp/operators/distinct_until_changed.hpp>
 
 #include <uvw_iot/ThingType.h>
@@ -88,6 +87,11 @@ bool WallboxStrategy::wantsToStepDown(const Site::Properties& siteProperties) co
 }
 
 bool WallboxStrategy::wantsToStepUp(const Site::Properties& siteProperties) const {
+    // Check thing status, only allow stepping up if waiting or charging
+    if (_status != ThingStatus::waiting && _status != ThingStatus::charging) {
+        return false;
+    }
+
     auto longTermAvailablePower = _powerOffset + _powerMeasured - siteProperties.longTermGridPower;
     _nextPhases = computePhases(longTermAvailablePower, true);
 

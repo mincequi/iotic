@@ -9,7 +9,7 @@ CPMAddPackage("gh:mincequi/uvw_iot#c58444f")
 
 set(CMAKE_CXX_STANDARD 17)
 
-option(BUILD_TESTING "Build test programs" OFF)
+option(BUILD_IOTIC_TESTS "Build test programs" OFF)
 
 find_package(Threads)
 
@@ -23,7 +23,10 @@ add_subdirectory(src/rules)
 add_subdirectory(src/things)
 add_subdirectory(src/webapp/build)
 add_subdirectory(src/webserver)
-if(BUILD_TESTING)
+
+if(BUILD_IOTIC_TESTS)
+  include(CTest)
+  enable_testing()
   add_subdirectory(tests)
 endif()
 

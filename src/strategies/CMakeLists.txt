@@ -12,7 +12,13 @@ add_library(strategies STATIC
 )
 
 target_link_libraries(strategies
-PRIVATE
+PUBLIC
   common
+PRIVATE
   config
+)
+
+target_include_directories(strategies
+PUBLIC
+  ../
 )

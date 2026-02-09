@@ -12,6 +12,10 @@ public:
                                           const ConfigRepository& configRepository);
     ~MultiPhaseStrategy();
 
+    bool wantsToStepDown(const Site::Properties& siteProperties) const override;
+    bool wantsToStepUp(const Site::Properties& siteProperties) const override;
+    void adjust(Step step, const Site::Properties& siteProperties) override;
+
 private:
     MultiPhaseStrategy(
         const ThingPtr& thing,
@@ -20,12 +24,15 @@ private:
     );
 
     json toJson() const override;
-    bool wantsToStepDown(const Site::Properties& siteProperties) const override;
-    bool wantsToStepUp(const Site::Properties& siteProperties) const override;
-    void adjust(Step step, const Site::Properties& siteProperties) override;
 
     // return digital inputs and multistate selector values
     std::pair<std::vector<bool>, std::vector<bool>> inputsAndStates() const;
+
+    // temp
+    void decrementPhaseCount(const Site::Properties& siteProperties) const;
+    void incrementPhaseCount(const Site::Properties& siteProperties) const;
+    mutable int _lastDecrementPhaseCountTimestamp = 0;
+    mutable int _allowedPhaseCount = 0;
 
     const ThingPtr _thing;
     const ConfigRepository& _configRepository;

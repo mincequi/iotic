@@ -1,13 +1,25 @@
-CPMAddPackage(gh:catchorg/Catch2@3.5.4)
+CPMAddPackage(gh:catchorg/Catch2@3.12.0)
 
-add_executable(common_tests
-  common/NLohmannTest.cpp
+add_library(common_test STATIC
+  common/TestThing.h common/TestThing.cpp
 )
-target_link_libraries(common_tests
-PRIVATE
+target_include_directories(common_test PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
+target_link_libraries(common_test
+PUBLIC
   Catch2::Catch2WithMain
   common
   things
+)
+
+add_executable(common_tests
+  common/NLohmannTest.cpp
+
+)
+target_link_libraries(common_tests
+PRIVATE
+  common_test
 )
 
 add_executable(webserver_tests
@@ -15,11 +27,20 @@ add_executable(webserver_tests
 )
 target_link_libraries(webserver_tests
 PRIVATE
-  Catch2::Catch2WithMain
-  common
+  common_test
   webserver
 )
 
-include(CTest)
-#include(Catch)
-#catch_discover_tests(tests)
+add_executable(strategies_tests
+  strategies/MultiPhaseStrategyTest.cpp
+)
+target_link_libraries(strategies_tests
+PRIVATE
+  common_test
+  strategies
+)
+
+list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
+include(Catch)
+catch_discover_tests(common_tests)
+catch_discover_tests(strategies_tests)
