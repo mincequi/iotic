@@ -11,7 +11,7 @@ class RadialGaugeBar {
   RadialGaugeBar({
     required this.value,
     required this.color,
-    this.thickness = 6,
+    this.thickness = 3,
   });
 }
 
@@ -106,11 +106,14 @@ class _MultiRadialGaugePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = size.center(Offset.zero);
     final startRad = _degToRad(startAngle);
-    final totalSweep = _degToRad(endAngle - startAngle);
+    final totalSweepRad = _degToRad(endAngle - startAngle);
 
     double currentRadius = Math.min(size.width, size.height) / 2;
 
     for (final bar in bars) {
+      final progress = ((bar.value - min) / (max - min)).clamp(0.0, 1.0);
+      final sweep = totalSweepRad * progress;
+
       final strokeWidth = bar.thickness;
       currentRadius -= strokeWidth / 2;
 
@@ -118,10 +121,6 @@ class _MultiRadialGaugePainter extends CustomPainter {
         center: center,
         radius: currentRadius - margins,
       );
-
-      final progress = ((bar.value - min) / (max - min)).clamp(0.0, 1.0);
-
-      final sweep = totalSweep * progress;
 
       final backgroundPaint = Paint()
         ..color = bar.color.withOpacity(0.4)
@@ -138,8 +137,8 @@ class _MultiRadialGaugePainter extends CustomPainter {
       // Background arc
       canvas.drawArc(
         rect,
-        startRad,
-        totalSweep,
+        Math.min(startRad + sweep + 0.35, startRad + totalSweepRad - 0.35),
+        totalSweepRad - sweep - 0.35,
         false,
         backgroundPaint,
       );

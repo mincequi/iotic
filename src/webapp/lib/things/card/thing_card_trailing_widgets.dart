@@ -7,38 +7,38 @@ import 'package:iotic/things/card/thing_card_controller.dart';
 import 'package:iotic/things/card/thing_gauge.dart';
 import 'package:iotic/things/data/thing_property.dart';
 
-class TrailingWidgets extends StatelessWidget {
+class ThingCardTrailingWidgets extends StatelessWidget {
   final String _id;
   final bool isPinnedCard;
-  final ThingCardController control;
+  final ThingCardController controller;
 
   final _webSocket = Get.find<WebSocketDataSource>();
   final _focusNode = FocusNode();
   late final TextEditingController _editingController;
 
-  TrailingWidgets(
+  ThingCardTrailingWidgets(
     this._id, {
     super.key,
     required this.isPinnedCard,
-    required this.control,
+    required this.controller,
   });
 
   @override
   Widget build(BuildContext context) {
     if (isPinnedCard) {
-      if (control.isOn.value != null) {
+      if (controller.isOn.value != null) {
         return Switch(
-          value: control.isOn.value!,
+          value: controller.isOn.value!,
           onChanged: (value) {
             _webSocket.sendThingPropertyValue(
                 _id, ThingPropertyKey.power_control, value);
           },
         );
-      } else if (control.icon.value == Icons.ev_station) {
+      } else if (controller.icon.value == Icons.ev_station) {
         return ChargerStatus(_id);
-      } else if (control.icon.value == Icons.local_fire_department) {
+      } else if (controller.icon.value == Icons.local_fire_department) {
         dynamic p;
-        if ((p = control.voltages.value) != null) {
+        if ((p = controller.voltages.value) != null) {
           // Round to multiple of 5
           double p0 = (p[0] / 5).round() * 5;
           double p1 = (p[1] / 5).round() * 5;
@@ -65,9 +65,9 @@ class TrailingWidgets extends StatelessWidget {
             )
           ]);
         }
-      } else if (control.type == "relay" &&
-          control.multistateSelector.value != null) {
-        final length = control.multistateSelector.value?.length;
+      } else if (controller.type == "relay" &&
+          controller.multistateSelector.value != null) {
+        final length = controller.multistateSelector.value?.length;
         return SegmentedButton<int>(
           multiSelectionEnabled: true,
           emptySelectionAllowed: true,
@@ -84,7 +84,7 @@ class TrailingWidgets extends StatelessWidget {
           }),
           selected: {
             for (int i = 0; i < length; i++)
-              if (control.multistateSelector.value![i]) i,
+              if (controller.multistateSelector.value![i]) i,
           },
           onSelectionChanged: (value) {
             final List<bool> selected = List<bool>.generate(
@@ -102,12 +102,12 @@ class TrailingWidgets extends StatelessWidget {
           ),
         );
       } else {
-        return Icon(control.icon.value);
+        return Icon(controller.icon.value);
       }
     }
 
     return Wrap(children: [
-      (control.isEditingMode.value
+      (controller.isEditingMode.value
           ? IconButton(
               icon: const Icon(Icons.save_outlined),
               onPressed: _saveName,
@@ -115,12 +115,12 @@ class TrailingWidgets extends StatelessWidget {
           : IconButton(
               icon: const Icon(Icons.edit_outlined),
               onPressed: () {
-                control.isEditingMode.value = true;
-                _editingController.text = control.name.value;
+                controller.isEditingMode.value = true;
+                _editingController.text = controller.name.value;
                 _focusNode.requestFocus();
               },
             )),
-      (control.isPinned.value
+      (controller.isPinned.value
           ? IconButton(
               icon: const Icon(Icons.bookmark_added),
               onPressed: () {
@@ -141,6 +141,6 @@ class TrailingWidgets extends StatelessWidget {
   void _saveName() {
     _webSocket.sendThingPropertyValue(
         _id, ThingPropertyKey.name, _editingController.text);
-    control.isEditingMode.value = false;
+    controller.isEditingMode.value = false;
   }
 }

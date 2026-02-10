@@ -8,7 +8,7 @@ import 'card/site_card.dart';
 import 'site_page_controller.dart';
 
 class SitePage extends StatelessWidget {
-  final _control = Get.put(SitePageController());
+  final _controller = Get.put(SitePageController());
 
   SitePage({super.key});
 
@@ -22,9 +22,9 @@ class SitePage extends StatelessWidget {
           child: SiteCard()),
       Expanded(
           child: Obx(() => ListView.builder(
-                itemCount: _control.thingCount.value,
+                itemCount: _controller.thingCount.value,
                 itemBuilder: (BuildContext context, int index) {
-                  return ThingCardSite(_control.thingIds.elementAt(index));
+                  return ThingCardSite(_controller.thingIds.elementAt(index));
                 },
               )))
     ]);

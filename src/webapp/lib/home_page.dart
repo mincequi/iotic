@@ -31,30 +31,18 @@ class Home extends StatelessWidget {
     final HomePageController c = Get.put(HomePageController());
 
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          title: const Text("this is iotic"),
-        ),
-        body: SafeArea(
-            child: Padding(
-                padding: const EdgeInsets.only(left: 8, right: 8),
-                child: Obx(() => _pages[c.currentPage.value]))),
-        bottomNavigationBar: Padding(
-            padding: const EdgeInsets.only(bottom: 34),
-            child: Obx(() => HomeNavigationBar(c.currentPage.value))),
-        backgroundColor: Colors.black,
-        floatingActionButton: Obx(() {
-          if (c.currentPage.value == 1) {
-            return FloatingActionButton(
-              onPressed: () {
-                //_http.discover();
-              },
-              child: const Icon(Icons.wifi_find_sharp),
-              //child: const Text("Discover"),
-            );
-          } else {
-            return const SizedBox();
-          }
-        }));
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        title: const Text("this is iotic"),
+      ),
+      body: SafeArea(
+          child: Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8),
+              child: Obx(() => _pages[c.currentPage.value]))),
+      bottomNavigationBar: Padding(
+          padding: const EdgeInsets.only(bottom: 34),
+          child: Obx(() => HomeNavigationBar(c.currentPage.value))),
+      backgroundColor: Colors.black,
+    );
   }
 }

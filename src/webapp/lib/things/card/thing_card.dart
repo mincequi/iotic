@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:icon_decoration/icon_decoration.dart';
-import 'package:iotic/things/card/charger/charger_status.dart';
 import 'package:iotic/common/iotic_theme.dart';
 import 'package:iotic/things/card/thing_card_trailing_widgets.dart';
-import 'package:iotic/things/card/thing_gauge.dart';
 import '../../common/web_socket_data_source.dart';
 import '../data/thing_property.dart';
 import 'thing_card_controller.dart';
+import 'thing_card_subtitle.dart';
 import 'thing_slider.dart';
 
 class ThingCard extends StatelessWidget {
   ThingCard(this._id, {this.isPinnedCard = false, super.key}) {
-    _editingController = TextEditingController(text: _control.name.value);
+    _editingController = TextEditingController(text: _controller.name.value);
   }
 
   final String _id;
-  late final _control = Get.put(ThingCardController(_id), tag: _id);
+  late final _controller = Get.put(ThingCardController(_id), tag: _id);
 
   final bool isPinnedCard;
 
@@ -33,7 +32,7 @@ class ThingCard extends StatelessWidget {
           dense: true,
           leading: DecoratedIcon(
             icon: Icon(
-              _control.icon.value,
+              _controller.icon.value,
               size: 40,
               color: Colors.transparent,
             ),
@@ -45,11 +44,11 @@ class ThingCard extends StatelessWidget {
           ),
           title: titleWidget(),
           //Text(_control.name.value),
-          subtitle: _control.propertyWidgets.isNotEmpty
-              ? Row(children: _control.propertyWidgets)
+          subtitle: _controller.hasSubtitle.value
+              ? ThingCardSubtitle(controller: _controller)
               : null,
-          trailing: TrailingWidgets(_id,
-              isPinnedCard: isPinnedCard, control: _control),
+          trailing: ThingCardTrailingWidgets(_id,
+              isPinnedCard: isPinnedCard, controller: _controller),
         ),
         isPinnedCard ? ThingSlider(_id) : Container(),
       ]),
@@ -57,7 +56,7 @@ class ThingCard extends StatelessWidget {
   }
 
   Widget titleWidget() {
-    if (_control.isEditingMode.value) {
+    if (_controller.isEditingMode.value) {
       return TextField(
         controller: _editingController,
         focusNode: _focusNode,
@@ -66,13 +65,13 @@ class ThingCard extends StatelessWidget {
         },
       );
     } else {
-      return Obx(() => Text(_control.name.value));
+      return Obx(() => Text(_controller.name.value));
     }
   }
 
   void _saveName() {
     _repo.sendThingPropertyValue(
         _id, ThingPropertyKey.name, _editingController.text);
-    _control.isEditingMode.value = false;
+    _controller.isEditingMode.value = false;
   }
 }

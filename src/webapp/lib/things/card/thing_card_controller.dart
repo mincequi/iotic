@@ -3,19 +3,18 @@ import 'package:get/get_core/get_core.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:iotic/common/iotic_theme.dart';
 import 'package:iotic/common/web_socket_data_source.dart';
+//import 'package:iotic/things/components/meter.dart';
 
 import '../data/thing_properties.dart';
 import '../data/thing_property.dart';
-import 'thing_ui_property.dart';
 import 'thing_util.dart';
 
 class ThingCardController extends GetxController {
   ThingCardController(this._id);
   final String _id;
 
-  final WebSocketDataSource _repo = Get.find<WebSocketDataSource>();
+  final WebSocketDataSource _dataSource = Get.find<WebSocketDataSource>();
 
   final name = "".obs;
   String type = "";
@@ -32,12 +31,16 @@ class ThingCardController extends GetxController {
   final multistateSelector = Rxn<List<bool>>();
   final digitalInput = Rxn<List<bool>>();
 
-  final propertyWidgets = <ThingUiProperty>[].obs;
+  final power = Rxn<int>();
+  final temperature = Rxn<int>();
+  final energy = Rxn<double>();
+
+  final hasSubtitle = false.obs;
 
   @override
   void onReady() {
-    assignProperties(_repo.things);
-    _repo.things.listen((p0) {
+    assignProperties(_dataSource.things);
+    _dataSource.things.listen((p0) {
       assignProperties(p0);
     });
 
@@ -46,7 +49,7 @@ class ThingCardController extends GetxController {
 
   @override
   void onClose() {
-    _repo.things.close();
+    _dataSource.things.close();
     super.onClose();
   }
 
@@ -93,24 +96,13 @@ class ThingCardController extends GetxController {
     }
     //}
 
-    // TODO: this has to be dynamic. Otherwise things cards won't get updated.
-    // No idea why.
-    dynamic p;
-    propertyWidgets.clear();
-    if ((p = p0[ThingPropertyKey.power]) != null) {
-      propertyWidgets.add(ThingUiProperty(Icons.electric_bolt, p,
-          _powerUnit(p.round()), ThingPropertyKey.power));
-    }
-    if ((p = p0[ThingPropertyKey.temperature]) != null) {
-      propertyWidgets.add(ThingUiProperty(
-          Icons.thermostat, p / 10.0, '°C', ThingPropertyKey.temperature));
-    }
-    if ((p = p0[ThingPropertyKey.energy]) != null) {
-      propertyWidgets.add(
-          // Value is in 0.1 kWh, convert to kWh with one decimal
-          ThingUiProperty(
-              Icons.electric_bolt, p / 10, 'kWh', ThingPropertyKey.energy));
-    }
+    power.value = p0[ThingPropertyKey.power];
+    temperature.value = p0[ThingPropertyKey.temperature];
+    energy.value = p0[ThingPropertyKey.energy];
+
+    hasSubtitle.value = power.value != null ||
+        temperature.value != null ||
+        energy.value != null;
   }
 
   static final Map<String?, IconData> _typeToIcon = {
@@ -122,9 +114,4 @@ class ThingCardController extends GetxController {
     "heater": Icons.local_fire_department,
     null: Icons.device_hub
   };
-
-  static String _powerUnit(int v) {
-    if (v.abs() < 1000) return "W";
-    return "kW";
-  }
 }

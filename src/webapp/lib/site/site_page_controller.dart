@@ -13,7 +13,7 @@ class SitePageController extends GetxController {
 
   @override
   void onReady() {
-    _repo.things.listen((things) {
+    _dataSource.things.listen((things) {
       var things_ = <String, ThingProperties>{};
       for (MapEntry<String, ThingProperties> t in things.entries) {
         if (t.value.properties[ThingPropertyKey.pinned] ?? false) {
@@ -29,9 +29,9 @@ class SitePageController extends GetxController {
 
   @override
   void onClose() {
-    _repo.things.close();
+    _dataSource.things.close();
     super.onClose();
   }
 
-  final WebSocketDataSource _repo = Get.find<WebSocketDataSource>();
+  final WebSocketDataSource _dataSource = Get.find<WebSocketDataSource>();
 }

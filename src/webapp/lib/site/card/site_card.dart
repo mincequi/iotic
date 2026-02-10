@@ -94,7 +94,7 @@ class SiteCard extends StatelessWidget {
       spots: points,
       dotData: const FlDotData(show: false),
       color: color,
-      barWidth: 2.5,
+      barWidth: 3,
       isCurved: false,
       //isStepLineChart: true,
       preventCurveOverShooting: true,

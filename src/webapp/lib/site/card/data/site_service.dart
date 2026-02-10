@@ -10,18 +10,18 @@ class SiteService extends GetxService {
 
   final update = RxInt(0);
 
-  final _wsSource = Get.find<WebSocketDataSource>();
+  final _dataSource = Get.find<WebSocketDataSource>();
 
   void requestSiteDataHistoric(int from, int to) {
     pvPoints.insert(0, FlSpot(from.toDouble(), 0.0));
     gridPoints.insert(0, FlSpot(from.toDouble(), 0.0));
     sitePoints.insert(0, FlSpot(from.toDouble(), 0.0));
-    _wsSource.requestSiteDataHistoric(from, to);
+    _dataSource.requestSiteDataHistoric(from, to);
   }
 
   @override
   void onReady() {
-    _wsSource.siteDataHistoric.listen((p0) {
+    _dataSource.siteDataHistoric.listen((p0) {
       final pv = List<FlSpot>.empty(growable: true);
       final grid = List<FlSpot>.empty(growable: true);
       final site = List<FlSpot>.empty(growable: true);
@@ -40,7 +40,7 @@ class SiteService extends GetxService {
       update.value = update.value++;
     });
 
-    _wsSource.siteDataLive.listen((p0) {
+    _dataSource.siteDataLive.listen((p0) {
       final ts = p0.ts.toDouble();
       pvPoints.add(FlSpot(ts, p0.pvPower.toDouble()));
       gridPoints.add(FlSpot(ts, p0.gridPower.toDouble()));
@@ -53,7 +53,7 @@ class SiteService extends GetxService {
 
   @override
   void onClose() {
-    _wsSource.siteDataLive.close();
+    _dataSource.siteDataLive.close();
     super.onClose();
   }
 
