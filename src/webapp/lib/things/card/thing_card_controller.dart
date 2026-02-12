@@ -98,7 +98,7 @@ class ThingCardController extends GetxController {
 
     power.value = p0[ThingPropertyKey.power];
     temperature.value = p0[ThingPropertyKey.temperature];
-    energy.value = p0[ThingPropertyKey.energy];
+    energy.value = p0[ThingPropertyKey.energy] / 60.0;
 
     hasSubtitle.value = power.value != null ||
         temperature.value != null ||

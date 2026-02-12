@@ -71,8 +71,7 @@ class PreviewDataSource
       for (int i = 0; i < 5; i++) {
         // Increment energy by 0.1 kWh
         things["thing_$i"]!.properties[ThingPropertyKey.energy] =
-            (things["thing_$i"]!.properties[ThingPropertyKey.energy] ?? 0) +
-                0.07;
+            (things["thing_$i"]!.properties[ThingPropertyKey.energy] ?? 0) + 13;
       }
       things.refresh();
     });

@@ -139,8 +139,8 @@ void MultiPhaseStrategy::adjust(Step step, const Site::Properties& sitePropertie
 
     ThingPropertyMap properties;
     properties.set<ThingPropertyKey::multistateSelector>(_currentStates);
-    // Convert Ws into 0.1 kWh
-    properties.set<ThingPropertyKey::energy>((_energyDelivered + energyCurrent) / 360000);
+    // Convert Ws into kWm
+    properties.set<ThingPropertyKey::energy>((_energyDelivered + energyCurrent) / 60000);
     _thing->setProperties(properties);
 
     if (step != Step::Keep) {

@@ -4,12 +4,14 @@ class OdometerDigit extends StatefulWidget {
   final double digit;
   final TextStyle? style;
   final Duration duration;
+  final bool isLastDigit;
 
   const OdometerDigit({
     super.key,
     required this.digit,
     required this.style,
-    this.duration = const Duration(milliseconds: 400),
+    this.duration = const Duration(milliseconds: 1000),
+    this.isLastDigit = false,
   });
 
   @override
@@ -50,10 +52,16 @@ class _OdometerDigitState extends State<OdometerDigit> {
   Widget build(BuildContext context) {
     final fontSize = widget.style?.fontSize ?? 14;
     final height = fontSize * 0.85;
+    double viewportHeight = height;
+    if (widget.isLastDigit) {
+      viewportHeight *=
+          1.4; // slightly taller for last digit to show more of the fraction
+    }
+    final centerOffset = (viewportHeight - height) / 2;
 
     return SizedBox(
       width: fontSize * 0.6,
-      height: height,
+      height: viewportHeight,
       child: ClipRect(
         child: TweenAnimationBuilder<double>(
           tween: Tween(
@@ -61,10 +69,10 @@ class _OdometerDigitState extends State<OdometerDigit> {
             end: _currentValue,
           ),
           duration: widget.duration,
-          curve: Curves.easeOutCubic,
+          //curve: Curves.easeOutCubic,
           builder: (context, value, child) {
             return Transform.translate(
-              offset: Offset(0, (-(value % 10) - 10) * height),
+              offset: Offset(0, (-(value % 10) - 10) * height + centerOffset),
               child: child,
             );
           },
@@ -105,47 +113,38 @@ class Odometer extends StatelessWidget {
     final intPart = value.floor();
     final fraction = value - intPart;
 
-    final digits =
+    // Integer digits
+    final intDigits =
         intPart.toString().split('').map((e) => double.parse(e)).toList();
 
-    // Extend with leading zeros if necessary
-    while (digits.length < this.digits) {
-      digits.insert(0, 0);
+    // Add leading zeros
+    while (intDigits.length < digits) {
+      intDigits.insert(0, 0);
     }
-    digits[digits.length - 1] += fraction;
+
+    // Create ONE fractional digit (0–9, fractional scroll)
+    final fractionalDigit = fraction * 10;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: List.generate(digits.length, (index) {
-        final digitWidget = OdometerDigit(
-          digit: digits[index],
+      children: [
+        // Integer digits
+        ...intDigits.map((d) => OdometerDigit(
+              digit: d,
+              style: style,
+              isLastDigit: false,
+            )),
+
+        // Decimal point
+        Text('.', style: style),
+
+        // Fractional digit
+        OdometerDigit(
+          digit: fractionalDigit,
           style: style,
-          //isRelevant: (index >= firstNonZero) && (index < chars.length - 1) ||
-          //    ((index == chars.length - 1) && chars[index] != '0'),
-          //isRelevant: true,
-          //isLastDigit: index == chars.length - 1,
-        );
-
-        // Insert dot before last digit
-        if (index == digits.length - 1) {
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: (style?.fontSize ?? 14) * 0.1),
-                child: Text(
-                  '.',
-                  style: style,
-                ),
-              ),
-              digitWidget,
-            ],
-          );
-        }
-
-        return digitWidget;
-      }),
+          isLastDigit: true,
+        ),
+      ],
     );
   }
 }

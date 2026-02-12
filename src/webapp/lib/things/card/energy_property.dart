@@ -34,7 +34,7 @@ class EnergyProperty extends StatelessWidget {
                   alignment: Alignment.centerRight,
                   child: Odometer(
                     value: _value.abs(),
-                    digits: 3,
+                    digits: 2,
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium
