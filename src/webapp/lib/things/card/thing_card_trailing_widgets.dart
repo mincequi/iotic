@@ -38,15 +38,11 @@ class ThingCardTrailingWidgets extends StatelessWidget {
         return ChargerStatus(_id);
       } else if (controller.icon.value == Icons.local_fire_department) {
         dynamic p;
-        if ((p = controller.voltages.value) != null) {
-          // Round to multiple of 5
-          double p0 = (p[0] / 5).round() * 5;
-          double p1 = (p[1] / 5).round() * 5;
-
-          RadialGaugeBar bar0 =
-              RadialGaugeBar(value: p0, color: IoticTheme.orange);
-          RadialGaugeBar bar1 =
-              RadialGaugeBar(value: p1, color: IoticTheme.yellow);
+        if (controller.voltages.isNotEmpty) {
+          RadialGaugeBar bar0 = RadialGaugeBar(
+              value: controller.voltages[0], color: IoticTheme.orange);
+          RadialGaugeBar bar1 = RadialGaugeBar(
+              value: controller.voltages[1], color: IoticTheme.yellow);
 
           return Row(mainAxisSize: MainAxisSize.min, spacing: 0, children: [
             ThingGauge(

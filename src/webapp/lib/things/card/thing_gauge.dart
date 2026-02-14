@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/state_manager.dart';
 import 'package:iotic/common/text_util.dart';
 
 import 'dart:math' as Math;
 
 class RadialGaugeBar {
-  final double value;
+  final RxInt value;
   final Color color;
   final double thickness;
 
@@ -17,8 +18,8 @@ class RadialGaugeBar {
 
 class ThingGauge extends StatelessWidget {
   final List<RadialGaugeBar> bars;
-  final double min;
-  final double max;
+  final int min;
+  final int max;
   final double startAngle;
   final double endAngle;
   final double spaceBetweenBars;
@@ -69,10 +70,13 @@ class ThingGauge extends StatelessWidget {
                       SizedBox(height: 10),
                       // small space character
                       //const Text('\u2007'),
-                      Text(bars.first.value.toStringAsFixed(0) + '%',
-                          style: textStyle(bars.first.value > 0
+                      Obx(() => Text(
+                          roundToMultiple(bars.first.value.value, 5)
+                                  .toString() +
+                              '%',
+                          style: textStyle(bars.first.value.value > 0
                               ? bars.first.color
-                              : bars.first.color.withOpacity(0.4))),
+                              : bars.first.color.withOpacity(0.4)))),
                     ],
                   )),
             ],
@@ -81,12 +85,16 @@ class ThingGauge extends StatelessWidget {
       },
     );
   }
+
+  int roundToMultiple(int value, int multiple) {
+    return (value.toDouble() / multiple.toDouble()).round() * multiple;
+  }
 }
 
 class _MultiRadialGaugePainter extends CustomPainter {
   final List<RadialGaugeBar> bars;
-  final double min;
-  final double max;
+  final int min;
+  final int max;
   final double startAngle;
   final double endAngle;
   final double spaceBetweenBars;

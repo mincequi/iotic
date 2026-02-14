@@ -110,7 +110,8 @@ class Odometer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final intPart = value.floor();
+    // round to nearest int, bias towards rounding up
+    final intPart = (value + 0.04).floor();
     final fraction = value - intPart;
 
     // Integer digits

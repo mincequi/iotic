@@ -24,12 +24,12 @@ using json = nlohmann::json;
 using namespace uvw_iot;
 using namespace uvw_iot::util;
 
-WebServer::WebServer(const ThingRepository& repo,
+WebServer::WebServer(const ThingRepository& thingRepository,
                      const Site& site,
                      const ConfigRepository& cfg,
                      const StrategyRepository& strategyRepository,
                      const SymbolRepository& symbolRepository) :
-    _repo(repo),
+    _thingRepository(thingRepository),
     _site(site),
     _configRepository(cfg),
     _strategyRepository(strategyRepository),
@@ -37,7 +37,7 @@ WebServer::WebServer(const ThingRepository& repo,
     _fs = std::make_unique<cmrc::embedded_filesystem>(cmrc::webapp::get_filesystem());
     uWS::Loop::get(uvw::loop::get_default()->raw());
     _uwsApp = std::make_unique<uWS::App>();
-    _webAppRouter = std::make_shared<WebAppRouter>(repo, site, cfg);
+    _webAppRouter = std::make_shared<WebAppRouter>(thingRepository, site, cfg);
     _uwsApp->get("/", [this](uWS::HttpResponse<false>* res, auto* req) {
         auto f = _fs->open("index.html");
         res->end(std::string_view(f.begin(), f.end()-f.begin()));
@@ -67,6 +67,20 @@ WebServer::WebServer(const ThingRepository& repo,
             strategies.push_back(s->toJson());
         }
         res->end(strategies.dump(2));
+    });
+    _uwsApp->get("/things", [this](uWS::HttpResponse<false>* res, uWS::HttpRequest* req) {
+        json things;
+        for (const auto& [id, thing] : _thingRepository.things()) {
+            json properties;
+            thing->properties().forEach([&](ThingPropertyKey key, const auto& value) {
+                //if (key <= ThingPropertyKey::voltage)
+                    properties[::util::toString(key)] = value;
+            });
+            if (properties.empty()) continue;
+
+            things[id] = properties;
+        }
+        res->end(things.dump(2));
     });
     _uwsApp->ws<WebAppRouterPtr>("/ws", WebAppBehavior::create(_webAppRouter));
     //_uwsApp->ws<UserData>("/ocpp", OcppBehavior::create());
@@ -99,7 +113,7 @@ WebServer::WebServer(const ThingRepository& repo,
         _uwsApp->publish("broadcast", json.dump(), uWS::OpCode::TEXT);
     });
 
-    _repo.thingAdded().subscribe([this](ThingPtr thing) {
+    _thingRepository.thingAdded().subscribe([this](ThingPtr thing) {
         // When new thing is added, send persistent properties to each client
         _uwsApp->publish("broadcast",
                          WebAppBehavior::serializeUserProperties(thing),

@@ -12,12 +12,12 @@ class ThingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() => ListView.builder(
-          itemCount: _control.thingCount.value,
+          itemCount: _controller.thingCount.value,
           itemBuilder: (BuildContext context, int index) {
-            return ThingCard(_control.thingIds.elementAt(index));
+            return ThingCard(_controller.thingIds.elementAt(index));
           },
         ));
   }
 
-  final ThingsPageController _control = Get.put(ThingsPageController());
+  final ThingsPageController _controller = Get.put(ThingsPageController());
 }

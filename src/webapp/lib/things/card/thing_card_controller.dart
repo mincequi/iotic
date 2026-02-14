@@ -4,7 +4,6 @@ import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:iotic/common/web_socket_data_source.dart';
-//import 'package:iotic/things/components/meter.dart';
 
 import '../data/thing_properties.dart';
 import '../data/thing_property.dart';
@@ -27,7 +26,7 @@ class ThingCardController extends GetxController {
   final offset = Rxn<int>();
   final status = Rxn<IconData>();
   final countdown = Rxn<int>();
-  final voltages = Rxn<List<int>>();
+  final voltages = List<RxInt>.empty(growable: true).obs;
   final multistateSelector = Rxn<List<bool>>();
   final digitalInput = Rxn<List<bool>>();
 
@@ -85,7 +84,15 @@ class ThingCardController extends GetxController {
     offset.value = p0[ThingPropertyKey.offset];
     status.value = toIcon(p0[ThingPropertyKey.status]);
     countdown.value = p0[ThingPropertyKey.countdown];
-    voltages.value = p0[ThingPropertyKey.voltage]?.cast<int>();
+
+    if (p0.containsKey(ThingPropertyKey.voltage)) {
+      while (voltages.length < (p0[ThingPropertyKey.voltage] as List).length) {
+        voltages.add(RxInt(0));
+      }
+      for (int i = 0; i < (p0[ThingPropertyKey.voltage] as List).length; i++) {
+        voltages[i].value = (p0[ThingPropertyKey.voltage] as List)[i];
+      }
+    }
 
     // Check for power control
     //hasPowerControl.value = p0.containsKey(ReadableThingProperty.power_control);
@@ -98,7 +105,9 @@ class ThingCardController extends GetxController {
 
     power.value = p0[ThingPropertyKey.power];
     temperature.value = p0[ThingPropertyKey.temperature];
-    energy.value = p0[ThingPropertyKey.energy] / 60.0;
+    energy.value = p0[ThingPropertyKey.energy] != null
+        ? (p0[ThingPropertyKey.energy] as num).toDouble() / 60.0
+        : null;
 
     hasSubtitle.value = power.value != null ||
         temperature.value != null ||

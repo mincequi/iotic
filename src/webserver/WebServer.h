@@ -46,7 +46,7 @@ public:
     void registerGetRoute(const std::string& path, uWS::MoveOnlyFunction<void(uWS::HttpResponse<false>*, uWS::HttpRequest*)>&& handler) const;
 
 private:
-    const ThingRepository& _repo;
+    const ThingRepository& _thingRepository;
     const Site& _site;
     const ConfigRepository& _configRepository;
     const StrategyRepository& _strategyRepository;

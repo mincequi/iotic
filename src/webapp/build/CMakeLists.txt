@@ -22,21 +22,49 @@ include(${cmakerc_SOURCE_DIR}/CMakeRC.cmake)
 #)
 
 cmrc_add_resource_library(webapp WHENCE web
-  web/favicon.png
+  web/flutter_bootstrap.js
+  web/version.json
+  web/.last_build_id
+  web/favicon.ico
+  web/index.html
+  web/apple-touch-icon.png
+  web/main.dart.js
   web/flutter.js
   web/flutter_service_worker.js
-  web/index.html
-  web/main.dart.js
-  web/manifest.json
-  web/assets/FontManifest.json
-  web/assets/fonts/MaterialIcons-Regular.otf
-  web/assets/packages/icon_decoration/assets/fonts/Roboto/Roboto-Black.ttf
-  web/assets/packages/icon_decoration/assets/fonts/Roboto/Roboto-Bold.ttf
-  web/assets/packages/icon_decoration/assets/fonts/Roboto/Roboto-Light.ttf
-  web/assets/packages/icon_decoration/assets/fonts/Roboto/Roboto-Medium.ttf
-  web/assets/packages/icon_decoration/assets/fonts/Roboto/Roboto-Regular.ttf
-  web/assets/packages/icon_decoration/assets/fonts/Roboto/Roboto-Thin.ttf
+  web/favicon.png
   web/icons/Icon-192.png
+  web/icons/Icon-maskable-192.png
+  web/icons/Icon-maskable-512.png
+  web/icons/Icon-512.png
+  web/apple-touch-icon-precomposed.png
+  web/manifest.json
+  web/apple-touch-icon-120x120-precomposed.png
+  web/assets/NOTICES
+  web/assets/FontManifest.json
+  web/assets/AssetManifest.bin.json
+  web/assets/packages/icon_decoration/assets/fonts/Roboto/Roboto-Medium.ttf
+  web/assets/packages/icon_decoration/assets/fonts/Roboto/Roboto-Light.ttf
+  web/assets/packages/icon_decoration/assets/fonts/Roboto/Roboto-Regular.ttf
+  web/assets/packages/icon_decoration/assets/fonts/Roboto/Roboto-Bold.ttf
+  web/assets/packages/icon_decoration/assets/fonts/Roboto/Roboto-Thin.ttf
+  web/assets/packages/icon_decoration/assets/fonts/Roboto/Roboto-Black.ttf
+  web/assets/shaders/ink_sparkle.frag
+  web/assets/shaders/stretch_effect.frag
+  web/assets/AssetManifest.bin
+  web/assets/fonts/MaterialIcons-Regular.otf
+  web/canvaskit/skwasm.js
+  web/canvaskit/skwasm_heavy.js
+  web/canvaskit/skwasm.js.symbols
+  web/canvaskit/canvaskit.js.symbols
+  web/canvaskit/skwasm_heavy.js.symbols
+  web/canvaskit/skwasm.wasm
+  web/canvaskit/chromium/canvaskit.js.symbols
+  web/canvaskit/chromium/canvaskit.js
+  web/canvaskit/chromium/canvaskit.wasm
+  web/canvaskit/canvaskit.js
+  web/canvaskit/canvaskit.wasm
+  web/canvaskit/skwasm_heavy.wasm
+
 )
 
 #add_custom_command(TARGET webapp

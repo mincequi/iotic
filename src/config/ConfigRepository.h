@@ -96,8 +96,8 @@ public:
     // After a time of about 3 taus, the output signal has reached about 95% of the size of the input signal.
     // note: we tried 3 minutes before, but that was too long for our use case. Let's try 2 minutes now.
     static constexpr std::chrono::milliseconds longTermTau = 120000ms;
-    static constexpr int stepDebounceSeconds = 180;
-
+    static constexpr int stepUpDebounceSeconds = 180;
+    static constexpr int stepDownDebounceSeconds = 120;
 
 private:
     void parseConfigFile();

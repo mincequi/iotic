@@ -22,7 +22,7 @@ class ThingUiProperty extends StatelessWidget {
       ),
       //const SizedBox(width: 3),
       SizedBox(
-          width: 25,
+          width: 24,
           child: Align(
             alignment: Alignment.centerRight,
             child: Text(
@@ -30,7 +30,7 @@ class ThingUiProperty extends StatelessWidget {
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
-                  ?.copyWith(color: color),
+                  ?.copyWith(color: color, letterSpacing: -0.5),
             ),
           )),
       const SizedBox(width: 2),
@@ -46,6 +46,7 @@ class ThingUiProperty extends StatelessWidget {
     if (v.abs() == 0) return v.abs().toStringAsFixed(0);
     if (v.abs() < 10) return v.abs().toStringAsFixed(1);
     if (v.abs() < 1000) return v.abs().toStringAsFixed(0);
-    return (v / 1000).abs().toStringAsFixed(1);
+    if (v.abs() < 10000) return (v / 1000).abs().toStringAsFixed(1);
+    return (v / 1000).abs().toStringAsFixed(0);
   }
 }
