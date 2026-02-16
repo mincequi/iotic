@@ -72,6 +72,16 @@ class PreviewDataSource
         // Increment energy by 0.1 kWh
         things["thing_$i"]!.properties[ThingPropertyKey.energy] =
             (things["thing_$i"]!.properties[ThingPropertyKey.energy] ?? 0) + 13;
+        things["thing_$i"]!.properties[ThingPropertyKey.digitalInput] =
+            List<bool>.generate(
+          3,
+          (index) =>
+              (things["thing_$i"]!.properties[ThingPropertyKey.digitalInput]
+                          as List<bool>?)?[index] ==
+                      true
+                  ? false
+                  : true,
+        );
       }
       things.refresh();
     });
@@ -87,7 +97,16 @@ class PreviewDataSource
     thingProperties.properties[ThingPropertyKey.icon] = Icons.device_hub;
     thingProperties.properties[ThingPropertyKey.energy] = id;
     thingProperties.properties[ThingPropertyKey.power] = id;
-
+    thingProperties.properties[ThingPropertyKey.multistateSelector] = [
+      true,
+      false,
+      true
+    ];
+    thingProperties.properties[ThingPropertyKey.digitalInput] = [
+      false,
+      false,
+      false
+    ];
     return thingProperties;
   }
 }

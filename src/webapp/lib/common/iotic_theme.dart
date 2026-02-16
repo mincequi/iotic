@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -75,6 +77,9 @@ class IoticTheme {
           // Background of each segment
           backgroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.selected)) {
+              if (states.contains(WidgetState.disabled)) {
+                return IoticTheme.other;
+              }
               return IoticTheme.yellow;
             }
             return Colors.transparent;
@@ -92,6 +97,8 @@ class IoticTheme {
           foregroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.selected)) {
               return Colors.black;
+            } else if (states.contains(WidgetState.disabled)) {
+              return IoticTheme.other;
             }
             return IoticTheme.yellow;
           }),

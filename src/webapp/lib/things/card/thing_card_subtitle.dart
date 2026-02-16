@@ -21,22 +21,25 @@ class ThingCardSubtitle extends StatelessWidget {
     if ((p = controller.energy.value) != null) {
       propertyWidgets.add(EnergyProperty(Icons.electric_bolt, p, 'kWh'));
     }
-    if ((p = controller.power.value) != null) {
-      propertyWidgets
-          .add(ThingUiProperty(Icons.electric_bolt, p, _powerUnit(p.round())));
+    if (controller.power.value != null) {
+      propertyWidgets.add(ThingUiProperty(
+        Icons.electric_bolt,
+        controller.power,
+        "W",
+      ));
     }
     if ((p = controller.temperature.value) != null) {
-      propertyWidgets.add(ThingUiProperty(Icons.thermostat, p / 10.0, '°C'));
+      propertyWidgets.add(ThingUiProperty(
+        Icons.thermostat,
+        controller.temperature,
+        '°C',
+        factor: 0.1,
+      ));
     }
 
     return Row(
       children: propertyWidgets,
       spacing: 12.0,
     );
-  }
-
-  static String _powerUnit(int v) {
-    if (v.abs() < 1000) return "W";
-    return "kW";
   }
 }

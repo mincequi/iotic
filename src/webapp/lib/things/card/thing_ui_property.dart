@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ThingUiProperty extends StatelessWidget {
-  ThingUiProperty(this._icon, this._value, this._unit,
-      {this.color, super.key}) {}
+  const ThingUiProperty(this._icon, this._value, this._unit,
+      {this.color, double factor = 1.0, super.key})
+      : _factor = factor;
 
   final IconData _icon;
-  final num _value;
+  final RxnNum _value;
+  final double _factor;
   final String _unit;
   final Color? color;
 
@@ -25,17 +28,17 @@ class ThingUiProperty extends StatelessWidget {
           width: 24,
           child: Align(
             alignment: Alignment.centerRight,
-            child: Text(
-              value(_value),
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: color, letterSpacing: -0.5),
-            ),
+            child: Obx(() => Text(
+                  value((_value.value ?? 0) * _factor),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: color, letterSpacing: -0.5),
+                )),
           )),
       const SizedBox(width: 2),
       Text(
-        _unit,
+        ((_value.value ?? 0) * _factor >= 1000) ? "k" + _unit : _unit,
         style: Theme.of(context).textTheme.bodySmall?.copyWith(color: color),
         //textAlign: TextAlign.left,
       ),

@@ -29,10 +29,11 @@ class ThingCardController extends GetxController {
   final voltages = List<RxInt>.empty(growable: true).obs;
   final multistateSelector = Rxn<List<bool>>();
   final digitalInput = Rxn<List<bool>>();
+  final isEnabled = false.obs;
 
-  final power = Rxn<int>();
-  final temperature = Rxn<int>();
-  final energy = Rxn<double>();
+  final power = RxnNum();
+  final temperature = RxnNum();
+  final energy = RxnDouble();
 
   final hasSubtitle = false.obs;
 
@@ -41,6 +42,10 @@ class ThingCardController extends GetxController {
     assignProperties(_dataSource.things);
     _dataSource.things.listen((p0) {
       assignProperties(p0);
+    });
+
+    digitalInput.listen((value) {
+      isEnabled.value = value?.every((element) => element) ?? false;
     });
 
     super.onReady();

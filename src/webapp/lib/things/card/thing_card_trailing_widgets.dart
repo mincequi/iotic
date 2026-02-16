@@ -5,6 +5,7 @@ import 'package:iotic/common/web_socket_data_source.dart';
 import 'package:iotic/things/card/charger/charger_status.dart';
 import 'package:iotic/things/card/thing_card_controller.dart';
 import 'package:iotic/things/card/thing_gauge.dart';
+import 'package:iotic/things/components/multi_channel_switch.dart';
 import 'package:iotic/things/data/thing_property.dart';
 
 class ThingCardTrailingWidgets extends StatelessWidget {
@@ -37,7 +38,6 @@ class ThingCardTrailingWidgets extends StatelessWidget {
       } else if (controller.icon.value == Icons.ev_station) {
         return ChargerStatus(_id);
       } else if (controller.icon.value == Icons.local_fire_department) {
-        dynamic p;
         if (controller.voltages.isNotEmpty) {
           RadialGaugeBar bar0 = RadialGaugeBar(
               value: controller.voltages[0], color: IoticTheme.orange);
@@ -63,40 +63,13 @@ class ThingCardTrailingWidgets extends StatelessWidget {
         }
       } else if (controller.type == "relay" &&
           controller.multistateSelector.value != null) {
-        final length = controller.multistateSelector.value?.length;
-        return SegmentedButton<int>(
-          multiSelectionEnabled: true,
-          emptySelectionAllowed: true,
-          showSelectedIcon: false,
-          segments: List.generate(length!, (index) {
-            return ButtonSegment<int>(
-              value: index,
-              //label: Text(index.toString()),
-              icon: const Icon(
-                Icons.flash_on_sharp,
-              ),
-              //enabled: enabledStates[index],
-            );
-          }),
-          selected: {
-            for (int i = 0; i < length; i++)
-              if (controller.multistateSelector.value![i]) i,
-          },
-          onSelectionChanged: (value) {
-            final List<bool> selected = List<bool>.generate(
-              length,
-              (index) => value.contains(index),
-            );
-            _webSocket.sendThingPropertyValue(
-                _id, ThingPropertyKey.multistateSelector, selected);
-          },
-          style: const ButtonStyle(
-            visualDensity: VisualDensity(
-              horizontal: -4.0,
-              vertical: -2,
-            ),
-          ),
-        );
+        return MultiChannelSwitch(
+            selected: controller.multistateSelector,
+            isEnabled: controller.isEnabled,
+            onChanged: (selected) {
+              _webSocket.sendThingPropertyValue(
+                  _id, ThingPropertyKey.multistateSelector, selected);
+            });
       } else {
         return Icon(controller.icon.value);
       }

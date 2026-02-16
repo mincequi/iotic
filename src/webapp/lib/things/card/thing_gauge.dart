@@ -74,7 +74,7 @@ class ThingGauge extends StatelessWidget {
                           roundToMultiple(bars.first.value.value, 5)
                                   .toString() +
                               '%',
-                          style: textStyle(bars.first.value.value > 0
+                          style: textStyle(bars.first.value.value > 2
                               ? bars.first.color
                               : bars.first.color.withOpacity(0.4)))),
                     ],
@@ -84,10 +84,6 @@ class ThingGauge extends StatelessWidget {
         );
       },
     );
-  }
-
-  int roundToMultiple(int value, int multiple) {
-    return (value.toDouble() / multiple.toDouble()).round() * multiple;
   }
 }
 
@@ -119,7 +115,9 @@ class _MultiRadialGaugePainter extends CustomPainter {
     double currentRadius = Math.min(size.width, size.height) / 2;
 
     for (final bar in bars) {
-      final progress = ((bar.value - min) / (max - min)).clamp(0.0, 1.0);
+      final progress =
+          ((roundToMultiple(bar.value.value, 5) - min) / (max - min))
+              .clamp(0.0, 1.0);
       final sweep = totalSweepRad * progress;
 
       final strokeWidth = bar.thickness;
@@ -168,4 +166,8 @@ class _MultiRadialGaugePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+int roundToMultiple(int value, int multiple) {
+  return (value.toDouble() / multiple.toDouble()).round() * multiple;
 }
