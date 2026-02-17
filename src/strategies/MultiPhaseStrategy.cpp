@@ -25,16 +25,16 @@ std::unique_ptr<Strategy> MultiPhaseStrategy::from(const ThingPtr& thing,
 
 MultiPhaseStrategy::MultiPhaseStrategy(
     const ThingPtr& thing,
-    const ConfigRepository& configRepositor,
+    const ConfigRepository& configRepository,
     const std::vector<int>& powerThresholds) :
     Strategy(thing->id()),
     _thing(thing),
-    _configRepository(configRepositor),
+    _configRepository(configRepository),
     _powerThresholds(powerThresholds),
     _hystereses(powerThresholds.size()),
     _currentStates(powerThresholds.size(), false),
     _timestamps(powerThresholds.size(), 0),
-    _allowedPhaseCount(powerThresholds.size()) {
+    _phaseLimit(powerThresholds.size()) {
     std::transform(_powerThresholds.begin(), _powerThresholds.end(), _hystereses.begin(), [this](int x) {
         return _configRepository.hysteresisFor(x);
     });
@@ -66,7 +66,7 @@ bool MultiPhaseStrategy::wantsToStepDown(const Site::Properties& siteProperties)
 
     // If next phase input is not active, we want to step down
     if (!inputs[_nextStepDownPhase]) {
-        decrementPhaseCount(siteProperties);
+        decrementPhaseLimit(siteProperties);
         return true;
     }
 
@@ -94,9 +94,9 @@ bool MultiPhaseStrategy::wantsToStepUp(const Site::Properties& siteProperties) c
     }
 
     // If we are currently limited due to temperature, we won't step up
-    incrementPhaseCount(siteProperties);
+    incrementPhaseLimit(siteProperties);
     const auto phaseCount = std::count(states.begin(), states.end(), true);
-    if (phaseCount >= _allowedPhaseCount) {
+    if (phaseCount >= _phaseLimit) {
         return false;
     }
 
@@ -166,32 +166,32 @@ std::pair<std::vector<bool>, std::vector<bool>> MultiPhaseStrategy::inputsAndSta
     return { digitalInputs, multistateSelector };
 }
 
-void MultiPhaseStrategy::decrementPhaseCount(const Site::Properties& siteProperties) const {
-    if (_allowedPhaseCount == 0) {
+void MultiPhaseStrategy::decrementPhaseLimit(const Site::Properties& siteProperties) const {
+    if (_phaseLimit == 0) {
         return;
     }
 
     // Do not decrement phases multiple times within 30 minutes
-    if (siteProperties.ts - _lastDecrementPhaseCountTimestamp < 1800) {
+    if (siteProperties.ts - _phaseLimitTimestamp < _configRepository.phaseLimitDuration) {
         return;
     }
 
     // Last decrement is more than 30 minutes ago and input is still not activ, we decrement one more phase
-    _lastDecrementPhaseCountTimestamp = siteProperties.ts;
-    _allowedPhaseCount = std::max(_allowedPhaseCount - 1, 0);
-    LOG_S(INFO) << "decrement phase count to " << _allowedPhaseCount;
+    _phaseLimitTimestamp = siteProperties.ts;
+    _phaseLimit = std::max(_phaseLimit - 1, 0);
+    LOG_S(INFO) << "decrement phase limit to " << _phaseLimit;
 }
 
-void MultiPhaseStrategy::incrementPhaseCount(const Site::Properties& siteProperties) const {
-    if (_allowedPhaseCount >= (int)_powerThresholds.size()) {
+void MultiPhaseStrategy::incrementPhaseLimit(const Site::Properties& siteProperties) const {
+    if (_phaseLimit >= (int)_powerThresholds.size()) {
         return;
     }
 
     // If we increased phases in the last 30 minutes, we won't increase again to avoid too frequent switching due to temperature limits
-    if (siteProperties.ts - _lastDecrementPhaseCountTimestamp < 1800) {
+    if (siteProperties.ts - _phaseLimitTimestamp < _configRepository.phaseLimitDuration) {
         return;
     }
 
-    _allowedPhaseCount = std::min(_allowedPhaseCount + 1, (int)_powerThresholds.size());
-    LOG_S(INFO) << "increase phase count to " << _allowedPhaseCount;
+    _phaseLimit = std::min(_phaseLimit + 1, (int)_powerThresholds.size());
+    LOG_S(INFO) << "increase phase limit to " << _phaseLimit;
 }

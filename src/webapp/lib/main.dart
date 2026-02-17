@@ -4,7 +4,6 @@ import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:iotic/logs/log_service.dart';
 import 'package:iotic/site/card/data/site_repository.dart';
-import 'package:iotic/things/data/thing_repository.dart';
 
 import 'home_page.dart';
 import 'common/iotic_theme.dart';
@@ -16,7 +15,6 @@ void main() async {
   Get.put(LogService());
   // Init the WebSocketDataSource and its dependencees
   Get.put(WebSocketDataSource());
-  Get.put(ThingRepository(Get.find<WebSocketDataSource>()));
   Get.put(SiteRepository(Get.find<WebSocketDataSource>()));
   Get.put<SiteService>(SiteService());
   runApp(const IoticApp());

@@ -3,7 +3,6 @@ import 'package:get/get_core/get_core.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 
-import 'common/web_socket_data_source.dart';
 import 'home_navigation_bar.dart';
 import 'home_page_controller.dart';
 import 'logs/logs_page.dart';
@@ -12,9 +11,7 @@ import 'site/site_page.dart';
 import 'things/things_page.dart';
 
 class Home extends StatelessWidget {
-  Home({Key? key}) : super(key: key);
-
-  final _http = Get.find<WebSocketDataSource>();
+  const Home({Key? key}) : super(key: key);
 
   static final _pages = [
     SitePage(),

@@ -29,10 +29,10 @@ private:
     std::pair<std::vector<bool>, std::vector<bool>> inputsAndStates() const;
 
     // temp
-    void decrementPhaseCount(const Site::Properties& siteProperties) const;
-    void incrementPhaseCount(const Site::Properties& siteProperties) const;
-    mutable int _lastDecrementPhaseCountTimestamp = 0;
-    mutable int _allowedPhaseCount = 0;
+    void decrementPhaseLimit(const Site::Properties& siteProperties) const;
+    void incrementPhaseLimit(const Site::Properties& siteProperties) const;
+    mutable int _phaseLimitTimestamp = 0;
+    mutable int _phaseLimit = 0;
 
     const ThingPtr _thing;
     const ConfigRepository& _configRepository;

@@ -12,7 +12,7 @@ class ValueUnit extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-        width: 56, // set this
+        width: 51, // set this
         child:
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Icon(

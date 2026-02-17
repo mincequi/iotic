@@ -7,12 +7,13 @@ import 'dart:math' as Math;
 class RadialGaugeBar {
   final RxInt value;
   final Color color;
-  final double thickness;
+  final String unit;
+  final double thickness = 2;
 
   RadialGaugeBar({
     required this.value,
     required this.color,
-    this.thickness = 3,
+    this.unit = '',
   });
 }
 
@@ -44,39 +45,51 @@ class ThingGauge extends StatelessWidget {
 
         return SizedBox(
           height: size,
-          width: size,
+          width: size + 4,
           child: Stack(
             alignment: Alignment.centerRight,
             children: [
-              CustomPaint(
-                size: Size.square(size),
-                painter: _MultiRadialGaugePainter(
-                  bars: bars,
-                  min: min,
-                  max: max,
-                  startAngle: startAngle,
-                  endAngle: endAngle,
-                  spaceBetweenBars: spaceBetweenBars,
-                  margins: margins,
-                ),
-              ),
               Padding(
-                  padding: EdgeInsets.only(right: 4.0),
+                  padding: const EdgeInsets.only(right: 4.0),
+                  child: CustomPaint(
+                    size: Size.square(size),
+                    painter: _MultiRadialGaugePainter(
+                      bars: bars,
+                      min: min,
+                      max: max,
+                      startAngle: startAngle,
+                      endAngle: endAngle,
+                      spaceBetweenBars: spaceBetweenBars,
+                      margins: margins,
+                    ),
+                  )),
+              Padding(
+                  padding: const EdgeInsets.only(right: 4.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      SizedBox(height: 10),
-                      // small space character
-                      //const Text('\u2007'),
+                      const SizedBox(height: 16),
                       Obx(() => Text(
-                          roundToMultiple(bars.first.value.value, 5)
-                                  .toString() +
-                              '%',
+                          formatWithK(
+                              bars.first.value.value, bars.first.unit, 5),
                           style: textStyle(bars.first.value.value > 2
-                              ? bars.first.color
-                              : bars.first.color.withOpacity(0.4)))),
+                                  ? bars.first.color
+                                  : bars.first.color.withOpacity(0.4))
+                              .copyWith(
+                                  fontSize: 10,
+                                  height: 0.95,
+                                  letterSpacing: 0))),
+                      Obx(() => Text(
+                          formatWithK(bars.last.value.value, bars.last.unit, 5),
+                          style: textStyle(bars.last.value > 2
+                                  ? bars.last.color
+                                  : bars.last.color.withOpacity(0.4))
+                              .copyWith(
+                                  fontSize: 10,
+                                  height: 0.95,
+                                  letterSpacing: 0))),
                     ],
                   )),
             ],
@@ -143,8 +156,9 @@ class _MultiRadialGaugePainter extends CustomPainter {
       // Background arc
       canvas.drawArc(
         rect,
-        Math.min(startRad + sweep + 0.35, startRad + totalSweepRad - 0.35),
-        totalSweepRad - sweep - 0.35,
+        Math.min(
+            startRad + sweep /*+ 0.35*/, startRad + totalSweepRad /*- 0.35*/),
+        totalSweepRad - sweep /*- 0.35*/,
         false,
         backgroundPaint,
       );
@@ -170,4 +184,13 @@ class _MultiRadialGaugePainter extends CustomPainter {
 
 int roundToMultiple(int value, int multiple) {
   return (value.toDouble() / multiple.toDouble()).round() * multiple;
+}
+
+String formatWithK(int value, String unit, int multiple) {
+  value = roundToMultiple(value, multiple);
+  if (value >= 1000) {
+    double divided = value / 1000.0;
+    return "${divided.toStringAsFixed(0)} k$unit";
+  }
+  return "$value $unit";
 }

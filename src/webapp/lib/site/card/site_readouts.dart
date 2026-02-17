@@ -24,7 +24,7 @@ class SiteReadouts extends StatelessWidget {
           columnWidths: const <int, TableColumnWidth>{
             0: IntrinsicColumnWidth(),
             1: IntrinsicColumnWidth(),
-            2: FixedColumnWidth(20),
+            2: FixedColumnWidth(18),
           },
           children: [
             TableRow(

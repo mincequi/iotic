@@ -12,6 +12,8 @@
 #include <rules/RuleEngine.h>
 #include <rules/SymbolRepository.h>
 
+#include <stats/StatsDaily.h>
+
 #include <strategies/PowerManager.h>
 #include <strategies/StrategyRepository.h>
 
@@ -39,6 +41,7 @@ private:
     RuleEngine _ruleEngine;
     PowerManager _powerManager;
     WebServer _webServer;
+    StatsDaily _statsDaily;
 
     //MqttExporter _mqttExporter;
     //std::optional<InfluxExporter> _influxExporter;

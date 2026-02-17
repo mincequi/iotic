@@ -5,7 +5,7 @@ project(iotic VERSION 0.4.0 LANGUAGES C CXX)
 
 include(cmake/CPM.cmake)
 
-CPMAddPackage("gh:mincequi/uvw_iot#4141bec")
+CPMAddPackage("gh:mincequi/uvw_iot#cb7960b")
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -40,6 +40,7 @@ add_executable(iotic
   src/coap/CoreLinkDocument.h src/coap/CoreLinkDocument.cpp
   src/shelly/ShellyGen2Thing.h src/shelly/ShellyGen2Thing.cpp
   src/http/HttpService.h src/http/HttpService.cpp
+  src/stats/StatsDaily.h src/stats/StatsDaily.cpp
 )
 
 target_link_libraries(iotic

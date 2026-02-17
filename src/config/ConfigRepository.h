@@ -98,6 +98,7 @@ public:
     static constexpr std::chrono::milliseconds longTermTau = 120000ms;
     static constexpr int stepUpDebounceSeconds = 180;
     static constexpr int stepDownDebounceSeconds = 120;
+    static constexpr int phaseLimitDuration = 60 * 60;
 
 private:
     void parseConfigFile();

@@ -16,7 +16,8 @@ AppBackend::AppBackend() :
     //_mqttExporter("broker.hivemq.com"),
     _webServer(_thingRepository, _site, _configRepository, _strategyRepository, _symbolRepository),
     _ruleEngine(_thingRepository, _strategyRepository, _symbolRepository, _configRepository),
-    _powerManager(_strategyRepository, _symbolRepository, _site, _configRepository) {
+    _powerManager(_strategyRepository, _symbolRepository, _site, _configRepository),
+    _statsDaily(_thingRepository) {
 
     _thingRepository.thingAdded().subscribe([this](ThingPtr thing) {
         LOG_S(INFO) << "thing added> " << thing->id() << ", type: " << thing->type();

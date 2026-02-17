@@ -29,7 +29,7 @@ class HomeNavigationBar extends StatelessWidget {
           label: 'settings',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.monitor_sharp),
+          icon: Icon(Icons.monitor),
           label: 'insights',
         ),
       ],

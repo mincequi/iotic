@@ -30,6 +30,8 @@ class ThingCardController extends GetxController {
   final multistateSelector = Rxn<List<bool>>();
   final digitalInput = Rxn<List<bool>>();
   final isEnabled = false.obs;
+  final dcPower = List<RxInt>.empty(growable: true);
+  final dcEnergy = List<RxDouble>.empty(growable: true);
 
   final power = RxnNum();
   final temperature = RxnNum();
@@ -82,6 +84,27 @@ class ThingCardController extends GetxController {
       digitalInput.value =
           (p0[ThingPropertyKey.digitalInput] as List?)?.cast<bool>();
     }
+    // dcPower
+    if (p0.containsKey(ThingPropertyKey.dcPower)) {
+      while (dcPower.length < (p0[ThingPropertyKey.dcPower] as List).length) {
+        dcPower.add(RxInt(0));
+      }
+      for (int i = 0; i < (p0[ThingPropertyKey.dcPower] as List).length; i++) {
+        dcPower[i].value = (p0[ThingPropertyKey.dcPower] as List)[i];
+      }
+      //dcPower[0].value = 8400;
+      //dcPower[1].value = 6000;
+    }
+    // dcEnergy
+    if (p0.containsKey(ThingPropertyKey.dcEnergy)) {
+      while (dcEnergy.length < (p0[ThingPropertyKey.dcEnergy] as List).length) {
+        dcEnergy.add(RxDouble(0));
+      }
+      for (int i = 0; i < (p0[ThingPropertyKey.dcEnergy] as List).length; i++) {
+        dcEnergy[i].value =
+            (p0[ThingPropertyKey.dcEnergy] as List)[i].toDouble() / 60.0;
+      }
+    }
 
     // Check for type
     type = p0[ThingPropertyKey.type] ?? "relay";
@@ -97,6 +120,9 @@ class ThingCardController extends GetxController {
       for (int i = 0; i < (p0[ThingPropertyKey.voltage] as List).length; i++) {
         voltages[i].value = (p0[ThingPropertyKey.voltage] as List)[i];
       }
+
+      //voltages[0].value = 33;
+      //voltages[1].value = 55;
     }
 
     // Check for power control
@@ -116,7 +142,8 @@ class ThingCardController extends GetxController {
 
     hasSubtitle.value = power.value != null ||
         temperature.value != null ||
-        energy.value != null;
+        energy.value != null ||
+        dcEnergy.isNotEmpty;
   }
 
   static final Map<String?, IconData> _typeToIcon = {
@@ -126,6 +153,6 @@ class ThingCardController extends GetxController {
     "relay": Icons.electrical_services,
     "weatherStation": Icons.local_fire_department,
     "heater": Icons.local_fire_department,
-    null: Icons.device_hub
+    null: Icons.device_hub,
   };
 }

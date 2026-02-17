@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iotic/common/iotic_theme.dart';
 import 'package:iotic/things/card/energy_property.dart';
 import 'package:iotic/things/card/thing_card_controller.dart';
 
@@ -7,19 +8,28 @@ import 'thing_ui_property.dart';
 class ThingCardSubtitle extends StatelessWidget {
   final ThingCardController controller;
 
-  ThingCardSubtitle({required this.controller, Key? key}) : super(key: key) {
-    energyNotifier.value = (controller.energy.value ?? 0) / 10;
-  }
-
-  final ValueNotifier<double> energyNotifier = ValueNotifier(0);
+  const ThingCardSubtitle({required this.controller, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     dynamic p;
     final propertyWidgets = <StatelessWidget>[];
 
+    if (controller.dcEnergy.isNotEmpty) {
+      for (var i = 0; i < controller.dcEnergy.length; i++) {
+        propertyWidgets.add(EnergyProperty(
+          Icons.electric_bolt,
+          controller.dcEnergy[i].value,
+          'kWh',
+          //color: i == 0 ? IoticTheme.green : IoticTheme.blue,
+        ));
+      }
+    }
+
     if ((p = controller.energy.value) != null) {
       propertyWidgets.add(EnergyProperty(Icons.electric_bolt, p, 'kWh'));
+      //color: IoticTheme.yellow));
     }
     if (controller.power.value != null) {
       propertyWidgets.add(ThingUiProperty(

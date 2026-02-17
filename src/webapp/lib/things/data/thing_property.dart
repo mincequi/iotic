@@ -33,6 +33,9 @@ enum ThingPropertyKey {
   energy,
   multistateSelector,
 
+  dcPower,
+  dcEnergy, // [1 kWm (Kilowatt-minute)]
+
   // custom properties - strategies
   offset,
   thing_interval,

@@ -60,16 +60,19 @@ class WebSocketDataSource with WidgetsBindingObserver {
     })));
   }
 
-  final _host = Uri.base.host;
-  final _port = Uri.base.port;
-  //final _host = "raspberrypi.local";
-  //final _host = "localhost";
-  //final _port = 8030;
+  var _host = Uri.base.host;
+  var _port = Uri.base.port;
 
   late WebSocketChannel _channel;
   final _handlers = <WebSocketHandler>[];
 
   void _connect(bool doDisconnect) {
+    if (kDebugMode) {
+      _host = "raspberrypi.local";
+      //final _host = "localhost";
+      _port = 8030;
+    }
+
     if (doDisconnect) {
       _channel.sink.close();
     }
