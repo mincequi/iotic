@@ -35,7 +35,7 @@ class ThingCardController extends GetxController {
 
   final power = RxnNum();
   final temperature = RxnNum();
-  final energy = RxnDouble();
+  RxDouble? energy;
 
   final hasSubtitle = false.obs;
 
@@ -136,13 +136,15 @@ class ThingCardController extends GetxController {
 
     power.value = p0[ThingPropertyKey.power];
     temperature.value = p0[ThingPropertyKey.temperature];
-    energy.value = p0[ThingPropertyKey.energy] != null
-        ? (p0[ThingPropertyKey.energy] as num).toDouble() / 60.0
-        : null;
+
+    if (p0[ThingPropertyKey.energy] != null) {
+      energy ??= RxDouble(0);
+      energy!.value = (p0[ThingPropertyKey.energy] as num).toDouble() / 60.0;
+    }
 
     hasSubtitle.value = power.value != null ||
         temperature.value != null ||
-        energy.value != null ||
+        energy != null ||
         dcEnergy.isNotEmpty;
   }
 

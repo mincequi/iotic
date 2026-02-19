@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:cbor/simple.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';

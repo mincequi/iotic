@@ -20,15 +20,16 @@ class ThingCardSubtitle extends StatelessWidget {
       for (var i = 0; i < controller.dcEnergy.length; i++) {
         propertyWidgets.add(EnergyProperty(
           Icons.electric_bolt,
-          controller.dcEnergy[i].value,
+          controller.dcEnergy[i],
           'kWh',
           //color: i == 0 ? IoticTheme.green : IoticTheme.blue,
         ));
       }
     }
 
-    if ((p = controller.energy.value) != null) {
-      propertyWidgets.add(EnergyProperty(Icons.electric_bolt, p, 'kWh'));
+    if (controller.energy != null) {
+      propertyWidgets
+          .add(EnergyProperty(Icons.electric_bolt, controller.energy!, 'kWh'));
       //color: IoticTheme.yellow));
     }
     if (controller.power.value != null) {

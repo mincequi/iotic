@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iotic/things/components/odometer.dart';
 
 class EnergyProperty extends StatelessWidget {
-  EnergyProperty(this._icon, this._value, this._unit, {this.color, super.key}) {
-    energyNotifier.value = _value;
-  }
+  const EnergyProperty(this._icon, this._value, this._unit,
+      {this.color, super.key});
 
   final IconData _icon;
-  final double _value;
+  final RxDouble _value;
   final String _unit;
   final Color? color;
-
-  final ValueNotifier<double> energyNotifier = ValueNotifier(0);
 
   @override
   Widget build(BuildContext context) {
@@ -32,14 +30,14 @@ class EnergyProperty extends StatelessWidget {
               width: 36,
               child: Align(
                   alignment: Alignment.centerRight,
-                  child: Odometer(
-                    value: _value.abs(),
-                    digits: 2,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(color: color),
-                  ))),
+                  child: Obx(() => Odometer(
+                        value: _value.value.abs(),
+                        digits: 2,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(color: color),
+                      )))),
           const SizedBox(width: 2),
           Text(
             _unit,

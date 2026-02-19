@@ -52,18 +52,19 @@ cmrc_add_resource_library(webapp WHENCE web
   web/assets/shaders/stretch_effect.frag
   web/assets/AssetManifest.bin
   web/assets/fonts/MaterialIcons-Regular.otf
-  web/canvaskit/skwasm.js
-  web/canvaskit/skwasm_heavy.js
-  web/canvaskit/skwasm.js.symbols
-  web/canvaskit/canvaskit.js.symbols
-  web/canvaskit/skwasm_heavy.js.symbols
-  web/canvaskit/skwasm.wasm
-  web/canvaskit/chromium/canvaskit.js.symbols
-  web/canvaskit/chromium/canvaskit.js
-  web/canvaskit/chromium/canvaskit.wasm
-  web/canvaskit/canvaskit.js
-  web/canvaskit/canvaskit.wasm
-  web/canvaskit/skwasm_heavy.wasm
+  # Apparently we don't need to incldue canvaski. This reduces the size of the binary by a lot.
+  #web/canvaskit/skwasm.js
+  #web/canvaskit/skwasm_heavy.js
+  #web/canvaskit/skwasm.js.symbols
+  #web/canvaskit/canvaskit.js.symbols
+  #web/canvaskit/skwasm_heavy.js.symbols
+  #web/canvaskit/skwasm.wasm
+  #web/canvaskit/chromium/canvaskit.js.symbols
+  #web/canvaskit/chromium/canvaskit.js
+  #web/canvaskit/chromium/canvaskit.wasm
+  #web/canvaskit/canvaskit.js
+  #web/canvaskit/canvaskit.wasm
+  #web/canvaskit/skwasm_heavy.wasm
 
 )
 

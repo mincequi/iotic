@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:iotic/common/iotic_theme.dart';
 import 'package:iotic/common/web_socket_data_source.dart';
 import 'package:iotic/things/card/charger/charger_status.dart';
@@ -83,7 +82,7 @@ class ThingCardTrailingWidgets extends StatelessWidget {
               max: max(
                   max(controller.dcPower.first.value,
                       controller.dcPower.last.value),
-                  1000),
+                  2000),
               startAngle: -270,
               endAngle: -45,
             ));

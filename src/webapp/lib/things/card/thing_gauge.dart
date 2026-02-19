@@ -45,12 +45,12 @@ class ThingGauge extends StatelessWidget {
 
         return SizedBox(
           height: size,
-          width: size + 4,
+          width: size + 9,
           child: Stack(
             alignment: Alignment.centerRight,
             children: [
               Padding(
-                  padding: const EdgeInsets.only(right: 4.0),
+                  padding: const EdgeInsets.only(right: 9.0),
                   child: CustomPaint(
                     size: Size.square(size),
                     painter: _MultiRadialGaugePainter(
@@ -188,9 +188,13 @@ int roundToMultiple(int value, int multiple) {
 
 String formatWithK(int value, String unit, int multiple) {
   value = roundToMultiple(value, multiple);
-  if (value >= 1000) {
+  if (value >= 10000) {
     double divided = value / 1000.0;
     return "${divided.toStringAsFixed(0)} k$unit";
+  }
+  if (value >= 1000) {
+    double divided = value / 1000.0;
+    return "${divided.toStringAsFixed(1)} k$unit";
   }
   return "$value $unit";
 }

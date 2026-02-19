@@ -37,11 +37,12 @@ class ThingUiProperty extends StatelessWidget {
                 )),
           )),
       const SizedBox(width: 2),
-      Text(
-        ((_value.value ?? 0) * _factor >= 1000) ? "k" + _unit : _unit,
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: color),
-        //textAlign: TextAlign.left,
-      ),
+      Obx(() => Text(
+            ((_value.value ?? 0) * _factor >= 1000) ? "k" + _unit : _unit,
+            style:
+                Theme.of(context).textTheme.bodySmall?.copyWith(color: color),
+            //textAlign: TextAlign.left,
+          )),
     ]);
   }
 
