@@ -10,6 +10,8 @@ FetchContent_Declare(us
 )
 FetchContent_MakeAvailable(us)
 
+set(CMAKE_CXX_STANDARD 20)
+
 add_library(webserver STATIC
   OcppBehavior.cpp
   WebAppBehavior.cpp

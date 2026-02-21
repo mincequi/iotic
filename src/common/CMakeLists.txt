@@ -13,6 +13,7 @@ add_library(common STATIC
   Logger.cpp
   ${loguru_SOURCE_DIR}/loguru.cpp
   Types.h
+  Util.cpp
 )
 
 target_include_directories(common

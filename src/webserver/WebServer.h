@@ -5,6 +5,7 @@
 #include <MoveOnlyFunction.h>
 
 class ConfigRepository;
+class Database;
 class StrategyRepository;
 class SymbolRepository;
 class WebAppRouter;
@@ -40,7 +41,9 @@ public:
                        const Site& site,
                        const ConfigRepository& cfg,
                        const StrategyRepository& strategyRepository,
-                       const SymbolRepository& symbolRepository);
+                       const SymbolRepository& symbolRepository,
+                       const Database& database
+                       );
     ~WebServer();
 
     void registerGetRoute(const std::string& path, uWS::MoveOnlyFunction<void(uWS::HttpResponse<false>*, uWS::HttpRequest*)>&& handler) const;
@@ -51,6 +54,7 @@ private:
     const ConfigRepository& _configRepository;
     const StrategyRepository& _strategyRepository;
     const SymbolRepository& _symbolRepository;
+    const Database& _database;
 
     std::unique_ptr<cmrc::embedded_filesystem> _fs;
     std::unique_ptr<uWS::App> _uwsApp;

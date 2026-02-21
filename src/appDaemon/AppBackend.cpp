@@ -14,7 +14,8 @@ AppBackend::AppBackend() :
     _strategyRepository(_thingRepository),
     _site(_thingRepository, {.shortTermTau = _configRepository.shortTermTau, .longTermTau = _configRepository.longTermTau}),
     //_mqttExporter("broker.hivemq.com"),
-    _webServer(_thingRepository, _site, _configRepository, _strategyRepository, _symbolRepository),
+    _database(_thingRepository),
+    _webServer(_thingRepository, _site, _configRepository, _strategyRepository, _symbolRepository, _database),
     _ruleEngine(_thingRepository, _strategyRepository, _symbolRepository, _configRepository),
     _powerManager(_strategyRepository, _symbolRepository, _site, _configRepository),
     _statsDaily(_thingRepository) {

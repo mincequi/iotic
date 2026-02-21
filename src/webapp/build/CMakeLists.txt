@@ -65,7 +65,6 @@ cmrc_add_resource_library(webapp WHENCE web
   #web/canvaskit/canvaskit.js
   #web/canvaskit/canvaskit.wasm
   #web/canvaskit/skwasm_heavy.wasm
-
 )
 
 #add_custom_command(TARGET webapp
