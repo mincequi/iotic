@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <magic_enum.hpp>
 
 namespace util {
@@ -13,5 +14,7 @@ std::string toString(E value) {
 
 template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
 template<class... Ts> overload(Ts...) -> overload<Ts...>;
+
+std::chrono::year_month_day parse_ymd(const std::string& s);
 
 } // namespace util

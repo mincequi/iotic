@@ -3,12 +3,14 @@
 #include <App.h>
 #include <cmrc/cmrc.hpp>
 #include <nlohmann/json.hpp>
+#include <rfl/json/write.hpp>
 #include <uvw/loop.h>
 #include <uvw_iot/ThingRepository.h>
 
 #include <common/Logger.h>
 #include <common/Util.h>
 #include <config/ConfigRepository.h>
+#include <database/Database.h>
 #include <rules/RuleEngine.h>
 #include <rules/SymbolRepository.h>
 #include <strategies/Strategy.h>
@@ -28,12 +30,15 @@ WebServer::WebServer(const ThingRepository& thingRepository,
                      const Site& site,
                      const ConfigRepository& cfg,
                      const StrategyRepository& strategyRepository,
-                     const SymbolRepository& symbolRepository) :
+                     const SymbolRepository& symbolRepository,
+                     const Database& database
+                     ) :
     _thingRepository(thingRepository),
     _site(site),
     _configRepository(cfg),
     _strategyRepository(strategyRepository),
-    _symbolRepository(symbolRepository) {
+    _symbolRepository(symbolRepository),
+    _database(database) {
     _fs = std::make_unique<cmrc::embedded_filesystem>(cmrc::webapp::get_filesystem());
     uWS::Loop::get(uvw::loop::get_default()->raw());
     _uwsApp = std::make_unique<uWS::App>();
@@ -54,6 +59,34 @@ WebServer::WebServer(const ThingRepository& thingRepository,
         auto f = _fs->open(fileName);
         res->end(std::string_view(f.begin(), f.end()-f.begin()));
     });
+    _uwsApp->get("/database/info", [this](uWS::HttpResponse<false>* res, uWS::HttpRequest* req) {
+        res->end(_database.info());
+    });
+    _uwsApp->get("/database/stat", [this](uWS::HttpResponse<false>* res, uWS::HttpRequest* req) {
+        res->end(_database.stat());
+    });
+    _uwsApp->get("/database/:thing/:key/:date", [this](uWS::HttpResponse<false>* res, uWS::HttpRequest* req) {
+        auto thingId = req->getParameter(0);
+        auto key = magic_enum::enum_cast<ThingPropertyKey>(req->getParameter(1));
+        if (!key.has_value()) {
+            res->end("invalid key: " + std::string{req->getParameter(1)});
+            return;
+        }
+        auto ymdString = std::string{ req->getParameter(2) };
+        auto ymd = ::util::parse_ymd(ymdString);
+        if (!ymd.ok()) {
+            res->end("invalid date: " + ymdString);
+            return;
+        }
+        if (!_database.hasMap(thingId, key.value())) {
+            res->end("no data for thing: " + std::string{thingId} + ", key: " + std::string{req->getParameter(1)});
+            return;
+        }
+
+        auto data = _database.dailyData(thingId, key.value(), ymd);
+        res->end(rfl::json::write(data));
+    });
+
     _uwsApp->get("/symbols", [this](uWS::HttpResponse<false>* res, uWS::HttpRequest* req) {
         json symbols;
         for (const auto& kv : _symbolRepository.symbolTable()) {

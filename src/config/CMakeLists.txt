@@ -9,7 +9,7 @@ endif()
 
 add_library(config
 STATIC
-  ConfigRepository.cpp
+  ConfigRepository.h ConfigRepository.cpp
   ConfigRoute.h ConfigRoute.cpp
 )
 

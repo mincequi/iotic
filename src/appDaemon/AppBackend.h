@@ -9,6 +9,8 @@
 
 #include <config/ConfigRepository.h>
 
+#include <database/Database.h>
+
 #include <rules/RuleEngine.h>
 #include <rules/SymbolRepository.h>
 
@@ -40,6 +42,7 @@ private:
     Site _site;
     RuleEngine _ruleEngine;
     PowerManager _powerManager;
+    Database _database;
     WebServer _webServer;
     StatsDaily _statsDaily;
 

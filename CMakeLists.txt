@@ -7,6 +7,8 @@ include(cmake/CPM.cmake)
 
 CPMAddPackage("gh:mincequi/uvw_iot#cb7960b")
 
+# clipp does not accept C++20 yet, so we use C++17 for now
+# but designated initializers are only supported in C++20...
 set(CMAKE_CXX_STANDARD 17)
 
 option(BUILD_IOTIC_TESTS "Build test programs" OFF)
@@ -16,8 +18,8 @@ find_package(Threads)
 add_subdirectory(src/cli)
 add_subdirectory(src/common)
 add_subdirectory(src/config)
+add_subdirectory(src/database)
 #add_subdirectory(src/fronius)
-#add_subdirectory(src/influx)
 add_subdirectory(src/strategies)
 add_subdirectory(src/rules)
 add_subdirectory(src/things)
@@ -53,7 +55,7 @@ target_link_libraries(iotic
   cli
   common
   config
-  #influx
+  database
   #modbus
   #mqtt
   rules
