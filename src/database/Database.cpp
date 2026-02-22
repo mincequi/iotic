@@ -33,7 +33,7 @@ public:
         _dbEnv = mdbx::env_managed(_dbFile, cp, op);
     }
 
-    void addDataPoint(const std::string& thingId, ThingPropertyKey key, uint32_t timestamp, Database::DataPoint dataPoint) {
+    void addDataPoint(const std::string& thingId, ThingPropertyKey key, uint32_t timestamp, DataPoint dataPoint) {
         // Check if value has changed
         auto& lastValue = _lastValues[thingId][key];
         if (lastValue == dataPoint) {
@@ -46,10 +46,10 @@ public:
         // We have to distinguish between int16_t and vector<int16_t>
         if (std::holds_alternative<int16_t>(dataPoint)) {
             int16_t value = std::get<int16_t>(dataPoint);
-            txn.insert(map, mdbx::slice(&timestamp, sizeof(timestamp)), mdbx::slice(&value, sizeof(value)));
+            txn.put(map, mdbx::slice(&timestamp, sizeof(timestamp)), mdbx::slice(&value, sizeof(value)), put_mode::upsert);
         } else {
             const auto& vec = std::get<std::vector<int16_t>>(dataPoint);
-            txn.insert(map, mdbx::slice(&timestamp, sizeof(timestamp)), mdbx::slice(vec.data(), vec.size() * sizeof(int16_t)));
+            txn.put(map, mdbx::slice(&timestamp, sizeof(timestamp)), mdbx::slice(vec.data(), vec.size() * sizeof(int16_t)), put_mode::upsert);
         }
         txn.commit();
     }
@@ -87,7 +87,7 @@ public:
     const std::string _dbFile = "/var/lib/iotic/iotic.mdbx";
     mdbx::env_managed _dbEnv;
     std::unordered_map<std::string, mdbx::map_handle> _mapCache;
-    std::unordered_map<std::string, std::unordered_map<ThingPropertyKey, Database::DataPoint>> _lastValues;
+    std::unordered_map<std::string, std::unordered_map<ThingPropertyKey, DataPoint>> _lastValues;
 };
 
 Database::Database(const ThingRepository& thingRepository) : d(new DatabasePrivate) {
@@ -138,7 +138,7 @@ bool Database::hasMap(std::string_view thingId, ThingPropertyKey key) const {
     return d->hasMap(thingId, key);
 }
 
-std::map<uint32_t, Database::DataPoint> Database::dailyData(std::string_view thingId, ThingPropertyKey property, const std::chrono::year_month_day& ymd) const {
+std::map<uint32_t, DataPoint> Database::dailyData(std::string_view thingId, ThingPropertyKey property, const std::chrono::year_month_day& ymd) const {
     if (!d->hasMap(thingId, property)) return {};
 
     auto& map = d->mapFor(thingId, property);

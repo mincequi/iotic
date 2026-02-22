@@ -43,6 +43,7 @@ PRIVATE
 target_link_libraries(webserver
 PRIVATE
   common
+  database
   things
   webapp
 )

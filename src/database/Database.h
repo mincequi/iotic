@@ -6,14 +6,14 @@
 
 #include <uvw_iot/ThingProperty.h>
 
+#include "DatabaseTypes.h"
+
 namespace uvw_iot {
 class ThingRepository;
 }
 
 class Database {
 public:
-    using DataPoint = std::variant<int16_t, std::vector<int16_t>>;
-
     Database(const uvw_iot::ThingRepository& thingRepository);
     ~Database();   // IMPORTANT: Because of the pimpl idiom, we need to define destructor in .cpp file, otherwise it will cause linker error
 

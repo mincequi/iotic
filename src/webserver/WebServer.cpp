@@ -11,6 +11,7 @@
 #include <common/Util.h>
 #include <config/ConfigRepository.h>
 #include <database/Database.h>
+#include <database/DatabaseUtil.h>
 #include <rules/RuleEngine.h>
 #include <rules/SymbolRepository.h>
 #include <strategies/Strategy.h>
@@ -83,8 +84,13 @@ WebServer::WebServer(const ThingRepository& thingRepository,
             return;
         }
 
-        auto data = _database.dailyData(thingId, key.value(), ymd);
-        res->end(rfl::json::write(data));
+        auto dailyData = _database.dailyData(thingId, key.value(), ymd);
+        auto minuteBuckets = DatabaseUtil::toMinuteBuckets(dailyData);
+        auto v = std::get<int16_t>(minuteBuckets[29529072]);
+        LOG_S(INFO) << "value: " << v;
+        res->end(rfl::json::write(v));
+        //auto deltaData = DatabaseUtil::deltaCompress(minuteBuckets);
+        //res->end(rfl::json::write(minuteBuckets));
     });
 
     _uwsApp->get("/symbols", [this](uWS::HttpResponse<false>* res, uWS::HttpRequest* req) {

@@ -2,6 +2,8 @@ CPMAddPackage("gh:erthink/libmdbx@0.13.11")
 
 add_library(database STATIC
   Database.cpp
+  DatabaseUtil.h DatabaseUtil.cpp
+  DatabaseTypes.h
 )
 
 target_link_libraries(database
