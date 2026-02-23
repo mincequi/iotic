@@ -87,11 +87,22 @@ WebServer::WebServer(const ThingRepository& thingRepository,
         }
 
         auto dailyData = _database.dailyData(thingId, key.value(), ymd);
-        auto minuteBuckets = DatabaseUtil::toMinuteBuckets(dailyData);
+
+        // Time resolution
+        auto svMin = req->getQuery("min");
+        int min = 1;
+        std::from_chars(svMin.data(), svMin.data() + svMin.size(), min);
+
+        auto svWatts = req->getQuery("watts");
+        int watts = 10;
+        std::from_chars(svWatts.data(), svWatts.data() + svWatts.size(), watts);
+        auto minuteBuckets = DatabaseUtil::toMinuteBuckets(dailyData, min, watts);
+
         auto deltaData = DatabaseUtil::deltaCompress(minuteBuckets);
         cbor::output_dynamic out;
         cbor::encoder encoder(out);
-        encoder.write_map(deltaData.size());
+        // Write an alternating array
+        encoder.write_array(deltaData.size() * 2);
         for (const auto& [minute, value] : deltaData) {
             encoder.write_int(minute);
             if (std::holds_alternative<std::int16_t>(value)) {

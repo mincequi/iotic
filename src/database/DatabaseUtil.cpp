@@ -1,15 +1,18 @@
 #include "DatabaseUtil.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 
 DatabaseUtil::DatabaseUtil() {}
 
-std::map<std::uint32_t, DataPoint> DatabaseUtil::toMinuteBuckets(const std::map<std::uint32_t, DataPoint>& dailyData) {
+std::map<std::uint32_t, DataPoint> DatabaseUtil::toMinuteBuckets(const std::map<std::uint32_t, DataPoint>& dailyData,
+                                                                 int minutes,
+                                                                 int watts) {
     std::map<std::uint32_t, std::vector<DataPoint>> minuteBuckets;
 
     for (const auto& [timestamp, dataPoint] : dailyData) {
-        std::uint32_t minute = timestamp / 60; // Group by minute
+        std::uint32_t minute = timestamp / (60 * minutes); // Group by minute
         minuteBuckets[minute].push_back(dataPoint);
     }
 
@@ -25,6 +28,7 @@ std::map<std::uint32_t, DataPoint> DatabaseUtil::toMinuteBuckets(const std::map<
                 sum += std::get<int16_t>(dp);
             }
             sum /= dataPoints.size();
+            sum /= (watts/10);
             // Compute average while rounding to nearest integer
             aggregatedData[minute] = (int16_t)round(sum);
         } else {
@@ -41,6 +45,7 @@ std::map<std::uint32_t, DataPoint> DatabaseUtil::toMinuteBuckets(const std::map<
             std::vector<int16_t> result(sum.size());
             for (size_t i = 0; i < sum.size(); ++i) {
                 sum[i] /= dataPoints.size();
+                sum[i] /= (watts/10); // convert to decaWatts
                 result[i] = (int16_t)round(sum[i]);
             }
 
