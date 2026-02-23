@@ -1,6 +1,8 @@
 #include "WebServer.h"
 
 #include <App.h>
+#include <encoder.h>
+#include <output_dynamic.h>
 #include <cmrc/cmrc.hpp>
 #include <nlohmann/json.hpp>
 #include <rfl/json/write.hpp>
@@ -86,11 +88,23 @@ WebServer::WebServer(const ThingRepository& thingRepository,
 
         auto dailyData = _database.dailyData(thingId, key.value(), ymd);
         auto minuteBuckets = DatabaseUtil::toMinuteBuckets(dailyData);
-        auto v = std::get<int16_t>(minuteBuckets[29529072]);
-        LOG_S(INFO) << "value: " << v;
-        res->end(rfl::json::write(v));
-        //auto deltaData = DatabaseUtil::deltaCompress(minuteBuckets);
-        //res->end(rfl::json::write(minuteBuckets));
+        auto deltaData = DatabaseUtil::deltaCompress(minuteBuckets);
+        cbor::output_dynamic out;
+        cbor::encoder encoder(out);
+        encoder.write_map(deltaData.size());
+        for (const auto& [minute, value] : deltaData) {
+            encoder.write_int(minute);
+            if (std::holds_alternative<std::int16_t>(value)) {
+                encoder.write_int(std::get<std::int16_t>(value));
+            } else {
+                const auto& v = std::get<std::vector<int16_t>>(value);
+                encoder.write_array(v.size());
+                for (auto i : v) {
+                    encoder.write_int(i);
+                }
+            }
+        }
+        res->end({(char*)out.data(), out.size()});
     });
 
     _uwsApp->get("/symbols", [this](uWS::HttpResponse<false>* res, uWS::HttpRequest* req) {

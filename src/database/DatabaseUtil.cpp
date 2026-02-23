@@ -67,13 +67,20 @@ std::vector<std::pair<std::uint32_t, DataPoint>> DatabaseUtil::deltaCompress(con
             uint32_t deltaTimestamp = timestamp - lastTimestamp;
             DataPoint deltaValue;
             if (std::holds_alternative<int16_t>(dataPoint)) {
-                deltaValue = static_cast<int16_t>(std::get<int16_t>(dataPoint) - std::get<int16_t>(lastValue));
+                const int16_t delta = std::get<int16_t>(dataPoint) - std::get<int16_t>(lastValue);
+                if (delta == 0) {
+                    continue; // skip if value hasn't changed
+                }
+                deltaValue = delta;
             } else {
                 const auto& vec = std::get<std::vector<int16_t>>(dataPoint);
                 const auto& lastVec = std::get<std::vector<int16_t>>(lastValue);
                 std::vector<int16_t> deltaVec(vec.size());
                 for (size_t i = 0; i < vec.size(); ++i) {
                     deltaVec[i] = vec[i] - lastVec[i];
+                }
+                if (std::all_of(deltaVec.begin(), deltaVec.end(), [](int16_t v) { return v == 0; })) {
+                    continue; // skip if value hasn't changed
                 }
                 deltaValue = std::move(deltaVec);
             }

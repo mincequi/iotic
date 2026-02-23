@@ -9,9 +9,18 @@ CPMAddPackage(
   URL https://github.com/emilk/loguru/archive/refs/tags/v2.1.0.tar.gz
 )
 
+CPMAddPackage(
+  NAME cbor-cpp
+  GITHUB_REPOSITORY naphaso/cbor-cpp
+  GIT_TAG 61dca7c
+  DOWNLOAD_ONLY true
+)
+
 add_library(common STATIC
   Logger.cpp
   ${loguru_SOURCE_DIR}/loguru.cpp
+  ${cbor-cpp_SOURCE_DIR}/src/encoder.cpp
+  ${cbor-cpp_SOURCE_DIR}/src/output_dynamic.cpp
   Types.h
   Util.cpp
 )
@@ -20,6 +29,7 @@ target_include_directories(common
 PUBLIC
   ../
   ${loguru_SOURCE_DIR}
+  ${cbor-cpp_SOURCE_DIR}/src
 PRIVATE
   src
 )
