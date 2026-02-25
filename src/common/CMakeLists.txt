@@ -19,7 +19,9 @@ CPMAddPackage(
 add_library(common STATIC
   Logger.cpp
   ${loguru_SOURCE_DIR}/loguru.cpp
+  ${cbor-cpp_SOURCE_DIR}/src/decoder.cpp
   ${cbor-cpp_SOURCE_DIR}/src/encoder.cpp
+  ${cbor-cpp_SOURCE_DIR}/src/input.cpp
   ${cbor-cpp_SOURCE_DIR}/src/output_dynamic.cpp
   Types.h
   Util.cpp

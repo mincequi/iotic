@@ -172,7 +172,7 @@ void MultiPhaseStrategy::decrementPhaseLimit(const Site::Properties& sitePropert
     }
 
     // Do not decrement phases multiple times within 30 minutes
-    if (siteProperties.ts - _phaseLimitTimestamp < _configRepository.phaseLimitDuration) {
+    if (siteProperties.ts - _phaseLimitTimestamp < std::chrono::duration_cast<std::chrono::seconds>(_configRepository.phaseLimitDuration).count()) {
         return;
     }
 
@@ -188,7 +188,7 @@ void MultiPhaseStrategy::incrementPhaseLimit(const Site::Properties& sitePropert
     }
 
     // If we increased phases in the last 30 minutes, we won't increase again to avoid too frequent switching due to temperature limits
-    if (siteProperties.ts - _phaseLimitTimestamp < _configRepository.phaseLimitDuration) {
+    if (siteProperties.ts - _phaseLimitTimestamp < std::chrono::duration_cast<std::chrono::seconds>(_configRepository.phaseLimitDuration).count()) {
         return;
     }
 

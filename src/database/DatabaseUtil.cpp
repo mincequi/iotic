@@ -4,65 +4,52 @@
 #include <cmath>
 #include <cstddef>
 
-DatabaseUtil::DatabaseUtil() {}
+#include <decoder.h>
+#include <encoder.h>
+#include <input.h>
+#include <output_dynamic.h>
 
-std::map<std::uint32_t, DataPoint> DatabaseUtil::toMinuteBuckets(const std::map<std::uint32_t, DataPoint>& dailyData,
-                                                                 int minutes,
-                                                                 int watts) {
-    std::map<std::uint32_t, std::vector<DataPoint>> minuteBuckets;
+Dataset DatabaseUtil::downsample(const Dataset& samples, int timeDivisor, int watts) {
+    std::map<std::uint32_t, std::vector<Datapoint>> buckets;
 
-    for (const auto& [timestamp, dataPoint] : dailyData) {
-        std::uint32_t minute = timestamp / (60 * minutes); // Group by minute
-        minuteBuckets[minute].push_back(dataPoint);
+    for (const auto& [timestamp, dataPoint] : samples) {
+        std::uint32_t bucketTimestamp = timestamp / timeDivisor;
+        buckets[bucketTimestamp].push_back(dataPoint);
     }
-
-    //return minuteBuckets;
 
     // Aggregate data points for each minute
-    std::map<std::uint32_t, DataPoint> aggregatedData;
-    for (const auto& [minute, dataPoints] : minuteBuckets) {
+    std::map<std::uint32_t, Datapoint> aggregates;
+    for (const auto& [timestamp, dataPoints] : buckets) {
         // Add the average value of the data points for the minute
-        if (std::holds_alternative<int16_t>(dataPoints[0])) {
-            double sum = 0.0; // int32_t and division by size() gave really weird results. Using double now.
-            for (const auto& dp : dataPoints) {
-                sum += std::get<int16_t>(dp);
+        std::vector<double> sum;
+        for (const auto& dp : dataPoints) {
+            if (sum.empty()) {
+                sum.resize(dp.size(), 0);
             }
-            sum /= dataPoints.size();
-            sum /= (watts/10);
-            // Compute average while rounding to nearest integer
-            aggregatedData[minute] = (int16_t)round(sum);
-        } else {
-            std::vector<double> sum;
-            for (const auto& dp : dataPoints) {
-                const auto& vec = std::get<std::vector<int16_t>>(dp);
-                if (sum.empty()) {
-                    sum.resize(vec.size(), 0);
-                }
-                for (size_t i = 0; i < vec.size(); ++i) {
-                    sum[i] += vec[i];
-                }
+            for (size_t i = 0; i < dp.size(); ++i) {
+                sum[i] += dp[i];
             }
-            std::vector<int16_t> result(sum.size());
-            for (size_t i = 0; i < sum.size(); ++i) {
-                sum[i] /= dataPoints.size();
-                sum[i] /= (watts/10); // convert to decaWatts
-                result[i] = (int16_t)round(sum[i]);
-            }
-
-            aggregatedData[minute] = DataPoint(std::move(result));
         }
+        std::vector<int16_t> result(sum.size());
+        for (size_t i = 0; i < sum.size(); ++i) {
+            sum[i] /= dataPoints.size();
+            sum[i] /= (watts/10); // convert to decaWatts
+            result[i] = (int16_t)round(sum[i]);
+        }
+
+        aggregates[timestamp] = Datapoint(std::move(result));
     }
 
-    return aggregatedData;
+    return aggregates;
 }
 
-std::vector<std::pair<std::uint32_t, DataPoint>> DatabaseUtil::deltaCompress(const std::map<std::uint32_t, DataPoint>& dailyData) {
-    std::vector<std::pair<std::uint32_t, DataPoint>> deltaData;
+DeltaDataset DatabaseUtil::deltaCompress(const Dataset& samples) {
+    DeltaDataset deltaData;
 
     uint32_t lastTimestamp;
-    DataPoint lastValue;
+    Datapoint lastValue;
     bool first = true;
-    for (const auto& [timestamp, dataPoint] : dailyData) {
+    for (const auto& [timestamp, dataPoint] : samples) {
         if (first) {
             deltaData.emplace_back(timestamp, dataPoint);
             lastTimestamp = timestamp;
@@ -70,25 +57,16 @@ std::vector<std::pair<std::uint32_t, DataPoint>> DatabaseUtil::deltaCompress(con
             first = false;
         } else {
             uint32_t deltaTimestamp = timestamp - lastTimestamp;
-            DataPoint deltaValue;
-            if (std::holds_alternative<int16_t>(dataPoint)) {
-                const int16_t delta = std::get<int16_t>(dataPoint) - std::get<int16_t>(lastValue);
-                if (delta == 0) {
-                    continue; // skip if value hasn't changed
-                }
-                deltaValue = delta;
-            } else {
-                const auto& vec = std::get<std::vector<int16_t>>(dataPoint);
-                const auto& lastVec = std::get<std::vector<int16_t>>(lastValue);
-                std::vector<int16_t> deltaVec(vec.size());
-                for (size_t i = 0; i < vec.size(); ++i) {
-                    deltaVec[i] = vec[i] - lastVec[i];
-                }
-                if (std::all_of(deltaVec.begin(), deltaVec.end(), [](int16_t v) { return v == 0; })) {
-                    continue; // skip if value hasn't changed
-                }
-                deltaValue = std::move(deltaVec);
+            Datapoint deltaValue;
+            std::vector<int16_t> deltaVec(dataPoint.size());
+            for (size_t i = 0; i < dataPoint.size(); ++i) {
+                deltaVec[i] = dataPoint[i] - lastValue[i];
             }
+            if (std::all_of(deltaVec.begin(), deltaVec.end(), [](int16_t v) { return v == 0; })) {
+                continue; // skip if value hasn't changed
+            }
+            deltaValue = std::move(deltaVec);
+
             deltaData.emplace_back(deltaTimestamp, deltaValue);
             lastTimestamp = timestamp;
             lastValue = dataPoint;
@@ -96,4 +74,132 @@ std::vector<std::pair<std::uint32_t, DataPoint>> DatabaseUtil::deltaCompress(con
     }
 
     return deltaData;
+}
+
+Dataset DatabaseUtil::deltaDecompress(const DeltaDataset& deltaData) {
+    Dataset samples;
+
+    uint32_t currentTimestamp = 0;
+    Datapoint currentValue;
+    bool first = true;
+    for (const auto& [deltaTimestamp, deltaValue] : deltaData) {
+        currentTimestamp += deltaTimestamp;
+        if (first) {
+            currentValue = deltaValue;
+            first = false;
+        } else {
+            Datapoint value;
+            std::vector<int16_t> vec(deltaValue.size());
+            for (size_t i = 0; i < deltaValue.size(); ++i) {
+                vec[i] = currentValue[i] + deltaValue[i];
+            }
+            currentValue = std::move(vec);
+        }
+
+        samples[currentTimestamp] = currentValue;
+    }
+
+    return samples;
+}
+
+std::vector<uint8_t> DatabaseUtil::cborEncode(const DeltaDataset& data) {
+    cbor::output_dynamic out;
+    cbor::encoder encoder(out);
+
+    if (data.empty()) {
+        return {};
+    }
+
+    // Write an array of timestamps
+    encoder.write_array(data.size());
+    for (const auto& [timestamp, _] : data) {
+        encoder.write_int(timestamp);
+    }
+
+    // Write an array for each value index
+    for (int i = 0; i < data.front().second.size(); ++i) {
+        encoder.write_array(data.size());
+         for (const auto& [_, dataPoint] : data) {
+            encoder.write_int(dataPoint[i]);
+         }
+    }
+
+    return std::vector<uint8_t>(out.data(), out.data() + out.size());
+}
+
+DeltaDataset DatabaseUtil::cborDecode(const std::vector<uint8_t>& cborData) {
+    std::vector<uint32_t> timestamps;
+    std::vector<std::vector<int16_t>> values;
+
+    class Listener : public cbor::listener {
+    public:
+        Listener(std::vector<uint32_t>& timestamps,
+                 std::vector<std::vector<int16_t>>& values) :
+        _timestamps(timestamps),
+        _values(values) {}
+
+        void on_integer(int value) {
+            switch (_state) {
+            case Timestamp:
+                _timestamps.push_back(value);
+                return;
+            case Value:
+                _values.back().push_back(value);
+                return;
+            }
+        }
+        void on_float32(float value) {}
+        void on_double(double value) {}
+        void on_bytes(unsigned char *data, int size) {}
+        void on_string(std::string &str) {}
+        void on_array(int size) {
+            switch (_state) {
+            case Initial:
+                _timestamps.reserve(size);
+                _state = Timestamp;
+                return;
+            case Timestamp:
+                _values.emplace_back();
+                _state = Value;
+                return;
+            case Value:
+                _values.emplace_back();
+                return;
+            }
+
+        }
+        void on_map(int size) {}
+        void on_tag(unsigned int tag) {}
+        void on_special(unsigned int code) {}
+        void on_bool(bool) {}
+        void on_null() {}
+        void on_undefined() {}
+        void on_error(const char *error) {}
+
+        std::vector<uint32_t>& _timestamps;
+        std::vector<std::vector<int16_t>>& _values;
+
+        enum State {
+            Initial,
+            Timestamp,
+            Value
+        } _state = Initial;
+        int _remainingVectorElements = 0;
+    };
+
+    Listener listener(timestamps, values);
+    cbor::input input((void*)cborData.data(), cborData.size());
+    cbor::decoder decoder(input, listener);
+    decoder.run();
+
+    DeltaDataset out;
+    out.reserve(timestamps.size());
+    for (size_t i = 0; i < timestamps.size(); ++i) {
+        std::vector<int16_t> values_;
+        for (size_t j = 0; j < values.size(); ++j) {
+            values_.push_back(values[j][i]);
+        }
+        out.emplace_back(timestamps[i], Datapoint(std::move(values_)));
+    }
+    return out;
 }

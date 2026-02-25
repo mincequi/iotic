@@ -15,11 +15,19 @@ PUBLIC
 
 add_executable(common_tests
   common/NLohmannTest.cpp
-
 )
 target_link_libraries(common_tests
 PRIVATE
   common_test
+)
+
+add_executable(database_tests
+  database/DatabaseTest.cpp
+)
+target_link_libraries(database_tests
+PRIVATE
+  Catch2::Catch2WithMain
+  database
 )
 
 add_executable(webserver_tests

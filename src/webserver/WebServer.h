@@ -42,7 +42,7 @@ public:
                        const ConfigRepository& cfg,
                        const StrategyRepository& strategyRepository,
                        const SymbolRepository& symbolRepository,
-                       const Database& database
+                       Database& database
                        );
     ~WebServer();
 
@@ -54,7 +54,7 @@ private:
     const ConfigRepository& _configRepository;
     const StrategyRepository& _strategyRepository;
     const SymbolRepository& _symbolRepository;
-    const Database& _database;
+    Database& _database; // non-const because of archivedData() method
 
     std::unique_ptr<cmrc::embedded_filesystem> _fs;
     std::unique_ptr<uWS::App> _uwsApp;

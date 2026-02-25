@@ -5,7 +5,6 @@
 #include <output_dynamic.h>
 #include <cmrc/cmrc.hpp>
 #include <nlohmann/json.hpp>
-#include <rfl/json/write.hpp>
 #include <uvw/loop.h>
 #include <uvw_iot/ThingRepository.h>
 
@@ -34,7 +33,7 @@ WebServer::WebServer(const ThingRepository& thingRepository,
                      const ConfigRepository& cfg,
                      const StrategyRepository& strategyRepository,
                      const SymbolRepository& symbolRepository,
-                     const Database& database
+                     Database& database
                      ) :
     _thingRepository(thingRepository),
     _site(site),
@@ -70,8 +69,8 @@ WebServer::WebServer(const ThingRepository& thingRepository,
     });
     _uwsApp->get("/database/:thing/:key/:date", [this](uWS::HttpResponse<false>* res, uWS::HttpRequest* req) {
         auto thingId = req->getParameter(0);
-        auto key = magic_enum::enum_cast<ThingPropertyKey>(req->getParameter(1));
-        if (!key.has_value()) {
+        auto property = magic_enum::enum_cast<ThingPropertyKey>(req->getParameter(1));
+        if (!property.has_value()) {
             res->end("invalid key: " + std::string{req->getParameter(1)});
             return;
         }
@@ -81,41 +80,26 @@ WebServer::WebServer(const ThingRepository& thingRepository,
             res->end("invalid date: " + ymdString);
             return;
         }
-        if (!_database.hasMap(thingId, key.value())) {
-            res->end("no data for thing: " + std::string{thingId} + ", key: " + std::string{req->getParameter(1)});
-            return;
-        }
 
-        auto dailyData = _database.dailyData(thingId, key.value(), ymd);
+        res->writeHeader("Content-Type", "application/cbor");
+        res->end(_database.archivedData(thingId, property.value(), ymd));
 
         // Time resolution
-        auto svMin = req->getQuery("min");
-        int min = 1;
-        std::from_chars(svMin.data(), svMin.data() + svMin.size(), min);
+        //auto svMin = req->getQuery("min");
+        //int min = 1;
+        //std::from_chars(svMin.data(), svMin.data() + svMin.size(), min);
 
-        auto svWatts = req->getQuery("watts");
-        int watts = 10;
-        std::from_chars(svWatts.data(), svWatts.data() + svWatts.size(), watts);
-        auto minuteBuckets = DatabaseUtil::toMinuteBuckets(dailyData, min, watts);
+        //// Watts resolution
+        //auto svWatts = req->getQuery("watts");
+        //int watts = 10;
+        //std::from_chars(svWatts.data(), svWatts.data() + svWatts.size(), watts);
 
-        auto deltaData = DatabaseUtil::deltaCompress(minuteBuckets);
-        cbor::output_dynamic out;
-        cbor::encoder encoder(out);
-        // Write an alternating array
-        encoder.write_array(deltaData.size() * 2);
-        for (const auto& [minute, value] : deltaData) {
-            encoder.write_int(minute);
-            if (std::holds_alternative<std::int16_t>(value)) {
-                encoder.write_int(std::get<std::int16_t>(value));
-            } else {
-                const auto& v = std::get<std::vector<int16_t>>(value);
-                encoder.write_array(v.size());
-                for (auto i : v) {
-                    encoder.write_int(i);
-                }
-            }
-        }
-        res->end({(char*)out.data(), out.size()});
+        //auto rawData = _database.rawData(thingId, key.value(), ymd);
+        //auto minuteBuckets = DatabaseUtil::downsample(rawData, min * 60, watts);
+        //auto deltaData = DatabaseUtil::deltaCompress(minuteBuckets);
+        //auto cborData = DatabaseUtil::cborEncode(deltaData);
+        //res->writeHeader("Content-Type", "application/cbor");
+        //res->end((char*)cborData.data(), cborData.size());
     });
 
     _uwsApp->get("/symbols", [this](uWS::HttpResponse<false>* res, uWS::HttpRequest* req) {

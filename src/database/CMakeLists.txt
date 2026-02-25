@@ -4,12 +4,15 @@ add_library(database STATIC
   Database.cpp
   DatabaseUtil.h DatabaseUtil.cpp
   DatabaseTypes.h
+  ArchiveDayUseCase.h ArchiveDayUseCase.cpp
 )
 
 target_link_libraries(database
+PUBLIC
+  uvw_iot # needs to be public for testing
 PRIVATE
+  common
   mdbx-static
-  uvw_iot
 )
 
 target_include_directories(database

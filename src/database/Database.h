@@ -1,7 +1,6 @@
 #pragma once
 
 #include <chrono>
-#include <map>
 #include <memory>
 
 #include <uvw_iot/ThingProperty.h>
@@ -24,7 +23,11 @@ public:
 
     //std::vector<int16_t> yearlyData(const std::string& thingId, uvw_iot::ThingPropertyKey property, const std::chrono::year& year) const;
     //std::vector<int16_t> monthlyData(const std::string& thingId, uvw_iot::ThingPropertyKey property, const std::chrono::year_month& ym) const;
-    std::map<uint32_t, DataPoint> dailyData(std::string_view thingId, uvw_iot::ThingPropertyKey property, const std::chrono::year_month_day& ymd) const;
+    Dataset rawData(std::string_view thingId, uvw_iot::ThingPropertyKey property, const std::chrono::year_month_day& day) const;
+    void putDatapoint(const std::string& thingId, uvw_iot::ThingPropertyKey property, uint32_t timestamp, const Datapoint& datapoint);
+
+    std::string_view archivedData(std::string_view thingId, uvw_iot::ThingPropertyKey property, const std::chrono::year_month_day& day);
+    void putArchivedData(std::string_view thingId, uvw_iot::ThingPropertyKey property, const std::chrono::year_month_day& day, std::string_view data);
 
 private:
     std::unique_ptr<class DatabasePrivate> const d;
