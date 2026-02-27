@@ -65,6 +65,7 @@ public:
 
         // MultiPhaseStrategy
         power_thresholds,
+        phase_limit_duration_minutes,
     };
 
     ConfigRepository(const ThingRepository& repo);
@@ -98,7 +99,7 @@ public:
     static constexpr std::chrono::milliseconds longTermTau = 120'000ms;
     static constexpr int stepUpDebounceSeconds = 180;
     static constexpr int stepDownDebounceSeconds = 120;
-    static constexpr std::chrono::duration phaseLimitDuration = 90min;
+    std::chrono::minutes phaseLimitDuration() const;
 
 private:
     void parseConfigFile();

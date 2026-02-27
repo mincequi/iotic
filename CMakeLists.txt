@@ -43,6 +43,7 @@ add_executable(iotic
   src/shelly/ShellyGen2Thing.h src/shelly/ShellyGen2Thing.cpp
   src/http/HttpService.h src/http/HttpService.cpp
   src/stats/StatsDaily.h src/stats/StatsDaily.cpp
+  src/appDatabase/AppDatabase.h src/appDatabase/AppDatabase.cpp
 )
 
 target_link_libraries(iotic

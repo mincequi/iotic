@@ -29,9 +29,9 @@ private:
     std::pair<std::vector<bool>, std::vector<bool>> inputsAndStates() const;
 
     // temp
-    void decrementPhaseLimit(const Site::Properties& siteProperties) const;
-    void incrementPhaseLimit(const Site::Properties& siteProperties) const;
-    mutable int _phaseLimitTimestamp = 0;
+    void decrementPhaseLimit() const;
+    void incrementPhaseLimit() const;
+    mutable std::chrono::time_point<std::chrono::system_clock> _phaseLimitTimepoint;
     mutable int _phaseLimit = 0;
 
     const ThingPtr _thing;
@@ -42,6 +42,8 @@ private:
     int _nextStepDownPhase = 0;
     std::vector<bool> _currentStates;
     std::vector<int> _timestamps;
-    int _energyDelivered = 0; // Ws
+    int _deliveredEnergy = 0; // Ws
     int _currentDay = 0;
+
+    bool _isInputActive = false;
 };

@@ -20,8 +20,9 @@ mode Cli::parseCommandLine(int argc, char* argv[]) {
     auto daemonMode = command("daemon").set(_selectedMode, mode::daemon);
     auto discoverMode = command("discover").set(_selectedMode, mode::discover);
     auto helpMode = ( command("help").set(_selectedMode, mode::help) );
+    auto databaseMode = command("database").set(_selectedMode, mode::database);
 
-    auto cli = (daemonMode | discoverMode | helpMode);
+    auto cli = (daemonMode | discoverMode | helpMode | databaseMode);
 
     if (parse(argc, argv, cli)) {
         switch (_selectedMode) {

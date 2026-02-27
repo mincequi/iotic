@@ -67,6 +67,14 @@ WebServer::WebServer(const ThingRepository& thingRepository,
     _uwsApp->get("/database/stat", [this](uWS::HttpResponse<false>* res, uWS::HttpRequest* req) {
         res->end(_database.stat());
     });
+    _uwsApp->get("/database/maps", [this](uWS::HttpResponse<false>* res, uWS::HttpRequest* req) {
+        auto maps = _database.maps();
+        for (auto& [name, size] : maps) {
+            res->write(name);
+            res->write("\n");
+        }
+        res->end();
+    });
     _uwsApp->get("/database/:thing/:key/:date", [this](uWS::HttpResponse<false>* res, uWS::HttpRequest* req) {
         auto thingId = req->getParameter(0);
         auto property = magic_enum::enum_cast<ThingPropertyKey>(req->getParameter(1));

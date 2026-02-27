@@ -18,8 +18,7 @@ public:
 
     std::string info() const;
     std::string stat() const;
-
-    bool hasMap(std::string_view thingId, uvw_iot::ThingPropertyKey key) const;
+    std::map<std::string, int> maps(const std::string& map = {}) const;
 
     //std::vector<int16_t> yearlyData(const std::string& thingId, uvw_iot::ThingPropertyKey property, const std::chrono::year& year) const;
     //std::vector<int16_t> monthlyData(const std::string& thingId, uvw_iot::ThingPropertyKey property, const std::chrono::year_month& ym) const;
