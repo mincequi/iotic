@@ -4,11 +4,11 @@ import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:iotic/common/web_socket_data_source.dart';
+import 'package:iotic/common/web_socket_service.dart';
 import 'package:iotic/common/iotic_theme.dart';
 
 class SiteReadoutsController extends GetxController {
-  final repo = Get.find<WebSocketDataSource>();
+  final repo = Get.find<WebSocketService>();
 
   final pvPower = 0.obs;
   Color pvColor() {

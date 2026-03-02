@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:iotic/things/card/thing_card_controller.dart';
 import 'package:iotic/things/data/thing_properties.dart';
 import 'package:iotic/things/data/thing_property.dart';
-import 'package:iotic/common/web_socket_data_source.dart';
+import 'package:iotic/common/web_socket_service.dart';
 
 enum ChargerPhase { off, switchingOn, on, switchingOff }
 
@@ -13,7 +13,7 @@ class ChargerStatusController extends GetxController {
   ChargerStatusController(this._id);
 
   final String _id;
-  final WebSocketDataSource _repo = Get.find<WebSocketDataSource>();
+  final WebSocketService _repo = Get.find<WebSocketService>();
   late final _thingControl = Get.find<ThingCardController>(tag: _id);
 
   // Off -> OnePhase  // PhaseOneSwitchingOn

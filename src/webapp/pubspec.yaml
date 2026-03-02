@@ -37,7 +37,7 @@ dependencies:
   cbor: ^6.2.0
   test: ^1.24.3
   mockito: ^5.4.4
-  google_fonts: ^4.0.0
+  google_fonts: ^8.0.0
   icon_decoration: any
   dropdown_button2: ^2.3.9
 

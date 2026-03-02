@@ -3,11 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iotic/common/iotic_theme.dart';
-import 'package:iotic/common/web_socket_data_source.dart';
+import 'package:iotic/common/web_socket_service.dart';
 import 'package:iotic/things/card/charger/charger_status.dart';
 import 'package:iotic/things/card/thing_card_controller.dart';
 import 'package:iotic/things/card/thing_gauge.dart';
-import 'package:iotic/things/components/multi_channel_switch.dart';
+import 'package:iotic/components/multi_channel_switch.dart';
 import 'package:iotic/things/data/thing_property.dart';
 
 class ThingCardTrailingWidgets extends StatelessWidget {
@@ -15,7 +15,7 @@ class ThingCardTrailingWidgets extends StatelessWidget {
   final bool isPinnedCard;
   final ThingCardController controller;
 
-  final _webSocket = Get.find<WebSocketDataSource>();
+  final _webSocket = Get.find<WebSocketService>();
   final _focusNode = FocusNode();
   late final TextEditingController _editingController;
 

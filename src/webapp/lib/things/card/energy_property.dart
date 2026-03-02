@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:iotic/things/components/odometer.dart';
+import 'package:iotic/components/odometer.dart';
 
 class EnergyProperty extends StatelessWidget {
   const EnergyProperty(this._icon, this._value, this._unit,

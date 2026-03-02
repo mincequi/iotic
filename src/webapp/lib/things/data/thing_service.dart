@@ -1,12 +1,12 @@
 import 'package:get/get.dart';
 import 'package:iotic/logs/log_service.dart';
-import 'package:iotic/common/web_socket_data_source.dart';
+import 'package:iotic/common/web_socket_service.dart';
 import 'package:iotic/common/web_socket_handler.dart';
 import 'package:iotic/things/data/thing.dart';
 import 'package:iotic/things/data/thing_property.dart';
 
 class ThingService extends GetxService implements WebSocketHandler {
-  final WebSocketDataSource _wsDataSource;
+  final WebSocketService _wsDataSource;
 
   //final things = <String, String?>{}.obs;
   final things = <String, Thing>{}.obs;

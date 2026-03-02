@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:iotic/logs/log_service.dart';
 import 'package:iotic/site/card/data/site_data_historic.dart';
 import 'package:iotic/site/card/data/site_data_live.dart';
-import 'package:iotic/common/web_socket_data_source.dart';
+import 'package:iotic/common/web_socket_service.dart';
 import 'package:iotic/common/web_socket_handler.dart';
 
 class SiteRepository implements WebSocketHandler {
@@ -10,7 +10,7 @@ class SiteRepository implements WebSocketHandler {
     _wsDataSource.registerHandler(this);
   }
 
-  final WebSocketDataSource _wsDataSource;
+  final WebSocketService _wsDataSource;
   final LogService _logService = Get.find();
 
   final siteDataLive = SiteDataLive(0, 0, 0, 0).obs;

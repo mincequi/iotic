@@ -43,37 +43,35 @@ Dataset DatabaseUtil::downsample(const Dataset& samples, int timeDivisor, int wa
     return aggregates;
 }
 
-DeltaDataset DatabaseUtil::deltaCompress(const Dataset& samples) {
-    DeltaDataset deltaData;
+DeltaDataset DatabaseUtil::deltaCompress(const Dataset& dataset) {
+    DeltaDataset deltaDataset;
 
     uint32_t lastTimestamp;
-    Datapoint lastValue;
+    Datapoint lastDatapoint;
     bool first = true;
-    for (const auto& [timestamp, dataPoint] : samples) {
+    for (const auto& [timestamp, datapoint] : dataset) {
         if (first) {
-            deltaData.emplace_back(timestamp, dataPoint);
+            deltaDataset.emplace_back(timestamp, datapoint);
             lastTimestamp = timestamp;
-            lastValue = dataPoint;
+            lastDatapoint = datapoint;
             first = false;
         } else {
             uint32_t deltaTimestamp = timestamp - lastTimestamp;
-            Datapoint deltaValue;
-            std::vector<int16_t> deltaVec(dataPoint.size());
-            for (size_t i = 0; i < dataPoint.size(); ++i) {
-                deltaVec[i] = dataPoint[i] - lastValue[i];
+            Datapoint deltaDatapoint(datapoint.size());
+            for (size_t i = 0; i < datapoint.size(); ++i) {
+                deltaDatapoint[i] = datapoint[i] - lastDatapoint[i];
             }
-            if (std::all_of(deltaVec.begin(), deltaVec.end(), [](int16_t v) { return v == 0; })) {
+            if (std::all_of(deltaDatapoint.begin(), deltaDatapoint.end(), [](int16_t v) { return v == 0; })) {
                 continue; // skip if value hasn't changed
             }
-            deltaValue = std::move(deltaVec);
 
-            deltaData.emplace_back(deltaTimestamp, deltaValue);
+            deltaDataset.emplace_back(deltaTimestamp, deltaDatapoint);
             lastTimestamp = timestamp;
-            lastValue = dataPoint;
+            lastDatapoint = datapoint;
         }
     }
 
-    return deltaData;
+    return deltaDataset;
 }
 
 Dataset DatabaseUtil::deltaDecompress(const DeltaDataset& deltaData) {
@@ -119,9 +117,9 @@ std::vector<uint8_t> DatabaseUtil::cborEncode(const DeltaDataset& data) {
     // Write an array for each value index
     for (int i = 0; i < data.front().second.size(); ++i) {
         encoder.write_array(data.size());
-         for (const auto& [_, dataPoint] : data) {
+        for (const auto& [_, dataPoint] : data) {
             encoder.write_int(dataPoint[i]);
-         }
+        }
     }
 
     return std::vector<uint8_t>(out.data(), out.data() + out.size());

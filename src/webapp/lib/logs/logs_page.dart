@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:iotic/common/web_socket_service.dart';
+import 'package:iotic/components/chart_card.dart';
 import 'package:iotic/logs/log_level.dart';
 import 'package:iotic/logs/log_service.dart';
 import 'package:iotic/common/iotic_theme.dart';
@@ -15,6 +17,11 @@ class LogsPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        SizedBox(
+            //height: 266,
+            height: 194,
+            width: double.infinity,
+            child: ChartCard()),
         const Padding(
           padding: EdgeInsets.symmetric(vertical: 0),
           child:

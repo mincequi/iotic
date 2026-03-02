@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:get/get.dart';
-import 'package:iotic/common/web_socket_data_source.dart';
+import 'package:iotic/common/web_socket_service.dart';
 
 class SiteService extends GetxService {
   var pvPoints = List<FlSpot>.empty(growable: true);
@@ -10,7 +10,7 @@ class SiteService extends GetxService {
 
   final update = RxInt(0);
 
-  final _dataSource = Get.find<WebSocketDataSource>();
+  final _dataSource = Get.find<WebSocketService>();
 
   void requestSiteDataHistoric(int from, int to) {
     pvPoints.insert(0, FlSpot(from.toDouble(), 0.0));

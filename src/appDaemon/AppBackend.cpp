@@ -14,7 +14,7 @@ AppBackend::AppBackend() :
     _strategyRepository(_thingRepository),
     _site(_thingRepository, {.shortTermTau = _configRepository.shortTermTau, .longTermTau = _configRepository.longTermTau}),
     //_mqttExporter("broker.hivemq.com"),
-    _database(_thingRepository),
+    _database(Database::Config { .dbFile = "/var/lib/iotic/iotic.mdbx" }, _thingRepository),
     _webServer(_thingRepository, _site, _configRepository, _strategyRepository, _symbolRepository, _database),
     _ruleEngine(_thingRepository, _strategyRepository, _symbolRepository, _configRepository),
     _powerManager(_strategyRepository, _symbolRepository, _site, _configRepository),
@@ -26,17 +26,6 @@ AppBackend::AppBackend() :
     _thingRepository.thingRemoved().subscribe([this](const auto& id) {
         LOG_S(INFO) << "thing removed> " << id;
     });
-
-#ifdef USE_INFLUXDB
-    // Setup InfluxExporter
-    const QString db = "iotic_" + util::getMacAddress().remove(':');
-    _influxExporter = InfluxExporter::build(db.toStdString())
-                      .host("localhost")
-                      .port(8086);
-    if (_influxExporter) {
-        QObject::connect(&_sunSpecManager, &SunSpecManager::modelRead, std::bind(&InfluxExporter::exportLiveData, &_influxExporter.value(), _1, _2, _3));
-    }
-#endif
 
     // Start discoveries
     _thingDiscovery.startDiscovery(60 * 1000);

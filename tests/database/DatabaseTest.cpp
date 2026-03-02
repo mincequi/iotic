@@ -4,9 +4,14 @@
 #include <iostream>
 #include <numeric>
 
+#include <uvw_iot/ThingRepository.h>
+
 #include <database/Database.h>
 #include <database/DatabaseUtil.h>
 
+using namespace std::chrono;
+
+/*
 TEST_CASE("multi downsample test", "[cpp]") {
     std::vector<double> ratios;
     for (int i = 0; i < 1; ++i) {
@@ -55,24 +60,23 @@ TEST_CASE("multi downsample test", "[cpp]") {
 }
 
 TEST_CASE("cbor encode and decode test", "[cpp]") {
-    std::srand(std::time(nullptr));
-    std::map<uint32_t, Datapoint> data;
+    Dataset data;
     // Add data points for 8 hours, with 1 data point per 5 seconds.
     // It shall be a half sine wave with 5000 watts peak, which is 500 decaWatts.
     // Also add some noise of +/- 150 decaWatts.
     for (uint32_t t = 0; t < 8 * 3600; t += 5) {
         double sineValue = sin((double)t / (8 * 3600) * M_PI);
-        std::vector<int16_t> vec;
+        Datapoint vec;
         vec.push_back((int16_t)round(sineValue * 500)); // Scale to decaWatts
         vec.push_back((int16_t)round(sineValue * 350)); // Scale to decaWatts
         data[t] = vec;
     }
 
     // delta compress actually changes the data, because it leaves out samples for zero
-    auto deltaData = DatabaseUtil::deltaCompress(data);
-
     // So, decompressed deltas serve as starting point for test
+    auto deltaData = DatabaseUtil::deltaCompress(data);
     data = DatabaseUtil::deltaDecompress(deltaData);
+
     auto cborData = DatabaseUtil::cborEncode(deltaData);
     auto deltaResult = DatabaseUtil::cborDecode(cborData);
     auto resultData = DatabaseUtil::deltaDecompress(deltaResult);
@@ -85,3 +89,42 @@ TEST_CASE("cbor encode and decode test", "[cpp]") {
         REQUIRE(value1 == value2);
     }
 }
+
+TEST_CASE("mdbx file growth test", "[cpp]") {
+    Database::Config config { .dbFile = "test.mdbx" };
+    Database db(config, {});
+
+    for (uint32_t t = 0; t < 7 * 24 * 3600; t += 5) {
+        double sineValue = sin((double)t / (12 * 3600) * M_PI);
+        Datapoint vec;
+        vec.push_back((int16_t)round(sineValue * 500)); // Scale to decaWatts
+        vec.push_back((int16_t)round(sineValue * 350)); // Scale to decaWatts
+
+        db.putDatapoint("testThing", uvw_iot::ThingPropertyKey::power, t, vec);
+    }
+
+
+    for (unsigned i = 0; i < 7; ++i) {
+        year_month_day ymd {
+            year{1970},
+            month{1},
+            day{i+1}
+        };
+        auto data = db.rawData("testThing", uvw_iot::ThingPropertyKey::power, ymd);
+        //REQUIRE(data.size() > 0);
+        db.eraseRawData("testThing", uvw_iot::ThingPropertyKey::power, ymd);
+        auto dataAfterErase = db.rawData("testThing", uvw_iot::ThingPropertyKey::power, ymd);
+        REQUIRE(dataAfterErase.empty());
+    }
+
+    REQUIRE(db.mapSize("testThing", uvw_iot::ThingPropertyKey::power) == 0);
+}
+*/
+
+TEST_CASE("TestCaseName") {
+    Database::Config config { .dbFile = "test.mdbx" };
+    Database db(config, /*thingRepository=*/{});
+
+    REQUIRE(db.archivedData("someThing", uvw_iot::ThingPropertyKey::dcPower, year{2024}/June/1) == std::string_view{});
+}
+

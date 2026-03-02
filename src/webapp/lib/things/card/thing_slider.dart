@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iotic/common/iotic_theme.dart';
 
-import '../../common/web_socket_data_source.dart';
+import '../../common/web_socket_service.dart';
 import '../data/thing_property.dart';
 import 'thing_card_controller.dart';
 import 'thing_slider_thumb.dart';
@@ -11,7 +11,7 @@ import 'thing_slider_track.dart';
 class ThingSlider extends StatelessWidget {
   late final _control = Get.find<ThingCardController>(tag: _id);
   //late final _control = Get.put(ThingCardController(_id));
-  final _repo = Get.find<WebSocketDataSource>();
+  final _repo = Get.find<WebSocketService>();
 
   ThingSlider(this._id, {super.key});
 

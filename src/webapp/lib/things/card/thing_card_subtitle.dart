@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:iotic/common/iotic_theme.dart';
 import 'package:iotic/things/card/energy_property.dart';
 import 'package:iotic/things/card/thing_card_controller.dart';
 

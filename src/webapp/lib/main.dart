@@ -8,14 +8,14 @@ import 'package:iotic/site/card/data/site_repository.dart';
 import 'home_page.dart';
 import 'common/iotic_theme.dart';
 import 'site/card/data/site_service.dart';
-import 'common/web_socket_data_source.dart';
+import 'common/web_socket_service.dart';
 
 void main() async {
   // Init LoggingService first since it is potentially used by any other component
   Get.put(LogService());
   // Init the WebSocketDataSource and its dependencees
-  Get.put(WebSocketDataSource());
-  Get.put(SiteRepository(Get.find<WebSocketDataSource>()));
+  Get.put(WebSocketService());
+  Get.put(SiteRepository(Get.find<WebSocketService>()));
   Get.put<SiteService>(SiteService());
   runApp(const IoticApp());
 }

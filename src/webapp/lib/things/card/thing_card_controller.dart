@@ -3,7 +3,7 @@ import 'package:get/get_core/get_core.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:iotic/common/web_socket_data_source.dart';
+import 'package:iotic/common/web_socket_service.dart';
 
 import '../data/thing_properties.dart';
 import '../data/thing_property.dart';
@@ -13,7 +13,7 @@ class ThingCardController extends GetxController {
   ThingCardController(this._id);
   final String _id;
 
-  final WebSocketDataSource _dataSource = Get.find<WebSocketDataSource>();
+  final WebSocketService _dataSource = Get.find<WebSocketService>();
 
   final name = "".obs;
   String type = "";

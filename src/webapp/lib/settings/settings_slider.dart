@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
-import 'package:iotic/common/web_socket_data_source.dart';
+import 'package:iotic/common/web_socket_service.dart';
 import 'package:iotic/things/data/thing_key.dart';
 import 'package:iotic/things/data/thing_property.dart';
 
@@ -10,7 +10,7 @@ class SettingsSlider extends StatelessWidget {
   SettingsSlider(this._sectionName, {super.key});
 
   final ThingKey _sectionName;
-  final _repo = Get.find<WebSocketDataSource>();
+  final _repo = Get.find<WebSocketService>();
   late final _properties = _repo.settings[_sectionName]?.properties;
   late final ThingPropertyKey _property = _properties!.keys.first;
 

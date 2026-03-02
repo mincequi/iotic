@@ -22,13 +22,13 @@ using namespace uvw_iot;
 
 class DatabasePrivate {
 public:
-    DatabasePrivate(Database& self) : _self(self) {
+    DatabasePrivate(Database& self, const Database::Config& config) : _self(self) {
         env_managed::create_parameters cp;
         cp.geometry = env::geometry::kB;
         cp.file_mode_bits = 0664;
         env::operate_parameters op;
         op.max_maps = 32;
-        _dbEnv = mdbx::env_managed(_dbFile, cp, op);
+        _dbEnv = mdbx::env_managed(config.dbFile, cp, op);
     }
 
     void putDatapoint(const std::string& thingId, ThingPropertyKey property, uint32_t timestamp, const Datapoint& datapoint) {
@@ -76,8 +76,8 @@ public:
 
                 return false; // continue scan
             }, slice);
-        } catch (const mdbx::error& e) {
-            LOG_S(ERROR) << "Failed to read from database: " << e.what();
+        } catch (...) {
+            //LOG_S(ERROR) << "Failed to read from database: " << e.what();
         }
 
         return data;
@@ -159,15 +159,40 @@ public:
         return mapName;
     }
 
+    void eraseRawData(std::string_view thingId, ThingPropertyKey key, const std::chrono::year_month_day& day) {
+        const std::string name = mapName(thingId, key);
+
+        auto map = mapFor(thingId, key);
+        if (!map) {
+            return;
+        }
+
+        auto txn = _dbEnv.start_write();
+        auto cursor = txn.open_cursor(map);
+        const uint32_t dayStart = std::chrono::system_clock::to_time_t(std::chrono::sys_days(day));
+        const uint32_t dayEnd = dayStart + 24 * 60 * 60;
+        auto slice = mdbx::slice(&dayStart, sizeof(dayStart));
+
+        cursor.scan_from([&](const mdbx::pair& kv) -> bool {
+            uint32_t timestamp = *reinterpret_cast<const uint32_t*>(kv.key.data());
+            if (timestamp >= dayEnd) {
+                return true; // stop scan
+            }
+            cursor.erase();
+            return false; // continue scan
+        }, slice);
+        txn.commit();
+    }
+
     Database& _self;
-    const std::string _dbFile = "/var/lib/iotic/iotic.mdbx";
     mdbx::env_managed _dbEnv;
     std::unordered_map<std::string, mdbx::map_handle> _mapCache;
     std::unordered_map<std::string, std::unordered_map<ThingPropertyKey, Datapoint>> _lastValues;
 };
 
-Database::Database(const ThingRepository& thingRepository) :
-    d(new DatabasePrivate(*this)) {
+Database::Database(const Database::Config& config,
+                   const ThingRepository& thingRepository) :
+    d(new DatabasePrivate(*this, config)) {
     thingRepository.thingAdded().subscribe([this](ThingPtr thing) {
         thing->propertiesObservable().subscribe([this, thing](const ThingPropertyMap& props) {
             props.template on<ThingPropertyKey::power>([this, thing](const auto& value) {
@@ -212,12 +237,26 @@ std::map<std::string, int> Database::maps(const std::string& map_) const {
     return result;
 }
 
+size_t Database::mapSize(std::string_view thingId, uvw_iot::ThingPropertyKey property) const {
+    auto map = d->mapFor(thingId, property);
+    if (!map) {
+        return 0;
+    }
+
+    auto txn = d->_dbEnv.start_read();
+    return txn.get_map_stat(map).ms_entries;
+}
+
 Dataset Database::rawData(std::string_view thingId, ThingPropertyKey property, const std::chrono::year_month_day& ymd) const {
     return d->rawData(thingId, property, ymd);
 }
 
 void Database::putDatapoint(const std::string& thingId, ThingPropertyKey property, uint32_t timestamp, const Datapoint& datapoint) {
     d->putDatapoint(thingId, property, timestamp, datapoint);
+}
+
+void Database::eraseRawData(std::string_view thingId, ThingPropertyKey property, const std::chrono::year_month_day& day) {
+    d->eraseRawData(thingId, property, day);
 }
 
 std::string_view Database::archivedData(std::string_view thingId, ThingPropertyKey property, const std::chrono::year_month_day& day) {

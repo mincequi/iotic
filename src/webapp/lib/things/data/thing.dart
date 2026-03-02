@@ -8,10 +8,11 @@ class Thing {
   final name = RxString('');
   final properties = <ThingPropertyKey, dynamic>{}.obs;
 
-  Thing(
-    this.id,
-    /*this.type*/
-  );
+  Thing({required this.id, /*required this.type,*/ String? name}) {
+    if (name != null) {
+      this.name.value = name;
+    }
+  }
 
   // Constructor from map
   Thing.fromMap(String id, Map<String, dynamic> json) : this.id = id

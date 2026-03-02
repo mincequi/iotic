@@ -15,7 +15,7 @@ import 'package:iotic/site/card/data/site_data_live.dart';
 import 'package:iotic/common/web_socket_handler.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-class WebSocketDataSource with WidgetsBindingObserver {
+class WebSocketService with WidgetsBindingObserver {
   final siteDataLive = SiteDataLive(0, 0, 0, 0).obs;
   final siteDataHistoric = SiteDataHistoric.empty().obs;
   final things = <String, ThingProperties>{}.obs;
@@ -23,7 +23,7 @@ class WebSocketDataSource with WidgetsBindingObserver {
 
   final LogService logger = Get.find();
 
-  WebSocketDataSource() {
+  WebSocketService() {
     WidgetsBinding.instance.addObserver(this);
     _connect(false);
   }
@@ -190,9 +190,11 @@ class WebSocketDataSource with WidgetsBindingObserver {
 
   void _parseThing(MapEntry<String, dynamic> entry) {
     if (!things.containsKey(entry.key)) {
+      // Assigning implicitly refresh
       things[entry.key] = ThingProperties.fromMap(entry.value);
       return;
     }
+
     ThingProperties.fromMap(entry.value).properties.forEach((key, value) {
       things[entry.key]?.properties[key] = value;
     });
