@@ -11,7 +11,6 @@
 
 using namespace std::chrono;
 
-/*
 TEST_CASE("multi downsample test", "[cpp]") {
     std::vector<double> ratios;
     for (int i = 0; i < 1; ++i) {
@@ -119,12 +118,14 @@ TEST_CASE("mdbx file growth test", "[cpp]") {
 
     REQUIRE(db.mapSize("testThing", uvw_iot::ThingPropertyKey::power) == 0);
 }
-*/
 
 TEST_CASE("TestCaseName") {
     Database::Config config { .dbFile = "test.mdbx" };
     Database db(config, /*thingRepository=*/{});
 
-    REQUIRE(db.archivedData("someThing", uvw_iot::ThingPropertyKey::dcPower, year{2024}/June/1) == std::string_view{});
+    REQUIRE(db.archivedData("someThing",
+                            uvw_iot::ThingPropertyKey::dcPower,
+                            year{2024}/June/1,
+                            minutes{5}) == std::string_view{});
 }
 

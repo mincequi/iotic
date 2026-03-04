@@ -89,18 +89,19 @@ WebServer::WebServer(const ThingRepository& thingRepository,
             return;
         }
 
-        res->writeHeader("Content-Type", "application/cbor");
-        res->end(_database.archivedData(thingId, property.value(), ymd));
-
         // Time resolution
-        //auto svMin = req->getQuery("min");
-        //int min = 1;
-        //std::from_chars(svMin.data(), svMin.data() + svMin.size(), min);
+        auto svMin = req->getQuery("min");
+        int min = 5;
+        std::from_chars(svMin.data(), svMin.data() + svMin.size(), min);
+        std::chrono::minutes resolution(min);
 
         //// Watts resolution
         //auto svWatts = req->getQuery("watts");
         //int watts = 10;
         //std::from_chars(svWatts.data(), svWatts.data() + svWatts.size(), watts);
+
+        res->writeHeader("Content-Type", "application/cbor");
+        res->end(_database.archivedData(thingId, property.value(), ymd, resolution));
 
         //auto rawData = _database.rawData(thingId, key.value(), ymd);
         //auto minuteBuckets = DatabaseUtil::downsample(rawData, min * 60, watts);

@@ -16,6 +16,7 @@
 #include "ArchiveDayUseCase.h"
 #include "DatabaseUtil.h"
 
+using namespace std::chrono;
 using namespace std::chrono_literals;
 using namespace mdbx;
 using namespace uvw_iot;
@@ -46,7 +47,7 @@ public:
         txn.commit();
     }
 
-    Dataset rawData(std::string_view thingId, ThingPropertyKey property, const std::chrono::year_month_day& ymd) {
+    Dataset rawData(std::string_view thingId, ThingPropertyKey property, year_month_day ymd) {
         auto map = mapFor(thingId, property);
         if (!map) {
             return {};
@@ -57,7 +58,7 @@ public:
 
         // Why is slice non-const? Why pass a reference to slice?
         // Find the first entry for the given day
-        const uint32_t dayStart = std::chrono::system_clock::to_time_t(std::chrono::sys_days(ymd));
+        const uint32_t dayStart = system_clock::to_time_t(sys_days(ymd));
         const uint32_t dayEnd = dayStart + 24 * 60 * 60;
         auto slice = mdbx::slice(&dayStart, sizeof(dayStart));
         Dataset data;
@@ -83,8 +84,11 @@ public:
         return data;
     }
 
-    std::string_view archivedData(std::string_view thingId, ThingPropertyKey property, const std::chrono::year_month_day& day) {
-        auto map = mapFor(thingId, property, 1min);
+    std::string_view archivedData(std::string_view thingId,
+                                  ThingPropertyKey property,
+                                  year_month_day day,
+                                  minutes resolution) {
+        auto map = mapFor(thingId, property, resolution);
         if (!map) {
             return {};
         }
@@ -104,7 +108,11 @@ public:
         return result.value.string_view();
     }
 
-    void putArchivedData(std::string_view thingId, ThingPropertyKey property, const std::chrono::year_month_day& day, std::string_view data) {
+    void putArchivedData(std::string_view thingId,
+                         ThingPropertyKey property,
+                         year_month_day day,
+                         minutes resolution,
+                         std::string_view data) {
         if (data.empty()) {
             return;
         }
@@ -112,13 +120,15 @@ public:
         // MDBX only supports uint32_t and uint64_t as key types, so we cannot use uint16_t
         const uint32_t daySinceEpoch = DatabaseUtil::daySinceEpoch(day);
 
-        auto& map = createMap(thingId, property, 1min);
+        auto& map = createMap(thingId, property, resolution);
         auto txn = _dbEnv.start_write();
         txn.put(map, mdbx::slice(&daySinceEpoch, sizeof(daySinceEpoch)), mdbx::slice(data.data(), data.size()), put_mode::upsert);
         txn.commit();
     }
 
-    mdbx::map_handle& createMap(std::string_view thingId, ThingPropertyKey key, std::chrono::minutes resolution = std::chrono::minutes(0)) {
+    mdbx::map_handle& createMap(std::string_view thingId,
+                                ThingPropertyKey key,
+                                minutes resolution = minutes(0)) {
         const std::string mapName_ = mapName(thingId, key, resolution);
 
         auto it = _mapCache.find(mapName_);
@@ -131,7 +141,7 @@ public:
         return _mapCache.emplace(mapName_, std::move(map)).first->second;
     }
 
-    mdbx::map_handle mapFor(std::string_view thingId, ThingPropertyKey key, std::chrono::minutes resolution = std::chrono::minutes(0)) {
+    mdbx::map_handle mapFor(std::string_view thingId, ThingPropertyKey key, minutes resolution = minutes(0)) {
         const std::string name = mapName(thingId, key, resolution);
 
         auto it = _mapCache.find(name);
@@ -150,16 +160,16 @@ public:
         return _mapCache.emplace(name, std::move(map)).first->second;
     }
 
-    std::string mapName(std::string_view thingId, ThingPropertyKey key, std::chrono::minutes resolution = std::chrono::minutes(0)) const {
+    std::string mapName(std::string_view thingId, ThingPropertyKey key, minutes resolution = minutes(0)) const {
         std::string mapName = std::string{thingId} + "." + magic_enum::enum_name(key).data();
-        if (resolution != std::chrono::minutes(0)) {
+        if (resolution != minutes(0)) {
             // Add resolution suffix to map name, e.g. "thingId.power.5min"
             mapName += "." + std::to_string(resolution.count()) + "min";
         }
         return mapName;
     }
 
-    void eraseRawData(std::string_view thingId, ThingPropertyKey key, const std::chrono::year_month_day& day) {
+    void eraseRawData(std::string_view thingId, ThingPropertyKey key, year_month_day day) {
         const std::string name = mapName(thingId, key);
 
         auto map = mapFor(thingId, key);
@@ -169,7 +179,7 @@ public:
 
         auto txn = _dbEnv.start_write();
         auto cursor = txn.open_cursor(map);
-        const uint32_t dayStart = std::chrono::system_clock::to_time_t(std::chrono::sys_days(day));
+        const uint32_t dayStart = system_clock::to_time_t(sys_days(day));
         const uint32_t dayEnd = dayStart + 24 * 60 * 60;
         auto slice = mdbx::slice(&dayStart, sizeof(dayStart));
 
@@ -247,7 +257,7 @@ size_t Database::mapSize(std::string_view thingId, uvw_iot::ThingPropertyKey pro
     return txn.get_map_stat(map).ms_entries;
 }
 
-Dataset Database::rawData(std::string_view thingId, ThingPropertyKey property, const std::chrono::year_month_day& ymd) const {
+Dataset Database::rawData(std::string_view thingId, ThingPropertyKey property, year_month_day ymd) const {
     return d->rawData(thingId, property, ymd);
 }
 
@@ -255,21 +265,28 @@ void Database::putDatapoint(const std::string& thingId, ThingPropertyKey propert
     d->putDatapoint(thingId, property, timestamp, datapoint);
 }
 
-void Database::eraseRawData(std::string_view thingId, ThingPropertyKey property, const std::chrono::year_month_day& day) {
+void Database::eraseRawData(std::string_view thingId, ThingPropertyKey property, year_month_day day) {
     d->eraseRawData(thingId, property, day);
 }
 
-std::string_view Database::archivedData(std::string_view thingId, ThingPropertyKey property, const std::chrono::year_month_day& day) {
-    auto archivedData = d->archivedData(thingId, property, day);
+std::string_view Database::archivedData(std::string_view thingId,
+                                        ThingPropertyKey property,
+                                        year_month_day day,
+                                        minutes resolution) {
+    auto archivedData = d->archivedData(thingId, property, day, resolution);
     if (archivedData.empty()) {
         // If no archived data for the day, archive the day and try again
-        ArchiveDayUseCase(*this)(thingId, property, day);
-        archivedData = d->archivedData(thingId, property, day);
+        ArchiveDayUseCase(*this)(thingId, property, day, resolution);
+        archivedData = d->archivedData(thingId, property, day, resolution);
     }
 
     return archivedData;
 }
 
-void Database::putArchivedData(std::string_view thingId, ThingPropertyKey property, const std::chrono::year_month_day& day, std::string_view data) {
-    d->putArchivedData(thingId, property, day, data);
+void Database::putArchivedData(std::string_view thingId,
+                               ThingPropertyKey property,
+                               year_month_day day,
+                               minutes resolution,
+                               std::string_view data) {
+    d->putArchivedData(thingId, property, day, resolution, data);
 }

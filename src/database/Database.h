@@ -19,7 +19,9 @@ public:
 
     Database(const Config& config,
              const uvw_iot::ThingRepository& thingRepository);
-    ~Database();   // IMPORTANT: Because of the pimpl idiom, we need to define destructor in .cpp file, otherwise it will cause linker error
+    // note: because of pimpl pattern, we have to define destructor in .cpp file,
+    //       otherwise it won't compile because of incomplete type of unique_ptr.
+    ~Database();
 
     std::string info() const;
     std::string stat() const;
@@ -27,14 +29,26 @@ public:
     std::map<std::string, int> maps(const std::string& map = {}) const;
     size_t mapSize(std::string_view thingId, uvw_iot::ThingPropertyKey property) const;
 
-    //std::vector<int16_t> yearlyData(const std::string& thingId, uvw_iot::ThingPropertyKey property, const std::chrono::year& year) const;
-    //std::vector<int16_t> monthlyData(const std::string& thingId, uvw_iot::ThingPropertyKey property, const std::chrono::year_month& ym) const;
-    Dataset rawData(std::string_view thingId, uvw_iot::ThingPropertyKey property, const std::chrono::year_month_day& day) const;
-    void putDatapoint(const std::string& thingId, uvw_iot::ThingPropertyKey property, uint32_t timestamp, const Datapoint& datapoint);
-    void eraseRawData(std::string_view thingId, uvw_iot::ThingPropertyKey property, const std::chrono::year_month_day& day);
+    Dataset rawData(std::string_view thingId,
+                    uvw_iot::ThingPropertyKey property,
+                    std::chrono::year_month_day day) const;
+    void putDatapoint(const std::string& thingId,
+                      uvw_iot::ThingPropertyKey property,
+                      uint32_t timestamp,
+                      const Datapoint& datapoint);
+    void eraseRawData(std::string_view thingId,
+                      uvw_iot::ThingPropertyKey property,
+                      std::chrono::year_month_day day);
 
-    std::string_view archivedData(std::string_view thingId, uvw_iot::ThingPropertyKey property, const std::chrono::year_month_day& day);
-    void putArchivedData(std::string_view thingId, uvw_iot::ThingPropertyKey property, const std::chrono::year_month_day& day, std::string_view data);
+    std::string_view archivedData(std::string_view thingId,
+                                  uvw_iot::ThingPropertyKey property,
+                                  std::chrono::year_month_day day,
+                                  std::chrono::minutes resolution);
+    void putArchivedData(std::string_view thingId,
+                         uvw_iot::ThingPropertyKey property,
+                         std::chrono::year_month_day day,
+                         std::chrono::minutes resolution,
+                         std::string_view data);
 
 private:
     std::unique_ptr<class DatabasePrivate> const d;
