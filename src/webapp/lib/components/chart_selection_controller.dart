@@ -32,21 +32,30 @@ class ChartSelectionController extends GetxController {
 
   final selectedProperty = Rx<DropdownItem?>(null);
 
-  // Combine your two selections into one Rx
+  final selectedDate =
+      Rx<DateTime>(DateTime.now().subtract(const Duration(days: 1)));
+
+  void stepDate(int days) {
+    selectedDate.value = selectedDate.value.add(Duration(days: days));
+  }
+
+  // Combine your three selections into one Rx
   final combinedSelection = <String, String>{}.obs;
 
   @override
   void onReady() {
     super.onReady();
 
-    everAll([selectedThing, selectedProperty], (_) {
+    everAll([selectedThing, selectedProperty, selectedDate], (_) {
       final thing = selectedThing.value;
       final property = selectedProperty.value;
+      final date = selectedDate.value;
 
       if (thing != null && property != null) {
         combinedSelection.value = {
           'thingId': thing.id,
           'propertyId': property.id.split('.').last,
+          'date': date.toIso8601String(),
         };
       }
     });
@@ -59,6 +68,7 @@ class ChartSelectionController extends GetxController {
           chartController.loadData(
             thingId: value['thingId']!,
             propertyId: value['propertyId']!,
+            date: selectedDate.value,
           );
         }
       },

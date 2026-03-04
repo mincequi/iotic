@@ -25,7 +25,7 @@ class Home extends StatelessWidget {
   @override
   Widget build(context) {
     // Instantiate your class using Get.put() to make it available for all "child" routes there.
-    final HomePageController c = Get.put(HomePageController());
+    final HomePageController controller = Get.put(HomePageController());
 
     return Scaffold(
       appBar: AppBar(
@@ -35,10 +35,10 @@ class Home extends StatelessWidget {
       body: SafeArea(
           child: Padding(
               padding: const EdgeInsets.only(left: 8, right: 8),
-              child: Obx(() => _pages[c.currentPage.value]))),
+              child: Obx(() => _pages[controller.currentPage.value]))),
       bottomNavigationBar: Padding(
           padding: const EdgeInsets.only(bottom: 34),
-          child: Obx(() => HomeNavigationBar(c.currentPage.value))),
+          child: Obx(() => HomeNavigationBar(controller.currentPage.value))),
       backgroundColor: Colors.black,
     );
   }

@@ -102,13 +102,6 @@ WebServer::WebServer(const ThingRepository& thingRepository,
 
         res->writeHeader("Content-Type", "application/cbor");
         res->end(_database.archivedData(thingId, property.value(), ymd, resolution));
-
-        //auto rawData = _database.rawData(thingId, key.value(), ymd);
-        //auto minuteBuckets = DatabaseUtil::downsample(rawData, min * 60, watts);
-        //auto deltaData = DatabaseUtil::deltaCompress(minuteBuckets);
-        //auto cborData = DatabaseUtil::cborEncode(deltaData);
-        //res->writeHeader("Content-Type", "application/cbor");
-        //res->end((char*)cborData.data(), cborData.size());
     });
 
     _uwsApp->get("/symbols", [this](uWS::HttpResponse<false>* res, uWS::HttpRequest* req) {

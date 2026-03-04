@@ -7,6 +7,7 @@ class HttpService {
   HttpService() {
     if (kDebugMode) {
       _host = "raspberrypi.local";
+      //_host = "localhost";
       _port = 8030;
     } else {
       _host = Uri.base.host;

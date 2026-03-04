@@ -17,6 +17,7 @@ class ChartController extends GetxController {
   Future<void> loadData({
     required String thingId,
     required String propertyId,
+    required DateTime date,
   }) async {
     final currentRequest = ++_requestCounter; // token for cancellation
 
@@ -27,28 +28,28 @@ class ChartController extends GetxController {
       final List<List<FlSpot>> data = await _httpApi.fetchArchivedData(
         thingId,
         propertyId,
-        // yesterdays date (for demo purposes)
-        DateTime.now().subtract(const Duration(days: 1)),
+        date,
       );
 
       // Cancel if a newer request started
       if (currentRequest != _requestCounter) return;
 
       // Update chart with a single line
-      updatePoints(
+      _updatePoints(
           data, [IoticTheme.green, IoticTheme.blue, IoticTheme.orange]);
     } catch (e) {
       // Handle errors gracefully (optional: show snackbar)
       print('Error loading chart data: $e');
-      updatePoints([], []); // Clear chart on error
+      _updatePoints([], []); // Clear chart on error
     } finally {
       if (currentRequest == _requestCounter) {
         isLoading.value = false;
       }
     }
+    update();
   }
 
-  void updatePoints(List<List<FlSpot>> newPoints, List<Color> newColors) {
+  void _updatePoints(List<List<FlSpot>> newPoints, List<Color> newColors) {
     final allSpots = newPoints.expand((e) => e).toList();
 
     final minX = allSpots.isEmpty
@@ -72,8 +73,9 @@ class ChartController extends GetxController {
       ),
       borderData: FlBorderData(show: false),
       minY: 0.0,
-      minX: minX as double,
-      maxX: maxX as double,
+      // begin x at start of day and end at end of day (24h range)
+      minX: (minX ~/ 288) * 288 as double,
+      maxX: ((maxX ~/ 288) + 1) * 288 as double,
       maxY: maxY as double,
       lineBarsData: List.generate(newPoints.length,
           (index) => lineData(newPoints[index], newColors[index])),

@@ -3,9 +3,9 @@
         {
             "name": "Flutter",
             "type": "dart",
+            "flutterMode": "debug", // "debug", "profile", or "release"
             "request": "launch",
             "program": "lib/main.dart",
-            //"args": ["-d", "web-server", "--web-hostname", "0.0.0.0", "--web-port", "8040"],
             "args": ["--web-browser-flag=--disable-web-security"]
         }
     ]

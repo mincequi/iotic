@@ -95,10 +95,7 @@ class ThingSlider extends StatelessWidget {
                   child: const Text("PV OFFSET",
                       textAlign: TextAlign.right,
                       style: TextStyle(
-                          letterSpacing: -2.0,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.black))),
+                          letterSpacing: -2.0, fontSize: 16, fontWeight: FontWeight.w900, color: Colors.black))),
             ),
             SliderTheme(
                 data: SliderTheme.of(context).copyWith(
@@ -123,8 +120,7 @@ class ThingSlider extends StatelessWidget {
                     //label: _offsets[_control.offset.value!.toInt()],
                     onChanged: (value) {
                       _control.offset.value = value.round();
-                      _repo.sendThingPropertyValue(
-                          _id, ThingPropertyKey.offset, value);
+                      _repo.sendThingPropertyValue(_id, ThingPropertyKey.offset, value);
                     }))
           ]))
       : Container());

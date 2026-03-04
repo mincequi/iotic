@@ -2,6 +2,8 @@ import 'dart:typed_data';
 import 'package:fl_chart/fl_chart.dart';
 
 List<List<FlSpot>> decodeArchivedData(Uint8List bytes) {
+  // Decode CBOR arrays of integers
+  // Decode delta-encoded data
   final arrays = <List<int>>[];
   int offset = 0;
 
@@ -27,18 +29,42 @@ List<List<FlSpot>> decodeArchivedData(Uint8List bytes) {
   }
 
   if (arrays.isEmpty) return [];
+  final timestamps = arrays.first;
+  if (timestamps.isEmpty) return [];
 
-  // build FlSpot series
-  final ts = arrays.first;
-  final len = ts.length;
-  return [
-    for (int s = 1; s < arrays.length; s++)
-      List<FlSpot>.generate(
-        len,
-        (i) => FlSpot((ts[i] - ts[0]).toDouble(), arrays[s][i].toDouble()),
-        growable: false,
-      )
-  ];
+  // Convert to FlSpot lists for charting
+  const slotsPerDay = 288;
+
+  final dayStart = (timestamps.first ~/ slotsPerDay) * slotsPerDay;
+
+  final result = <List<FlSpot>>[];
+
+  // Iterate arrays of values
+  for (int s = 1; s < arrays.length; s++) {
+    final values = arrays[s];
+    final spots = List<FlSpot>.filled(slotsPerDay, const FlSpot(0, 0), growable: false);
+
+    int srcIndex = 0;
+    double lastY = 0;
+
+    for (int i = 0; i < slotsPerDay; i++) {
+      final slot = dayStart + i;
+
+      if (srcIndex < timestamps.length && timestamps[srcIndex] == slot) {
+        lastY = values[srcIndex].toDouble();
+        srcIndex++;
+      } else if (srcIndex >= timestamps.length) {
+        // No more data points, fill with 0
+        lastY = 0;
+      }
+
+      spots[i] = FlSpot(i.toDouble(), lastY);
+    }
+
+    result.add(spots);
+  }
+
+  return result;
 }
 
 /// Reads CBOR length (for arrays)

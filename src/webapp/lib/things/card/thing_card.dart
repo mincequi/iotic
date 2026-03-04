@@ -42,20 +42,17 @@ class ThingCard extends StatelessWidget {
               color: IoticTheme.other,
             )),
           ),
-          title: titleWidget(),
+          title: titleWidget(context),
           //Text(_control.name.value),
-          subtitle: _controller.hasSubtitle.value
-              ? ThingCardSubtitle(controller: _controller)
-              : null,
-          trailing: ThingCardTrailingWidgets(_id,
-              isPinnedCard: isPinnedCard, controller: _controller),
+          subtitle: _controller.hasSubtitle.value ? ThingCardSubtitle(controller: _controller) : null,
+          trailing: ThingCardTrailingWidgets(_id, isPinnedCard: isPinnedCard, controller: _controller),
         ),
         isPinnedCard ? ThingSlider(_id) : Container(),
       ]),
     ));
   }
 
-  Widget titleWidget() {
+  Widget titleWidget(BuildContext context) {
     if (_controller.isEditingMode.value) {
       return TextField(
         controller: _editingController,
@@ -65,13 +62,16 @@ class ThingCard extends StatelessWidget {
         },
       );
     } else {
-      return Obx(() => Text(_controller.name.value));
+      return Obx(() => Text(_controller.name.value,
+          style: Theme.of(context)
+              .textTheme
+              .labelMedium
+              ?.copyWith(fontWeight: FontWeight.bold, fontFeatures: const <FontFeature>[FontFeature.enable('smcp')])));
     }
   }
 
   void _saveName() {
-    _repo.sendThingPropertyValue(
-        _id, ThingPropertyKey.name, _editingController.text);
+    _repo.sendThingPropertyValue(_id, ThingPropertyKey.name, _editingController.text);
     _controller.isEditingMode.value = false;
   }
 }

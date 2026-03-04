@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
-import 'package:iotic/common/web_socket_service.dart';
 import 'package:iotic/components/chart_card.dart';
 import 'package:iotic/logs/log_level.dart';
 import 'package:iotic/logs/log_service.dart';
@@ -17,15 +16,10 @@ class LogsPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-            //height: 266,
-            height: 194,
-            width: double.infinity,
-            child: ChartCard()),
+        ChartCard(),
         const Padding(
           padding: EdgeInsets.symmetric(vertical: 0),
-          child:
-              Text("Site", style: TextStyle(fontSize: 8, color: Colors.white)),
+          child: Text("Site", style: TextStyle(fontSize: 8, color: Colors.white)),
         ),
         Obx(
           () {
@@ -38,13 +32,10 @@ class LogsPage extends StatelessWidget {
               itemBuilder: (context, index) {
                 var log = _logService.siteProperties.keys.elementAt(index) +
                     ": " +
-                    _logService.siteProperties.values
-                        .elementAt(index)
-                        .toString();
+                    _logService.siteProperties.values.elementAt(index).toString();
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 0),
-                  child: Text(log,
-                      style: const TextStyle(fontSize: 8, color: Colors.white)),
+                  child: Text(log, style: const TextStyle(fontSize: 8, color: Colors.white)),
                 );
               },
             );
@@ -52,10 +43,8 @@ class LogsPage extends StatelessWidget {
         ),
         Expanded(child: Obx(
           () {
-            final filteredLogs = _logService.logs
-                .where((logEntry) =>
-                    _logService.selectedLevels.contains(logEntry.level))
-                .toList();
+            final filteredLogs =
+                _logService.logs.where((logEntry) => _logService.selectedLevels.contains(logEntry.level)).toList();
             return ListView.builder(
               padding: EdgeInsets.zero, // Remove padding
               physics: const RangeMaintainingScrollPhysics(),

@@ -15,11 +15,7 @@ class SitePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      SizedBox(
-          //height: 266,
-          height: 194,
-          width: double.infinity,
-          child: SiteCard()),
+      SiteCard(),
       Expanded(
           child: Obx(() => ListView.builder(
                 itemCount: _controller.thingCount.value,

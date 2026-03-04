@@ -68,7 +68,7 @@ class WebSocketService with WidgetsBindingObserver {
   void _connect(bool doDisconnect) {
     if (kDebugMode) {
       _host = "raspberrypi.local";
-      //final _host = "localhost";
+      //_host = "localhost";
       _port = 8030;
     }
 
