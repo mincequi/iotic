@@ -3,8 +3,8 @@ import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:iotic/things/data/thing_properties.dart';
+import 'package:iotic/things/data/thing_service.dart';
 
-import '../common/web_socket_service.dart';
 import '../things/data/thing_property.dart';
 
 class SitePageController extends GetxController {
@@ -33,5 +33,5 @@ class SitePageController extends GetxController {
     super.onClose();
   }
 
-  final WebSocketService _dataSource = Get.find<WebSocketService>();
+  final ThingService _dataSource = Get.find<ThingService>();
 }

@@ -2,8 +2,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
-
-import '../common/web_socket_service.dart';
+import 'package:iotic/things/data/thing_service.dart';
 
 class ThingsPageController extends GetxController {
   final thingCount = 0.obs;
@@ -24,5 +23,5 @@ class ThingsPageController extends GetxController {
     super.onClose();
   }
 
-  final WebSocketService _repo = Get.find<WebSocketService>();
+  final ThingService _repo = Get.find<ThingService>();
 }

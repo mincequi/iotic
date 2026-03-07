@@ -11,10 +11,9 @@ import 'package:iotic/things/data/rx_properties.dart';
 import 'package:iotic/things/data/thing_key.dart';
 import 'package:iotic/things/data/thing_properties.dart';
 import 'package:iotic/things/data/thing_property.dart';
+import 'package:iotic/things/data/thing_service.dart';
 
-class PreviewDataSource
-    with WidgetsBindingObserver
-    implements WebSocketService {
+class PreviewDataSource with WidgetsBindingObserver implements WebSocketService {
   @override
   void dispose() {
     // TODO: implement dispose
@@ -35,8 +34,7 @@ class PreviewDataSource
   }
 
   @override
-  void sendThingPropertyValue(
-      String thingId, ThingPropertyKey property, value) {
+  void sendThingPropertyValue(String thingId, ThingPropertyKey property, value) {
     // TODO: implement sendThingPropertyValue
   }
 
@@ -72,15 +70,11 @@ class PreviewDataSource
         // Increment energy by 0.1 kWh
         things["thing_$i"]!.properties[ThingPropertyKey.energy] =
             (things["thing_$i"]!.properties[ThingPropertyKey.energy] ?? 0) + 13;
-        things["thing_$i"]!.properties[ThingPropertyKey.digitalInput] =
-            List<bool>.generate(
+        things["thing_$i"]!.properties[ThingPropertyKey.digitalInput] = List<bool>.generate(
           3,
-          (index) =>
-              (things["thing_$i"]!.properties[ThingPropertyKey.digitalInput]
-                          as List<bool>?)?[index] ==
-                      true
-                  ? false
-                  : true,
+          (index) => (things["thing_$i"]!.properties[ThingPropertyKey.digitalInput] as List<bool>?)?[index] == true
+              ? false
+              : true,
         );
       }
       things.refresh();
@@ -97,16 +91,12 @@ class PreviewDataSource
     thingProperties.properties[ThingPropertyKey.icon] = Icons.device_hub;
     thingProperties.properties[ThingPropertyKey.energy] = id;
     thingProperties.properties[ThingPropertyKey.power] = id;
-    thingProperties.properties[ThingPropertyKey.multistateSelector] = [
-      true,
-      false,
-      true
-    ];
-    thingProperties.properties[ThingPropertyKey.digitalInput] = [
-      false,
-      false,
-      false
-    ];
+    thingProperties.properties[ThingPropertyKey.multistateSelector] = [true, false, true];
+    thingProperties.properties[ThingPropertyKey.digitalInput] = [false, false, false];
     return thingProperties;
   }
+
+  @override
+  // TODO: implement thingService
+  ThingService get thingService => throw UnimplementedError();
 }

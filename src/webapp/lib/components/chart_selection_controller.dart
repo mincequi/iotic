@@ -1,17 +1,17 @@
 import 'package:get/get.dart';
-import 'package:iotic/common/web_socket_service.dart';
 import 'package:iotic/components/chart_controller.dart';
 import 'package:iotic/components/dropdown.dart';
 import 'package:iotic/things/data/thing_property.dart';
+import 'package:iotic/things/data/thing_service.dart';
 
 class ChartSelectionController extends GetxController {
-  final WebSocketService _webSocketDataSource = Get.find();
+  final ThingService _thingService = Get.find();
   final ChartController chartController;
 
   ChartSelectionController(this.chartController);
 
   // Only include things that have properties power or dcPower
-  late final List<DropdownItem> things = _webSocketDataSource.things.entries
+  late final List<DropdownItem> things = _thingService.things.entries
       .map((entry) {
         if (!(entry.value.properties.containsKey(ThingPropertyKey.power) ||
             entry.value.properties.containsKey(ThingPropertyKey.dcPower))) {
@@ -19,8 +19,7 @@ class ChartSelectionController extends GetxController {
         }
         return DropdownItem(
           id: entry.key,
-          name: entry.value.properties[ThingPropertyKey.name]?.toString() ??
-              entry.key,
+          name: entry.value.properties[ThingPropertyKey.name]?.toString() ?? entry.key,
         );
       })
       .whereType<DropdownItem>()
@@ -32,8 +31,7 @@ class ChartSelectionController extends GetxController {
 
   final selectedProperty = Rx<DropdownItem?>(null);
 
-  final selectedDate =
-      Rx<DateTime>(DateTime.now().subtract(const Duration(days: 1)));
+  final selectedDate = Rx<DateTime>(DateTime.now().subtract(const Duration(days: 1)));
 
   void stepDate(int days) {
     selectedDate.value = selectedDate.value.add(Duration(days: days));
@@ -64,13 +62,11 @@ class ChartSelectionController extends GetxController {
     debounce<Map<String, String>>(
       combinedSelection,
       (value) {
-        if (value != null) {
-          chartController.loadData(
-            thingId: value['thingId']!,
-            propertyId: value['propertyId']!,
-            date: selectedDate.value,
-          );
-        }
+        chartController.loadData(
+          thingId: value['thingId']!,
+          propertyId: value['propertyId']!,
+          date: selectedDate.value,
+        );
       },
       time: const Duration(milliseconds: 100),
     );
@@ -78,13 +74,11 @@ class ChartSelectionController extends GetxController {
     ever(selectedThing, (DropdownItem? thing) {
       if (thing == null) return;
 
-      final thingData = _webSocketDataSource.things[thing.id];
+      final thingData = _thingService.things[thing.id];
       if (thingData == null) return;
 
       final newProperties = thingData.properties.entries
-          .where((entry) =>
-              entry.key == ThingPropertyKey.power ||
-              entry.key == ThingPropertyKey.dcPower)
+          .where((entry) => entry.key == ThingPropertyKey.power || entry.key == ThingPropertyKey.dcPower)
           .map((entry) => DropdownItem(
                 id: entry.key.name,
                 name: entry.key.name,

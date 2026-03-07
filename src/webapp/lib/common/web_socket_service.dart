@@ -13,12 +13,13 @@ import 'package:iotic/things/data/thing_property.dart';
 import 'package:iotic/site/card/data/site_data_historic.dart';
 import 'package:iotic/site/card/data/site_data_live.dart';
 import 'package:iotic/common/web_socket_handler.dart';
+import 'package:iotic/things/data/thing_service.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class WebSocketService with WidgetsBindingObserver {
+  final thingService = Get.find<ThingService>();
   final siteDataLive = SiteDataLive(0, 0, 0, 0).obs;
   final siteDataHistoric = SiteDataHistoric.empty().obs;
-  final things = <String, ThingProperties>{}.obs;
   final settings = RxMap<ThingKey, RxProperties>();
 
   final LogService logger = Get.find();
@@ -44,8 +45,7 @@ class WebSocketService with WidgetsBindingObserver {
     _handlers.add(handler);
   }
 
-  void sendThingPropertyValue(
-      String thingId, ThingPropertyKey property, dynamic value) {
+  void sendThingPropertyValue(String thingId, ThingPropertyKey property, dynamic value) {
     _channel.sink.add(jsonEncode({
       thingId: {property.name: value}
     }));
@@ -150,8 +150,7 @@ class WebSocketService with WidgetsBindingObserver {
           siteDataHistoric.value.ts.last,
           siteDataHistoric.value.pvPower.last,
           siteDataHistoric.value.gridPower.last,
-          -siteDataHistoric.value.pvPower.last -
-              siteDataHistoric.value.gridPower.last);
+          -siteDataHistoric.value.pvPower.last - siteDataHistoric.value.gridPower.last);
       return true;
     }
 
@@ -189,16 +188,16 @@ class WebSocketService with WidgetsBindingObserver {
   }
 
   void _parseThing(MapEntry<String, dynamic> entry) {
-    if (!things.containsKey(entry.key)) {
+    if (!thingService.things.containsKey(entry.key)) {
       // Assigning implicitly refresh
-      things[entry.key] = ThingProperties.fromMap(entry.value);
+      thingService.things[entry.key] = ThingProperties.fromMap(entry.value);
       return;
     }
 
     ThingProperties.fromMap(entry.value).properties.forEach((key, value) {
-      things[entry.key]?.properties[key] = value;
+      thingService.things[entry.key]?.properties[key] = value;
     });
     // TODO: is this needed?
-    things.refresh();
+    thingService.things.refresh();
   }
 }

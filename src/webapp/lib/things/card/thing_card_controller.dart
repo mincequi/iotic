@@ -3,7 +3,7 @@ import 'package:get/get_core/get_core.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:iotic/common/web_socket_service.dart';
+import 'package:iotic/things/data/thing_service.dart';
 
 import '../data/thing_properties.dart';
 import '../data/thing_property.dart';
@@ -13,7 +13,7 @@ class ThingCardController extends GetxController {
   ThingCardController(this._id);
   final String _id;
 
-  final WebSocketService _dataSource = Get.find<WebSocketService>();
+  final ThingService _dataSource = Get.find<ThingService>();
 
   final name = "".obs;
   String type = "";
@@ -64,8 +64,7 @@ class ThingCardController extends GetxController {
     if (p0 == null) return;
 
     // Name
-    if (p0.containsKey(ThingPropertyKey.name) &&
-        p0[ThingPropertyKey.name].toString().isNotEmpty) {
+    if (p0.containsKey(ThingPropertyKey.name) && p0[ThingPropertyKey.name].toString().isNotEmpty) {
       name.value = p0[ThingPropertyKey.name];
     } else {
       name.value = _id;
@@ -76,13 +75,11 @@ class ThingCardController extends GetxController {
     }
     // multistateSelector
     if (p0.containsKey(ThingPropertyKey.multistateSelector)) {
-      multistateSelector.value =
-          (p0[ThingPropertyKey.multistateSelector] as List?)?.cast<bool>();
+      multistateSelector.value = (p0[ThingPropertyKey.multistateSelector] as List?)?.cast<bool>();
     }
     // digitalInout
     if (p0.containsKey(ThingPropertyKey.digitalInput)) {
-      digitalInput.value =
-          (p0[ThingPropertyKey.digitalInput] as List?)?.cast<bool>();
+      digitalInput.value = (p0[ThingPropertyKey.digitalInput] as List?)?.cast<bool>();
     }
     // dcPower
     if (p0.containsKey(ThingPropertyKey.dcPower)) {
@@ -101,8 +98,7 @@ class ThingCardController extends GetxController {
         dcEnergy.add(RxDouble(0));
       }
       for (int i = 0; i < (p0[ThingPropertyKey.dcEnergy] as List).length; i++) {
-        dcEnergy[i].value =
-            (p0[ThingPropertyKey.dcEnergy] as List)[i].toDouble() / 60.0;
+        dcEnergy[i].value = (p0[ThingPropertyKey.dcEnergy] as List)[i].toDouble() / 60.0;
       }
     }
 
@@ -142,10 +138,7 @@ class ThingCardController extends GetxController {
       energy!.value = (p0[ThingPropertyKey.energy] as num).toDouble() / 60.0;
     }
 
-    hasSubtitle.value = power.value != null ||
-        temperature.value != null ||
-        energy != null ||
-        dcEnergy.isNotEmpty;
+    hasSubtitle.value = power.value != null || temperature.value != null || energy != null || dcEnergy.isNotEmpty;
   }
 
   static final Map<String?, IconData> _typeToIcon = {

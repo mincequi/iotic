@@ -20,9 +20,9 @@ class RulesPageController extends GetxController {
 
   void _mapThingsToRules() {
     final List<Rule> tempList = [];
-    _thingService.things.forEach((key, thing) {
+    _thingService.thingsList.forEach((thing) {
       // Check if thing is already in rules
-      if (rules.value.containsKey(key)) {
+      if (rules.value.containsKey(thing.id)) {
         return;
       }
 
@@ -32,9 +32,7 @@ class RulesPageController extends GetxController {
         return;
       }
 
-      rules.value[key] = Rule(
-          thingId: key,
-          name: thing.name.value.isEmpty ? key : thing.name.value);
+      rules.value[thing.id] = Rule(thingId: thing.id, name: thing.name.value.isEmpty ? thing.id : thing.name.value);
     });
 
     //rules.assignAll(tempList);

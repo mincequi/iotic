@@ -4,6 +4,7 @@ import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:iotic/logs/log_service.dart';
 import 'package:iotic/site/card/data/site_repository.dart';
+import 'package:iotic/things/data/thing_service.dart';
 
 import 'home_page.dart';
 import 'common/iotic_theme.dart';
@@ -13,6 +14,7 @@ import 'common/web_socket_service.dart';
 void main() async {
   // Init LoggingService first since it is potentially used by any other component
   Get.put(LogService());
+  Get.put(ThingService());
   // Init the WebSocketDataSource and its dependencees
   Get.put(WebSocketService());
   Get.put(SiteRepository(Get.find<WebSocketService>()));

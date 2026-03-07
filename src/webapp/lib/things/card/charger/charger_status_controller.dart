@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:iotic/things/card/thing_card_controller.dart';
 import 'package:iotic/things/data/thing_properties.dart';
 import 'package:iotic/things/data/thing_property.dart';
-import 'package:iotic/common/web_socket_service.dart';
+import 'package:iotic/things/data/thing_service.dart';
 
 enum ChargerPhase { off, switchingOn, on, switchingOff }
 
@@ -13,7 +13,7 @@ class ChargerStatusController extends GetxController {
   ChargerStatusController(this._id);
 
   final String _id;
-  final WebSocketService _repo = Get.find<WebSocketService>();
+  final ThingService _repo = Get.find<ThingService>();
   late final _thingControl = Get.find<ThingCardController>(tag: _id);
 
   // Off -> OnePhase  // PhaseOneSwitchingOn
@@ -76,8 +76,7 @@ class ChargerStatusController extends GetxController {
 
     _phasesCount = p0[ThingPropertyKey.phases] ?? _phasesCount;
     _nextPhasesCount = p0[ThingPropertyKey.next_phases] ?? _nextPhasesCount;
-    _backendCountdown.value =
-        p0[ThingPropertyKey.countdown] ?? _backendCountdown.value;
+    _backendCountdown.value = p0[ThingPropertyKey.countdown] ?? _backendCountdown.value;
   }
 
   void _update(int curr, int next) {
@@ -125,13 +124,9 @@ class ChargerStatusController extends GetxController {
     }
 
     isPhaseOneOn.value = (phaseOne == ChargerPhase.on) ||
-        ((phaseOne == ChargerPhase.switchingOn ||
-                phaseOne == ChargerPhase.switchingOff) &&
-            _isTimedOn.value);
+        ((phaseOne == ChargerPhase.switchingOn || phaseOne == ChargerPhase.switchingOff) && _isTimedOn.value);
     isPhaseTwoThreeOn.value = (phaseTwoThree == ChargerPhase.on) ||
-        ((phaseTwoThree == ChargerPhase.switchingOn ||
-                phaseTwoThree == ChargerPhase.switchingOff) &&
-            _isTimedOn.value);
+        ((phaseTwoThree == ChargerPhase.switchingOn || phaseTwoThree == ChargerPhase.switchingOff) && _isTimedOn.value);
 
     if (phaseOne == ChargerPhase.switchingOff) {
       if (_isTimedOn.value) {
@@ -170,8 +165,7 @@ class ChargerStatusController extends GetxController {
     int minutes = seconds ~/ 60;
     int remainingSeconds = seconds % 60;
     String minutesStr = (minutes < 10) ? '$minutes' : '$minutes';
-    String secondsStr =
-        (remainingSeconds < 10) ? '0$remainingSeconds' : '$remainingSeconds';
+    String secondsStr = (remainingSeconds < 10) ? '0$remainingSeconds' : '$remainingSeconds';
     return '$minutesStr:$secondsStr ';
   }
 }
