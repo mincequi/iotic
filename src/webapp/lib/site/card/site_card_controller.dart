@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:get/get_core/get_core.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
+import 'package:iotic/components/chart_util.dart';
 import 'package:iotic/site/card/data/site_service.dart';
 
 class SiteCardController extends GetxController {
@@ -13,9 +14,12 @@ class SiteCardController extends GetxController {
   var maxX = 0.0;
   var isFollowing = true;
 
-  double maxY() {
-    final i = lowerBound(service.pvPoints.map((e) => e.x).toList(), minX,
-        compare: (double s, double t) {
+  (num, int) zoomLevel_() {
+    return zoomLevel(_maxY().toInt());
+  }
+
+  double _maxY() {
+    final i = lowerBound(service.pvPoints.map((e) => e.x).toList(), minX, compare: (double s, double t) {
       if (s < t)
         return -1;
       else if (s > t)
@@ -23,8 +27,7 @@ class SiteCardController extends GetxController {
       else
         return 0;
     });
-    final j = lowerBound(service.pvPoints.map((e) => e.x).toList(), maxX,
-        compare: (double s, double t) {
+    final j = lowerBound(service.pvPoints.map((e) => e.x).toList(), maxX, compare: (double s, double t) {
       if (s <= t)
         return -1;
       else if (s > t)
@@ -33,17 +36,9 @@ class SiteCardController extends GetxController {
         return 0;
     });
     return (i < j
-            ? math.max(
-                service.pvPoints
-                    .getRange(i, j)
-                    .reduce((curr, next) => (curr.y > next.y) ? curr : next)
-                    .y,
-                service.sitePoints
-                    .getRange(i, j)
-                    .reduce((curr, next) => (curr.y > next.y) ? curr : next)
-                    .y)
-            : math.max(service.pvPoints[i].x, service.sitePoints[i].x)) *
-        1.05;
+        ? math.max(service.pvPoints.getRange(i, j).reduce((curr, next) => (curr.y > next.y) ? curr : next).y,
+            service.sitePoints.getRange(i, j).reduce((curr, next) => (curr.y > next.y) ? curr : next).y)
+        : math.max(service.pvPoints[i].x, service.sitePoints[i].x)); // * 1.05;
   }
 
   void drag(double dx) {
@@ -57,8 +52,7 @@ class SiteCardController extends GetxController {
     }
 
     if (minX < service.pvPoints.first.x) {
-      service.requestSiteDataHistoric(
-          minX.toInt() - 120, service.pvPoints.first.x.toInt());
+      service.requestSiteDataHistoric(minX.toInt() - 120, service.pvPoints.first.x.toInt());
     }
     update();
   }

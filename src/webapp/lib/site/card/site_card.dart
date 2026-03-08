@@ -30,8 +30,7 @@ class SiteCard extends StatelessWidget {
                             },
                             child: LineChart(
                                 LineChartData(
-                                  lineTouchData:
-                                      const LineTouchData(enabled: false),
+                                  lineTouchData: const LineTouchData(enabled: false),
                                   clipData: const FlClipData.horizontal(),
                                   gridData: const FlGridData(show: false),
                                   titlesData: const FlTitlesData(
@@ -39,24 +38,19 @@ class SiteCard extends StatelessWidget {
                                   ),
                                   borderData: FlBorderData(show: false),
                                   minY: 15.0,
-                                  maxY: control2.maxY(),
+                                  maxY: control2.zoomLevel_().$1.toDouble(),
                                   minX: control2.minX,
                                   maxX: control2.maxX,
                                   lineBarsData: [
-                                    lineData(
-                                        control.pvPoints,
-                                        Theme.of(context)
-                                            .colorScheme
-                                            .secondary),
-                                    lineData(control.sitePoints,
-                                        Theme.of(context).colorScheme.primary),
-                                    lineData(control.gridPoints,
-                                        Theme.of(context).colorScheme.tertiary)
+                                    lineData(control.pvPoints, Theme.of(context).colorScheme.secondary),
+                                    lineData(control.sitePoints, Theme.of(context).colorScheme.primary),
+                                    lineData(control.gridPoints, Theme.of(context).colorScheme.tertiary)
                                   ],
+                                  extraLinesData: ExtraLinesData(
+                                    horizontalLines: horizontalLines(control2.zoomLevel_()),
+                                  ),
                                 ),
-                                duration: control2.isFollowing
-                                    ? const Duration(milliseconds: 300)
-                                    : Duration.zero))
+                                duration: control2.isFollowing ? const Duration(milliseconds: 300) : Duration.zero))
                         : Container()),
               ])),
           const Align(alignment: Alignment.topRight, child: SiteReadouts())

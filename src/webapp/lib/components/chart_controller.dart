@@ -1,15 +1,13 @@
-import 'dart:math';
-import 'dart:ui' show Color;
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:iotic/common/http_service.dart';
 import 'package:iotic/common/iotic_theme.dart';
 import 'package:iotic/components/chart_util.dart';
 import 'package:iotic/things/data/thing_property.dart';
 import 'package:iotic/things/data/thing_service.dart';
+import 'package:solar_calculator/solar_calculator.dart';
 
 class ChartController extends GetxController {
   final chartData = Rx<LineChartData>(LineChartData());
@@ -19,11 +17,41 @@ class ChartController extends GetxController {
   final HttpService _httpApi = HttpService();
   final ThingService _thingService = Get.find<ThingService>();
 
+  Future<Position> getLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      throw Exception("Location services disabled");
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    return await Geolocator.getCurrentPosition();
+  }
+
+  Position? _position;
+  late DateTime _lastDate;
+
+  @override
+  void onInit() {
+    super.onInit();
+    getLocation().then((position) {
+      _position = position;
+    }).catchError((error) {
+      // Handle location errors here if needed
+      _position = null;
+    });
+  } // Handle location errors here if needed
+
   Future<void> loadData({
     required String thingId,
     required String propertyId,
     required DateTime date,
   }) async {
+    _lastDate = date;
+
     final currentRequest = ++_requestCounter;
 
     try {
@@ -122,7 +150,8 @@ class ChartController extends GetxController {
 
     final maxY = allSpots.isEmpty ? 0 : allSpots.map((e) => e.y).reduce((a, b) => a > b ? a : b);
 
-    final zoomLevelResult = zoomLevel(maxY as int);
+    // compute zoom level and multiply first value by 10
+    final zoomLevelResult = zoomLevel(maxY.toInt());
 
     chartData.value = LineChartData(
       lineTouchData: const LineTouchData(enabled: false),
@@ -139,50 +168,45 @@ class ChartController extends GetxController {
       maxY: zoomLevelResult.$1.toDouble(),
       lineBarsData: List.generate(newPoints.length, (index) => lineData(newPoints[index], newColors[index])),
       extraLinesData: ExtraLinesData(
-        horizontalLines: List.generate(zoomLevelResult.$2, (index) {
-          final y = zoomLevelResult.$1 / zoomLevelResult.$2 * (index + 1);
-          return HorizontalLine(
-            y: y,
-            color: IoticTheme.other,
-            strokeWidth: 0.2,
-            label: HorizontalLineLabel(
-              show: true,
-              alignment: Alignment.bottomRight,
-              padding: const EdgeInsets.only(right: 3, top: 0),
-              style: const TextStyle(
-                color: IoticTheme.other,
-                fontSize: 10,
-                fontWeight: FontWeight.normal,
-              ),
-              labelResolver: (line) => "${(y / 100).toStringAsFixed(0)} kW",
-            ),
-          );
-        }),
+        horizontalLines: horizontalLines(zoomLevelResult, factor: 10),
+        verticalLines: _position == null
+            ? []
+            : [
+                VerticalLine(
+                  x: _noonToX(_lastDate, _position?.latitude ?? 0, _position?.longitude ?? 0),
+                  color: IoticTheme.other,
+                  strokeWidth: 0.2,
+                  label: VerticalLineLabel(
+                    show: true,
+                    alignment: Alignment.bottomRight,
+                    padding: const EdgeInsets.only(left: 3, bottom: 3),
+                    style: const TextStyle(fontSize: 10, color: IoticTheme.other),
+                    labelResolver: (line) => formatTime(line.x),
+                  ),
+                )
+              ],
       ),
     );
   }
 
-  List<(int, int)> zoomLevels = [
-    (10, 5),
-    (12, 4),
-    (15, 5),
-    (20, 4),
-    (25, 5),
-    (30, 5),
-    (40, 4),
-    (50, 5),
-    (60, 4),
-    (80, 4),
-  ];
+  double _noonToX(DateTime date, double latitude, double longitude) {
+    Instant now = Instant.fromDateTime(date.toUtc());
+    SolarCalculator solarCalc = SolarCalculator(now, latitude, longitude);
+    double minute =
+        (solarCalc.sunTransitTime.hour * 60 + solarCalc.sunTransitTime.minute + solarCalc.sunTransitTime.second / 60) /
+            5;
+    return minute;
+  }
 
-  (num, int) zoomLevel(int maxY) {
-    for (int i = 1; i <= 2; i++) {
-      for (var (threshold, lines) in zoomLevels) {
-        if (maxY < threshold * pow(10, i)) {
-          return (threshold * pow(10, i), lines);
-        }
-      }
-    }
-    return (maxY.toDouble(), 5);
+  String formatTime(double x) {
+    int totalMinutes = (x * 5).toInt();
+    // Convert from UTC to local time by adding the timezone offset
+    DateTime now = DateTime.now();
+    int timezoneOffsetMinutes = now.timeZoneOffset.inMinutes;
+    int localTotalMinutes = (totalMinutes + timezoneOffsetMinutes) % (24 * 60);
+    int hours = localTotalMinutes ~/ 60;
+    int minutes = localTotalMinutes % 60;
+
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
   }
 }
