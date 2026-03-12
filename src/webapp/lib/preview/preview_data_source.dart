@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
-import 'package:iotic/common/web_socket_service.dart';
-import 'package:iotic/common/web_socket_handler.dart';
+import 'package:iotic/io/web_socket_service.dart';
+import 'package:iotic/io/web_socket_handler.dart';
 import 'package:iotic/logs/log_service.dart';
 import 'package:iotic/site/card/data/site_data_historic.dart';
 import 'package:iotic/site/card/data/site_data_live.dart';

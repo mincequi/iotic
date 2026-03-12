@@ -18,6 +18,5 @@ public:
                  const ConfigRepository& cfg);
 
 private:
-    int _lastStepDownTs = 0;
-    int _lastStepUpTs = 0;
+    int _lastStepTs = 0;
 };

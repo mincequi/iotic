@@ -19,6 +19,6 @@ void StrategyRepository::addStrategy(std::shared_ptr<Strategy> strategy) {
 
     // Sort strategies by priority (lowest priority first)
     _strategies.sort([](const auto& a, const auto& b) {
-        return a->priority() < b->priority();
+        return a->priority() > b->priority();
     });
 }

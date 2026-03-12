@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iotic/common/iotic_theme.dart';
-import 'package:iotic/common/web_socket_service.dart';
+import 'package:iotic/io/web_socket_service.dart';
 import 'package:iotic/preview/preview_data_source.dart';
 import 'package:iotic/site/card/data/site_service.dart';
 import 'package:iotic/site/site_page.dart';
@@ -27,10 +27,7 @@ class IoticApp extends StatelessWidget {
             backgroundColor: Colors.transparent,
             title: const Text("this is iotic preview"),
           ),
-          body: SafeArea(
-              child: Padding(
-                  padding: const EdgeInsets.only(left: 8, right: 8),
-                  child: SitePage())),
+          body: SafeArea(child: Padding(padding: const EdgeInsets.only(left: 8, right: 8), child: SitePage())),
           backgroundColor: Colors.black,
         ));
   }

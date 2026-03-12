@@ -21,6 +21,10 @@ class HomeNavigationBar extends StatelessWidget {
           label: 'site',
         ),
         BottomNavigationBarItem(
+          icon: Icon(Icons.history_sharp),
+          label: 'history',
+        ),
+        BottomNavigationBarItem(
           icon: Icon(Icons.library_books),
           label: 'things',
         ),

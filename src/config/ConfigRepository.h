@@ -96,6 +96,7 @@ public:
     static constexpr std::chrono::milliseconds shortTermTau = 10'000ms;
     // After a time of about 3 taus, the output signal has reached about 95% of the size of the input signal.
     // note: we tried 3 minutes before, but that was too long for our use case. Let's try 2 minutes now.
+    // note: with 2 minutes other consumers still switch on, while the wallbox still has headroom for modulation. We might further reduce this.
     static constexpr std::chrono::milliseconds longTermTau = 120'000ms;
     static constexpr int stepUpDebounceSeconds = 180;
     static constexpr int stepDownDebounceSeconds = 120;

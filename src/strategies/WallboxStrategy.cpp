@@ -74,11 +74,11 @@ bool WallboxStrategy::wantsToStepDown(const Site::Properties& siteProperties) co
     }
 
     if (_nextPhases < _phases) {
-        LOG_S(INFO) << this->thingId()
-                    << "> powerOffset: " << _powerOffset
-                    << ", powerControlled: " << powerControlled()
-                    << ", powerMeasured: " << _powerMeasured
-                    << ", powerGridLongTerm: " << siteProperties.longTermGridPower;
+        LOG_S(1) << this->thingId()
+                 << "> powerOffset: " << _powerOffset
+                 << ", powerControlled: " << powerControlled()
+                 << ", powerMeasured: " << _powerMeasured
+                 << ", powerGridLongTerm: " << siteProperties.longTermGridPower;
 
         return true;
     }
@@ -96,11 +96,11 @@ bool WallboxStrategy::wantsToStepUp(const Site::Properties& siteProperties) cons
     _nextPhases = computePhases(longTermAvailablePower, true);
 
     if (_nextPhases > _phases) {
-        LOG_S(INFO) << this->thingId()
-                    << "> powerOffset: " << _powerOffset
-                    << ", powerControlled: " << powerControlled()
-                    << ", powerMeasured: " << _powerMeasured
-                    << ", powerGridLongTerm: " << siteProperties.longTermGridPower;
+        LOG_S(1) << this->thingId()
+                 << "> powerOffset: " << _powerOffset
+                 << ", powerControlled: " << powerControlled()
+                 << ", powerMeasured: " << _powerMeasured
+                 << ", powerGridLongTerm: " << siteProperties.longTermGridPower;
 
         return true;
     }

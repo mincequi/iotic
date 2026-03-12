@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iotic/common/iotic_theme.dart';
 
-import '../../common/web_socket_service.dart';
+import '../../io/web_socket_service.dart';
 import '../data/thing_property.dart';
 import 'thing_card_controller.dart';
 import 'thing_slider_thumb.dart';

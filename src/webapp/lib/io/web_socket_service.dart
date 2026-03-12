@@ -12,7 +12,7 @@ import 'package:iotic/things/data/thing_properties.dart';
 import 'package:iotic/things/data/thing_property.dart';
 import 'package:iotic/site/card/data/site_data_historic.dart';
 import 'package:iotic/site/card/data/site_data_live.dart';
-import 'package:iotic/common/web_socket_handler.dart';
+import 'package:iotic/io/web_socket_handler.dart';
 import 'package:iotic/things/data/thing_service.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 

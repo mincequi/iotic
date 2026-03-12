@@ -2,7 +2,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
-import 'package:iotic/common/web_socket_service.dart';
+import 'package:iotic/io/web_socket_service.dart';
 import 'package:iotic/things/data/thing_key.dart';
 
 class SettingsPageController extends GetxController {

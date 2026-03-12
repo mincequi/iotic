@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:iotic/common/cbor_decoder.dart';
+import 'package:iotic/io/cbor_decoder.dart';
 
 class HttpService {
   HttpService() {
@@ -19,11 +19,10 @@ class HttpService {
   late int _port;
   final _httpClient = http.Client();
 
-  Future<List<List<FlSpot>>> fetchArchivedData(
-      String thingId, String propertyId, DateTime date) async {
+  Future<List<List<FlSpot>>> fetchArchivedData(String thingId, String propertyId, DateTime date) async {
     final uri = _buildUri(thingId, propertyId, date);
     final bytes = await _fetchBytes(uri);
-    final data = decodeArchivedData(bytes);
+    var data = decodeArchivedData(bytes);
     return data;
   }
 
@@ -34,8 +33,7 @@ class HttpService {
 
     final formatted = '$y-$m-$d';
 
-    return Uri.parse(
-        'http://$_host:$_port/database/$thingId/$propertyId/$formatted');
+    return Uri.parse('http://$_host:$_port/database/$thingId/$propertyId/$formatted');
   }
 
   Future<Uint8List> _fetchBytes(Uri uri) async {

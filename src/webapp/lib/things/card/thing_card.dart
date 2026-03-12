@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:icon_decoration/icon_decoration.dart';
 import 'package:iotic/common/iotic_theme.dart';
 import 'package:iotic/things/card/thing_card_trailing_widgets.dart';
-import '../../common/web_socket_service.dart';
+import '../../io/web_socket_service.dart';
 import '../data/thing_property.dart';
 import 'thing_card_controller.dart';
 import 'thing_card_subtitle.dart';

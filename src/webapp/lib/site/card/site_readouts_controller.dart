@@ -4,7 +4,7 @@ import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:iotic/common/web_socket_service.dart';
+import 'package:iotic/io/web_socket_service.dart';
 import 'package:iotic/common/iotic_theme.dart';
 
 class SiteReadoutsController extends GetxController {
@@ -12,17 +12,13 @@ class SiteReadoutsController extends GetxController {
 
   final pvPower = 0.obs;
   Color pvColor() {
-    return pvPower.value > 0
-        ? Theme.of(Get.context!).colorScheme.secondary
-        : Theme.of(Get.context!).dividerColor;
+    return pvPower.value > 0 ? Theme.of(Get.context!).colorScheme.secondary : Theme.of(Get.context!).dividerColor;
   }
 
   final sitePower = 0.obs;
   final gridPower = 0.obs;
   Color gridColor() {
-    return gridPower.value >= 0
-        ? Theme.of(Get.context!).colorScheme.tertiary
-        : IoticTheme.blue;
+    return gridPower.value >= 0 ? Theme.of(Get.context!).colorScheme.tertiary : IoticTheme.blue;
   }
 
   @override

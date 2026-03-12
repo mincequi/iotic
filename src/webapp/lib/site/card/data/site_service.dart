@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:get/get.dart';
-import 'package:iotic/common/web_socket_service.dart';
+import 'package:iotic/io/web_socket_service.dart';
 
 class SiteService extends GetxService {
   var pvPoints = List<FlSpot>.empty(growable: true);
@@ -29,8 +29,7 @@ class SiteService extends GetxService {
       for (var i = 0; i < p0.ts.length; ++i) {
         pv.add(FlSpot(p0.ts[i].toDouble(), p0.pvPower[i].toDouble()));
         grid.add(FlSpot(p0.ts[i].toDouble(), p0.gridPower[i].toDouble()));
-        site.add(FlSpot(p0.ts[i].toDouble(),
-            p0.pvPower[i].toDouble() + p0.gridPower[i].toDouble()));
+        site.add(FlSpot(p0.ts[i].toDouble(), p0.pvPower[i].toDouble() + p0.gridPower[i].toDouble()));
       }
 
       add(pvPoints, pv);

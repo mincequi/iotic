@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get_core/get_core.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
+import 'package:iotic/history/history_page.dart';
 
 import 'home_navigation_bar.dart';
 import 'home_page_controller.dart';
@@ -15,11 +16,10 @@ class Home extends StatelessWidget {
 
   static final _pages = [
     SitePage(),
-    //const Live(),
+    const HistoryPage(),
     ThingsPage(),
     SettingsPage(),
     LogsPage(),
-    //const Historic(),
   ];
 
   @override
