@@ -60,7 +60,7 @@ class _DropdownState extends State<Dropdown> {
               maxHeight: maxHeight, // allow scrolling if too many items
             ),
             child: Card(
-              color: Colors.black.withAlpha(127),
+              //color: Colors.black.withAlpha(127),
               elevation: 4,
               child: ListView(
                 padding: EdgeInsets.zero,
@@ -72,8 +72,7 @@ class _DropdownState extends State<Dropdown> {
                       _closeMenu();
                     },
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       child: Text(
                         item.name ?? item.id,
                         style: const TextStyle(color: Colors.white),
@@ -99,15 +98,13 @@ class _DropdownState extends State<Dropdown> {
           const SizedBox(width: 6),
           Text(widget.label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  backgroundColor: Colors.black.withAlpha(127),
+                  //backgroundColor: Colors.black.withAlpha(127),
                   fontWeight: FontWeight.bold,
-                  fontFeatures: const <FontFeature>[
-                    FontFeature.enable('smcp')
-                  ])),
+                  fontFeatures: const <FontFeature>[FontFeature.enable('smcp')])),
           const SizedBox(width: 6),
           Expanded(
             child: Card(
-              color: Colors.black.withAlpha(127),
+              //color: Colors.black.withAlpha(127),
               margin: EdgeInsets.zero,
               child: InkWell(
                 onTap: () {
@@ -122,14 +119,9 @@ class _DropdownState extends State<Dropdown> {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        widget.selected?.name ??
-                            widget.selected?.id ??
-                            "Select",
+                        widget.selected?.name ?? widget.selected?.id ?? "Select",
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.copyWith(color: Colors.white),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white),
                       ),
                     ),
                     const SizedBox(width: 6),

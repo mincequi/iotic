@@ -9,7 +9,7 @@ import 'package:iotic/things/data/thing_service.dart';
 import 'home_page.dart';
 import 'common/iotic_theme.dart';
 import 'site/card/data/site_service.dart';
-import 'common/web_socket_service.dart';
+import 'io/web_socket_service.dart';
 
 void main() async {
   // Init LoggingService first since it is potentially used by any other component

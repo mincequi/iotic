@@ -2,7 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:iotic/common/http_service.dart';
+import 'package:iotic/io/http_service.dart';
 import 'package:iotic/common/iotic_theme.dart';
 import 'package:iotic/components/chart_util.dart';
 import 'package:iotic/things/data/thing_property.dart';
@@ -35,8 +35,11 @@ class ChartController extends GetxController {
   late DateTime _lastDate;
 
   @override
+  // ignore: unnecessary_overrides
   void onInit() {
     super.onInit();
+
+    // TODO: Geolocator needs HTTPs in release mode.
     getLocation().then((position) {
       _position = position;
     }).catchError((error) {
@@ -168,7 +171,7 @@ class ChartController extends GetxController {
       maxY: zoomLevelResult.$1.toDouble(),
       lineBarsData: List.generate(newPoints.length, (index) => lineData(newPoints[index], newColors[index])),
       extraLinesData: ExtraLinesData(
-        horizontalLines: horizontalLines(zoomLevelResult, factor: 10),
+        horizontalLines: horizontalLines(zoomLevelResult),
         verticalLines: _position == null
             ? []
             : [

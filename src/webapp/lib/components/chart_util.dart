@@ -36,19 +36,31 @@ LineChartBarData lineData(List<FlSpot> points, Color color) {
 
 (num, int) zoomLevel(int maxY) {
   final List<(int, int)> _zoomLevels = [
-    (10, 5), // v
-    (12, 4), // v
-    (15, 5), // v
-    (20, 4),
-    (25, 5), // v
-    (30, 5), // v
-    (40, 4), // v
-    (50, 5), // v
-    (60, 4), // v
-    (80, 4), // v
+    (100, 2), // v
+    //(1200, 4), // v
+    (150, 3), // v
+    (200, 2),
+    //(2500, 5), // v
+    (300, 3), // v
+    (400, 2), // v
+    //(5000, 5), // v
+    (600, 3), // v
+    (800, 2), // v
   ];
 
-  for (int i = 1; i <= 2; i++) {
+  // 1,33352143 / R8
+  final List<(int, int)> _zoomLevelsAlt = [
+    (1000, 4), // v
+    (1200, 3), // v
+    (1800, 3), // v
+    (2400, 3), // v
+    (3000, 3), // v
+    (4000, 4), // v
+    (6000, 3), // v
+    (7500, 3), // v
+  ];
+
+  for (int i = 0; i <= 2; i++) {
     for (var (threshold, lines) in _zoomLevels) {
       if (maxY < threshold * pow(10, i)) {
         return (threshold * pow(10, i), lines);
@@ -58,10 +70,8 @@ LineChartBarData lineData(List<FlSpot> points, Color color) {
   return (maxY.toDouble(), 5);
 }
 
-List<HorizontalLine> horizontalLines((num, int) zoomLevelResult, {int factor = 1}) =>
-    List.generate(zoomLevelResult.$2, (index) {
+List<HorizontalLine> horizontalLines((num, int) zoomLevelResult) => List.generate(zoomLevelResult.$2, (index) {
       final y = zoomLevelResult.$1 / zoomLevelResult.$2 * (index + 1);
-      final yReadout = y * factor;
       return HorizontalLine(
         y: y,
         color: IoticTheme.other,
@@ -75,8 +85,9 @@ List<HorizontalLine> horizontalLines((num, int) zoomLevelResult, {int factor = 1
             fontSize: 10,
             fontWeight: FontWeight.normal,
           ),
-          labelResolver: (line) =>
-              yReadout >= 1000 ? "${(yReadout / 1000).toStringAsFixed(0)} kW" : "${yReadout.toStringAsFixed(0)} W",
+          labelResolver: (line) {
+            return y > 1500 ? "${(y / 1000).toStringAsFixed(0)} kW" : "${y.toStringAsFixed(0)} W";
+          },
         ),
       );
     });

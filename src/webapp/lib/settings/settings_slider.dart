@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
-import 'package:iotic/common/web_socket_service.dart';
+import 'package:iotic/io/web_socket_service.dart';
 import 'package:iotic/things/data/thing_key.dart';
 import 'package:iotic/things/data/thing_property.dart';
 
@@ -36,8 +36,7 @@ class SettingsSlider extends StatelessWidget {
               divisions: 9,
               value: _properties?[_property],
               onChanged: (double value) {
-                _repo.sendThingPropertyValue(
-                    _sectionName.name, _property, value);
+                _repo.sendThingPropertyValue(_sectionName.name, _property, value);
               },
             )),
       ]),

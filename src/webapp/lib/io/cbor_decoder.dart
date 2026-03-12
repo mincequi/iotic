@@ -58,7 +58,7 @@ List<List<FlSpot>> decodeArchivedData(Uint8List bytes) {
         lastY = 0;
       }
 
-      spots[i] = FlSpot(i.toDouble(), lastY);
+      spots[i] = FlSpot(i.toDouble(), lastY * 10);
     }
 
     result.add(spots);
