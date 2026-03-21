@@ -227,6 +227,16 @@ std::string Database::stat() const {
     return rfl::json::write(d->_dbEnv.get_stat());
 }
 
+std::map<std::string, uvw_iot::ThingType> Database::things() const {
+    std::map<std::string, uvw_iot::ThingType> result;
+
+    return result;
+}
+
+void Database::addThing(const std::string_view thingId, uvw_iot::ThingType thingType) {
+
+}
+
 std::map<std::string, int> Database::maps(const std::string& map_) const {
     std::map<std::string, int> result;
 

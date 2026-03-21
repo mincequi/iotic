@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <uvw_iot/ThingProperty.h>
+#include <uvw_iot/ThingType.h>
 
 #include "DatabaseTypes.h"
 
@@ -25,6 +26,9 @@ public:
 
     std::string info() const;
     std::string stat() const;
+
+    std::map<std::string, uvw_iot::ThingType> things() const;
+    void addThing(const std::string_view thingId, uvw_iot::ThingType thingType);
 
     std::map<std::string, int> maps(const std::string& map = {}) const;
     size_t mapSize(std::string_view thingId, uvw_iot::ThingPropertyKey property) const;

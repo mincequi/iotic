@@ -92,7 +92,7 @@ int ConfigRepository::hysteresisFor(int power) const {
 }
 
 std::chrono::minutes ConfigRepository::phaseLimitDuration() const {
-    return std::chrono::minutes(valueOr(Key::phase_limit_duration_minutes, 90));
+    return std::chrono::minutes(valueOr(Key::phase_limit_duration_minutes, 120));
 }
 
 void ConfigRepository::parseConfigFile() {

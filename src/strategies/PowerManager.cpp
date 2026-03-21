@@ -25,27 +25,27 @@ PowerManager::PowerManager(const StrategyRepository& strategyRepository,
         auto strategies = strategyRepository.strategies();
 
         // First, check for step down requests
-        for (auto it = strategies.begin(); it != strategies.end(); ++it) {
+        for (auto it = strategies.rbegin(); it != strategies.rend(); ++it) {
             const auto& strategy = *it;
             if (strategy->wantsToStepDown(siteProperties) && siteProperties.ts >= _lastStepTs + ConfigRepository::stepDownDebounceSeconds) {
                 _lastStepTs = siteProperties.ts;
                 LOG_S(INFO) << strategy->thingId() << "> step down. gridPower: " << siteProperties.longTermGridPower;
                 strategy->adjust(Strategy::Step::Down, siteProperties);
                 // Remove strategy from list to avoid multiple steps in one cycle
-                strategies.erase(it);
+                strategies.erase(std::next(it).base());
                 break;
             }
         }
 
         // Then, check for step up requests in reverse order
-        for (auto it = strategies.rbegin(); it != strategies.rend(); ++it) {
+        for (auto it = strategies.begin(); it != strategies.end(); ++it) {
             const auto& strategy = *it;
             if (strategy->wantsToStepUp(siteProperties) && siteProperties.ts >= _lastStepTs + ConfigRepository::stepUpDebounceSeconds) {
                 _lastStepTs = siteProperties.ts;
                 LOG_S(INFO) << strategy->thingId() << "> step up. gridPower: " << siteProperties.longTermGridPower;
                 strategy->adjust(Strategy::Step::Up, siteProperties);
                 // Remove strategy from list to avoid multiple steps in one cycle
-                strategies.erase(std::next(it).base());
+                strategies.erase(it);
                 break;
             }
         }
