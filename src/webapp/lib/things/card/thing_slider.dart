@@ -10,7 +10,6 @@ import 'thing_slider_track.dart';
 
 class ThingSlider extends StatelessWidget {
   late final _control = Get.find<ThingCardController>(tag: _id);
-  //late final _control = Get.put(ThingCardController(_id));
   final _repo = Get.find<WebSocketService>();
 
   ThingSlider(this._id, {super.key});
@@ -18,14 +17,14 @@ class ThingSlider extends StatelessWidget {
   final String _id;
   final _offsets = [
     "Off",
+    "2 kW",
     "1 kW",
-    "500 W",
     //"300 W",
     //"200 W",
     "0 W",
     //"200 W",
     //"300 W",
-    "500 W",
+    //"500 W",
     //"700 W",
     "1 kW",
     //"1.5 kW",

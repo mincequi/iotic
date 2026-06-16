@@ -7,8 +7,8 @@ static const int defaultOffset = 3;
 
 static const std::vector<int> offsetTable = { // 6th root of ten
     std::numeric_limits<int16_t>::min(),
+    -2000,
     -1000,
-    -500,
     //-400,
     //-300,
     //-200,
@@ -20,7 +20,7 @@ static const std::vector<int> offsetTable = { // 6th root of ten
     //200,
     //300,
     //400,
-    500,
+    //500,
     //700,
     1000,
     //1500, // this prevents from switching off (acutally not)
